@@ -1,0 +1,6 @@
+login;Login
+settings;Settings
+plan;Plan Your Meal NOW!
+searchr;Search Recipe
+searchf;Search Food
+machine;The Cooking Machine

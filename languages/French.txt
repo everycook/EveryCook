@@ -1,0 +1,6 @@
+login;Login*
+settings;Einstellungen*
+plan;Plane jetzt dein Gericht!*
+searchr;Rezept Suchen*
+searchf;Essen Suchen*
+machine;Die Kochmaschiene*
