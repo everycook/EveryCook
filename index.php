@@ -3,7 +3,7 @@
 	<head>
 		<title>EveryCook "The worlds best recipe database"</title>
 		<link rel="stylesheet" type="text/css" href="css/styles.css"/>
-		<meta charset="utf-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<script type="text/javascript" src="js/index.js"></script>
 		<script type="text/javascript">
 		var view = "0";
@@ -64,7 +64,7 @@
 						$db = @ mysql_connect ( $db_server, $db_user, $db_passwort );
 						
 						$db_select = @ mysql_select_db( $db_name );
-						
+						mysql_query("SET NAMES 'utf8'");
 						$sql = 'SELECT * FROM interface_menu ';
 						
 						$ergebnis = mysql_query( $sql );

@@ -6,7 +6,7 @@ if($language=='English'){
 else if($language=='Deutsch'){
 	$language = "DE";
 }
-else if($language=='Francais'){
+else if($language=='Français'){
 	$language = "FR";
 }
 
@@ -25,6 +25,7 @@ $db_passwort = 'test';
 $db = @ mysql_connect ( $db_server, $db_user, $db_passwort );
 
 $db_select = @ mysql_select_db( $db_name );
+mysql_query("SET NAMES 'utf8'");
 
 $sql = 'SELECT * FROM interface_textes WHERE ITE_LANG = "'.$language.'" AND ITE_VIEW = "'.$view.'"';
 
