@@ -52,7 +52,7 @@ a:focus {
 	position:fixed;
 	height:4%;
 	width:10%;
-	background-color:#0f0;
+	background-color:#997F7F;
 	top:5%;
 	left:60%;
 	text-align:center;
@@ -64,7 +64,7 @@ a:focus {
 	position:fixed;
 	height:4%;
 	width:10%;
-	background-color:#0f0;	
+	background-color:#997F7F;	
 	top:5%;
 	left:71%;
 	text-align:center;
@@ -76,7 +76,7 @@ a:focus {
 	position:fixed;
 	height:4%;
 	width:10%;
-	background-color:#0f0;	
+	background-color:#997F7F;	
 	top:5%;
 	left:82%;
 	text-align:center;
@@ -96,7 +96,7 @@ div.index_lang_v {
 	overflow:hidden;
 	position:fixed;
 	width:10%;
-	background-color:#0f0;	
+	background-color:#997F7F;	
 	top:9%;
 	left:82%;
 	text-align:center;
@@ -107,7 +107,7 @@ div.index_lang_v {
 	position:fixed;
 	height:55%;
 	width:55%;
-	background-color:#00f;	
+	background-color:#99B299;	
 	top:10%;
 	left:40%;
 	
@@ -118,7 +118,7 @@ div.index_lang_v {
 	position:fixed;
 	border-top-left-radius:20px;
 	border-bottom-left-radius:20px;
-	background-color:#ff0;
+	background-color:#99B299;
 	width:40%;
 	height:55%;
 	top:10%;
@@ -135,7 +135,7 @@ div.index_lang_v {
 	width:30%;
 	left:10%;
 	top:45%;
-	background-color:#0ff;
+	background-color:#997F7F;
 }
 
 #index_sr {
@@ -147,7 +147,7 @@ div.index_lang_v {
 	position:fixed;
 	height:20%;
 	width:29%;
-	background-color:#f00;	
+	background-color:#997F7F;	
 	bottom:5%;
 	left:5%;
 	text-align:center;
@@ -162,7 +162,7 @@ div.index_lang_v {
 	border-radius:20px;
 	height:20%;
 	width:30%;
-	background-color:#f00;	
+	background-color:#997F7F;	
 	bottom:5%;
 	left:35%;
 	text-align:center;
@@ -176,7 +176,7 @@ div.index_lang_v {
 	position:fixed;
 	height:20%;
 	width:29%;
-	background-color:#f00;
+	background-color:#997F7F;
 	bottom:5%;
 	left:66%;
 	text-align:center;
