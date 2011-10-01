@@ -56,7 +56,7 @@
 			<div id="index_mf">
 				<span id="mf"></span>
 			</div>
-			<div id="index_text_mf"><div id="index_text_mf_t">
+			<div id="index_text_mf">
 				<span id="text_mf"></span>
 			</div>
 			<a href="#" OnClick="ShowView('1')">
