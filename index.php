@@ -5,32 +5,7 @@
 		<link rel="stylesheet" type="text/css" href="css/styles.css"/>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<script type="text/javascript" src="js/jquery-1.6.4.js"></script>
-		<script type="text/javascript">
-			var view = "0";
-			var fields = new Array();
-			function getlang(language) {
-				$.getScript('langmenu.php?language='+language, function() {
-					$('#login').html(fields['IME_LOGIN']);
-					$('#settings').html(fields['IME_SETTINGS']);
-					$('#lang').html(fields['IME_LANGSEL']);	
-				});
-				$.getScript('langview.php?language='+language+'&view='+view, function() {
-					$('#sr').html(fields['ITE_BOTL']);
-					$('#sf').html(fields['ITE_BOTM']);
-					$('#tcm').html(fields['ITE_BOTR']);
-					$('#text_mf').html(fields['ITE_MIDL']);
-					$('#mf').html(fields['ITE_MIDR']);
-				});
-			}
-			getlang('English');
-			$(document).ready(function() {
-				$("#index_lang").hover(function() {
-					$("#index_lang_pick").addClass("index_lang_v");
-				},function(){
-					$("#index_lang_pick").removeClass("index_lang_v");
-				});
-			});
-		</script>
+		<script type="text/javascript" src="js/index.js"></script>
 	</head>
 	<body>
 		<img src="pics/bg.png" alt="Background" id="index_bg"/>
@@ -71,6 +46,7 @@
 			<a href="#" OnClick="ShowView('2')">
 				<div id="index_sf">
 					<div class="index_text_middle">
+					<img src="pics/Bananen.jpg" width="100%" height="100%">
 						<div>
 							<span id="sf"></span>
 						</div>
