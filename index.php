@@ -6,6 +6,9 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<script type="text/javascript" src="js/jquery-1.6.4.js"></script>
 		<script type="text/javascript" src="js/index.js"></script>
+		<?php
+		include 'includes/db.php';
+		?>
 	</head>
 	<body>
 		<img src="pics/bg.png" alt="Background" id="index_bg"/>
@@ -46,7 +49,6 @@
 			<a href="#" OnClick="ShowView('2')">
 				<div id="index_sf">
 					<div class="index_text_middle">
-					<img src="pics/Bananen.jpg" width="100%" height="100%">
 						<div>
 							<span id="sf"></span>
 						</div>
@@ -71,13 +73,7 @@
 				<div id="index_lang_pick" class="index_lang_h">
 					<?php
 						$lang_array;			
-						$db_server = 'localhost';
-						$db_name = '30608_everycook';
-						$db_user = 'root';
-						$db_passwort = 'test';
-						$db = @ mysql_connect ( $db_server, $db_user, $db_passwort );
-						$db_select = @ mysql_select_db( $db_name );
-						mysql_query("SET NAMES 'utf8'");
+						dbx();
 						$sql = 'SELECT * FROM interface_menu ';
 						$ergebnis = mysql_query( $sql );
 						while ($row=mysql_fetch_assoc($ergebnis)){

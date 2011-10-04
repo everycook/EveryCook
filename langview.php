@@ -1,4 +1,5 @@
 <?php
+	include 'includes/db.php';
 	$language=$_GET['language'];
 	if($language=='English'){
 		$language = "EN";
@@ -10,13 +11,7 @@
 		$language = "FR";
 	}
 	$view = $_GET['view'];
-	$db_server = 'localhost';
-	$db_name = '30608_everycook';
-	$db_user = 'root';
-	$db_passwort = 'test';
-	$db = @ mysql_connect ( $db_server, $db_user, $db_passwort );
-	$db_select = @ mysql_select_db( $db_name );
-	mysql_query("SET NAMES 'utf8'");
+	dbx();
 	$sql = 'SELECT * FROM interface_textes WHERE ITE_LANG = "'.$language.'" AND ITE_VIEW = "'.$view.'"';
 	$ergebnis = mysql_query( $sql );
 	$row=mysql_fetch_assoc($ergebnis);
