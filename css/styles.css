@@ -8,27 +8,7 @@ htm, body {
 	overflow:hidden;
 }
 
-a:link {
-	text-decoration:none;
-	color:black;
-}
-
-a:visited {
-	text-decoration:none;
-	color:black;
-}
-
-a:hover {
-	text-decoration:none;
-	color:black;
-}
-
-a:active {
-	text-decoration:none;
-	color:black;
-}
-
-a:focus {
+a:link, a:visited, a:hover, a:active, a:focus  {
 	text-decoration:none;
 	color:black;
 }
@@ -44,6 +24,16 @@ a:focus {
 #index_content {
 	position:relative;
 	z-index:1;
+}
+
+#index_logo{
+	display:table;
+	overflow:hidden;
+	position:fixed;
+	top:2%;
+	left:10%;
+	height: 50px;
+	width: 150px;
 }
 
 #index_log{

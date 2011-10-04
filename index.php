@@ -11,8 +11,17 @@
 		?>
 	</head>
 	<body>
-		<img src="pics/bg.png" alt="Background" id="index_bg"/>
+		<img src="pics/bg.png" alt="Background" id="index_bg">
 		<div id="index_content">
+			<a href="#" OnClick="ShowView('0')">
+				<div id="index_logo">
+					<div class="index_text_middle">
+						<div>
+							<img src="pics/logo.png" alt="EveryCook Logo">
+						</div>
+					</div>
+				</div>
+			</a>
 			<a href="#" OnClick="ShowLogin()">
 				<div id="index_log">
 					<div class="index_text_middle">
