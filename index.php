@@ -6,8 +6,9 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<script type="text/javascript" src="js/jquery-1.6.4.js"></script>
 		<script type="text/javascript" src="js/index.js"></script>
+		<script type="text/javascript" src="js/langpick.js"></script>
 		<?php
-		include 'includes/db.php';
+		include 'includes/db.inc.php';
 		?>
 	</head>
 	<body>
@@ -81,16 +82,7 @@
 				</div>
 				<div id="index_div_lang_p" class="index_div_lang_h">
 					<?php
-						$lang_array;			
-						dbx();
-						$sql = 'SELECT * FROM interface_menu ';
-						$ergebnis = mysql_query( $sql );
-						while ($row=mysql_fetch_assoc($ergebnis)){
-							echo '<a href="#" onClick="getlang(\''.$row['IME_LANG'].'\');">';
-							echo $row['IME_LANGNAME'];
-							echo '</a>';
-							echo "<br>";
-						}
+						langlist();
 					?>
 				</div>
 			</div>
