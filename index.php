@@ -47,7 +47,7 @@
 			<div id="index_div_mf_t">
 				<span id="mf_t"></span>
 			</div>
-			<a href="#" OnClick="ShowView('1')" id="sr_onclick">
+			<a href="#" OnClick="#" id="sr_onclick">
 				<div id="index_div_sr">
 					<div class="index_text_middle">
 						<div>
@@ -56,7 +56,7 @@
 					</div>
 				</div>
 			</a>
-			<a href="#" OnClick="ShowView('2')" id="sf_onclick">
+			<a href="#" OnClick="#" id="sf_onclick">
 				<div id="index_div_sf">
 					<div class="index_text_middle">
 						<div>
@@ -65,7 +65,7 @@
 					</div>
 				</div>
 			</a>
-			<a href="#" OnClick="ShowView('3')" id="tcm_onclick">
+			<a href="#" OnClick="#" id="tcm_onclick">
 				<div id="index_div_tcm">
 					<div class="index_text_middle">
 						<div>
