@@ -1,5 +1,8 @@
 var view = "0";
 function getlang(language) {
+	if (language != localStorage.getItem('lang')){
+		localStorage.setItem('lang', language);
+	}
 	$.getJSON("langmenu.php?language="+language+"&view="+view,function(data) {
 		$('#lang').html(data[2]);
 		$('#settings').html(data[3]);
