@@ -29,9 +29,20 @@
 						<div>
 							<span id="login"></span>
 						</div>
-					</div>
+					</div>					
 				</div>
 			</a>
+			<div class="index_div_login">
+							<form name="login">
+								Username: <input type="text" name="user"><br>
+								Password: <input type="password" name="pass"><br>
+								<a href="#" OnClick="Login()">
+									<div>
+										Anmelden
+									</div>
+								</a>
+							</form>
+						</div>
 			<a href="#" OnClick="ShowSettings()">
 				<div id="index_div_settings">
 					<div class="index_text_middle">
@@ -80,7 +91,7 @@
 						<span id="lang"></span>
 					</div>
 				</div>
-				<div id="index_div_lang_p" class="index_div_lang_h">
+				<div class="index_div_lang">
 					<?php
 						langlist();
 					?>

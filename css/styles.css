@@ -48,6 +48,24 @@ a:link, a:visited, a:hover, a:active, a:focus  {
 	text-align:center;
 }
 
+div.index_div_login{
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-right: 10px;
+	padding-left: 10px;
+	z-index: 1;
+	visibility: hidden;
+	display:table;
+	overflow:hidden;
+	position:fixed;
+	height:auto;
+	width:auto;
+	background-color:#997F7F;
+	top:8.9%;
+	left:60%;
+	text-align:center;
+}
+
 #index_div_settings{
 	display:table;
 	overflow:hidden;
@@ -72,16 +90,8 @@ a:link, a:visited, a:hover, a:active, a:focus  {
 	text-align:center;
 }
 
-div.index_div_lang_h{
+div.index_div_lang {
 	visibility:hidden;
-	display:table;
-	overflow:hidden;
-	position:fixed;
-	width:0%;
-}
-
-div.index_div_lang_v {
-	visibility:visible;
 	display:table;
 	overflow:hidden;
 	position:fixed;

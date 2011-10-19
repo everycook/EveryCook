@@ -6,8 +6,8 @@ else {
 }
 $(document).ready(function() {
 	$("#index_div_lang").hover(function() {
-		$("#index_div_lang_p").addClass("index_div_lang_v");
+		$("div.index_div_lang").css('visibility','visible');
 	},function() {
-		$("#index_div_lang_p").removeClass("index_div_lang_v");
+		$("div.index_div_lang").css('visibility','hidden');
 	});
 });
