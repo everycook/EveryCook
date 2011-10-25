@@ -94,6 +94,7 @@
 				<div class="index_div_lang">
 					<?php
 						langlist();
+						//git change
 					?>
 				</div>
 			</div>
