@@ -8,6 +8,12 @@ htm, body {
 	overflow:hidden;
 }
 
+label {
+	text-align: right;
+	display: block;
+	width: 150px;
+}
+
 a:link, a:visited, a:hover, a:active, a:focus  {
 	text-decoration:none;
 	color:black;
@@ -59,10 +65,46 @@ div.index_div_login{
 	overflow:hidden;
 	position:fixed;
 	height:auto;
-	width:auto;
+	width:25%;
 	background-color:#997F7F;
 	top:8.9%;
 	left:60%;
+	text-align:center;
+}
+
+div.index_div_register{
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-right: 10px;
+	padding-left: 10px;
+	z-index: 1;
+	visibility: hidden;
+	display:table;
+	overflow:hidden;
+	position:fixed;
+	height:auto;
+	width:25%;
+	background-color:#997F7F;
+	top:8.9%;
+	left:60%;
+	text-align:center;
+}
+
+div.index_div_ingredient{
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-right: 10px;
+	padding-left: 10px;
+	z-index: 1;
+	visibility: hidden;
+	display:table;
+	overflow:hidden;
+	position:fixed;
+	height:auto;
+	width:25%;
+	background-color:#997F7F;
+	top:20%;
+	left:50%;
 	text-align:center;
 }
 
@@ -197,4 +239,3 @@ div.index_text_middle {
 	width:100%;
 	overflow:hidden;
 }
-
