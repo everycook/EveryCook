@@ -259,7 +259,7 @@ implements Iterator, Countable
      * Attempt to build and return the feed resulting from the data set
      *
      * @param string $type             The feed type "rss" or "atom" to export as
-		 * @param bool   $ignoreExceptions
+         * @param bool   $ignoreExceptions
      * @return string
      */
     public function export($type, $ignoreExceptions = false)

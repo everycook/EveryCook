@@ -72,7 +72,7 @@ class Zend_Service_WindowsAzure_Storage_TableEntity
      * @param string  $rowKey          Row key
      */
     public function __construct($partitionKey = '', $rowKey = '')
-    {	
+    {    
         $this->_partitionKey = $partitionKey;
         $this->_rowKey       = $rowKey;
     }

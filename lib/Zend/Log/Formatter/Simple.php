@@ -62,10 +62,10 @@ class Zend_Log_Formatter_Simple extends Zend_Log_Formatter_Abstract
     }
 
     /**
-	 * Factory for Zend_Log_Formatter_Simple classe
-	 *
-	 * @param array|Zend_Config $options
-	 * @return Zend_Log_Formatter_Simple
+     * Factory for Zend_Log_Formatter_Simple classe
+     *
+     * @param array|Zend_Config $options
+     * @return Zend_Log_Formatter_Simple
      */
     public static function factory($options)
     {

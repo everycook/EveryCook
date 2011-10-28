@@ -33,10 +33,10 @@ require_once 'Zend/Log/Formatter/Abstract.php';
 class Zend_Log_Formatter_Firebug extends Zend_Log_Formatter_Abstract
 {
     /**
-	 * Factory for Zend_Log_Formatter_Firebug classe
-	 *
+     * Factory for Zend_Log_Formatter_Firebug classe
+     *
      * @param array|Zend_Config $options useless
-	 * @return Zend_Log_Formatter_Firebug
+     * @return Zend_Log_Formatter_Firebug
      */
     public static function factory($options)
     {

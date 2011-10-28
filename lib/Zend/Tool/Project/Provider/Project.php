@@ -127,7 +127,7 @@ class Zend_Tool_Project_Provider_Project
     {
         $testAction = '';
         if (Zend_Tool_Project_Provider_Test::isPHPUnitAvailable()) {
-            $testAction = '                    	<testApplicationActionMethod forActionName="index" />';
+            $testAction = '                        <testApplicationActionMethod forActionName="index" />';
         }
         
         $version = Zend_Version::VERSION;
@@ -198,7 +198,7 @@ class Zend_Tool_Project_Provider_Project
 $testAction
                     </testApplicationControllerFile>
                 </testApplicationControllerDirectory>
-      	    </testApplicationDirectory>
+              </testApplicationDirectory>
             <testLibraryDirectory />
         </testsDirectory>
     </projectDirectory>

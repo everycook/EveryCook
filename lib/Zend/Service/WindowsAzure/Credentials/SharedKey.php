@@ -154,28 +154,28 @@ class Zend_Service_WindowsAzure_Credentials_SharedKey
             }
         }
 
-		// Create string to sign
-		$stringToSign   = array();
-		$stringToSign[] = strtoupper($httpVerb); 									// VERB
-    	$stringToSign[] = $this->_issetOr($headers, 'Content-Encoding', '');		// Content-Encoding
-    	$stringToSign[] = $this->_issetOr($headers, 'Content-Language', '');		// Content-Language
-    	$stringToSign[] = $contentLength; 											// Content-Length
-    	$stringToSign[] = $this->_issetOr($headers, 'Content-MD5', '');				// Content-MD5
-    	$stringToSign[] = $this->_issetOr($headers, 'Content-Type', '');			// Content-Type
-    	$stringToSign[] = "";														// Date
-    	$stringToSign[] = $this->_issetOr($headers, 'If-Modified-Since', '');		// If-Modified-Since
-    	$stringToSign[] = $this->_issetOr($headers, 'If-Match', '');				// If-Match
-    	$stringToSign[] = $this->_issetOr($headers, 'If-None-Match', '');			// If-None-Match
-    	$stringToSign[] = $this->_issetOr($headers, 'If-Unmodified-Since', '');		// If-Unmodified-Since
-    	$stringToSign[] = $this->_issetOr($headers, 'Range', '');					// Range
-    	
-    	if (!$forTableStorage && count($canonicalizedHeaders) > 0) {
-    		$stringToSign[] = implode("\n", $canonicalizedHeaders); // Canonicalized headers
-    	}
-    		
-    	$stringToSign[] = $canonicalizedResource;		 			// Canonicalized resource
-    	$stringToSign   = implode("\n", $stringToSign);
-    	$signString     = base64_encode(hash_hmac('sha256', $stringToSign, $this->_accountKey, true));
+        // Create string to sign
+        $stringToSign   = array();
+        $stringToSign[] = strtoupper($httpVerb);                                     // VERB
+        $stringToSign[] = $this->_issetOr($headers, 'Content-Encoding', '');        // Content-Encoding
+        $stringToSign[] = $this->_issetOr($headers, 'Content-Language', '');        // Content-Language
+        $stringToSign[] = $contentLength;                                             // Content-Length
+        $stringToSign[] = $this->_issetOr($headers, 'Content-MD5', '');                // Content-MD5
+        $stringToSign[] = $this->_issetOr($headers, 'Content-Type', '');            // Content-Type
+        $stringToSign[] = "";                                                        // Date
+        $stringToSign[] = $this->_issetOr($headers, 'If-Modified-Since', '');        // If-Modified-Since
+        $stringToSign[] = $this->_issetOr($headers, 'If-Match', '');                // If-Match
+        $stringToSign[] = $this->_issetOr($headers, 'If-None-Match', '');            // If-None-Match
+        $stringToSign[] = $this->_issetOr($headers, 'If-Unmodified-Since', '');        // If-Unmodified-Since
+        $stringToSign[] = $this->_issetOr($headers, 'Range', '');                    // Range
+        
+        if (!$forTableStorage && count($canonicalizedHeaders) > 0) {
+            $stringToSign[] = implode("\n", $canonicalizedHeaders); // Canonicalized headers
+        }
+            
+        $stringToSign[] = $canonicalizedResource;                     // Canonicalized resource
+        $stringToSign   = implode("\n", $stringToSign);
+        $signString     = base64_encode(hash_hmac('sha256', $stringToSign, $this->_accountKey, true));
 
         // Sign request
         $headers[Zend_Service_WindowsAzure_Credentials_CredentialsAbstract::PREFIX_STORAGE_HEADER . 'date'] = $requestDate;

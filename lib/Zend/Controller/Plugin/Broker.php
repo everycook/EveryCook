@@ -312,8 +312,8 @@ class Zend_Controller_Plugin_Broker extends Zend_Controller_Plugin_Abstract
                     throw new Zend_Controller_Exception($e->getMessage() . $e->getTraceAsString(), $e->getCode(), $e);
                 } else {
                     $this->getResponse()->setException($e);
-					// skip rendering of normal dispatch give the error handler a try
-					$this->getRequest()->setDispatched(false);
+                    // skip rendering of normal dispatch give the error handler a try
+                    $this->getRequest()->setDispatched(false);
                 }
             }
         }

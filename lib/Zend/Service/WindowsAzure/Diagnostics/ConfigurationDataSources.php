@@ -75,10 +75,10 @@ class Zend_Service_WindowsAzure_Diagnostics_ConfigurationDataSources
     /**
      * Constructor
      *
-	 * @param	int	$overallQuotaInMB				Overall quota in MB
-	 */
+     * @param    int    $overallQuotaInMB                Overall quota in MB
+     */
     public function __construct($overallQuotaInMB = 0)
-    {	
+    {    
         $this->_data = array(
             'overallquotainmb'             => $overallQuotaInMB,
             'logs'                         => new Zend_Service_WindowsAzure_Diagnostics_ConfigurationLogs(),

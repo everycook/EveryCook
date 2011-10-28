@@ -229,7 +229,7 @@ EOS;
             $contents = <<<EOS
 <br /><br />
 <div id="view-content">
-	<p>View script for controller <b>$controllerName</b> and script/action name <b>$actionName</b></p>
+    <p>View script for controller <b>$controllerName</b> and script/action name <b>$actionName</b></p>
 </div>
 EOS;
         }

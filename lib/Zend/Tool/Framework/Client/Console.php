@@ -120,8 +120,8 @@ class Zend_Tool_Framework_Client_Console
     }
 
     /**
-		 * @param array $classesToLoad
-		 */
+         * @param array $classesToLoad
+         */
     public function setClassesToLoad($classesToLoad)
     {
         $this->_classesToLoad = $classesToLoad;
