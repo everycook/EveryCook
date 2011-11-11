@@ -11,6 +11,17 @@ function dbset() {
 }
 
 function langlist() {
+/*
+    $connection=new CDbConnection('mysql:host=localhost;dbname=30608_everycook','30608_everycook','3veryC00k');
+    $connection->active=true;
+    $sql = 'SELECT * FROM interface_menu';
+    $command=$connection->createCommand($sql);
+    foreach($reader as $row){
+        echo $row[1];
+    }
+    */
+
+
     $lang_array;            
     dbset();
     $sql = 'SELECT * FROM interface_menu';
@@ -21,5 +32,6 @@ function langlist() {
         echo '</a>';
         echo "<br>";
     }
+    
 }
 ?>

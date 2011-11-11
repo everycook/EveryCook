@@ -4,6 +4,6 @@
     // Yii-Startdatei einbinden
     require_once('lib/yii/framework/yii.php');
     // Instanz einer Applikation erzeugen und starten
-    //$configFile='path/to/config/file.php';
+    $configFile='protected/config/main.php';
     Yii::createWebApplication()->run();
 ?>
