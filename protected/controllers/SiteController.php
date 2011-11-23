@@ -18,11 +18,8 @@ class SiteController extends CController
                 <link rel="stylesheet" type="text/css" href="protected/css/styles.css"/>
                 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                 <script type="text/javascript" src="lib/jquery/jquery-1.6.4.js"></script>
-                <script type="text/javascript" src="protected/controllers/ViewController.js"></script>
-                <script type="text/javascript" src="protected/controllers/LoginController.js"></script>
-                <script type="text/javascript" src="protected/controllers/RegisterController.js"></script>
-                <script type="text/javascript" src="protected/controllers/IngredientController.js"></script>
                 <script type="text/javascript" src="protected/index.js"></script>
+                <script type="text/javascript" src="protected/profile/langpick.js"></script>
                 <?php
                     include 'protected/db/db.php';
                 ?>
@@ -30,7 +27,7 @@ class SiteController extends CController
             <body>
                 <img src="protected/pics/bg.png" alt="Background" id="index_pic_bg">
                 <div id="index_div_content">
-                    <a href="#" OnClick='ShowView("0")'>
+                    <a href="#" OnClick="ingredient()">
                         <div>
                             <div class="index_text_middle">
                                 <div>
@@ -39,7 +36,7 @@ class SiteController extends CController
                             </div>
                         </div>
                     </a>
-                    <a href="#" OnClick='ShowView("1")'>
+                    <a href="#" OnClick="ShowLogin()">
                         <div id="index_div_login">
                             <div class="index_text_middle">
                                 <div>
@@ -50,69 +47,50 @@ class SiteController extends CController
                     </a>
                     <div class="index_div_login">
                         <form name="form_login">
-                            <table>
-                                <tr>
-                                	<td></td>
-                                    <td><a href="#" OnClick="ShowView(8)"><div><span id="loginRegister"></span></div></a></td>
-                                </tr>
-                                <tr>
-                                    <td><label for="user"><span id="loginUser"></span></label></td>
-                                    <td><input type="text" id="user" name="user"></td>
-                                </tr>
-                                <tr>
-                                    <td><label for="pass"><span id="loginPass"></span></label></td>
-                                    <td><input type="password" id="pass" name="pass"></td>
-                                </tr>
-                                <tr>
-                                    <td></td>
-                                    <td><input type="button" id="loginButton" OnClick="Login() value=""></td>
-                                </tr>
-                            </table>
+                            <a href="#" OnClick="register()">
+                                <div>
+                                    <span id="loginRegister"></span>
+                                </div>
+                            </a>
+                            <label for="user"><span id="loginUser"></span></label>
+                            <input type="text" id="user" name="user"><br>
+                            <label for="pass"><span id="loginPass"></span></label>
+                            <input type="password" id="pass" name="pass"><br><br>
+                            <a href="#" id="loginButton" OnClick="Login()">
+                                <div>
+                                    <span id="loginSent"></span>
+                                </div>
+                            </a>
                         </form>
                     </div>
                     <div class="index_div_register">
                         <form name="form_register">
-                            <table>
-                            	<tr>
-                                    <td><label for="firstname"><span id="registerFirstname"></span></label></td>
-                                    <td><input onkeyup="sregister()" type="text" id="firstname" name="fname" value="Ihr Vorname"></td>
-                                    <td><span class="error" id="errorRegisterFirstname"></span></td>
-                                </tr>
-                                <tr>
-                                    <td><label for="lastname"><span id="registerLastname"></span></label></td>
-                                    <td><input onkeyup="sregister()" type="text" id="lastname" name="lname" value="Ihr Nachname"></td>
-                                    <td><span class="error" id="errorRegisterLastname"></span></td>
-                                </tr>
-                                <tr>   
-                                    <td><label for="username"><span id="registerUsername"></span></label></td>
-                                    <td><input onkeyup="sregister()" type="text" id="username" name="uname" value="Gewünschter Benutzername"></td>
-                                    <td><span class="error" id="errorRegisterUsername"></span>
-                                    <span class="error" id="errorRegisterUserExist"></span></td>
-                                </tr>
-                                <tr>    
-                                    <td><label for="e-mail"><span id="registerEmail"></span></label></td>
-                                    <td><input onkeyup="sregister()" type="text" id="e-mail" name="email" value="Ihre E-Mail Adresse"></td>
-                                    <td><span class="error" id="errorRegisterEmail"></span>
-                                    <span class="error" id="errorRegisterMailExist"></span></td>
-                                </tr>
-                                <tr>    
-                                    <td><label for="password1"><span id="registerPass"></span></label></td>
-                                    <td><input onkeyup="sregister()" type="password" id="password1" name="pass1"></td>
-                                    <td><span class="error" id="errorRegisterPass"></span></td>
-                                </tr>
-                                <tr>    
-                                    <td><label for="password2"><span id="registerPassT"></span></label></td>
-                                    <td><input onkeyup="sregister()" type="password" id="password2" name="pass2"></td>
-                                    <td><span class="error" id="errorRegisterPassT"></span></td>
-                                </tr>
-                                <tr>
-                                	<td></td>
-                                	<td><input id="sBRegister" type="button" OnClick="" value=""></td>
-                                	<td><span class="error" id="errorRegisterfields"></span></td>
-                                </tr>
-                            </table>
+                        <label for="firstname"><span id="registerFirstname"></span></label>
+                        <input onkeyup="sregister()" type="text" id="firstname" name="fname" value="Ihr Vorname"><br>
+                        <span class="error" id="errorRegisterFirstname"></span><br>
+                        <label for="lastname"><span id="registerLastname"></span></label>
+                        <input onkeyup="sregister()" type="text" id="lastname" name="lname" value="Ihr Nachname"><br>
+                        <span class="error" id="errorRegisterLastname"></span><br>
+                        <label for="username"><span id="registerUsername"></span></label>
+                        <input onkeyup="sregister()" type="text" id="username" name="uname" value="Gewünschter Benutzername"><br>
+                        <span class="error" id="errorRegisterUsername"></span><br>
+                        <label for="e-mail"><span id="registerEmail"></span></label>
+                        <input onkeyup="sregister()" type="text" id="e-mail" name="email" value="Ihre E-Mail Adresse"><br>
+                        <span class="error" id="errorRegisterEmail"></span><br>
+                        <label for="password1"><span id="registerPass"></span></label>
+                        <input onkeyup="sregister()" type="password" id="password1" name="pass1"><br>
+                        <span class="error" id="errorRegisterPass"></span><br>
+                        <label for="password2"><span id="registerPassT"></span></label>
+                        <input onkeyup="sregister()" type="password" id="password2" name="pass2"><br>
+                        <span class="error" id="errorRegisterPassT"></span><br>
                         </form>
-                    </div>   
+                        <a href="#" id="sBRegister" OnClick="">
+                            <span class="error" id="errorRegisterfields"></span><br>
+                            <div>
+                                <span id="registerSent"></span>
+                            </div>
+                        </a>
+                    </div>
                     <a href="#" OnClick="ShowSettings()">
                         <div id="index_div_settings">
                             <div class="index_text_middle">
@@ -155,49 +133,36 @@ class SiteController extends CController
                             </div>
                         </div>
                     </a>
-                    <a href="#" OnClick='ShowView("3")'>
-                    	<div id="index_div_lang">
-                            <div class="index_text_middle">
-                                <div>
-                                    <span id="lang"></span>
-                                </div>
+                    <div id="index_div_lang">
+                        <div class="index_text_middle">
+                            <div>
+                                <span id="lang"></span>
                             </div>
-                    	</div>
-                    </a>
-                    <div class="index_div_lang">
+                        </div>
+                        <div class="index_div_lang">
                             <?php
                                 langlist();
                             ?>
                         </div>
+                    </div>
                     <div class="index_div_ingredient">
                         <form name="form_ingredent">
-                        	<table>
-                        		<tr>
-                                    <td><label for="nut_id">Nut_ID:</label></td>
-                                    <td><input type="text" id="nut_id" name="nut_id"></td>
-                                </tr>
-                                <tr>
-                                    <td><label for="ing_pic">Bild auswählen:</label></td>
-                                    <td><input type="file" id="ing_pic" name="ing_pic" size="20"></td>
-                                </tr>
-                                <tr>    
-                                    <td><label for="pic_auth">Bild-Author:</label></td>
-                                    <td><input type="text" id="pic_auth" name="pic_auth"></td>
-                                </tr>
-                                <tr>    
-                                    <td><label for="ing_tit_EN">Inggredient Title EN:</label></td>
-                                    <td><input type="text" id="ing_tit_EN" name="ing_tit_EN"></td>
-                                </tr>
-                                <tr>   
-                                    <td><label for="ing_tit_DE">Inggredient Title DE:</label></td>
-                                    <td><input type="text" id="ing_tit_DE" name="ing_tit_DE"></td>
-                                </tr>
-                                <tr>
-                                	<td></td>
-                                	<td><input id="sBIngredient" type="button" OnClick="singredent()" value="sent"></td>
-                                </tr>   
-                            </table>
+                            <label for="nut_id">Nut_ID:</label>
+                            <input type="text" id="nut_id" name="nut_id"><br>
+                            <label for="ing_pic">Bild auswählen:</label>
+                            <input type="file" id="ing_pic" name="ing_pic" size="20"><br>
+                            <label for="pic_auth">Bild-Author:</label>
+                            <input type="text" id="pic_auth" name="pic_auth"><br>
+                            <label for="ing_tit_EN">Inggredient Title EN:</label>
+                            <input type="text" id="ing_tit_EN" name="ing_tit_EN"><br>
+                            <label for="ing_tit_DE">Inggredient Title DE:</label>
+                            <input type="text" id="ing_tit_DE" name="ing_tit_DE"><br>
                         </form>
+                        <a href="#" OnClick="singredent()">
+                            <div>
+                                Sent
+                            </div>
+                        </a>
                     </div>
                 </div>
             </body>
