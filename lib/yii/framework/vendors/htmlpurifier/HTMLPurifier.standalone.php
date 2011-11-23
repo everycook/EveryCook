@@ -638,7 +638,7 @@ class HTMLPurifier_AttrTypes
      * @param $impl Object AttrDef for type
      */
     public function set($type, $impl) {
-        $this->info[$type] = $impl;
+        $this->info[$type] = $impl;
     }
 }
 
@@ -11232,7 +11232,7 @@ class HTMLPurifier_ChildDef_Required extends HTMLPurifier_ChildDef
  *       really, one shouldn't inherit from the other.  Only altered behavior
  *       is to overload a returned false with an array.  Thus, it will never
  *       return false.
- */
+ */
 class HTMLPurifier_ChildDef_Optional extends HTMLPurifier_ChildDef_Required
 {
     public $allow_empty = true;
@@ -12134,7 +12134,7 @@ class HTMLPurifier_HTMLModule_Image extends HTMLPurifier_HTMLModule
         $max = $config->get('HTML.MaxImgLength');
         $img = $this->addElement(
             'img', 'Inline', 'Empty', 'Common',
-            array(
+            array(
                 'alt*' => 'Text',
                 // According to the spec, it's Length, but percents can
                 // be abused, so we allow only Pixels.
@@ -12530,7 +12530,7 @@ class HTMLPurifier_HTMLModule_Ruby extends HTMLPurifier_HTMLModule
 
     public function setup($config) {
         $this->addElement('ruby', 'Inline',
-            'Custom: ((rb, (rt | (rp, rt, rp))) | (rbc, rtc, rtc?))',
+            'Custom: ((rb, (rt | (rp, rt, rp))) | (rbc, rtc, rtc?))',
             'Common');
         $this->addElement('rbc', false, 'Required: rb', 'Common');
         $this->addElement('rtc', false, 'Required: rt', 'Common');

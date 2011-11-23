@@ -1,7 +1,6 @@
 htm, body {
     font-family:sans-serif;
     font-weight:bold;
-    font-size:1em;
     margin:0;
     padding:0;
     width:100%;
@@ -9,10 +8,38 @@ htm, body {
     overflow:hidden;
 }
 
+#errorRegisterFirstname {
+    visibility:hidden;
+}
+
+#errorRegisterLastname {
+    visibility:hidden;
+}
+
+#errorRegisterUsername {
+    visibility:hidden;
+}
+
+#errorRegisterEmail {
+    visibility:hidden;
+}
+
+#errorRegisterPass {
+    visibility:hidden;
+}
+
+#errorRegisterPassT {
+    visibility:hidden;
+}
+
+#errorRegisterfields {
+    visibility:hidden;
+}
+
 label {
     text-align: right;
     display: block;
-    width:;
+    width: 150px;
 }
 
 a:link, a:visited, a:hover, a:active, a:focus  {
@@ -21,7 +48,7 @@ a:link, a:visited, a:hover, a:active, a:focus  {
 }
 
 span.error {
-    font-size: 0.6em;
+    font-size: 11px;
     color:red;
 }
 #index_pic_bg {
@@ -46,7 +73,6 @@ span.error {
 }
 
 #index_div_login{
-    font-size:1.2em;
     display:table;
     overflow:hidden;
     position:fixed;
@@ -59,56 +85,60 @@ span.error {
 }
 
 div.index_div_login{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+    padding-left: 10px;
     z-index: 1;
     visibility: hidden;
     display:table;
     overflow:hidden;
     position:fixed;
-    height:55%;
-    width:90%;
-    background-color:#99B299;
-    top:10%;
-    left:5%;
+    height:auto;
+    width:25%;
+    background-color:#997F7F;
+    top:8.9%;
+    left:60%;
     text-align:center;
-    border-top-left-radius:20px;
-    border-bottom-left-radius:20px;
 }
 
 div.index_div_register{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+    padding-left: 10px;
     z-index: 1;
     visibility: hidden;
     display:table;
     overflow:hidden;
     position:fixed;
-    height:55%;
-    width:90%;
-    background-color:#99B299;
-    top:10%;
-    left:5%;
-    text-align:left;
+    height:auto;
+    width:25%;
+    background-color:#997F7F;
+    top:8.9%;
+    left:60%;
     text-align:center;
-    border-top-left-radius:20px;
-    border-bottom-left-radius:20px;
 }
 
 div.index_div_ingredient{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+    padding-left: 10px;
     z-index: 1;
     visibility: hidden;
     display:table;
     overflow:hidden;
     position:fixed;
-    height:55%;
-    width:90%;
-    background-color:#99B299;
-    top:10%;
-    left:5%;
+    height:auto;
+    width:25%;
+    background-color:#997F7F;
+    top:20%;
+    left:50%;
     text-align:center;
-    border-top-left-radius:20px;
-    border-bottom-left-radius:20px;
 }
 
 #index_div_settings{
-    font-size:1.2em;
     display:table;
     overflow:hidden;
     position:fixed;
@@ -121,7 +151,6 @@ div.index_div_ingredient{
 }
 
 #index_div_lang {
-    font-size:1.2em;
     display:table;
     overflow:hidden;
     position:fixed;
@@ -134,17 +163,14 @@ div.index_div_ingredient{
 }
 
 div.index_div_lang {
-    z-index: 2;
-    font-size:1em;
     visibility:hidden;
     display:table;
     overflow:hidden;
     position:fixed;
-    height: 55%;
-    width:90%;
-    background-color:#99B299;    
-    top:10%;
-    left: 5%;
+    width:10%;
+    background-color:#997F7F;    
+    top:8.9%;
+    left:82%;
     text-align:center;
 }
 
@@ -181,7 +207,7 @@ div.index_div_lang {
 }
 
 #index_div_pymn {
-    font-size:1.4em;
+    font-size:40px;
     display:table;
     overflow:hidden;
     text-align:center;
@@ -194,7 +220,7 @@ div.index_div_lang {
 }
 
 #index_div_sr {
-    font-size:1.4em;
+    font-size:40px;
     display:table;
     overflow:hidden;
     border-radius:20px;
@@ -209,7 +235,7 @@ div.index_div_lang {
 }
 
 #index_div_sf {
-    font-size:1.4em;
+    font-size:40px;
     display:table;
     position:fixed;
     overflow:hidden;
@@ -223,7 +249,7 @@ div.index_div_lang {
 }
 
 #index_div_tcm {
-    font-size:1.4em;
+    font-size:40px;
     display:table;
     overflow:hidden;
     border-radius:20px;
