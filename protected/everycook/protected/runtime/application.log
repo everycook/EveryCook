@@ -1,0 +1,228 @@
+2011/11/21 20:32:28 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii
+2011/11/21 20:33:11 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii
+2011/11/21 20:34:29 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii
+2011/11/21 20:34:34 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii
+2011/11/21 20:42:21 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'Unable to resolve the request "yii".' in /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php:281
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('yii')
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#2 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#3 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=yii
+2011/11/21 20:42:36 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii
+2011/11/21 20:47:29 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii
+2011/11/21 20:50:02 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii
+2011/11/21 20:51:16 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii
+2011/11/21 20:53:12 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii
+2011/11/21 20:53:40 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii
+2011/11/21 20:54:59 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii
+2011/11/21 20:56:49 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii
+2011/11/21 21:01:02 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii
+2011/11/21 21:02:20 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii
+2011/11/21 21:35:22 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'The system is unable to find the requested action "ingredients".' in /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php:477
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(262): CController->missingAction('ingredients')
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('ingredients')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('site/ingredient...')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=site/ingredients
+2011/11/21 21:35:26 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'The system is unable to find the requested action "ingredient".' in /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php:477
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(262): CController->missingAction('ingredient')
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('ingredient')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('site/ingredient')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=site/ingredient
+2011/11/21 21:37:44 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'The system is unable to find the requested action "ingredients".' in /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php:477
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(262): CController->missingAction('ingredients')
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('ingredients')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('site/ingredient...')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=site/ingredients
+2011/11/21 21:45:49 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii
+2011/11/21 21:45:54 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii
+2011/11/21 21:46:21 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not authorized to perform this action.' in /home/millas/public_html/TestMFL/lib/yii/framework/web/auth/CAccessControlFilter.php:158
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/auth/CAccessControlFilter.php(120): CAccessControlFilter->accessDenied(Object(CWebUser), 'You are not aut...')
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/filters/CFilter.php(39): CAccessControlFilter->preFilter(Object(CFilterChain))
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(1144): CFilter->filter(Object(CFilterChain))
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/web/filters/CInlineFilter.php(59): CController->filterAccessControl(Object(CFilterChain))
+#4 /home/millas/public_html/TestMFL/lib/yii/framework/web/filters/CFilterChain.php(131): CInlineFilter->filter(Object(CFilterChain))
+#5 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(283): CFilterChain->run()
+#6 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(257): CController->runActionWithFilters(Object(CInlineAction), Array)
+#7 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('admin')
+#8 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('suppliers/admin')
+#9 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#10 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#11 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=suppliers/admin
+2011/11/21 21:58:29 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not authorized to perform this action.' in /home/millas/public_html/TestMFL/lib/yii/framework/web/auth/CAccessControlFilter.php:158
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/auth/CAccessControlFilter.php(120): CAccessControlFilter->accessDenied(Object(CWebUser), 'You are not aut...')
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/filters/CFilter.php(39): CAccessControlFilter->preFilter(Object(CFilterChain))
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(1144): CFilter->filter(Object(CFilterChain))
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/web/filters/CInlineFilter.php(59): CController->filterAccessControl(Object(CFilterChain))
+#4 /home/millas/public_html/TestMFL/lib/yii/framework/web/filters/CFilterChain.php(131): CInlineFilter->filter(Object(CFilterChain))
+#5 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(283): CFilterChain->run()
+#6 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(257): CController->runActionWithFilters(Object(CInlineAction), Array)
+#7 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('admin')
+#8 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('suppliers/admin')
+#9 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#10 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#11 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=suppliers/admin
+2011/11/21 22:13:09 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'Unable to resolve the request "supliers".' in /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php:281
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('supliers')
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#2 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#3 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=supliers
+2011/11/22 09:31:38 [error] [system.db.CDbCommand] CDbCommand::fetchAll() failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table '30608_everycook.producerss' doesn't exist. The SQL statement executed was: SHOW COLUMNS FROM `producerss`.
+in /home/millas/public_html/TestMFL/protected/everycook/index.php (13)
+2011/11/22 09:32:59 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'Unable to resolve the request "producers".' in /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php:281
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('producers')
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#2 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#3 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=producers
+2011/11/22 09:33:09 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'The system is unable to find the requested action "producers".' in /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php:477
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(262): CController->missingAction('producers')
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('producers')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('site/producers')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=site/producers
+2011/11/22 09:33:15 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'Unable to resolve the request "producer".' in /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php:281
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('producer')
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#2 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#3 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=producer
+2011/11/22 09:33:25 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'Unable to resolve the request "producers".' in /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php:281
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('producers')
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#2 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#3 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=producers
+2011/11/22 23:53:47 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not allowed to access this page.' in /home/millas/public_html/TestMFL/lib/yii/framework/gii/GiiModule.php:163
+Stack trace:
+#0 /home/millas/public_html/TestMFL/lib/yii/framework/web/CController.php(255): GiiModule->beforeControllerAction(Object(DefaultController), Object(CInlineAction))
+#1 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(277): CController->run('logout')
+#2 /home/millas/public_html/TestMFL/lib/yii/framework/web/CWebApplication.php(136): CWebApplication->runController('gii/default/log...')
+#3 /home/millas/public_html/TestMFL/lib/yii/framework/base/CApplication.php(158): CWebApplication->processRequest()
+#4 /home/millas/public_html/TestMFL/protected/everycook/index.php(13): CApplication->run()
+#5 {main} REQUEST_URI=/TestMFL/protected/everycook/index.php?r=gii/default/logout
