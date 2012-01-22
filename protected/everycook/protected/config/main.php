@@ -24,10 +24,10 @@ return array(
 		'gii'=>array(
 			'class'=>'system.gii.GiiModule',
 			'password'=>'3veryC00k',
-		 	// If removed, Gii defaults to localhost only. Edit carefully to taste.
+			// If removed, Gii defaults to localhost only. Edit carefully to taste.
 			'ipFilters'=>array('127.0.0.1'
-			                   ,'77.58.254.125'
-			                   ,'91.138.69.214'
+			                   ,'178.83.199.252'
+			                   ,'91.138.81.201'
 	                           ,'::1'),
 		),
 		
@@ -60,8 +60,8 @@ return array(
 		'db'=>array(
 			'connectionString' => 'mysql:host=localhost;dbname=30608_everycook',
 			'emulatePrepare' => true,
-			'username' => '***',
-			'password' => '***',
+			'username' => '30608_everycook',
+			'password' => '3veryC00k',
 			'charset' => 'utf8',
 		),
 		

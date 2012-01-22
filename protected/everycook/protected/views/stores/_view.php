@@ -13,7 +13,9 @@
 	<br />
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('SUP_ID')); ?>:</b>
-	<?php echo CHtml::encode($data->SUP_ID); ?>
+	<!-- STL link to Suppliers View -->
+	<?php echo CHtml::link($data->SUP_ID,CController::createUrl('suppliers/view&id='.$data->SUP_ID)); ?>
+	<!--<?php echo CHtml::encode($data->SUP_ID); ?>-->
 	<br />
 
 
