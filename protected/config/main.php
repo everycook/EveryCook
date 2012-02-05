@@ -7,7 +7,7 @@
 // CWebApplication properties can be configured here.
 return array(
 	'basePath'=>dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
-	'name'=>'My Web Application',
+	'name'=>'EveryCook',
 
 	// preloading 'log' component
 	'preload'=>array('log'),
@@ -26,8 +26,6 @@ return array(
 			'password'=>'3veryC00k',
 			// If removed, Gii defaults to localhost only. Edit carefully to taste.
 			'ipFilters'=>array('127.0.0.1'
-			                   ,'178.83.199.252'
-			                   ,'91.138.81.201'
 	                           ,'::1'),
 		),
 		
@@ -40,16 +38,17 @@ return array(
 			'allowAutoLogin'=>true,
 		),
 		// uncomment the following to enable URLs in path-format
-		/*
+		
 		'urlManager'=>array(
 			'urlFormat'=>'path',
 			'rules'=>array(
+				'<controller:\w+>'=>'<controller>/index',
 				'<controller:\w+>/<id:\d+>'=>'<controller>/view',
 				'<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
 				'<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
 			),
 		),
-		*/
+		
 		/*
 		'db'=>array(
 			'connectionString' => 'sqlite:'.dirname(__FILE__).'/../data/testdrive.db',
@@ -58,10 +57,10 @@ return array(
 		// uncomment the following to use a MySQL database
 		
 		'db'=>array(
-			'connectionString' => 'mysql:host=localhost;dbname=30608_everycook',
+			'connectionString' => 'mysql:host=localhost;dbname=everycook',
 			'emulatePrepare' => true,
-			'username' => '30608_everycook',
-			'password' => '3veryC00k',
+			'username' => 'root',
+			'password' => '',
 			'charset' => 'utf8',
 		),
 		
