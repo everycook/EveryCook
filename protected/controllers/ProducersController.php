@@ -50,7 +50,7 @@ class ProducersController extends Controller
 	 */
 	public function actionView($id)
 	{
-		$this->render('view',array(
+		$this->checkRenderAjax('view',array(
 			'model'=>$this->loadModel($id),
 		));
 	}
@@ -73,7 +73,7 @@ class ProducersController extends Controller
 				$this->redirect(array('view','id'=>$model->PRD_ID));
 		}
 
-		$this->render('create',array(
+		$this->checkRenderAjax('create',array(
 			'model'=>$model,
 		));
 	}
@@ -97,7 +97,7 @@ class ProducersController extends Controller
 				$this->redirect(array('view','id'=>$model->PRD_ID));
 		}
 
-		$this->render('update',array(
+		$this->checkRenderAjax('update',array(
 			'model'=>$model,
 		));
 	}
@@ -128,7 +128,7 @@ class ProducersController extends Controller
 	public function actionIndex()
 	{
 		$dataProvider=new CActiveDataProvider('Producers');
-		$this->render('index',array(
+		$this->checkRenderAjax('index',array(
 			'dataProvider'=>$dataProvider,
 		));
 	}
@@ -143,7 +143,7 @@ class ProducersController extends Controller
 		if(isset($_GET['Producers']))
 			$model->attributes=$_GET['Producers'];
 
-		$this->render('admin',array(
+		$this->checkRenderAjax('admin',array(
 			'model'=>$model,
 		));
 	}

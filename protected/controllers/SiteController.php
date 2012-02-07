@@ -23,7 +23,7 @@ class SiteController extends Controller
 
 	public function actionAdmin()
 	{
-		$this->render('admin');
+		$this->checkRenderAjax('admin');
 	}
 	
 	/**
@@ -34,7 +34,7 @@ class SiteController extends Controller
 	{
 		// renders the view file 'protected/views/site/index.php'
 		// using the default layout 'protected/views/layouts/main.php'
-		$this->render('index');
+		$this->checkRenderAjax('index');
 	}
 
 	/**
@@ -47,7 +47,7 @@ class SiteController extends Controller
 	    	if(Yii::app()->request->isAjaxRequest)
 	    		echo $error['message'];
 	    	else
-	        	$this->render('error', $error);
+	        	$this->checkRenderAjax('error', $error);
 	    }
 	}
 
@@ -68,7 +68,7 @@ class SiteController extends Controller
 				$this->refresh();
 			}
 		}
-		$this->render('contact',array('model'=>$model));
+		$this->checkRenderAjax('contact',array('model'=>$model));
 	}
 
 	/**
@@ -94,7 +94,7 @@ class SiteController extends Controller
 				$this->redirect(Yii::app()->user->returnUrl);
 		}
 		// display the login form
-		$this->render('login',array('model'=>$model));
+		$this->checkRenderAjax('login',array('model'=>$model));
 	}
 
 	/**
