@@ -42,7 +42,7 @@ class ProfilesController extends Controller
 	 */
 	public function actionView($id)
 	{
-		$this->render('view',array(
+		$this->checkRenderAjax('view',array(
 			'model'=>$this->loadModel($id),
 		));
 	}
@@ -65,7 +65,7 @@ class ProfilesController extends Controller
 				$this->redirect(array('view','id'=>$model->PRF_UID));
 		}
 
-		$this->render('create',array(
+		$this->checkRenderAjax('create',array(
 			'model'=>$model,
 		));
 	}
@@ -89,7 +89,7 @@ class ProfilesController extends Controller
 				$this->redirect(array('view','id'=>$model->PRF_UID));
 		}
 
-		$this->render('update',array(
+		$this->checkRenderAjax('update',array(
 			'model'=>$model,
 		));
 	}
@@ -120,7 +120,7 @@ class ProfilesController extends Controller
 	public function actionIndex()
 	{
 		$dataProvider=new CActiveDataProvider('Profiles');
-		$this->render('index',array(
+		$this->checkRenderAjax('index',array(
 			'dataProvider'=>$dataProvider,
 		));
 	}
@@ -135,7 +135,7 @@ class ProfilesController extends Controller
 		if(isset($_GET['Profiles']))
 			$model->attributes=$_GET['Profiles'];
 
-		$this->render('admin',array(
+		$this->checkRenderAjax('admin',array(
 			'model'=>$model,
 		));
 	}

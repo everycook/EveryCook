@@ -50,7 +50,7 @@ class EcologyController extends Controller
 	 */
 	public function actionView($id)
 	{
-		$this->render('view',array(
+		$this->checkRenderAjax('view',array(
 			'model'=>$this->loadModel($id),
 		));
 	}
@@ -73,7 +73,7 @@ class EcologyController extends Controller
 				$this->redirect(array('view','id'=>$model->ECO_ID));
 		}
 
-		$this->render('create',array(
+		$this->checkRenderAjax('create',array(
 			'model'=>$model,
 		));
 	}
@@ -97,7 +97,7 @@ class EcologyController extends Controller
 				$this->redirect(array('view','id'=>$model->ECO_ID));
 		}
 
-		$this->render('update',array(
+		$this->checkRenderAjax('update',array(
 			'model'=>$model,
 		));
 	}
@@ -128,7 +128,7 @@ class EcologyController extends Controller
 	public function actionIndex()
 	{
 		$dataProvider=new CActiveDataProvider('Ecology');
-		$this->render('index',array(
+		$this->checkRenderAjax('index',array(
 			'dataProvider'=>$dataProvider,
 		));
 	}
@@ -143,7 +143,7 @@ class EcologyController extends Controller
 		if(isset($_GET['Ecology']))
 			$model->attributes=$_GET['Ecology'];
 
-		$this->render('admin',array(
+		$this->checkRenderAjax('admin',array(
 			'model'=>$model,
 		));
 	}

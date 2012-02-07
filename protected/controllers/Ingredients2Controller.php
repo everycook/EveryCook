@@ -50,7 +50,7 @@ class Ingredients2Controller extends Controller
 	 */
 	public function actionView($id)
 	{
-		$this->render('view',array(
+		$this->checkRenderAjax('view',array(
 			'model'=>$this->loadModel($id),
 		));
 	}
@@ -74,7 +74,7 @@ class Ingredients2Controller extends Controller
 				$this->redirect(array('view','id'=>$model->ING_ID));
 		}
 
-		$this->render('create',array(
+		$this->checkRenderAjax('create',array(
 			'model'=>$model,
 		));
 	}
@@ -102,7 +102,7 @@ class Ingredients2Controller extends Controller
 				$this->redirect(array('view','id'=>$model->ING_ID));
 		}
 
-		$this->render('update',array(
+		$this->checkRenderAjax('update',array(
 			'model'=>$model,
 		));
 	}
@@ -133,7 +133,7 @@ class Ingredients2Controller extends Controller
 	public function actionIndex()
 	{
 		$dataProvider=new CActiveDataProvider('Ingredients2');
-		$this->render('index',array(
+		$this->checkRenderAjax('index',array(
 			'dataProvider'=>$dataProvider,
 		));
 	}
@@ -148,7 +148,7 @@ class Ingredients2Controller extends Controller
 		if(isset($_GET['Ingredients2']))
 			$model->attributes=$_GET['Ingredients2'];
 
-		$this->render('admin',array(
+		$this->checkRenderAjax('admin',array(
 			'model'=>$model,
 		));
 	}
