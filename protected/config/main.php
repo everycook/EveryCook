@@ -57,10 +57,10 @@ return array(
 		// uncomment the following to use a MySQL database
 		
 		'db'=>array(
-			'connectionString' => 'mysql:host=localhost;dbname=30608_everycook',
+			'connectionString' => 'mysql:host=localhost;dbname=everycook',
 			'emulatePrepare' => true,
-			'username' => '***',
-			'password' => '***',
+			'username' => 'root',
+			'password' => '',
 			'charset' => 'utf8',
 		),
 		
