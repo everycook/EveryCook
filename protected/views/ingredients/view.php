@@ -22,7 +22,11 @@ $this->menu=array(
 		'PRF_UID',
 		'ING_CREATED',
 		'ING_CHANGED',
-		'NUT_ID',
+		array(
+            'label'=>'nut',
+			'type'=>'raw',
+            'value'=>CHtml::link(CHtml::encode($model->NUT_ID), array('nutrientData/view','id'=>$model->NUT_ID)),
+		),
 		'ING_GROUP',
 		'ING_SUBGROUP',
 		'ING_STATE',

@@ -3,6 +3,7 @@
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'recipes-form',
 	'enableAjaxValidation'=>false,
+    'htmlOptions'=>array('enctype' => 'multipart/form-data'),
 )); ?>
 
 	<p class="note">Fields with <span class="required">*</span> are required.</p>
@@ -39,12 +40,19 @@
 		<?php echo $form->error($model,'REC_TYPE'); ?>
 	</div>
 
+	<?php echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID)), '', array('class'=>'recipe')); ?>
+	<div class="row">
+		<?php echo $form->labelEx($model,'filename'); ?>
+		<?php echo $form->FileField($model,'filename'); ?>
+		<?php echo $form->error($model,'filename'); ?>
+	</div>
+
 	<div class="row">
 		<?php echo $form->labelEx($model,'REC_TITLE_EN'); ?>
 		<?php echo $form->textField($model,'REC_TITLE_EN',array('size'=>60,'maxlength'=>100)); ?>
 		<?php echo $form->error($model,'REC_TITLE_EN'); ?>
 	</div>
-
+	
 	<div class="row">
 		<?php echo $form->labelEx($model,'REC_TITLE_DE'); ?>
 		<?php echo $form->textField($model,'REC_TITLE_DE',array('size'=>60,'maxlength'=>100)); ?>

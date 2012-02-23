@@ -38,8 +38,9 @@ htm, body {
 
 label {
     text-align: right;
-    display: block;
+    display: inline-block;
     width: 150px;
+	vertical-align: top;
 }
 
 a:link, a:visited, a:hover, a:active, a:focus  {
@@ -174,17 +175,6 @@ div.index_div_lang {
     text-align:center;
 }
 
-#index_div_mf {
-    overflow:hidden;
-    position:fixed;
-    height:55%;
-    width:25%;
-    background-color:#99B299;    
-    top:10%;
-    left:70%;
-    
-}
-
 #index_div_mf_t {
     overflow:auto;
     position:fixed;
@@ -192,9 +182,22 @@ div.index_div_lang {
     border-bottom-left-radius:20px;
     background-color:#99B299;
     width:65%;
-    height:55%;
+    height:60%;
     top:10%;
     left:5%;
+}
+
+#index_div_mf {
+    overflow:hidden;
+    position:fixed;
+    border-top-right-radius:20px;
+    border-bottom-right-radius:20px;
+    height:60%;
+    width:25%;
+    background-color:#99B299;    
+    top:10%;
+    left:70%;
+    
 }
 
 #index_div_mf_tt {
@@ -250,4 +253,189 @@ div.index_text_middle {
     vertical-align:middle;
     width:100%;
     overflow:hidden;
+}
+
+
+
+
+
+
+
+div.options a {
+	margin-bottom: 10px;
+}
+
+div.options a.last {
+	margin-bottom: 0;
+}
+
+a.button {
+	display: inline-block;
+	width:100px;
+	/*height:20px;*/
+	padding: 10px;
+	text-align: center;
+	
+    border-radius:10px;
+	background-color:#997F7F;
+}
+
+a.delicious {
+	display: inline-block;
+	width:37px;
+	height:37px;
+	background: url('../pics/delicious.png') repeat scroll 0 0 transparent;
+}
+
+a.disgusting {
+	display: inline-block;
+	width:37px;
+	height:37px;
+	background: url('../pics/disgusting.png') repeat scroll 0 0 transparent;
+}
+a.delicious_big {
+	display: inline-block;
+	width:60px;
+	height:60px;
+	background: url('../pics/delicious_big.png') repeat scroll 0 0 transparent;
+}
+
+a.disgusting_big {
+	display: inline-block;
+	width:60px;
+	height:60px;
+	background: url('../pics/disgusting_big.png') repeat scroll 0 0 transparent;
+}
+
+a.addRecipe.button {
+	width:20px;
+	height:20px;
+}
+
+
+div.resultArea {
+    border-radius:20px;
+	background-color:#FFFFFF;
+	padding:10px;
+	margin-bottom:10px;
+	min-height: 140px;
+}
+
+div.resultArea img.ingredient {
+	width:140px;
+	height:140px;
+	float:left;
+}
+
+div.resultArea img.recipe {
+	width:140px;
+	height:140px;
+	float:left;
+}
+
+div.resultArea div.data {
+	margin-left:10px;
+	float: left;
+}
+
+div.resultArea div.name {
+	font-weight:bold;
+	font-size:1.2em;
+	margin-bottom:5px;
+}
+
+div.resultArea div.options {
+	float:right;
+	width:120px;
+}
+
+div.resultArea div.options a.disgusting {
+	float:right;
+}
+
+
+
+div.detailView {
+    border-radius:20px;
+	background-color:#FFFFFF;
+	padding:10px;
+	margin-bottom:10px;
+}
+
+div.detailView div.name {
+	font-weight:bold;
+	font-size:2.0em;
+	margin-bottom:5px;
+}
+div.detailView div.options {
+	float:right;
+	width:200px;
+}
+div.detailView div.options div.ingredients {
+	display: inline-block;
+	padding: 10px;
+	
+    border-radius:10px;
+	background-color:#997F7F;
+	width:180px;
+}
+
+div.detailView div.details {
+	float: left;
+}
+
+div.detailView div.options a.disgusting_big {
+	float:right;
+}
+
+div.detailView img.recipe {
+	width:200px;
+	height:200px;
+}
+
+div.search {
+	margin-bottom: 10px;
+}
+
+div.search  input.search_button {
+	/*width:50px;*/
+	height:40px;
+	vertical-align: middle;
+}
+
+div.search  input.search_query{
+	width:200px;
+}
+
+ul.search_choose {
+}
+ul.search_choose label{
+	width: 200px;
+	text-align: left;
+}
+ul.search_choose li {
+	width: 230px;
+	float: left;
+	list-style: none;
+}
+
+#nutrientDataSearch {
+	max-height: 300px;
+	padding-right: 10px;
+	overflow: auto;
+}
+
+.view.nutrientData {
+}
+
+.clearfix {
+	clear: both;
+}
+
+.f-right {
+	float:right;
+}
+
+.f-left {
+	float:left;
 }

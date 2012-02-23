@@ -15,6 +15,8 @@
  */
 class Recipes extends CActiveRecord
 {
+	public $filename;
+	
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @return Recipes the static model class
@@ -44,7 +46,7 @@ class Recipes extends CActiveRecord
 			array('REC_TYPE', 'numerical', 'integerOnly'=>true),
 			array('REC_PICTURE_AUTH', 'length', 'max'=>30),
 			array('REC_TITLE_EN, REC_TITLE_DE', 'length', 'max'=>100),
-			array('REC_CHANGED, REC_PICTURE', 'safe'),
+			array('REC_CHANGED, REC_PICTURE, steps', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('REC_ID, REC_CREATED, REC_CHANGED, REC_PICTURE, REC_PICTURE_AUTH, REC_TYPE, REC_TITLE_EN, REC_TITLE_DE', 'safe', 'on'=>'search'),
@@ -59,6 +61,8 @@ class Recipes extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'recipeTypes' => array(self::BELONGS_TO, 'recipeTypes', 'REC_TYPE'),
+			'steps' => array(self::HAS_MANY, 'Steps', 'REC_ID'),
 		);
 	}
 
@@ -79,6 +83,60 @@ class Recipes extends CActiveRecord
 		);
 	}
 
+	public function getSearchFields(){
+		return array('REC_ID', 'REC_TITLE_' . Yii::app()->session['lang']);
+	}
+	
+	public function getCriteria(){
+		$criteria=new CDbCriteria;
+
+		$criteria->compare('t.REC_ID',$this->REC_ID);
+		$criteria->compare('t.REC_CREATED',$this->REC_CREATED,true);
+		$criteria->compare('t.REC_CHANGED',$this->REC_CHANGED,true);
+		$criteria->compare('t.REC_PICTURE',$this->REC_PICTURE,true);
+		$criteria->compare('t.REC_PICTURE_AUTH',$this->REC_PICTURE_AUTH,true);
+		$criteria->compare('t.REC_TYPE',$this->REC_TYPE);
+		$criteria->compare('t.REC_TITLE_EN',$this->REC_TITLE_EN,true);
+		$criteria->compare('t.REC_TITLE_DE',$this->REC_TITLE_DE,true);
+
+		$criteria->with = array('steps' => array('with' => 'ingredient', 'with' => 'stepType'));
+		$criteria->with = array('recipeTypes');
+		
+		$criteria->compare('ING_ID',$this->steps->ingredient,true);
+		$criteria->compare('STT_ID',$this->steps->stepType,true);
+		
+		return $criteria;
+	}
+	
+	public function getSort(){
+		$sort = new CSort;
+		/*
+		$sort->attributes = array(
+			'nutrientData' => array(
+				'asc' => 'NUT_ID',
+				'desc' => 'NUT_ID DESC',
+			),
+			'groupNames' => array(
+				'asc' => 'ING_GROUP',
+				'desc' => 'ING_GROUP DESC',
+			),
+			'subgroupNames' => array(
+				'asc' => 'ING_SUBGROUP',
+				'desc' => 'ING_SUBGROUP DESC',
+			),
+			'ingredientConveniences' => array(
+				'asc' => 'ING_CONVENIENCE',
+				'desc' => 'ING_CONVENIENCE DESC',
+			),
+			'storability' => array(
+				'asc' => 'ING_STORABILITY',
+				'desc' => 'ING_STORABILITY DESC',
+			),
+			'*',
+		);
+		*/
+		return $sort;
+	}
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
@@ -88,19 +146,9 @@ class Recipes extends CActiveRecord
 		// Warning: Please modify the following code to remove attributes that
 		// should not be searched.
 
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('REC_ID',$this->REC_ID);
-		$criteria->compare('REC_CREATED',$this->REC_CREATED,true);
-		$criteria->compare('REC_CHANGED',$this->REC_CHANGED,true);
-		$criteria->compare('REC_PICTURE',$this->REC_PICTURE,true);
-		$criteria->compare('REC_PICTURE_AUTH',$this->REC_PICTURE_AUTH,true);
-		$criteria->compare('REC_TYPE',$this->REC_TYPE);
-		$criteria->compare('REC_TITLE_EN',$this->REC_TITLE_EN,true);
-		$criteria->compare('REC_TITLE_DE',$this->REC_TITLE_DE,true);
-
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria'=>$this->getCriteria(),
+			'sort'=>$this->getSort(),
 		));
 	}
 }

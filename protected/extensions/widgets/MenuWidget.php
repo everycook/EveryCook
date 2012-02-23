@@ -20,7 +20,7 @@ class MenuWidget extends CWidget {
 					echo CHtml::closeTag('div');
 				echo CHtml::closeTag('div');
 			echo CHtml::closeTag('a');
-			//$handlers .= "jQuery('body').undelegate('#" . $item['link_id'] . "','click').delegate('#" . $item['link_id'] . "','click',function(){" . CHtml::ajax(array('url' => $link, 'update' => '#content')) . " return false;});\n";
+			//$handlers .= "jQuery('body').undelegate('#" . $item['link_id'] . "','click').delegate('#" . $item['link_id'] . "','click',function(){" . CHtml::ajax(array('url' => $link, 'update' => '#changable_content')) . " return false;});\n";
 		}
 		if (handlers != ""){
 			?>

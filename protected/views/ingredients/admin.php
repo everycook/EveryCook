@@ -48,6 +48,26 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 		'ING_CHANGED',
 		'NUT_ID',
 		'ING_GROUP',
+		array(
+			'name'=>'nutrientData',
+			'value'=>'$data->nutrientData->NUT_DESC',
+		),
+		array(
+			'name'=>'groupNames',
+			'value'=>'$data->groupNames->GRP_DESC_DE',
+		),
+		array(
+			'name'=>'subgroupNames',
+			'value'=>'$data->subgroupNames->SUBGRP_DESC_DE',
+		),
+		array(
+			'name'=>'ingredientConveniences',
+			'value'=>'$data->ingredientConveniences->CONV_DESC_DE',
+		),
+		array(
+			'name'=>'storability',
+			'value'=>'$data->storability->STORAB_DESC_DE',
+		),
 		/*
 		'ING_SUBGROUP',
 		'ING_STATE',

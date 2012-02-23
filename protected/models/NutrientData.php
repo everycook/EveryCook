@@ -159,16 +159,12 @@ class NutrientData extends CActiveRecord
 			'NUT_REFUSE' => 'Nut Refuse',
 		);
 	}
+	
+	public function getSearchFields(){
+		return array('NUT_ID', 'NUT_DESC');
+	}
 
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
-	 */
-	public function search()
-	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
+	public function getCriteria(){
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('NUT_ID',$this->NUT_ID,true);
@@ -220,9 +216,30 @@ class NutrientData extends CActiveRecord
 		$criteria->compare('NUT_FA_POLY',$this->NUT_FA_POLY);
 		$criteria->compare('NUT_CHOLEST',$this->NUT_CHOLEST);
 		$criteria->compare('NUT_REFUSE',$this->NUT_REFUSE);
+		
+		return $criteria;
+	}
+	
+	public function getSort(){
+		$sort = new CSort;
+		$sort->attributes = array(
+			'*',
+		);
+		return $sort;
+	}
+	
+	/**
+	 * Retrieves a list of models based on the current search/filter conditions.
+	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+	 */
+	public function search()
+	{
+		// Warning: Please modify the following code to remove attributes that
+		// should not be searched.
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria'=>$this->getCriteria(),
+			'sort'=>$this->getSort(),
 		));
 	}
 }

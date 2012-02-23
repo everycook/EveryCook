@@ -58,7 +58,7 @@
 				<div id="index_div_login">
 					<div class="index_text_middle">
 						<div>
-							<span id="login"></span>
+							<span id="login"><?php echo $this->trans->LOGIN; ?></span>
 						</div>
 					</div>                    
 				</div>
@@ -67,12 +67,12 @@
 				<form name="form_login">
 					<a href="#" OnClick="register()">
 						<div>
-							<span id="loginRegister"></span>
+							<span id="loginRegister"><?php echo $this->trans->REGISTER; ?></span>
 						</div>
 					</a>
-					<label for="user"><span id="loginUser"></span></label>
+					<label for="user"><span id="loginUser"><?php echo $this->trans->LOGIN_USER; ?></span></label>
 					<input type="text" id="user" name="user"><br>
-					<label for="pass"><span id="loginPass"></span></label>
+					<label for="pass"><span id="loginPass"><?php echo $this->trans->LOGIN_PASS; ?></span></label>
 					<input type="password" id="pass" name="pass"><br><br>
 					<a href="#" id="loginButton" OnClick="Login()">
 						<div>
@@ -113,26 +113,18 @@
 				<div id="index_div_settings">
 					<div class="index_text_middle">
 						<div>
-							<span id="settings"></span>
+							<span id="settings"><?php echo $this->trans->SETTINGS; ?></span>
 						</div>
 					</div>
 				</div>
 			</a>
-			
-			<?php echo $content; ?>
-			
-			<?php $this->widget('ext.widgets.MenuWidget',array(
-					'test'=>'das ist ein test',
-					'items'=>array(
-						array('label'=>'Rezept Suchen', 'link_id'=>'left', 'url'=>array('recipes/index',array())),
-						array('label'=>'Essen Suchen', 'link_id'=>'middle', 'url'=>array('ingredients/index',array())),
-						array('label'=>'Die Kochende Maschiene', 'link_id'=>'right', 'url'=>array('site/page', array('view'=>'about'))),
-					),
-				)); ?>
+			<div id="changable_content">
+				<?php echo $content; ?>
+			</div>
 			<div id="index_div_lang">
 				<div class="index_text_middle">
 					<div>
-						<span id="lang"></span>
+						<span id="lang"><?php echo $this->trans->LANGSEL; ?></span>
 					</div>
 				</div>
 				<div class="index_div_lang">

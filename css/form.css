@@ -57,7 +57,7 @@ div.form label
 {
 	font-weight: bold;
 	font-size: 0.9em;
-	display: block;
+	display: inline-block;
 }
 
 div.form .row

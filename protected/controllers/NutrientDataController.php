@@ -27,7 +27,7 @@ class NutrientDataController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view'),
+				'actions'=>array('index','view','search','advanceSearch','chooseNutrientData'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -146,6 +146,74 @@ class NutrientDataController extends Controller
 		$this->checkRenderAjax('admin',array(
 			'model'=>$model,
 		));
+	}
+	
+	
+	private function prepareSearch($view, $ajaxLayout){
+		$model=new NutrientData('search');
+		$model->unsetAttributes();  // clear any default values
+		if(isset($_GET['NutrientData']))
+			$model->attributes=$_GET['NutrientData'];
+		
+		$model2 = new SimpleSearchForm();
+		if(isset($_GET['SimpleSearchForm']))
+			$model2->attributes=$_GET['SimpleSearchForm'];
+		
+		if(isset($_GET['query'])){
+			$query = $_GET['query'];
+		} else {
+			$query = $model2->query;
+		}
+		$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$model2->query, '');
+		
+		$criteria=$model->getCriteria();
+		if ($criteriaString){
+			$criteria->addCondition($criteriaString);
+		}
+		
+		if ($criteria->condition) {
+			$command = Yii::app()->db->commandBuilder->createFindCommand($model->tableName(), $criteria, '');
+			$rows = $command->queryAll();
+		} else {
+			$rows = array();
+		}
+			
+		$dataProvider=new CArrayDataProvider($rows, array(
+			'id'=>'NUT_ID',
+			'pagination'=>array(
+				'pageSize'=>10,
+			),
+		));
+		/*
+		$this->renderPartial($view,array(
+			'model'=>$model,
+			'model2'=>$model2,
+			'dataProvider'=>$dataProvider,
+		));
+		*/
+		$this->checkRenderAjax($view,array(
+			'model'=>$model,
+			'model2'=>$model2,
+			'dataProvider'=>$dataProvider,
+		), $ajaxLayout);
+	}
+	
+	public function actionAdvanceSearch()
+	{
+		$this->prepareSearch('advanceSearch', null);
+	}
+	
+	public function actionSearch()
+	{
+		$this->prepareSearch('search', null);
+	}
+	
+	/**
+	 * Ajax function for select NutrientData in a FancyBox
+	 */
+	public function actionChooseNutrientData(){
+		$this->isFancyAjaxRequest = true;
+		$this->prepareSearch('search', 'none');
 	}
 
 	/**

@@ -28,7 +28,6 @@ return array(
 			'ipFilters'=>array('127.0.0.1'
 	                           ,'::1'),
 		),
-		
 	),
 
 	// application components
@@ -38,7 +37,6 @@ return array(
 			'allowAutoLogin'=>true,
 		),
 		// uncomment the following to enable URLs in path-format
-		
 		'urlManager'=>array(
 			'urlFormat'=>'path',
 			'rules'=>array(
@@ -82,6 +80,9 @@ return array(
 				),
 				*/
 			),
+		),
+		'clientScript'=>array(
+			'class'=>'CAjaxOptimizedClientScript',
 		),
 	),
 

@@ -1,5 +1,6 @@
 <?php
 
+require_once('functions.php');
 class RecipesController extends Controller
 {
 	/**
@@ -27,7 +28,7 @@ class RecipesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view'),
+				'actions'=>array('index','view','search','advanceSearch','displaySavedImage'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -93,6 +94,16 @@ class RecipesController extends Controller
 		if(isset($_POST['Recipes']))
 		{
 			$model->attributes=$_POST['Recipes'];
+			$file = CUploadedFile::getInstance($model,'filename');
+			if ($file){
+				resizePicture($file->getTempName(), $file->getTempName(), 400, 400, 0.8, 3);
+				$model->REC_PICTURE=file_get_contents($file->getTempName());
+			} else {
+				if ($model->REC_ID){
+					$oldModel = $this->loadModel($id);
+					$model->REC_PICTURE = $oldModel->REC_PICTURE;
+				}
+			}
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->REC_ID));
 		}
@@ -147,7 +158,74 @@ class RecipesController extends Controller
 			'model'=>$model,
 		));
 	}
-
+	
+	private function prepareSearch($view)
+	{
+		$model=new Recipes('search');
+		$model->unsetAttributes();  // clear any default values
+		if(isset($_POST['Recipes']))
+			$model->attributes=$_POST['Recipes'];
+		
+		$model2 = new SimpleSearchForm();
+		if(isset($_POST['SimpleSearchForm']))
+			$model2->attributes=$_POST['SimpleSearchForm'];
+		
+		$rows = null;
+		if(isset($_GET['ing_id'])){
+			$rows = Yii::app()->db->createCommand()
+				->from('recipes')
+				->leftJoin('recipe_types', 'recipes.REC_TYPE=recipe_types.RET_ID')
+				->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID')
+				->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID')
+				->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID')
+				->where('ingredients.ING_ID=:id', array(':id'=>$_GET['ing_id']))
+				->order('steps.STE_STEP_NO')
+				->queryAll();
+		} else {
+			if(isset($_GET['query'])){
+				$query = $_GET['query'];
+			} else {
+				$query = $model2->query;
+			}
+			$criteryaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'recipes.');
+			if ($criteryaString != ''){
+				$rows = Yii::app()->db->createCommand()
+					->from('recipes')
+					->leftJoin('recipe_types', 'recipes.REC_TYPE=recipe_types.RET_ID')
+					->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID')
+					->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID')
+					->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID')
+					->where($criteryaString)
+					->order('steps.STE_STEP_NO')
+					->queryAll();
+			} else {
+				$rows = array();
+			}
+		}
+		
+		$dataProvider=new CArrayDataProvider($rows, array(
+			'id'=>'REC_ID',
+			'pagination'=>array(
+				'pageSize'=>10,
+			),
+		));
+		$this->checkRenderAjax($view,array(
+			'model'=>$model,
+			'model2'=>$model2,
+			'dataProvider'=>$dataProvider,
+		));
+	}
+	
+	public function actionAdvanceSearch()
+	{
+		$this->prepareSearch('advanceSearch');
+	}
+	
+	public function actionSearch()
+	{
+		$this->prepareSearch('search');
+	}
+	
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
@@ -173,4 +251,9 @@ class RecipesController extends Controller
 			Yii::app()->end();
 		}
 	}
+    public function actionDisplaySavedImage()
+    {
+            $model=$this->loadModel($_GET['id']);
+            Yii::app()->request->sendFile('image.png', $model->REC_PICTURE, 'image/png');
+    }
 }
