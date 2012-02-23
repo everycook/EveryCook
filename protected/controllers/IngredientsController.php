@@ -162,6 +162,7 @@ class IngredientsController extends Controller
 		$this->checkRenderAjax('index',array(
 			'dataProvider'=>$dataProvider,
 		));
+		
 	}
 	
 	/**

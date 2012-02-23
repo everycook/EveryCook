@@ -50,7 +50,7 @@ class StepsController extends Controller
 	 */
 	public function actionView($id)
 	{
-		$this->render('view',array(
+		$this->checkRenderAjax('view',array(
 			'model'=>$this->loadModel($id),
 		));
 	}
@@ -73,7 +73,7 @@ class StepsController extends Controller
 				$this->redirect(array('view','id'=>$model->STE_ID));
 		}
 
-		$this->render('create',array(
+		$this->checkRenderAjax('create',array(
 			'model'=>$model,
 		));
 	}
@@ -97,7 +97,7 @@ class StepsController extends Controller
 				$this->redirect(array('view','id'=>$model->STE_ID));
 		}
 
-		$this->render('update',array(
+		$this->checkRenderAjax('update',array(
 			'model'=>$model,
 		));
 	}
@@ -143,7 +143,7 @@ class StepsController extends Controller
 		if(isset($_GET['steps']))
 			$model->attributes=$_GET['steps'];
 
-		$this->render('admin',array(
+		$this->checkRenderAjax('admin',array(
 			'model'=>$model,
 		));
 	}
