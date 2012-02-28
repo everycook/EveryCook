@@ -61,7 +61,7 @@ class IngredientsController extends Controller
 
 		if ($oldmodel){
 			$model = $oldmodel;
-			$oldPicture = $oldModel->ING_PICTURE;
+			$oldPicture = $oldmodel->ING_PICTURE;
 		} else {
 			$model=new Ingredients;
 		}
@@ -73,9 +73,11 @@ class IngredientsController extends Controller
 			if ($file){
 				resizePicture($file->getTempName(), $file->getTempName(), 400, 400, 0.8, 3);
 				$model->ING_PICTURE=file_get_contents($file->getTempName());
+				$model->ING_PICTURE_ETAG = md5($model->ING_PICTURE);
 			} else {
-				if ($oldPicture){
+				if ($model->ING_PICTURE == '' && $oldPicture != ''){
 					$model->ING_PICTURE = $oldPicture;
+					$model->ING_PICTURE_ETAG = md5($model->ING_PICTURE);
 				}
 			}
 			if ($oldmodel){
@@ -230,10 +232,12 @@ class IngredientsController extends Controller
 					echo $key . " => " .$value . "\n";
 				}
 				*/
-				//bind params seams not to work on "IN" condition...
+				//TODO verify: bind params seams not to work on "IN" condition...
 				$command = preparedStatementToStatement($command, $criteria->params);
+				$this->validSearchPerformed = true;
 			} else if ($criteriaString){
 				$command->where($criteriaString);
+				$this->validSearchPerformed = true;
 			}
 			$rows = $command->queryAll();
 			
@@ -252,6 +256,8 @@ class IngredientsController extends Controller
 				->where($criteriaString)
 				//->order('actor.first_name, actor.last_name, film.title')
 				->queryAll();
+			
+			$this->validSearchPerformed = true;
 		} else {
 			$rows = array();
 		}
@@ -387,18 +393,53 @@ class IngredientsController extends Controller
 			Yii::app()->end();
 		}
 	}
-    public function actionDisplaySavedImage($id)   // STL show image
+	
+    public function actionDisplaySavedImage($id, $ext)
     {
 		$model=$this->loadModel($id, true);
 		//Yii::app()->request->sendFile('image.png', $model->ING_PICTURE, 'image/png');
 		//Not using function to have posibility to set Cache control...
-		header('Pragma: public');
-		header('Expires: 1000');
+		$modified = $model->ING_CHANGED;
+		if (!$modified){
+			$modified = $model->ING_CREATED;
+		}
+		
+		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+			//remove information after the semicolon and form a timestamp                                                         
+			$request_modified = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);
+			$request_modified = strtotime($request_modified[0]);
+			
+			// Compare the mtime on the request to the mtime of the image file                                                      
+			if ($modified <= $request_modified) {
+				header('HTTP/1.1 304 Not Modified');
+				exit();
+			}
+		}
+		
+		$etag = $model->ING_PICTURE_ETAG;
+		if ($etag == '' && $model->ING_PICTURE != ''){
+			$etag = md5($model->ING_PICTURE);
+		}
+		
+		if (isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
+			$request_etag = $_SERVER['HTTP_IF_NONE_MATCH'];  //If-None-Match: “877f3628b738c76a54″
+			if ($etag == $request_etag){
+				header('HTTP/1.1 304 Not Modified');
+				exit();
+			}
+		}
+		
 		//header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+		header('Pragma: public');
+        //header('Expires: ' . gmdate('D, d M Y H:i:s', (time() + 604800)) . ' GMT');  //604800 = 7 days in seconds
+		header('Expires: ' . gmdate('D, d M Y H:i:s', (time() + 86400)) . ' GMT');  //86400 = 1 days in seconds
+		header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $modified) . ' GMT');
+		header('Cache-Control: public');
+		header('Etag: ' . $etag);
 		header("Content-type: image/png");
 		if(ini_get("output_handler")=='')
 			header('Content-Length: '.(function_exists('mb_strlen') ? mb_strlen($model->ING_PICTURE,'8bit') : strlen($model->ING_PICTURE)));
-		header("Content-Disposition: attachment; filename=\"image_" . $id . ".png\"");
+		//header("Content-Disposition: attachment; filename=\"image_" . $id . ".png\"");
 		header('Content-Transfer-Encoding: binary');
 		echo $model->ING_PICTURE;
     }

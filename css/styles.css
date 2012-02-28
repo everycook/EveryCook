@@ -3,38 +3,129 @@ htm, body {
     font-weight:bold;
     margin:0;
     padding:0;
+}
+
+#index_pic_bg {
+    position: fixed;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+}
+
+#page {
+    position:relative;
+    z-index:1;
+	margin:0 5em;
+}
+
+#metaNav {
+	height:5em;
+}
+
+#metaNav #metaNavButtons {
+	float:right;
+	margin-top:3em;
+	margin-right:3em;
+}
+
+.nav_button {
+    display:table;
+    overflow:hidden;
+    background-color:#997F7F;
+    text-align:center;
+	margin-left:0.8em;
+	float:left;
+    width:12em;
+	height:1.5em;
+}
+
+#logo {
+	float:left;
+    display:table;
+	margin:0.5em 0 0 0.5em;
+}
+
+#container {
+	border-radius:1.5em;
+	background-color:#99B299;
+}
+
+#content_left {
+    width:75%;
+	float:left;
+}
+
+#content_right {
+    width:25%;
+    float:right;
+}
+
+#content {
+    padding: 2em;
+}
+
+#mainButtons {
+	margin:1.5em 0;
+}
+
+.index_button {
+	font-size:3em;
+	display:table;
+	overflow:hidden;
+	border-radius:0.5em;
+	height:2em;
+	padding: 0.15em;
+	background-color:#997F7F;
+	text-align:center;
+	width:30%;
+}
+
+#left .index_button  {
+	/*margin-right:auto;*/
+	float:left;
+}
+
+#middle .index_button , #middle_single .index_button  {
+	margin-right:auto;
+	margin-left:auto;
+	/*float:left;*/
+}
+
+#middle_single .index_button  {
+	width:auto;
+}
+
+#right .index_button  {
+	/*margin-left:auto;*/
+	float:right;
+}
+
+
+.index_button span, .nav_button  span {
+    overflow:hidden;
+    display:table-cell;
+    vertical-align:middle;
     width:100%;
-    height:100%;
     overflow:hidden;
 }
 
-#errorRegisterFirstname {
-    visibility:hidden;
+
+
+#sidebar {
+	padding: 20px 20px 20px 0;
 }
 
-#errorRegisterLastname {
-    visibility:hidden;
+#footer {
+	position:relative;
+	padding: 1em;
+	margin: 1em 2em;
+	font-size: 0.8em;
+	text-align: center;
+	border-top: 1px solid #C9E0ED;
 }
 
-#errorRegisterUsername {
-    visibility:hidden;
-}
 
-#errorRegisterEmail {
-    visibility:hidden;
-}
-
-#errorRegisterPass {
-    visibility:hidden;
-}
-
-#errorRegisterPassT {
-    visibility:hidden;
-}
-
-#errorRegisterfields {
-    visibility:hidden;
-}
 
 label {
     text-align: right;
@@ -52,38 +143,8 @@ span.error {
     font-size: 11px;
     color:red;
 }
-#index_pic_bg {
-    position: fixed;
-    top:0;
-    left:0;
-    width: 100%;
-    height: 100%;
-}
 
-#index_div_content {
-    position:relative;
-    z-index:1;
-}
 
-#index_div_logo{
-    display:table;
-    overflow:hidden;
-    position:fixed;
-    top:1%;
-    left:7%;
-}
-
-#index_div_login{
-    display:table;
-    overflow:hidden;
-    position:fixed;
-    height:4%;
-    width:10%;
-    background-color:#997F7F;
-    top:5%;
-    left:60%;
-    text-align:center;
-}
 
 div.index_div_login{
     padding-top: 10px;
@@ -103,66 +164,6 @@ div.index_div_login{
     text-align:center;
 }
 
-div.index_div_register{
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-right: 10px;
-    padding-left: 10px;
-    z-index: 1;
-    visibility: hidden;
-    display:table;
-    overflow:hidden;
-    position:fixed;
-    height:auto;
-    width:25%;
-    background-color:#997F7F;
-    top:8.9%;
-    left:60%;
-    text-align:center;
-}
-
-div.index_div_ingredient{
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-right: 10px;
-    padding-left: 10px;
-    z-index: 1;
-    visibility: hidden;
-    display:table;
-    overflow:hidden;
-    position:fixed;
-    height:auto;
-    width:25%;
-    background-color:#997F7F;
-    top:20%;
-    left:50%;
-    text-align:center;
-}
-
-#index_div_settings{
-    display:table;
-    overflow:hidden;
-    position:fixed;
-    height:4%;
-    width:10%;
-    background-color:#997F7F;    
-    top:5%;
-    left:71%;
-    text-align:center;
-}
-
-#index_div_lang {
-    display:table;
-    overflow:hidden;
-    position:fixed;
-    height:4%;
-    width:10%;
-    background-color:#997F7F;    
-    top:5%;
-    left:82%;
-    text-align:center;
-}
-
 div.index_div_lang {
     visibility:hidden;
     display:table;
@@ -174,88 +175,6 @@ div.index_div_lang {
     left:82%;
     text-align:center;
 }
-
-#index_div_mf_t {
-    overflow:auto;
-    position:fixed;
-    border-top-left-radius:20px;
-    border-bottom-left-radius:20px;
-    background-color:#99B299;
-    width:65%;
-    height:60%;
-    top:10%;
-    left:5%;
-}
-
-#index_div_mf {
-    overflow:hidden;
-    position:fixed;
-    border-top-right-radius:20px;
-    border-bottom-right-radius:20px;
-    height:60%;
-    width:25%;
-    background-color:#99B299;    
-    top:10%;
-    left:70%;
-    
-}
-
-#index_div_mf_tt {
-    overflow:hidden;
-    position:fixed;
-    top:12%;
-    left:7%;
-    height:25%;
-    width:36%;
-}
-
-#index_div_pymn {
-    font-size:40px;
-    display:table;
-    overflow:hidden;
-    text-align:center;
-    position:fixed;
-    height:15%;
-    width:30%;
-    left:10%;
-    top:45%;
-    background-color:#997F7F;
-}
-
-.index_button {
-	font-size:40px;
-	display:table;
-	overflow:hidden;
-	border-radius:20px;
-	position:fixed;
-	height:20%;
-	width:29%;
-	background-color:#997F7F;
-	bottom:5%;
-	text-align:center;
-}
-
-#left .index_button  {
-    left:5%;
-}
-
-#middle .index_button  {
-    left:35%;
-}
-
-#right .index_button  {
-    left:66%;
-}
-
-div.index_text_middle {
-    overflow:hidden;
-    display:table-cell;
-    vertical-align:middle;
-    width:100%;
-    overflow:hidden;
-}
-
-
 
 
 
@@ -438,4 +357,111 @@ ul.search_choose li {
 
 .f-left {
 	float:left;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.portlet
+{
+
+}
+
+.portlet-decoration
+{
+	padding: 3px 8px;
+	background: #B7D6E7;
+	border-left: 5px solid #6FACCF;
+}
+
+.portlet-title
+{
+	font-size: 12px;
+	font-weight: bold;
+	padding: 0;
+	margin: 0;
+	color: #298dcd;
+}
+
+.portlet-content
+{
+	font-size:0.9em;
+	margin: 0 0 15px 0;
+	padding: 5px 8px;
+	background:#EFFDFF;
+}
+
+.portlet-content ul
+{
+	list-style-image:none;
+	list-style-position:outside;
+	list-style-type:none;
+	margin: 0;
+	padding: 0;
+}
+
+.portlet-content li
+{
+	padding: 2px 0 4px 0px;
+}
+
+.operations
+{
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+.operations li
+{
+	padding-bottom: 2px;
+}
+
+.operations li a
+{
+	font: bold 12px Arial;
+	color: #0066A4;
+	display: block;
+	padding: 2px 0 2px 8px;
+	line-height: 15px;
+	text-decoration: none;
+}
+
+.operations li a:visited
+{
+	color: #0066A4;
+}
+
+.operations li a:hover
+{
+	background: #80CFFF;
 }

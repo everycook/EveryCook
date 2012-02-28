@@ -36,26 +36,29 @@ class CAjaxOptimizedClientScript extends CClientScript {
 		
 	}
 	
+	protected function replaceTagStartAndEnd($scripttag){
+		$scripttag = str_replace("'<", "unescape('%3C') + '", $scripttag);
+		$scripttag = str_replace(">'", "' + unescape('%3E')", $scripttag);
+		return $scripttag;
+	}
 	protected function checkNotExistInsertLink($link){
-		return "check = JQuery.('link[href=" . $link . "]'); if(check.length==0){JQuery('head').append('".CHtml::linkTag(null,null,null,null,$link)."');}";
+		return "check = JQuery.('link[href=" . $link . "]'); if(check.length==0){" . $this->replaceTagStartAndEnd("JQuery('head').append('".CHtml::linkTag(null,null,null,null,$link)."');") . "}";
 	}
 	
 	protected function checkNotExistInsertCssFile($url,$media){
 		if($media!=='') {
-			return "check = jQuery('link[href=\"" . $url . "\",media=\"" . $media . "\"]'); if(check.length==0){jQuery('head').append('".CHtml::cssFile($url,$media)."');}";
+			return "check = jQuery('link[href=\"" . $url . "\",media=\"" . $media . "\"]'); if(check.length==0){" . $this->replaceTagStartAndEnd("jQuery('head').append('".CHtml::cssFile($url,$media)."');") . "}";
 		} else {
-			return "check = jQuery('link[href=\"" . $url . "\"]'); if(check.length==0){jQuery('head').append('".CHtml::cssFile($url,$media)."');}";
+			return "check = jQuery('link[href=\"" . $url . "\"]'); if(check.length==0){" . $this->replaceTagStartAndEnd("jQuery('head').append('".CHtml::cssFile($url,$media)."');") . "}";
 		}
 	}
 	
 	protected function checkInsertReplaceMeta($meta){
-		return "check = jQuery('meta[name=\"" . $meta['name'] . "\"]'); if(check.length!=0){check.attr('content','" . $meta['content'] . "');} else {jQuery('head').append('".CHtml::metaTag($meta['content'],null,null,$meta)."');}";
+		return "check = jQuery('meta[name=\"" . $meta['name'] . "\"]'); if(check.length!=0){check.attr('content','" . $meta['content'] . "');} else {" . $this->replaceTagStartAndEnd("jQuery('head').append('".CHtml::metaTag($meta['content'],null,null,$meta)."');") . "}";
 	}
-	protected function replaceScriptEnd($scripttag){
-		return str_replace("</script>'", "' + unescape('%3C/script>')", $scripttag);
-	}
+	
 	protected function checkNotExistInsertScriptFile($scriptFile, $insertFunction){
-		return "check = jQuery('script[src=\"" . $scriptFile . "\"]'); if(check.length==0){" . $this->replaceScriptEnd($insertFunction . "('".CHtml::scriptFile($scriptFile)."');") . "}";
+		return "check = jQuery('script[src=\"" . $scriptFile . "\"]'); if(check.length==0){" . $this->replaceTagStartAndEnd($insertFunction . "('".CHtml::scriptFile($scriptFile)."');") . "}";
 	}
 	
 	/**
@@ -83,7 +86,7 @@ class CAjaxOptimizedClientScript extends CClientScript {
 			if($this->enableJavaScript) {
 				if(isset($this->scriptFiles[self::POS_HEAD])) {
 					foreach($this->scriptFiles[self::POS_HEAD] as $scriptFile)
-						$html.=$this->checkNotExistInsertScriptFile($scriptFile, "jQuery('head').append")."\n";
+						$replaceScripts.=$this->checkNotExistInsertScriptFile($scriptFile, "jQuery('head').append")."\n";
 				}
 
 				if(isset($this->scripts[self::POS_HEAD]))

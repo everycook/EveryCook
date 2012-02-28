@@ -1,7 +1,7 @@
 <div class="form">
 
 <?php $form=$this->beginWidget('CActiveForm', array(
-	'id'=>'steps2-form',
+	'id'=>'steps-form',
 	'enableAjaxValidation'=>false,
 )); ?>
 
@@ -40,27 +40,15 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'STE_T_BOTTOM'); ?>
-		<?php echo $form->textField($model,'STE_T_BOTTOM'); ?>
-		<?php echo $form->error($model,'STE_T_BOTTOM'); ?>
+		<?php echo $form->labelEx($model,'STE_CELSIUS'); ?>
+		<?php echo $form->textField($model,'STE_CELSIUS'); ?>
+		<?php echo $form->error($model,'STE_CELSIUS'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'STE_T_LID'); ?>
-		<?php echo $form->textField($model,'STE_T_LID'); ?>
-		<?php echo $form->error($model,'STE_T_LID'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'STE_T_STEAM'); ?>
-		<?php echo $form->textField($model,'STE_T_STEAM'); ?>
-		<?php echo $form->error($model,'STE_T_STEAM'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'STE_BAR'); ?>
-		<?php echo $form->textField($model,'STE_BAR'); ?>
-		<?php echo $form->error($model,'STE_BAR'); ?>
+		<?php echo $form->labelEx($model,'STE_KPA'); ?>
+		<?php echo $form->textField($model,'STE_KPA'); ?>
+		<?php echo $form->error($model,'STE_KPA'); ?>
 	</div>
 
 	<div class="row">

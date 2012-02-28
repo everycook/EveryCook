@@ -83,7 +83,7 @@ $this->widget('application.extensions.fancybox.EFancyBox', array(
 		<?php echo $form->error($model,'ING_DENSITY'); ?>
 	</div>
 
-	<?php echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID)), '', array('class'=>'ingredient')); ?>
+	<?php echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'png')), '', array('class'=>'ingredient', 'alt'=>$model->ING_PICTURE_AUTH, 'title'=>$model->ING_PICTURE_AUTH)); ?>
 	<div class="row">
 		<?php echo $form->labelEx($model,'filename'); ?>
 		<!-- < ?php echo $form->textField($model,'filename'); ?> -->

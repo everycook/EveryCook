@@ -1,2 +1,3 @@
 src/db/db.php
 assets
+protected/runtime

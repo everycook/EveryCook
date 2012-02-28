@@ -6,8 +6,8 @@
  * The followings are the available columns in table 'ingredients':
  * @property integer $ING_ID
  * @property integer $PRF_UID
- * @property string $ING_CREATED
- * @property string $ING_CHANGED
+ * @property integer $ING_CREATED
+ * @property integer $ING_CHANGED
  * @property integer $NUT_ID
  * @property integer $ING_GROUP
  * @property integer $ING_SUBGROUP
@@ -17,6 +17,7 @@
  * @property double $ING_DENSITY
  * @property string $ING_PICTURE
  * @property string $ING_PICTURE_AUTH
+ * @property string $ING_PICTURE_ETAG
  * @property string $ING_TITLE_EN
  * @property string $ING_TITLE_DE
  */
@@ -49,12 +50,13 @@ class Ingredients extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('ING_CREATED, ING_GROUP, ING_STATE, ING_CONVENIENCE, ING_STORABILITY, ING_TITLE_EN', 'required'), // ING_SUBGROUP,
-			array('PRF_UID, NUT_ID, ING_GROUP, ING_SUBGROUP, ING_STATE, ING_CONVENIENCE, ING_STORABILITY', 'numerical', 'integerOnly'=>true),
+			array('ING_GROUP, ING_STATE, ING_CONVENIENCE, ING_STORABILITY, ING_TITLE_EN', 'required'), // ING_SUBGROUP,
+			array('PRF_UID, ING_CREATED, ING_CHANGED, NUT_ID, ING_GROUP, ING_SUBGROUP, ING_STATE, ING_CONVENIENCE, ING_STORABILITY', 'numerical', 'integerOnly'=>true),
 			array('ING_DENSITY', 'numerical'),
 			array('ING_PICTURE_AUTH', 'length', 'max'=>30),
+			array('ING_PICTURE_ETAG', 'length', 'max'=>40),
 			array('ING_TITLE_EN, ING_TITLE_DE', 'length', 'max'=>100),
-			array('ING_CHANGED, ING_PICTURE, nutrientData, groupNames, subgroupNames, ingredientConveniences, storability, ingredientStates', 'safe'),
+			array('ING_CHANGED, ING_PICTURE, ING_PICTURE_ETAG, nutrientData, groupNames, subgroupNames, ingredientConveniences, storability, ingredientStates', 'safe'),
 			//array('ING_CHANGED, ING_PICTURE, NUT_DESC, GRP_DESC_DE, SUBGRP_DESC_DE, CONV_DESC_DE, STORAB_DESC_DE', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
@@ -98,6 +100,7 @@ class Ingredients extends CActiveRecord
 			'ING_DENSITY' => 'Ing Density',
 			'ING_PICTURE' => 'Ing Picture',
 			'ING_PICTURE_AUTH' => 'Ing Picture Auth',
+			'ING_PICTURE_ETAG' => 'Ing Picture Etag',
 			'ING_TITLE_EN' => 'Ing Title En',
 			'ING_TITLE_DE' => 'Ing Title De',
 		);
@@ -112,17 +115,18 @@ class Ingredients extends CActiveRecord
 
 		$criteria->compare($this->tableName().'.ING_ID',$this->ING_ID);
 		$criteria->compare('PRF_UID',$this->PRF_UID);
-		$criteria->compare('ING_CREATED',$this->ING_CREATED,true);
-		$criteria->compare('ING_CHANGED',$this->ING_CHANGED,true);
+		$criteria->compare('ING_CREATED',$this->ING_CREATED);
+		$criteria->compare('ING_CHANGED',$this->ING_CHANGED);
 		$criteria->compare($this->tableName().'.NUT_ID',$this->NUT_ID);
 		$criteria->compare($this->tableName().'.ING_GROUP',$this->ING_GROUP);
-		$criteria->compare($this->tableName().'.ING_SUBGROUP',$this->ING_SUBGROUP);
+		$criteria->compare($this->tableName().'.ING_SUBGROUP',$this->ING_SUBGROUP, false, 'OR');
 		$criteria->compare($this->tableName().'.ING_STATE',$this->ING_STATE);
 		$criteria->compare($this->tableName().'.ING_CONVENIENCE',$this->ING_CONVENIENCE);
 		$criteria->compare($this->tableName().'.ING_STORABILITY',$this->ING_STORABILITY);
 		$criteria->compare('ING_DENSITY',$this->ING_DENSITY);
 		//$criteria->compare('ING_PICTURE',$this->ING_PICTURE,true);
 		$criteria->compare('ING_PICTURE_AUTH',$this->ING_PICTURE_AUTH,true);
+		$criteria->compare('ING_PICTURE_ETAG',$this->ING_PICTURE_ETAG,true);
 		$criteria->compare('ING_TITLE_EN',$this->ING_TITLE_EN,true);
 		$criteria->compare('ING_TITLE_DE',$this->ING_TITLE_DE,true);
 		
@@ -141,8 +145,8 @@ class Ingredients extends CActiveRecord
 
 		$criteria->compare('ING_ID',$this->ING_ID);
 		$criteria->compare('PRF_UID',$this->PRF_UID);
-		$criteria->compare('ING_CREATED',$this->ING_CREATED,true);
-		$criteria->compare('ING_CHANGED',$this->ING_CHANGED,true);
+		$criteria->compare('ING_CREATED',$this->ING_CREATED);
+		$criteria->compare('ING_CHANGED',$this->ING_CHANGED);
 		$criteria->compare('NUT_ID',$this->NUT_ID);
 		$criteria->compare('ING_GROUP',$this->ING_GROUP);
 		$criteria->compare('ING_SUBGROUP',$this->ING_SUBGROUP);
@@ -152,6 +156,7 @@ class Ingredients extends CActiveRecord
 		$criteria->compare('ING_DENSITY',$this->ING_DENSITY);
 		//$criteria->compare('ING_PICTURE',$this->ING_PICTURE,true);
 		$criteria->compare('ING_PICTURE_AUTH',$this->ING_PICTURE_AUTH,true);
+		$criteria->compare('ING_PICTURE_ETAG',$this->ING_PICTURE_ETAG,true);
 		$criteria->compare('ING_TITLE_EN',$this->ING_TITLE_EN,true);
 		$criteria->compare('ING_TITLE_DE',$this->ING_TITLE_DE,true);
 		

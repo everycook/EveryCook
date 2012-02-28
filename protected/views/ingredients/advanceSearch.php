@@ -8,10 +8,29 @@ $this->menu=array(
 	array('label'=>'Manage Ingredients', 'url'=>array('admin')),
 );
 
+//if ($this->validSearchPerformed){
+	$this->mainButtons = array(
+		array('label'=>$this->trans->INGREDIENTS_CREATE, 'link_id'=>'middle_single', 'url'=>array('ingredients/create',array())),
+	);
+//}
+
 $link = $this->createUrl('ingredients/getSubGroupSearch');
 Yii::app()->clientScript->registerScript('SubGroupNames', "
-jQuery('#groupNames input').click(function(){
-jQuery.ajax({'type':'post', 'url':'" . $link . "','data':jQuery('#search_form').serialize(),'cache':false,'success':function(html){jQuery(\"#subgroupNames\").replaceWith(html); jQuery.fancybox.close();}});
+jQuery('body').undelegate('#groupNames input','click').delegate('#groupNames input','click',function(){
+	jQuery.ajax({'type':'post', 'url':'" . $link . "','data':jQuery('#search_form').serialize(),'cache':false,'success':function(html){
+		jQuery(\"#subgroupNames\").replaceWith(html);
+		jQuery.fancybox.close();
+	}});
+}); 
+");
+
+Yii::app()->clientScript->registerScript('AjaxSubmit2', "
+jQuery('body').undelegate('form','submit').delegate('form','submit',function(){
+	jQuery.ajax({'type':'get', 'url':jQuery(this).attr('action') + '?' + jQuery(this).serialize(),'success':function(data){
+		jQuery(\"#changable_content\").html('');
+		jQuery(\"#changable_content\").append(data);
+	}});
+	return false;
 }); 
 ");
 

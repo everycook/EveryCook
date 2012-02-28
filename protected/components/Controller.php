@@ -21,7 +21,19 @@ class Controller extends CController
 	 */
 	public $breadcrumbs=array();
 	
+	public $mainButtons = array();
+	
+	public function useDefaultMainButtons(){
+		$this->mainButtons = array(
+			array('label'=>'Rezept Suchen', 'link_id'=>'left', 'url'=>array('recipes/search',array())),
+			array('label'=>'Die Kochende Maschiene', 'link_id'=>'right', 'url'=>array('site/page', array('view'=>'about'))),
+			array('label'=>'Essen Suchen', 'link_id'=>'middle', 'url'=>array('ingredients/search',array())),
+		);
+	}
+	
 	public $isFancyAjaxRequest = false;
+	
+	public $validSearchPerformed = false;
 	
 	public function getIsAjaxRequest(){
 		return $this->isFancyAjaxRequest || Yii::app()->request->isAjaxRequest;
@@ -50,31 +62,13 @@ class Controller extends CController
 		}
 		if($this->beforeRender($view))
 		{
-			$output=$this->renderPartial($view,$data,true);
+			$output=$this->renderPartial($view,$data,true,true);
 			if(($layoutFile=$this->getLayoutFile($ajaxLayout))!==false)
 					$output=$this->renderFile($layoutFile,array('content'=>$output),true);
 
 			$this->afterRender($view,$output);
 			
-			$clientScripts = Yii::app()->getClientScript();
 			$output=$this->processOutput($output);
-			/*
-			//from framework/web/CClientScript
-			if($clientScripts->hasScripts) {
-				//$clientScripts->renderCoreScripts();
-
-				if(!empty($clientScripts->scriptMap))
-					$clientScripts->remapScripts();
-				
-				$clientScripts->unifyScripts();
-				
-				$clientScripts->renderHead($output);
-				if($clientScripts->enableJavaScript) {
-					$clientScripts->renderBodyBegin($output);
-					$clientScripts->renderBodyEnd($output);
-				}
-			}
-			*/
 			echo $output;
 		}
 	}

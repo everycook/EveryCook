@@ -6,11 +6,6 @@
 )); ?>
 
 	<div class="row">
-		<?php echo $form->label($model,'STE_ID'); ?>
-		<?php echo $form->textField($model,'STE_ID'); ?>
-	</div>
-
-	<div class="row">
 		<?php echo $form->label($model,'REC_ID'); ?>
 		<?php echo $form->textField($model,'REC_ID'); ?>
 	</div>
@@ -36,23 +31,13 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'STE_T_BOTTOM'); ?>
-		<?php echo $form->textField($model,'STE_T_BOTTOM'); ?>
+		<?php echo $form->label($model,'STE_CELSIUS'); ?>
+		<?php echo $form->textField($model,'STE_CELSIUS'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'STE_T_LID'); ?>
-		<?php echo $form->textField($model,'STE_T_LID'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'STE_T_STEAM'); ?>
-		<?php echo $form->textField($model,'STE_T_STEAM'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'STE_BAR'); ?>
-		<?php echo $form->textField($model,'STE_BAR'); ?>
+		<?php echo $form->label($model,'STE_KPA'); ?>
+		<?php echo $form->textField($model,'STE_KPA'); ?>
 	</div>
 
 	<div class="row">

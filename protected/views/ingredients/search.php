@@ -7,6 +7,22 @@ $this->menu=array(
 	array('label'=>'Create Ingredients', 'url'=>array('create')),
 	array('label'=>'Manage Ingredients', 'url'=>array('admin')),
 );
+
+//if ($this->validSearchPerformed){
+	$this->mainButtons = array(
+		array('label'=>$this->trans->INGREDIENTS_CREATE, 'link_id'=>'middle_single', 'url'=>array('ingredients/create',array())),
+	);
+//}
+
+Yii::app()->clientScript->registerScript('AjaxSubmit', "
+jQuery('form').submit(function(){
+jQuery.ajax({'type':'get', 'url':jQuery(this).attr('action') + '?' + jQuery(this).serialize(),'success':function(html){
+jQuery(\"#changable_content\").html('');
+jQuery(\"#changable_content\").append(html);
+}});
+return false;
+}); 
+");
 ?>
 
 <div>
@@ -20,7 +36,7 @@ $this->menu=array(
 	</div>
 	
 	<div class="f-right">
-		<?php echo CHtml::link($this->trans->INGREDIENTS_ADVANCE_SEARCH, array('ingredients/advanceSearch'), array('class'=>'button')); ?><br>
+		<?php echo CHtml::ajaxlink($this->trans->INGREDIENTS_ADVANCE_SEARCH, array('ingredients/advanceSearch'), array('update'=>'#changable_content'), array('class'=>'button')); ?><br>
 	</div>
 	
 	<div class="clearfix"></div>

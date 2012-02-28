@@ -4,16 +4,13 @@
  * This is the model class for table "steps".
  *
  * The followings are the available columns in table 'steps':
- * @property integer $STE_ID
  * @property integer $REC_ID
  * @property integer $ACT_ID
  * @property integer $ING_ID
  * @property integer $STE_STEP_NO
  * @property integer $STE_GRAMS
- * @property integer $STE_T_BOTTOM
- * @property integer $STE_T_LID
- * @property integer $STE_T_STEAM
- * @property double $STE_BAR
+ * @property integer $STE_CELSIUS
+ * @property double $STE_KPA
  * @property integer $STE_RPM
  * @property integer $STE_CLOCKWISE
  * @property integer $STE_STIR_RUN
@@ -49,12 +46,12 @@ class Steps extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('REC_ID, STE_STEP_NO', 'required'),
-			array('REC_ID, ACT_ID, ING_ID, STE_STEP_NO, STE_GRAMS, STE_T_BOTTOM, STE_T_LID, STE_T_STEAM, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, STT_ID', 'numerical', 'integerOnly'=>true),
-			array('STE_BAR', 'numerical'),
+			array('REC_ID, ACT_ID, ING_ID, STE_STEP_NO, STE_GRAMS, STE_CELSIUS, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, STT_ID', 'numerical', 'integerOnly'=>true),
+			array('STE_KPA', 'numerical'),
 			array('recipe, ingredient, stepType', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('STE_ID, REC_ID, ACT_ID, ING_ID, STE_STEP_NO, STE_GRAMS, STE_T_BOTTOM, STE_T_LID, STE_T_STEAM, STE_BAR, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, STT_ID', 'safe', 'on'=>'search'),
+			array('REC_ID, ACT_ID, ING_ID, STE_STEP_NO, STE_GRAMS, STE_CELSIUS, STE_KPA, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, STT_ID', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -78,16 +75,13 @@ class Steps extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'STE_ID' => 'Ste',
 			'REC_ID' => 'Rec',
 			'ACT_ID' => 'Act',
 			'ING_ID' => 'Ing',
 			'STE_STEP_NO' => 'Ste Step No',
 			'STE_GRAMS' => 'Ste Grams',
-			'STE_T_BOTTOM' => 'Ste T Bottom',
-			'STE_T_LID' => 'Ste T Lid',
-			'STE_T_STEAM' => 'Ste T Steam',
-			'STE_BAR' => 'Ste Bar',
+			'STE_CELSIUS' => 'Ste Celsius',
+			'STE_KPA' => 'Ste Kpa',
 			'STE_RPM' => 'Ste Rpm',
 			'STE_CLOCKWISE' => 'Ste Clockwise',
 			'STE_STIR_RUN' => 'Ste Stir Run',
@@ -103,24 +97,21 @@ class Steps extends CActiveRecord
 	
 	public function getCriteria(){
 		$criteria=new CDbCriteria;
-
-		$criteria->compare('STE_ID',$this->STE_ID);
-		//$criteria->compare('REC_ID',$this->REC_ID);
+		
+		$criteria->compare('REC_ID',$this->REC_ID);
 		$criteria->compare('ACT_ID',$this->ACT_ID);
-		//$criteria->compare('ING_ID',$this->ING_ID);
+		$criteria->compare('ING_ID',$this->ING_ID);
 		$criteria->compare('STE_STEP_NO',$this->STE_STEP_NO);
 		$criteria->compare('STE_GRAMS',$this->STE_GRAMS);
-		$criteria->compare('STE_T_BOTTOM',$this->STE_T_BOTTOM);
-		$criteria->compare('STE_T_LID',$this->STE_T_LID);
-		$criteria->compare('STE_T_STEAM',$this->STE_T_STEAM);
-		$criteria->compare('STE_BAR',$this->STE_BAR);
+		$criteria->compare('STE_CELSIUS',$this->STE_CELSIUS);
+		$criteria->compare('STE_KPA',$this->STE_KPA);
 		$criteria->compare('STE_RPM',$this->STE_RPM);
 		$criteria->compare('STE_CLOCKWISE',$this->STE_CLOCKWISE);
 		$criteria->compare('STE_STIR_RUN',$this->STE_STIR_RUN);
 		$criteria->compare('STE_STIR_PAUSE',$this->STE_STIR_PAUSE);
 		$criteria->compare('STE_STEP_DURATION',$this->STE_STEP_DURATION);
-		//$criteria->compare('STT_ID',$this->STT_ID);
-
+		$criteria->compare('STT_ID',$this->STT_ID);
+		
 		//$criteria->with = array('recipe' => array());
 		$criteria->with = array('ingredient' => array('nutrientData'));
 		$criteria->with = array('stepType' => array());

@@ -1,6 +1,6 @@
 <div class="resultArea">
 	<!-- STL show image -->
-	<?php echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'])), '', array('class'=>'ingredient')), array('view', 'id'=>$data['ING_ID'])); ?>
+	<?php echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'png')), '', array('class'=>'ingredient', 'alt'=>$data['ING_PICTURE_AUTH'], 'title'=>$data['ING_PICTURE_AUTH'])), array('view', 'id'=>$data['ING_ID'])); ?>
 	
 	<div class="options">
 		<?php echo CHtml::link(CHtml::encode($this->trans->INGREDIENTS_COOK_WITH), array('recipes/search', 'ing_id'=>$data['ING_ID']), array('class'=>'button')); ?>

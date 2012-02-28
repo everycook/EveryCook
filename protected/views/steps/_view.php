@@ -1,11 +1,7 @@
 <div class="view">
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('STE_ID')); ?>:</b>
-	<?php echo CHtml::link(CHtml::encode($data->STE_ID), array('view', 'id'=>$data->STE_ID)); ?>
-	<br />
-
 	<b><?php echo CHtml::encode($data->getAttributeLabel('REC_ID')); ?>:</b>
-	<?php echo CHtml::encode($data->REC_ID); ?>
+	<?php echo CHtml::link(CHtml::encode($data->REC_ID), array('view', 'id'=>$data->REC_ID)); ?>
 	<br />
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('ACT_ID')); ?>:</b>
@@ -24,23 +20,15 @@
 	<?php echo CHtml::encode($data->STE_GRAMS); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('STE_T_BOTTOM')); ?>:</b>
-	<?php echo CHtml::encode($data->STE_T_BOTTOM); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('STE_CELSIUS')); ?>:</b>
+	<?php echo CHtml::encode($data->STE_CELSIUS); ?>
+	<br />
+
+	<b><?php echo CHtml::encode($data->getAttributeLabel('STE_KPA')); ?>:</b>
+	<?php echo CHtml::encode($data->STE_KPA); ?>
 	<br />
 
 	<?php /*
-	<b><?php echo CHtml::encode($data->getAttributeLabel('STE_T_LID')); ?>:</b>
-	<?php echo CHtml::encode($data->STE_T_LID); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('STE_T_STEAM')); ?>:</b>
-	<?php echo CHtml::encode($data->STE_T_STEAM); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('STE_BAR')); ?>:</b>
-	<?php echo CHtml::encode($data->STE_BAR); ?>
-	<br />
-
 	<b><?php echo CHtml::encode($data->getAttributeLabel('STE_RPM')); ?>:</b>
 	<?php echo CHtml::encode($data->STE_RPM); ?>
 	<br />

@@ -61,14 +61,14 @@ class StepsController extends Controller
 	 */
 	public function actionCreate()
 	{
-		$model=new steps;
+		$model=new Steps;
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['steps']))
+		if(isset($_POST['Steps']))
 		{
-			$model->attributes=$_POST['steps'];
+			$model->attributes=$_POST['Steps'];
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->STE_ID));
 		}
@@ -90,9 +90,9 @@ class StepsController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['steps']))
+		if(isset($_POST['Steps']))
 		{
-			$model->attributes=$_POST['steps'];
+			$model->attributes=$_POST['Steps'];
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->STE_ID));
 		}
@@ -127,7 +127,7 @@ class StepsController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$dataProvider=new CActiveDataProvider('steps');
+		$dataProvider=new CActiveDataProvider('Steps');
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));
@@ -138,10 +138,10 @@ class StepsController extends Controller
 	 */
 	public function actionAdmin()
 	{
-		$model=new steps('search');
+		$model=new Steps('search');
 		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['steps']))
-			$model->attributes=$_GET['steps'];
+		if(isset($_GET['Steps']))
+			$model->attributes=$_GET['Steps'];
 
 		$this->checkRenderAjax('admin',array(
 			'model'=>$model,
@@ -155,7 +155,7 @@ class StepsController extends Controller
 	 */
 	public function loadModel($id)
 	{
-		$model=steps::model()->findByPk($id);
+		$model=Steps::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
@@ -167,7 +167,7 @@ class StepsController extends Controller
 	 */
 	protected function performAjaxValidation($model)
 	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='steps-form')
+		if(isset($_POST['ajax']) && $_POST['ajax']==='Steps-form')
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();

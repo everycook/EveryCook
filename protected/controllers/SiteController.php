@@ -23,6 +23,7 @@ class SiteController extends Controller
 
 	public function actionAdmin()
 	{
+		$this->useDefaultMainButtons();
 		$this->checkRenderAjax('admin');
 	}
 	
@@ -32,6 +33,7 @@ class SiteController extends Controller
 	 */
 	public function actionIndex()
 	{
+		$this->useDefaultMainButtons();
 		// renders the view file 'protected/views/site/index.php'
 		// using the default layout 'protected/views/layouts/main.php'
 		$this->checkRenderAjax('index');
@@ -42,6 +44,7 @@ class SiteController extends Controller
 	 */
 	public function actionError()
 	{
+		$this->useDefaultMainButtons();
 	    if($error=Yii::app()->errorHandler->error)
 	    {
 	    	if(Yii::app()->request->isAjaxRequest)
@@ -56,6 +59,7 @@ class SiteController extends Controller
 	 */
 	public function actionContact()
 	{
+		$this->useDefaultMainButtons();
 		$model=new ContactForm;
 		if(isset($_POST['ContactForm']))
 		{
