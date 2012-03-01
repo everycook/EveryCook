@@ -1,5 +1,12 @@
-<div class="form">
+<?php
+$this->widget('application.extensions.fancybox.EFancyBox', array(
+    'target'=>'a.fancyChoose',
+    'config'=>array('autoScale' => true, 'autoDimensions'=> true, 'centerOnScroll'=> true, ),
+    )
+);
+?>
 
+<div class="form">
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'steps-form',
 	'enableAjaxValidation'=>false,
@@ -10,31 +17,40 @@
 	<?php echo $form->errorSummary($model); ?>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'REC_ID'); ?>
-		<?php echo $form->textField($model,'REC_ID'); ?>
-		<?php echo $form->error($model,'REC_ID'); ?>
+		<?php //echo $form->labelEx($model,'REC_ID'); ?>
+		<?php echo $form->hiddenField($model,'REC_ID'); ?>
+		<?php //echo $form->error($model,'REC_ID'); ?>
 	</div>
+	
+	<div class="row">
+		<?php //echo $form->labelEx($model,'STE_STEP_NO'); ?>
+		<?php echo $form->hiddenField($model,'STE_STEP_NO'); ?>
+		<?php //echo $form->error($model,'STE_STEP_NO'); ?>
+	</div>
+	
+	<?php
+	$htmlOptions_type0 = array('empty'=>$this->trans->RECIPES_SEARCH_CHOOSE);
+	echo Functions::createInput($this->trans->RECIPES_STEP_TYPE, $model, 'STT_ID', $stepTypes, Functions::DROP_DOWN_LIST, 'stepTypes', $htmlOptions_type0, $form);
+	echo Functions::createInput($this->trans->RECIPES_ACTION, $model, 'ACT_ID', $actions, Functions::DROP_DOWN_LIST, 'actions', $htmlOptions_type0, $form);
+	echo Functions::createInput($this->trans->RECIPES_INGREDIENT, $model, 'ING_ID', $ingredients, Functions::DROP_DOWN_LIST, 'ingredients', $htmlOptions_type0, $form);
+	
+	/*
+	if ($model->ingredient && $model->ingredient->ING_ID){
+		$ingredientDescription = $model->ingredient->__get('ING_TITLE_' . Yii::app()->session['lang'])
+	} else {
+		$ingredientDescription = $this->trans->RECIPES_SEARCH_CHOOSE;
+	}
+	?>
+	
+	<div class="row" id="nutrientData">
+		<?php echo $form->labelEx($model,'ING_ID',array('label'=>$this->trans->RECIPES_INGREDIENT)); ?>
+		<?php echo $form->hiddenField($model,'ING_ID', array('id'=>'ING_ID')); ?>
+		<?php echo CHtml::link($ingredientDescription, array('ingredients/chooseIngredientData'), array('class'=>'fancyChoose IngredientDataSelect')) ?>
+	</div>
+	*/ ?>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'ACT_ID'); ?>
-		<?php echo $form->textField($model,'ACT_ID'); ?>
-		<?php echo $form->error($model,'ACT_ID'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'ING_ID'); ?>
-		<?php echo $form->textField($model,'ING_ID'); ?>
-		<?php echo $form->error($model,'ING_ID'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'STE_STEP_NO'); ?>
-		<?php echo $form->textField($model,'STE_STEP_NO'); ?>
-		<?php echo $form->error($model,'STE_STEP_NO'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'STE_GRAMS'); ?>
+		<?php echo $form->labelEx($model,,array('label'=>$this->trans->RECIPES_INGREDIENT_AMOUNT)); ?>
 		<?php echo $form->textField($model,'STE_GRAMS'); ?>
 		<?php echo $form->error($model,'STE_GRAMS'); ?>
 	</div>
@@ -80,13 +96,7 @@
 		<?php echo $form->textField($model,'STE_STEP_DURATION'); ?>
 		<?php echo $form->error($model,'STE_STEP_DURATION'); ?>
 	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'STT_ID'); ?>
-		<?php echo $form->textField($model,'STT_ID'); ?>
-		<?php echo $form->error($model,'STT_ID'); ?>
-	</div>
-
+	
 	<div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
 	</div>

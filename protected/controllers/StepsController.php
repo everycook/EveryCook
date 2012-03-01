@@ -48,34 +48,53 @@ class StepsController extends Controller
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionView($id)
+	public function actionView($id, $id2)
 	{
 		$this->checkRenderAjax('view',array(
-			'model'=>$this->loadModel($id),
+			'model'=>$this->loadModel($id,$id2),
 		));
 	}
 
+	private function prepareCreateOrUpdate($oldmodel, $view){
+		// Uncomment the following line if AJAX validation is needed
+		// $this->performAjaxValidation($model);
+
+		if ($oldmodel){
+			$model = $oldmodel;
+		} else {
+			$model = new Steps;
+		}
+		
+		if(isset($_POST['Steps']))
+		{
+			$model->attributes=$_POST['Steps'];
+			if($model->save())
+				$this->redirect(array('view','id'=>$model->REC_ID,'id2'=>$model->STE_STEP_NO));
+		}
+		
+		$stepTypes = Yii::app()->db->createCommand()->select('STT_ID,STT_DESC_'.Yii::app()->session['lang'])->from('step_types')->queryAll();
+		$stepTypes = CHtml::listData($stepTypes,'STT_ID','STT_DESC_'.Yii::app()->session['lang']);
+		$actions = Yii::app()->db->createCommand()->select('ACT_ID,ACT_DESC_'.Yii::app()->session['lang'])->from('actions')->queryAll();
+		$actions = CHtml::listData($actions,'ACT_ID','ACT_DESC_'.Yii::app()->session['lang']);
+		$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_DESC_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
+		$ingredients = CHtml::listData($ingredients,'ING_ID','ING_DESC_'.Yii::app()->session['lang']);
+		
+		$this->checkRenderAjax($view,array(
+			'model'=>$model,
+			'stepTypes'=>$stepTypes,
+			'actions'=>$actions,
+			'ingredients'=>$ingredients,
+		));
+	}
+	
+	
 	/**
 	 * Creates a new model.
 	 * If creation is successful, the browser will be redirected to the 'view' page.
 	 */
 	public function actionCreate()
 	{
-		$model=new Steps;
-
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-
-		if(isset($_POST['Steps']))
-		{
-			$model->attributes=$_POST['Steps'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->STE_ID));
-		}
-
-		$this->checkRenderAjax('create',array(
-			'model'=>$model,
-		));
+		$this->prepareCreateOrUpdate(null, 'create');
 	}
 
 	/**
@@ -83,23 +102,10 @@ class StepsController extends Controller
 	 * If update is successful, the browser will be redirected to the 'view' page.
 	 * @param integer $id the ID of the model to be updated
 	 */
-	public function actionUpdate($id)
+	public function actionUpdate($id, $id2)
 	{
-		$model=$this->loadModel($id);
-
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-
-		if(isset($_POST['Steps']))
-		{
-			$model->attributes=$_POST['Steps'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->STE_ID));
-		}
-
-		$this->checkRenderAjax('update',array(
-			'model'=>$model,
-		));
+		$model=$this->loadModel($id, $id2, true);
+		$this->prepareCreateOrUpdate($model, 'update');
 	}
 
 	/**
@@ -107,12 +113,12 @@ class StepsController extends Controller
 	 * If deletion is successful, the browser will be redirected to the 'admin' page.
 	 * @param integer $id the ID of the model to be deleted
 	 */
-	public function actionDelete($id)
+	public function actionDelete($id, $id2)
 	{
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
-			$this->loadModel($id)->delete();
+			$this->loadModel($id,$id2)->delete();
 
 			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 			if(!isset($_GET['ajax']))
@@ -153,9 +159,9 @@ class StepsController extends Controller
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer the ID of the model to be loaded
 	 */
-	public function loadModel($id)
+	public function loadModel($id,$id2)
 	{
-		$model=Steps::model()->findByPk($id);
+		$model=Steps::model()->findByPk(array(array('REC_ID'=>$id),array('STE_STEP_NO'=>$id2)));
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;

@@ -1,5 +1,5 @@
 <div class="resultArea">
-	<?php echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'])), '', array('class'=>'recipe')), array('view', 'id'=>$data['REC_ID'])); ?>
+	<?php echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'png')), '', array('class'=>'recipe', 'alt'=>$data['REC_PICTURE_AUTH'], 'title'=>$data['REC_PICTURE_AUTH'])), array('view', 'id'=>$data['REC_ID'])); ?>
 	
 	<div class="options">
 		<?php echo CHtml::link('+', array('user/addrecipes', 'id'=>$data['REC_ID']), array('class'=>'button addRecipe', 'title'=>$this->trans->RECIPES_ADD)); ?><br>
@@ -10,7 +10,7 @@
 	
 	<div class="data">
 		<div class="name">
-			<?php echo CHtml::link(CHtml::encode($data['REC_TITLE_' . Yii::app()->session['lang']);]), array('view', 'id'=>$data['REC_ID'])); ?>
+			<?php echo CHtml::link(CHtml::encode($data['REC_TITLE_' . Yii::app()->session['lang']]), array('view', 'id'=>$data['REC_ID'])); ?>
 		</div>
 
 <?php /*
@@ -31,7 +31,7 @@
 */ ?>
 
 		<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>
-		<?php echo CHtml::encode($data['RET_DESC_' . Yii::app()->session['lang']);]); ?>
+		<?php echo CHtml::encode($data['RET_DESC_' . Yii::app()->session['lang']]); ?>
 		<br />
 	</div>
 	<div class="clearfix"></div>

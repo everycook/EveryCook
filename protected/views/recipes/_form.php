@@ -3,49 +3,12 @@
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'recipes-form',
 	'enableAjaxValidation'=>false,
-    'htmlOptions'=>array('enctype' => 'multipart/form-data'),
+    'htmlOptions'=>array('enctype' => 'multipart/form-data', 'class'=>'ajaxupload'),
 )); ?>
 
 	<p class="note">Fields with <span class="required">*</span> are required.</p>
 
 	<?php echo $form->errorSummary($model); ?>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'REC_CREATED'); ?>
-		<?php echo $form->textField($model,'REC_CREATED'); ?>
-		<?php echo $form->error($model,'REC_CREATED'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'REC_CHANGED'); ?>
-		<?php echo $form->textField($model,'REC_CHANGED'); ?>
-		<?php echo $form->error($model,'REC_CHANGED'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'REC_PICTURE'); ?>
-		<?php echo $form->textField($model,'REC_PICTURE'); ?>
-		<?php echo $form->error($model,'REC_PICTURE'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'REC_PICTURE_AUTH'); ?>
-		<?php echo $form->textField($model,'REC_PICTURE_AUTH',array('size'=>30,'maxlength'=>30)); ?>
-		<?php echo $form->error($model,'REC_PICTURE_AUTH'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'REC_TYPE'); ?>
-		<?php echo $form->textField($model,'REC_TYPE'); ?>
-		<?php echo $form->error($model,'REC_TYPE'); ?>
-	</div>
-
-	<?php echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID)), '', array('class'=>'recipe')); ?>
-	<div class="row">
-		<?php echo $form->labelEx($model,'filename'); ?>
-		<?php echo $form->FileField($model,'filename'); ?>
-		<?php echo $form->error($model,'filename'); ?>
-	</div>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'REC_TITLE_EN'); ?>
@@ -58,7 +21,43 @@
 		<?php echo $form->textField($model,'REC_TITLE_DE',array('size'=>60,'maxlength'=>100)); ?>
 		<?php echo $form->error($model,'REC_TITLE_DE'); ?>
 	</div>
+	
+	<?php
+	$htmlOptions_type0 = array('empty'=>$this->trans->RECIPES_SEARCH_CHOOSE);
+	echo Functions::createInput($this->trans->RECIPES_TYPE, $model, 'REC_TYPE', $recipeTypes, Functions::DROP_DOWN_LIST, 'recipeTypes', $htmlOptions_type0, $form);
+	?>
+	
+	<?php if ($model->REC_ID) {echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'png')), '', array('class'=>'recipe', 'alt'=>$model->REC_PICTURE_AUTH, 'title'=>$model->REC_PICTURE_AUTH));} ?><br />
+	<div class="row">
+		<?php echo $form->labelEx($model,'filename'); ?>
+		<?php echo $form->FileField($model,'filename'); ?>
+		<?php echo $form->error($model,'filename'); ?>
+	</div>
 
+	<div class="row">
+		<?php echo $form->labelEx($model,'REC_PICTURE_AUTH'); ?>
+		<?php echo $form->textField($model,'REC_PICTURE_AUTH',array('size'=>30,'maxlength'=>30)); ?>
+		<?php echo $form->error($model,'REC_PICTURE_AUTH'); ?>
+	</div>
+	
+	<div class="steps">
+	<?php
+		$fieldOptions = array(
+			array('REC_ID', null, null),
+			array('STE_STEP_NO', null, null),
+			array('STT_ID', $this->trans->RECIPES_STEP_TYPE, $stepTypes),
+			array('ACT_ID', $this->trans->RECIPES_ACTION, $actions),
+			array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients),
+			array('STE_GRAMS', $this->trans->RECIPES_INGREDIENT_AMOUNT, null),
+		);
+		$text = array('add'=>$this->trans->RECIPES_ADD_STEP, 'remove'=>$this->trans->RECIPES_REMOVE_STEP, 'move up'=>'-up-', 'move down'=>'-down-', 'options'=>'Options');
+		
+		$htmlOptions = array('empty'=>$this->trans->RECIPES_SEARCH_CHOOSE, 'new'=>new Steps);
+		echo Functions::createInputTable($model->steps, $fieldOptions, $htmlOptions, $form, $text);
+		$newStep = new Steps;
+	?>
+	
+	</div>
 	<div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
 	</div>

@@ -5,7 +5,7 @@ class MenuWidget extends CWidget {
 	
 	public function run() {
 		$pos = 0;
-		$handlers = "";
+		$handlers = '';
 		foreach($this->items as $item) {
 			$pos++;
 			$link = $this->getController()->createUrl($item['url'][0],$item['url'][1]);
@@ -16,9 +16,9 @@ class MenuWidget extends CWidget {
 					echo CHtml::closeTag('span');
 				echo CHtml::closeTag('div');
 			echo CHtml::closeTag('a');
-			$handlers .= "jQuery('body').undelegate('#" . $item['link_id'] . "','click').delegate('#" . $item['link_id'] . "','click',function(){\n" . CHtml::ajax(array('url' => $link, 'update' => '#changable_content')) . ";\n return false;\n});\n";
+			//$handlers .= "jQuery('body').undelegate('#" . $item['link_id'] . "','click').delegate('#" . $item['link_id'] . "','click',function(){\n" . CHtml::ajax(array('url' => $link, 'update' => '#changable_content')) . ";\n return false;\n});\n";
 		}
-		if (handlers != ""){
+		if ($handlers !== ''){
 			?>
 			<script type="text/javascript">
 			/*<![CDATA[*/

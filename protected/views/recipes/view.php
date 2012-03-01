@@ -23,7 +23,7 @@ $this->menu=array(
 			<ul>
 			<?php foreach($model->steps as $step){
 				if ($step->ingredient != null){
-					echo '<li>' . CHtml::link($step->ingredient->ING_TITLE_EN, array('ingredients/view', 'id'=>$step->ingredient->ING_ID), array('title'=>$this->trans->RECIPES_TOOLTIP_OPEN_INGREDIENT)) . '</li>';
+					echo '<li>' . CHtml::link($step->ingredient->__get('ING_TITLE_' . Yii::app()->session['lang']), array('ingredients/view', 'id'=>$step->ingredient->ING_ID), array('title'=>$this->trans->RECIPES_TOOLTIP_OPEN_INGREDIENT)) . '</li>';
 				}
 			}
 			?>
@@ -35,22 +35,31 @@ $this->menu=array(
 	
 	<div class="details">
 		<div class="name">
-			<?php echo CHtml::link(CHtml::encode($model->REC_TITLE_EN), array('view', 'id'=>$model->REC_ID)); ?>
+			<?php echo CHtml::link(CHtml::encode($model->__get('REC_TITLE_' . Yii::app()->session['lang'])), array('view', 'id'=>$model->REC_ID)); ?>
 		</div>
-		<?php echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID)), '', array('class'=>'recipe')); ?><br />
+		<?php echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'png')), '', array('class'=>'recipe', 'alt'=>$model->REC_PICTURE_AUTH, 'title'=>$model->REC_PICTURE_AUTH)); ?><br />
 		
 		<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>
-		<?php echo CHtml::encode($model->recipeTypes->RET_DESC_EN); ?>
+		<?php echo CHtml::encode($model->recipeTypes->__get('RET_DESC_' . Yii::app()->session['lang'])); ?>
 		<br /><br />
 		
 		<?php 
-			$i = 0;
+			$i = 1;
 			foreach($model->steps as $step){
 				echo '<div class="step">';
 				echo '<span class="stepNo">' . $i . '.</span> ';
-				echo '<span class="igredient">' . $step->ingredient->ING_TITLE_EN . '</span> ';
-				echo '<span class="amount">' . $step->STE_GRAMS . 'g' . '</span> ';
-				echo '<span class="action">' . $step->stepType->STT_DESC_EN . '</span>';
+				if ($step->stepType){
+					echo '<span class="stepType">' . $step->stepType->__get('STT_DESC_' . Yii::app()->session['lang']) . ':</span> ';
+				}
+				$text = $step->action->__get('ACT_DESC_' . Yii::app()->session['lang']);
+				if ($step->ingredient != null){
+					$replText = '<span class="igredient">' . $step->ingredient->__get('ING_TITLE_' . Yii::app()->session['lang']) . '</span> ';
+					if ($step->STE_GRAMS){
+						$replText .= '<span class="amount">' . $step->STE_GRAMS . 'g' . '</span> ';
+					}
+					$text = str_replace('#objectofaction#', $replText, $text);
+				}
+				echo '<span class="action">' . $text . '</span>';
 				echo '</div>';
 				$i++;
 			}

@@ -16,10 +16,6 @@
 		
 		<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/styles.css"/>
 		
-		<!--<script type="text/javascript" src="<?php echo Yii::app()->request->baseUrl; ?>/lib/jquery/jquery-1.6.4.js"></script>
-		<script type="text/javascript" src="<?php echo Yii::app()->request->baseUrl; ?>/js/index.js"></script>
-		<script type="text/javascript" src="<?php echo Yii::app()->request->baseUrl; ?>/js/langpick.js"></script>-->
-		
 		<title><?php echo CHtml::encode($this->pageTitle); ?></title>
 	</head>
 	<body>

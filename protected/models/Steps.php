@@ -48,7 +48,7 @@ class Steps extends CActiveRecord
 			array('REC_ID, STE_STEP_NO', 'required'),
 			array('REC_ID, ACT_ID, ING_ID, STE_STEP_NO, STE_GRAMS, STE_CELSIUS, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, STT_ID', 'numerical', 'integerOnly'=>true),
 			array('STE_KPA', 'numerical'),
-			array('recipe, ingredient, stepType', 'safe'),
+			array('recipe, ingredient, action, stepType', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('REC_ID, ACT_ID, ING_ID, STE_STEP_NO, STE_GRAMS, STE_CELSIUS, STE_KPA, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, STT_ID', 'safe', 'on'=>'search'),
@@ -63,8 +63,9 @@ class Steps extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'recipe' => array(self::BELONGS_TO, 'Recipes', 'REC_ID'),
+			/*'recipe' => array(self::BELONGS_TO, 'Recipes', 'REC_ID'),*/
 			'ingredient' => array(self::BELONGS_TO, 'Ingredients', 'ING_ID'),
+			'action' => array(self::BELONGS_TO, 'Actions', 'ACT_ID'),
 			'stepType' => array(self::BELONGS_TO, 'StepTypes', 'STT_ID'),
 		);
 	}
@@ -114,10 +115,12 @@ class Steps extends CActiveRecord
 		
 		//$criteria->with = array('recipe' => array());
 		$criteria->with = array('ingredient' => array('nutrientData'));
+		$criteria->with = array('action' => array());
 		$criteria->with = array('stepType' => array());
 		
 		$criteria->compare('REC_ID',$this->recipe,true);
 		$criteria->compare('ING_ID',$this->ingredient,true);
+		$criteria->compare('ACT_ID',$this->action,true);
 		$criteria->compare('STT_ID',$this->stepType,true);
 		
 		$criteria->order('STE_STEP_NO');

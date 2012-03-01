@@ -14,32 +14,14 @@ $this->menu=array(
 	);
 //}
 
-$link = $this->createUrl('ingredients/getSubGroupSearch');
-Yii::app()->clientScript->registerScript('SubGroupNames', "
-jQuery('body').undelegate('#groupNames input','click').delegate('#groupNames input','click',function(){
-	jQuery.ajax({'type':'post', 'url':'" . $link . "','data':jQuery('#search_form').serialize(),'cache':false,'success':function(html){
-		jQuery(\"#subgroupNames\").replaceWith(html);
-		jQuery.fancybox.close();
-	}});
-}); 
-");
 
-Yii::app()->clientScript->registerScript('AjaxSubmit2', "
-jQuery('body').undelegate('form','submit').delegate('form','submit',function(){
-	jQuery.ajax({'type':'get', 'url':jQuery(this).attr('action') + '?' + jQuery(this).serialize(),'success':function(data){
-		jQuery(\"#changable_content\").html('');
-		jQuery(\"#changable_content\").append(data);
-	}});
-	return false;
-}); 
-");
-
-$this->widget('application.extensions.fancybox.EFancyBox', array(
-    'target'=>'a.fancyChoose',
-    'config'=>array('autoScale' => true, 'autoDimensions'=> true, 'centerOnScroll'=> true, ),
-    )
-);
+	$this->widget('application.extensions.fancybox.EFancyBox', array(
+		'target'=>'a.fancyChoose',
+		'config'=>array('autoScale' => true, 'autoDimensions'=> true, 'centerOnScroll'=> true, ),
+		)
+	);
 ?>
+<input type="hidden" id="SubGroupSearchLink" value="<?php echo $this->createUrl('ingredients/getSubGroupSearch'); ?>"/>
 
 <div id="ingredientsAdvanceSearch">
 <?php $form=$this->beginWidget('CActiveForm', array(
@@ -54,25 +36,16 @@ $this->widget('application.extensions.fancybox.EFancyBox', array(
 	
 	<div class="clearfix"></div>
 	
-<?php /*$this->endWidget(); 	?>
-
-<?php $form=$this->beginWidget('CActiveForm', array(
-		'action'=>Yii::app()->createUrl($this->route),
-		'method'=>'post',
-	));*/
-	
+<?php 
 	$htmlOptions_type0 = array('empty'=>$this->trans->INGREDIENTS_SEARCH_CHOOSE);
 	$htmlOptions_type1 = array('template'=>'<li>{input} {label}</li>', 'separator'=>"\n", 'checkAll'=>$this->trans->INGREDIENTS_SEARCH_CHECK_ALL, 'checkAllLast'=>false);
 	
-	//already includes in controler!
-	//require_once('functions.php');
-	
-	echo searchCriteriaInput($this->trans->INGREDIENTS_GROUP, $model, 'ING_GROUP', $groupNames, 1, 'groupNames', $htmlOptions_type1);
-	echo searchCriteriaInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'ING_SUBGROUP', $subgroupNames, 1, 'subgroupNames', $htmlOptions_type1);
-	echo searchCriteriaInput($this->trans->INGREDIENTS_STORABILITY, $model, 'ING_STORABILITY', $storability, 1, 'storability', $htmlOptions_type1);
-	echo searchCriteriaInput($this->trans->INGREDIENTS_CONVENIENCE, $model, 'ING_CONVENIENCE', $ingredientConveniences, 0, 'ingredientConveniences', $htmlOptions_type0);
-	echo searchCriteriaInput($this->trans->INGREDIENTS_STATE, $model, 'ING_STATE', $ingredientStates, 0, 'ingredientStates', $htmlOptions_type0);
-	//echo searchCriteriaInput($this->trans->INGREDIENTS_NUTRIENT, $model, 'NUT_ID', $nutrientData, 0, 'nutrientData', $htmlOptions_type0);
+	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_GROUP, $model, 'ING_GROUP', $groupNames, Functions::CHECK_BOX_LIST, 'groupNames', $htmlOptions_type1);
+	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'ING_SUBGROUP', $subgroupNames, Functions::CHECK_BOX_LIST, 'subgroupNames', $htmlOptions_type1);
+	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_STORABILITY, $model, 'ING_STORABILITY', $storability, Functions::CHECK_BOX_LIST, 'storability', $htmlOptions_type1);
+	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_CONVENIENCE, $model, 'ING_CONVENIENCE', $ingredientConveniences, Functions::DROP_DOWN_LIST, 'ingredientConveniences', $htmlOptions_type0);
+	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_STATE, $model, 'ING_STATE', $ingredientStates, Functions::DROP_DOWN_LIST, 'ingredientStates', $htmlOptions_type0);
+	//echo searchCriteriaInput($this->trans->INGREDIENTS_NUTRIENT, $model, 'NUT_ID', $nutrientData, Functions::DROP_DOWN_LIST, 'nutrientData', $htmlOptions_type0);
 	?>
 	
 	<div class="row" id="nutrientData">
@@ -138,6 +111,7 @@ $this->widget('application.extensions.fancybox.EFancyBox', array(
 <?php $this->widget('zii.widgets.CListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
-	'ajaxUpdate'=>'ingredientsAdvanceSearch',
+	'ajaxUpdate'=>false,
+	/*'ajaxUpdate'=>'ingredientsAdvanceSearch',*/
 )); ?>
 </div>

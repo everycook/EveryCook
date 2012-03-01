@@ -119,7 +119,7 @@ class Ingredients extends CActiveRecord
 		$criteria->compare('ING_CHANGED',$this->ING_CHANGED);
 		$criteria->compare($this->tableName().'.NUT_ID',$this->NUT_ID);
 		$criteria->compare($this->tableName().'.ING_GROUP',$this->ING_GROUP);
-		$criteria->compare($this->tableName().'.ING_SUBGROUP',$this->ING_SUBGROUP, false, 'OR');
+		$criteria->compare($this->tableName().'.ING_SUBGROUP',$this->ING_SUBGROUP);
 		$criteria->compare($this->tableName().'.ING_STATE',$this->ING_STATE);
 		$criteria->compare($this->tableName().'.ING_CONVENIENCE',$this->ING_CONVENIENCE);
 		$criteria->compare($this->tableName().'.ING_STORABILITY',$this->ING_STORABILITY);

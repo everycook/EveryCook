@@ -12,4 +12,9 @@ $this->menu=array(
 
 <h1>Create Steps</h1>
 
-<?php echo $this->renderPartial('_form', array('model'=>$model)); ?>
+<?php echo $this->renderPartial('_form', array(
+	'model'=>$model,
+	'stepTypes'=>$stepTypes,
+	'actions'=>$actions,
+	'ingredients'=>$ingredients,
+)); ?>

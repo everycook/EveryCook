@@ -1,29 +1,21 @@
 <?php
-$link = $this->createUrl('ingredients/getSubGroupForm');
-Yii::app()->clientScript->registerScript('SubGroupNames', "
-jQuery('#groupNames select').change(function(){
-jQuery.ajax({'type':'get','url':'" . $link . "/?id=' + jQuery('#groupNames select').attr('value'),'success':function(html){jQuery('#subgroupNames select').replaceWith(html);}});
-});
-");
-
 $this->widget('application.extensions.fancybox.EFancyBox', array(
     'target'=>'a.fancyChoose',
     'config'=>array('autoScale' => true, 'autoDimensions'=> true, 'centerOnScroll'=> true, ),
     )
 );
 ?>
+
+<input type="hidden" id="SubGroupFormLink" value="<?php echo $this->createUrl('ingredients/getSubGroupForm'); ?>"/>
 <div class="form">
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'ingredients-form',
 	'enableAjaxValidation'=>false,
-    'htmlOptions'=>array('enctype' => 'multipart/form-data'),
+    'htmlOptions'=>array('enctype' => 'multipart/form-data', 'class'=>'ajaxupload'),
 )); 
 	$htmlOptions_type0 = array('empty'=>$this->trans->INGREDIENTS_SEARCH_CHOOSE);
 	$htmlOptions_type1 = array('template'=>'<li>{input} {label}</li>', 'separator'=>"\n", 'checkAll'=>$this->trans->INGREDIENTS_SEARCH_CHECK_ALL, 'checkAllLast'=>false);
 	
-	//already includes in controler!
-	//require_once('functions.php');
-
 ?>
 	<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
 
@@ -58,11 +50,11 @@ $this->widget('application.extensions.fancybox.EFancyBox', array(
 	<?php } ?>
 	
 	<?php
-	echo createInput($this->trans->INGREDIENTS_GROUP, $model, 'ING_GROUP', $groupNames, 0, 'groupNames', $htmlOptions_type0, $from);
-	echo createInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'ING_SUBGROUP', $subgroupNames, 0, 'subgroupNames', $htmlOptions_type0, $from);
-	echo createInput($this->trans->INGREDIENTS_STORABILITY, $model, 'ING_STORABILITY', $storability, 0, 'storability', $htmlOptions_type0, $from);
-	echo createInput($this->trans->INGREDIENTS_CONVENIENCE, $model, 'ING_CONVENIENCE', $ingredientConveniences, 0, 'ingredientConveniences', $htmlOptions_type0, $from);
-	echo createInput($this->trans->INGREDIENTS_STATE, $model, 'ING_STATE', $ingredientStates, 0, 'ingredientStates', $htmlOptions_type0, $from);
+	echo Functions::createInput($this->trans->INGREDIENTS_GROUP, $model, 'ING_GROUP', $groupNames, Functions::DROP_DOWN_LIST, 'groupNames', $htmlOptions_type0, $form);
+	echo Functions::createInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'ING_SUBGROUP', $subgroupNames, Functions::DROP_DOWN_LIST, 'subgroupNames', $htmlOptions_type0, $form);
+	echo Functions::createInput($this->trans->INGREDIENTS_STORABILITY, $model, 'ING_STORABILITY', $storability, Functions::DROP_DOWN_LIST, 'storability', $htmlOptions_type0, $form);
+	echo Functions::createInput($this->trans->INGREDIENTS_CONVENIENCE, $model, 'ING_CONVENIENCE', $ingredientConveniences, Functions::DROP_DOWN_LIST, 'ingredientConveniences', $htmlOptions_type0, $form);
+	echo Functions::createInput($this->trans->INGREDIENTS_STATE, $model, 'ING_STATE', $ingredientStates, Functions::DROP_DOWN_LIST, 'ingredientStates', $htmlOptions_type0, $form);
 	
 	if ($model->nutrientData && $model->nutrientData->NUT_DESC){
 		$NutruentDescription = $model->nutrientData->NUT_DESC;
@@ -86,9 +78,7 @@ $this->widget('application.extensions.fancybox.EFancyBox', array(
 	<?php echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'png')), '', array('class'=>'ingredient', 'alt'=>$model->ING_PICTURE_AUTH, 'title'=>$model->ING_PICTURE_AUTH)); ?>
 	<div class="row">
 		<?php echo $form->labelEx($model,'filename'); ?>
-		<!-- < ?php echo $form->textField($model,'filename'); ?> -->
 		<?php echo $form->FileField($model,'filename'); ?>
-		<!-- < ?php echo CHtml::activeFileField($model, 'filename'); ?> -->
 		<?php echo $form->error($model,'filename'); ?>
 	</div>
 

@@ -14,15 +14,6 @@ $this->menu=array(
 	);
 //}
 
-Yii::app()->clientScript->registerScript('AjaxSubmit', "
-jQuery('form').submit(function(){
-jQuery.ajax({'type':'get', 'url':jQuery(this).attr('action') + '?' + jQuery(this).serialize(),'success':function(html){
-jQuery(\"#changable_content\").html('');
-jQuery(\"#changable_content\").append(html);
-}});
-return false;
-}); 
-");
 ?>
 
 <div>
@@ -36,7 +27,7 @@ return false;
 	</div>
 	
 	<div class="f-right">
-		<?php echo CHtml::ajaxlink($this->trans->INGREDIENTS_ADVANCE_SEARCH, array('ingredients/advanceSearch'), array('update'=>'#changable_content'), array('class'=>'button')); ?><br>
+		<?php echo CHtml::link($this->trans->INGREDIENTS_ADVANCE_SEARCH, array('ingredients/advanceSearch'), array('class'=>'button')); ?><br>
 	</div>
 	
 	<div class="clearfix"></div>
@@ -46,5 +37,6 @@ return false;
 <?php $this->widget('zii.widgets.CListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
+	'ajaxUpdate'=>false,
 )); ?>
 </div>

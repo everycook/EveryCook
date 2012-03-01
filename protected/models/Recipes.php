@@ -5,10 +5,11 @@
  *
  * The followings are the available columns in table 'recipes':
  * @property integer $REC_ID
- * @property string $REC_CREATED
- * @property string $REC_CHANGED
+ * @property integer $REC_CREATED
+ * @property integer $REC_CHANGED
  * @property string $REC_PICTURE
  * @property string $REC_PICTURE_AUTH
+ * @property string $REC_PICTURE_ETAG
  * @property integer $REC_TYPE
  * @property string $REC_TITLE_EN
  * @property string $REC_TITLE_DE
@@ -43,13 +44,14 @@ class Recipes extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('REC_CREATED, REC_TYPE, REC_TITLE_EN', 'required'),
-			array('REC_TYPE', 'numerical', 'integerOnly'=>true),
+			array('REC_CREATED, REC_CHANGED, REC_TYPE', 'numerical', 'integerOnly'=>true),
 			array('REC_PICTURE_AUTH', 'length', 'max'=>30),
+			array('REC_PICTURE_ETAG', 'length', 'max'=>40),
 			array('REC_TITLE_EN, REC_TITLE_DE', 'length', 'max'=>100),
-			array('REC_CHANGED, REC_PICTURE, steps', 'safe'),
+			array('REC_PICTURE, steps', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('REC_ID, REC_CREATED, REC_CHANGED, REC_PICTURE, REC_PICTURE_AUTH, REC_TYPE, REC_TITLE_EN, REC_TITLE_DE', 'safe', 'on'=>'search'),
+			array('REC_ID, REC_CREATED, REC_CHANGED, REC_PICTURE, REC_PICTURE_AUTH, REC_PICTURE_ETAG, REC_TYPE, REC_TITLE_EN, REC_TITLE_DE', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -77,6 +79,7 @@ class Recipes extends CActiveRecord
 			'REC_CHANGED' => 'Rec Changed',
 			'REC_PICTURE' => 'Rec Picture',
 			'REC_PICTURE_AUTH' => 'Rec Picture Auth',
+			'REC_PICTURE_ETAG' => 'Rec Picture Etag',
 			'REC_TYPE' => 'Rec Type',
 			'REC_TITLE_EN' => 'Rec Title En',
 			'REC_TITLE_DE' => 'Rec Title De',
@@ -91,10 +94,11 @@ class Recipes extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('t.REC_ID',$this->REC_ID);
-		$criteria->compare('t.REC_CREATED',$this->REC_CREATED,true);
-		$criteria->compare('t.REC_CHANGED',$this->REC_CHANGED,true);
+		$criteria->compare('t.REC_CREATED',$this->REC_CREATED);
+		$criteria->compare('t.REC_CHANGED',$this->REC_CHANGED);
 		$criteria->compare('t.REC_PICTURE',$this->REC_PICTURE,true);
 		$criteria->compare('t.REC_PICTURE_AUTH',$this->REC_PICTURE_AUTH,true);
+		$criteria->compare('t.REC_PICTURE_ETAG',$this->REC_PICTURE_ETAG,true);
 		$criteria->compare('t.REC_TYPE',$this->REC_TYPE);
 		$criteria->compare('t.REC_TITLE_EN',$this->REC_TITLE_EN,true);
 		$criteria->compare('t.REC_TITLE_DE',$this->REC_TITLE_DE,true);

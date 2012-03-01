@@ -1,6 +1,4 @@
 <?php
-
-require_once('functions.php');
 class RecipesController extends Controller
 {
 	/**
@@ -56,27 +54,131 @@ class RecipesController extends Controller
 		));
 	}
 
+	private function prepareCreateOrUpdate($oldmodel, $view){
+		// Uncomment the following line if AJAX validation is needed
+		// $this->performAjaxValidation($model);
+		
+		if ($oldmodel){
+			$model = $oldmodel;
+			$oldPicture = $oldmodel->REC_PICTURE;
+			$oldAmount = count($oldmodel->steps);
+		} else {
+			$model=new Recipes;
+			$oldAmount = 0;
+		}
+		
+		if(isset($_POST['Recipes']))
+		{
+			$model->attributes=$_POST['Recipes'];
+			$steps = array();
+			foreach($_POST['Steps'] as $index => $values){
+				if ($index <= $oldAmount){
+					$newStep = $oldmodel->steps[$index-1];
+				} else {
+					$newStep = new Steps;
+				}
+				$newStep->attributes = $values;
+				$newStep->STE_STEP_NO = $index;
+				$steps[$index] = $newStep;
+			}
+			
+			$stepsToDelete = array();
+			if ($oldmodel){
+				$newAmount = count($steps);
+				if ($oldAmount > $newAmount){
+					for($i = $newAmount; $i < $oldAmount; $i++){
+						array_push($stepsToDelete, $oldmodel->steps[$i]);
+					}
+				}
+			}
+			
+			$model->steps = $steps;
+			
+			$file = CUploadedFile::getInstance($model,'filename');
+			if ($file){
+				Functions::resizePicture($file->getTempName(), $file->getTempName(), 400, 400, 0.8, Functions::IMG_TYPE_PNG);
+				$model->REC_PICTURE=file_get_contents($file->getTempName());
+				$model->REC_PICTURE_ETAG = md5($model->REC_PICTURE);
+			} else {
+				if ($model->REC_PICTURE == '' && $oldPicture != ''){
+					$model->REC_PICTURE = $oldPicture;
+					$model->REC_PICTURE_ETAG = md5($model->REC_PICTURE);
+				}
+			}
+			if ($oldmodel){
+				$model->REC_CHANGED = time();
+			} else {
+				//$model->PRF_UID = Yii::app()->session['userID'];
+				$model->PRF_UID = 1;
+				$model->REC_CREATED = time();
+			}
+			
+			$transaction=$model->dbConnection->beginTransaction();
+			try {
+				if($model->save()){
+					$saveOK = true;
+					foreach($steps as $step){
+						$step->REC_ID = $model->REC_ID;
+						if(!$step->save()){
+							$saveOK = false;
+							//echo 'error on save Step: errors:' . $step->getErrors(); /* print_r($step);*/
+						}
+					}
+					foreach($stepsToDelete as $step){
+						if(!$step->delete()){
+							$saveOK = false;
+							//echo 'error on delete Step: ' . $step->getErrors(); /* print_r($step);*/
+						}
+					}
+					if ($saveOK){
+						$transaction->commit();
+						if($this->useAjaxLinks){
+							echo "{hash:'" . $this->createUrlHash('view', array('id'=>$model->REC_ID)) . "'}";
+							exit;
+						} else {
+							$this->redirect(array('view', 'id'=>$model->REC_ID));
+						}
+					} else {
+						//echo 'any errors occured, rollback';
+						$transaction->rollBack();
+					}
+				} else {
+					//echo 'error on save: ' . $model->getErrors();
+					$transaction->rollBack();
+				}
+			} catch(Exception $e) {
+				echo 'Eception occured -&gt; rollback. Exeption was: ' . $e;
+				$transaction->rollBack();
+			}
+		}
+		
+		$recipeTypes = Yii::app()->db->createCommand()->select('RET_ID,RET_DESC_'.Yii::app()->session['lang'])->from('recipe_types')->queryAll();
+		$recipeTypes = CHtml::listData($recipeTypes,'RET_ID','RET_DESC_'.Yii::app()->session['lang']);
+		
+		$stepTypes = Yii::app()->db->createCommand()->select('STT_ID,STT_DESC_'.Yii::app()->session['lang'])->from('step_types')->queryAll();
+		$stepTypes = CHtml::listData($stepTypes,'STT_ID','STT_DESC_'.Yii::app()->session['lang']);
+		$actions = Yii::app()->db->createCommand()->select('ACT_ID,ACT_DESC_'.Yii::app()->session['lang'])->from('actions')->queryAll();
+		$actions = CHtml::listData($actions,'ACT_ID','ACT_DESC_'.Yii::app()->session['lang']);
+		$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_TITLE_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
+		$ingredients = CHtml::listData($ingredients,'ING_ID','ING_TITLE_'.Yii::app()->session['lang']);
+		
+		
+		$this->checkRenderAjax($view,array(
+			'model'=>$model,
+			'recipeTypes'=>$recipeTypes,
+			'stepTypes'=>$stepTypes,
+			'actions'=>$actions,
+			'ingredients'=>$ingredients,
+		));
+	}
+	
 	/**
 	 * Creates a new model.
 	 * If creation is successful, the browser will be redirected to the 'view' page.
 	 */
 	public function actionCreate()
 	{
-		$model=new Recipes;
-
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-
-		if(isset($_POST['Recipes']))
-		{
-			$model->attributes=$_POST['Recipes'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->REC_ID));
-		}
-
-		$this->checkRenderAjax('create',array(
-			'model'=>$model,
-		));
+		$this->prepareCreateOrUpdate(null, 'create');
 	}
 
 	/**
@@ -86,31 +188,8 @@ class RecipesController extends Controller
 	 */
 	public function actionUpdate($id)
 	{
-		$model=$this->loadModel($id);
-
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-
-		if(isset($_POST['Recipes']))
-		{
-			$model->attributes=$_POST['Recipes'];
-			$file = CUploadedFile::getInstance($model,'filename');
-			if ($file){
-				resizePicture($file->getTempName(), $file->getTempName(), 400, 400, 0.8, 3);
-				$model->REC_PICTURE=file_get_contents($file->getTempName());
-			} else {
-				if ($model->REC_ID){
-					$oldModel = $this->loadModel($id);
-					$model->REC_PICTURE = $oldModel->REC_PICTURE;
-				}
-			}
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->REC_ID));
-		}
-
-		$this->checkRenderAjax('update',array(
-			'model'=>$model,
-		));
+		$model=$this->loadModel($id, true);
+		$this->prepareCreateOrUpdate($model, 'update');
 	}
 
 	/**
@@ -231,7 +310,7 @@ class RecipesController extends Controller
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer the ID of the model to be loaded
 	 */
-	public function loadModel($id)
+	public function loadModel($id, $withPicture = false)
 	{
 		$model=Recipes::model()->findByPk($id);
 		if($model===null)
@@ -251,9 +330,14 @@ class RecipesController extends Controller
 			Yii::app()->end();
 		}
 	}
-    public function actionDisplaySavedImage()
+	
+    public function actionDisplaySavedImage($id, $ext)
     {
-            $model=$this->loadModel($_GET['id']);
-            Yii::app()->request->sendFile('image.png', $model->REC_PICTURE, 'image/png');
+		$model=$this->loadModel($id, true);
+		$modified = $model->REC_CHANGED;
+		if (!$modified){
+			$modified = $model->REC_CREATED;
+		}
+		return Functions::getImage($modified, $model->REC_PICTURE_ETAG, $model->REC_PICTURE);
     }
 }

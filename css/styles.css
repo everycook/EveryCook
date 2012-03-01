@@ -5,6 +5,10 @@ htm, body {
     padding:0;
 }
 
+input, select {
+	font-size:1em;
+}
+
 #index_pic_bg {
     position: fixed;
     top:0;
@@ -44,6 +48,7 @@ htm, body {
 	float:left;
     display:table;
 	margin:0.5em 0 0 0.5em;
+	height:4.2em;
 }
 
 #container {
@@ -113,7 +118,7 @@ htm, body {
 
 
 #sidebar {
-	padding: 20px 20px 20px 0;
+	padding: 1.7em 1.7em 1.7em 0;
 }
 
 #footer {
@@ -130,7 +135,7 @@ htm, body {
 label {
     text-align: right;
     display: inline-block;
-    width: 150px;
+    width: 14em;
 	vertical-align: top;
 }
 
@@ -140,17 +145,15 @@ a:link, a:visited, a:hover, a:active, a:focus  {
 }
 
 span.error {
-    font-size: 11px;
+    font-size: 0.9em;
     color:red;
 }
 
-
-
 div.index_div_login{
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-right: 10px;
-    padding-left: 10px;
+    padding-top: 0.8em;
+    padding-bottom: 0.8em;
+    padding-right: 0.8em;
+    padding-left: 0.8em;
     z-index: 1;
     visibility: hidden;
     display:table;
@@ -164,108 +167,106 @@ div.index_div_login{
     text-align:center;
 }
 
-div.index_div_lang {
-    visibility:hidden;
-    display:table;
-    overflow:hidden;
-    position:fixed;
-    width:10%;
-    background-color:#997F7F;    
-    top:8.9%;
-    left:82%;
-    text-align:center;
-}
-
-
 
 
 
 div.options a {
-	margin-bottom: 10px;
+	margin-bottom: 0.8em;
 }
 
 div.options a.last {
 	margin-bottom: 0;
 }
 
-a.button {
+.button, .buttonSmall {
 	display: inline-block;
-	width:100px;
-	/*height:20px;*/
-	padding: 10px;
+	/*height:1.7em;*/
 	text-align: center;
 	
-    border-radius:10px;
+    border-radius:0.8em;
 	background-color:#997F7F;
+	cursor:pointer;
+}
+
+.button {
+	padding: 0.8em;
+	width:8.4em;
+}
+.buttonSmall {
+	padding: 0.4em;
 }
 
 a.delicious {
 	display: inline-block;
-	width:37px;
-	height:37px;
+	width:3em;
+	height:3em;
 	background: url('../pics/delicious.png') repeat scroll 0 0 transparent;
+	background-size: contain auto;
 }
 
 a.disgusting {
 	display: inline-block;
-	width:37px;
-	height:37px;
+	width:3em;
+	height:3em;
 	background: url('../pics/disgusting.png') repeat scroll 0 0 transparent;
+	background-size: contain auto;
 }
 a.delicious_big {
 	display: inline-block;
-	width:60px;
-	height:60px;
+	width:5em;
+	height:5em;
 	background: url('../pics/delicious_big.png') repeat scroll 0 0 transparent;
+	background-size: contain auto;
 }
 
 a.disgusting_big {
 	display: inline-block;
-	width:60px;
-	height:60px;
+	width:5em;
+	height:5em;
 	background: url('../pics/disgusting_big.png') repeat scroll 0 0 transparent;
+	background-size: contain auto;
 }
 
 a.addRecipe.button {
-	width:20px;
-	height:20px;
+	width:1.7em;
+	height:1.7em;
 }
 
 
 div.resultArea {
-    border-radius:20px;
+    border-radius:1.5em;
 	background-color:#FFFFFF;
-	padding:10px;
-	margin-bottom:10px;
-	min-height: 140px;
+	padding:0.8em;
+	margin-bottom:0.8em;
+	min-height: 12em;
 }
 
 div.resultArea img.ingredient {
-	width:140px;
-	height:140px;
+	width:12em;
+	height:12em;
 	float:left;
 }
 
 div.resultArea img.recipe {
-	width:140px;
-	height:140px;
+	width:12em;
+	height:12em;
 	float:left;
 }
 
 div.resultArea div.data {
-	margin-left:10px;
+	margin-left:0.8em;
 	float: left;
 }
 
 div.resultArea div.name {
 	font-weight:bold;
 	font-size:1.2em;
-	margin-bottom:5px;
+	margin-bottom:0.4em;
 }
 
 div.resultArea div.options {
 	float:right;
-	width:120px;
+	width:10em;
 }
 
 div.resultArea div.options a.disgusting {
@@ -275,28 +276,28 @@ div.resultArea div.options a.disgusting {
 
 
 div.detailView {
-    border-radius:20px;
+    border-radius:1.7em;
 	background-color:#FFFFFF;
-	padding:10px;
-	margin-bottom:10px;
+	padding:0.8em;
+	margin-bottom:0.8em;
 }
 
 div.detailView div.name {
 	font-weight:bold;
 	font-size:2.0em;
-	margin-bottom:5px;
+	margin-bottom:0.4em;
 }
 div.detailView div.options {
 	float:right;
-	width:200px;
+	width:17em;
 }
 div.detailView div.options div.ingredients {
 	display: inline-block;
-	padding: 10px;
+	padding: 0.8em;
 	
-    border-radius:10px;
+    border-radius:0.8em;
 	background-color:#997F7F;
-	width:180px;
+	width:15em;
 }
 
 div.detailView div.details {
@@ -308,39 +309,41 @@ div.detailView div.options a.disgusting_big {
 }
 
 div.detailView img.recipe {
-	width:200px;
-	height:200px;
+	width:17em;
+	height:17em;
 }
 
 div.search {
-	margin-bottom: 10px;
+	margin-bottom: 0.8em;
 }
 
 div.search  input.search_button {
 	/*width:50px;*/
-	height:40px;
+	height:3.4em;
 	vertical-align: middle;
 }
 
 div.search  input.search_query{
-	width:200px;
+	width:17em;
 }
 
 ul.search_choose {
+	padding-left:0;
 }
+
 ul.search_choose label{
-	width: 200px;
+	width: 17em;
 	text-align: left;
 }
 ul.search_choose li {
-	width: 230px;
+	width: 20em;
 	float: left;
 	list-style: none;
 }
 
 #nutrientDataSearch {
-	max-height: 300px;
-	padding-right: 10px;
+	max-height: 25em;
+	padding-right: 0.8em;
 	overflow: auto;
 }
 
@@ -400,7 +403,7 @@ ul.search_choose li {
 {
 	padding: 3px 8px;
 	background: #B7D6E7;
-	border-left: 5px solid #6FACCF;
+	border-left: 0.4em solid #6FACCF;
 }
 
 .portlet-title
@@ -415,8 +418,8 @@ ul.search_choose li {
 .portlet-content
 {
 	font-size:0.9em;
-	margin: 0 0 15px 0;
-	padding: 5px 8px;
+	margin: 0 0 10.4em 0;
+	padding: 0.4em 8px;
 	background:#EFFDFF;
 }
 
@@ -452,7 +455,7 @@ ul.search_choose li {
 	color: #0066A4;
 	display: block;
 	padding: 2px 0 2px 8px;
-	line-height: 15px;
+	line-height: 12px;
 	text-decoration: none;
 }
 
