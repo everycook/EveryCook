@@ -51,6 +51,7 @@ class Functions {
 		
 		return $html;
 	}
+	
 	/*
 	Logic from CHtml::resolveName
 	*/
@@ -74,11 +75,11 @@ class Functions {
 		return get_class($model).'['.$index.']'.'['.$attribute.']';
 	}
 	
-	public static function createInputTable($valueArray, $fieldOptions, $htmlOptions, $form, $text) {
-		if (isset($htmlOptions['new'])){
-			$new = $htmlOptions['new'];
+	public static function createInputTable($valueArray, $fieldOptions, $options, $form, $text) {
+		if (isset($options['new'])){
+			$new = $options['new'];
 			$new->unsetAttributes(); // clear any default values
-			unset($htmlOptions['new']);
+			unset($options['new']);
 		}
 		
 		$html = '<table class="addRowContainer">';
@@ -93,7 +94,6 @@ class Functions {
 		}
 		$html .='<th>'.$text['options'].'</th>';
 		$html .= '</tr></thead>';
-		
 		$html .= '<tbody>';
 		$i = 1;
 		foreach($valueArray as $value){
@@ -101,7 +101,7 @@ class Functions {
 			foreach($fieldOptions as $field){
 				if($field[1]){
 					if (is_array($field[2])){
-						$html .= '<td>'.CHtml::dropDownList(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0]), $field[2], $htmlOptions).'</td>';
+						$html .= '<td>'.CHtml::dropDownList(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0]), $field[2], $field[3]).'</td>';
 					} else {
 						$html .= '<td>'.CHtml::textField(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0])).'</td>';
 					}
@@ -111,21 +111,6 @@ class Functions {
 			}
 			$html .= '<td><div class="buttonSmall remove">' . $text['remove'] . '</div><div class="buttonSmall up">' . $text['move up'] . '</div><div class="buttonSmall down">' . $text['move down'] . '</div></td>';
 			$html .= '</tr>';
-			
-			/*
-			if ($step->stepType){
-				echo '<span class="stepType">' . $step->stepType->__get('STT_DESC_' . Yii::app()->session['lang']) . ':</span> ';
-			}
-			$text = $step->action->__get('ACT_DESC_' . Yii::app()->session['lang']);
-			if ($step->ingredient != null){
-				$replText = '<span class="igredient">' . $step->ingredient->__get('ING_TITLE_' . Yii::app()->session['lang']) . '</span> ';
-				if ($step->STE_GRAMS){
-					$replText .= '<span class="amount">' . $step->STE_GRAMS . 'g' . '</span> ';
-				}
-				$text = str_replace('#objectofaction#', $replText, $text);
-			}
-			echo '<span class="action">' . $text . '</span>';
-			*/
 			$i++;
 		}
 		

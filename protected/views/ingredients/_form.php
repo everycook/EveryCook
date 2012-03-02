@@ -1,11 +1,3 @@
-<?php
-$this->widget('application.extensions.fancybox.EFancyBox', array(
-    'target'=>'a.fancyChoose',
-    'config'=>array('autoScale' => true, 'autoDimensions'=> true, 'centerOnScroll'=> true, ),
-    )
-);
-?>
-
 <input type="hidden" id="SubGroupFormLink" value="<?php echo $this->createUrl('ingredients/getSubGroupForm'); ?>"/>
 <div class="form">
 <?php $form=$this->beginWidget('CActiveForm', array(
@@ -75,7 +67,7 @@ $this->widget('application.extensions.fancybox.EFancyBox', array(
 		<?php echo $form->error($model,'ING_DENSITY'); ?>
 	</div>
 
-	<?php echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'png')), '', array('class'=>'ingredient', 'alt'=>$model->ING_PICTURE_AUTH, 'title'=>$model->ING_PICTURE_AUTH)); ?>
+	<?php if ($model->ING_ID) {echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'png')), '', array('class'=>'ingredient', 'alt'=>$model->ING_PICTURE_AUTH, 'title'=>$model->ING_PICTURE_AUTH));} ?>
 	<div class="row">
 		<?php echo $form->labelEx($model,'filename'); ?>
 		<?php echo $form->FileField($model,'filename'); ?>

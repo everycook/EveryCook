@@ -20,13 +20,6 @@ $this->menu=array(
 	</div>
 	
 	<div class="clearfix"></div>	
-<?php $this->endWidget(); ?>
-
-
-<?php $form=$this->beginWidget('CActiveForm', array(
-		'action'=>Yii::app()->createUrl($this->route),
-		'method'=>'get',
-	)); ?>
 
 	<div class="row">
 		<?php echo $form->label($model,'REC_ID'); ?>

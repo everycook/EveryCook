@@ -13,20 +13,13 @@ $this->menu=array(
 		array('label'=>$this->trans->INGREDIENTS_CREATE, 'link_id'=>'middle_single', 'url'=>array('ingredients/create',array())),
 	);
 //}
-
-
-	$this->widget('application.extensions.fancybox.EFancyBox', array(
-		'target'=>'a.fancyChoose',
-		'config'=>array('autoScale' => true, 'autoDimensions'=> true, 'centerOnScroll'=> true, ),
-		)
-	);
 ?>
 <input type="hidden" id="SubGroupSearchLink" value="<?php echo $this->createUrl('ingredients/getSubGroupSearch'); ?>"/>
 
 <div id="ingredientsAdvanceSearch">
 <?php $form=$this->beginWidget('CActiveForm', array(
 		'action'=>Yii::app()->createUrl($this->route),
-		'method'=>'get',
+		'method'=>'post',
 		'id'=>'search_form',
 	)); ?>
 	<div class="f-left search">

@@ -155,8 +155,8 @@ class RecipesController extends Controller
 		$recipeTypes = Yii::app()->db->createCommand()->select('RET_ID,RET_DESC_'.Yii::app()->session['lang'])->from('recipe_types')->queryAll();
 		$recipeTypes = CHtml::listData($recipeTypes,'RET_ID','RET_DESC_'.Yii::app()->session['lang']);
 		
-		$stepTypes = Yii::app()->db->createCommand()->select('STT_ID,STT_DESC_'.Yii::app()->session['lang'])->from('step_types')->queryAll();
-		$stepTypes = CHtml::listData($stepTypes,'STT_ID','STT_DESC_'.Yii::app()->session['lang']);
+		$stepTypeConfig = Yii::app()->db->createCommand()->select('STT_ID,STT_DEFAULT,STT_REQUIRED,STT_DESC_'.Yii::app()->session['lang'])->from('step_types')->order('STT_ID')->queryAll();
+		$stepTypes = CHtml::listData($stepTypeConfig,'STT_ID','STT_DESC_'.Yii::app()->session['lang']);
 		$actions = Yii::app()->db->createCommand()->select('ACT_ID,ACT_DESC_'.Yii::app()->session['lang'])->from('actions')->queryAll();
 		$actions = CHtml::listData($actions,'ACT_ID','ACT_DESC_'.Yii::app()->session['lang']);
 		$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_TITLE_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
@@ -169,6 +169,7 @@ class RecipesController extends Controller
 			'stepTypes'=>$stepTypes,
 			'actions'=>$actions,
 			'ingredients'=>$ingredients,
+			'stepTypeConfig'=>$stepTypeConfig,
 		));
 	}
 	
@@ -242,32 +243,69 @@ class RecipesController extends Controller
 	{
 		$model=new Recipes('search');
 		$model->unsetAttributes();  // clear any default values
-		if(isset($_POST['Recipes']))
+		
+		$modelAvailable = false;
+		if(isset($_POST['Recipes'])){
 			$model->attributes=$_POST['Recipes'];
+			$modelAvailable = true;
+		}
 		
 		$model2 = new SimpleSearchForm();
 		if(isset($_POST['SimpleSearchForm']))
 			$model2->attributes=$_POST['SimpleSearchForm'];
 		
-		$rows = null;
+		if(isset($_GET['query'])){
+			$query = $_GET['query'];
+		} else {
+			$query = $model2->query;
+		}
+		
+		$ing_id = null;
 		if(isset($_GET['ing_id'])){
+			$ing_id = $_GET['ing_id'];
+		}
+		
+		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Recipes']) && !isset($_GET['ing_id']) && !isset($_GET['newSearch'])){
+			$Session_Recipe = Yii::app()->session['Recipe'];
+			if ($Session_Recipe){
+				if ($Session_Recipe['query']){
+					$query = $Session_Recipe['query'];
+					//echo "query from session\n";
+				}
+				if ($Session_Recipe['ing_id']){
+					$ing_id = $Session_Recipe['ing_id'];
+					//echo "ing_id from session\n";
+				}
+				if ($Session_Recipe['model']){
+					$model = $Session_Recipe['model'];
+					$modelAvailable = true;
+					//echo "model from session\n";
+				}
+			}
+		}
+		
+		$rows = null;
+		if($ing_id !== null){
+			$Session_Recipe = array();
+			$Session_Recipe['ing_id'] = $ing_id;
+			Yii::app()->session['Recipe'] = $Session_Recipe;
+			
 			$rows = Yii::app()->db->createCommand()
 				->from('recipes')
 				->leftJoin('recipe_types', 'recipes.REC_TYPE=recipe_types.RET_ID')
 				->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID')
 				->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID')
 				->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID')
-				->where('ingredients.ING_ID=:id', array(':id'=>$_GET['ing_id']))
+				->where('ingredients.ING_ID=:id', array(':id'=>$ing_id))
 				->order('steps.STE_STEP_NO')
 				->queryAll();
 		} else {
-			if(isset($_GET['query'])){
-				$query = $_GET['query'];
-			} else {
-				$query = $model2->query;
-			}
 			$criteryaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'recipes.');
 			if ($criteryaString != ''){
+				$Session_Recipe = array();
+				$Session_Recipe['query'] = $query;
+				Yii::app()->session['Recipe'] = $Session_Recipe;
+				
 				$rows = Yii::app()->db->createCommand()
 					->from('recipes')
 					->leftJoin('recipe_types', 'recipes.REC_TYPE=recipe_types.RET_ID')

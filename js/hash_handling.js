@@ -3,7 +3,7 @@ jQuery(function($){
 	
 	//Initialize Links
 	function initLinks(){
-		$('a[href*="index.php/"]').each(function(){
+		$('a[href*="index.php/"]:not(.fancyChoose)').each(function(){
 			$(this).attr('href', "#" + $(this).attr('href').substr(prefix.length+10));
 		});
 	}

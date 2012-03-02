@@ -301,7 +301,7 @@ div.detailView div.options div.ingredients {
 }
 
 div.detailView div.details {
-	float: left;
+/*	float: left;*/
 }
 
 div.detailView div.options a.disgusting_big {
@@ -321,6 +321,7 @@ div.search  input.search_button {
 	/*width:50px;*/
 	height:3.4em;
 	vertical-align: middle;
+	margin-right: 0.2em;
 }
 
 div.search  input.search_query{

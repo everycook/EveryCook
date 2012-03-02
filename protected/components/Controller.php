@@ -27,9 +27,9 @@ class Controller extends CController
 	
 	public function useDefaultMainButtons(){
 		$this->mainButtons = array(
-			array('label'=>'Rezept Suchen', 'link_id'=>'left', 'url'=>array('recipes/search',array())),
+			array('label'=>'Rezept Suchen', 'link_id'=>'left', 'url'=>array('recipes/search',array('newSearch'=>true))),
 			array('label'=>'Die Kochende Maschiene', 'link_id'=>'right', 'url'=>array('site/page', array('view'=>'about'))),
-			array('label'=>'Essen Suchen', 'link_id'=>'middle', 'url'=>array('ingredients/search',array())),
+			array('label'=>'Essen Suchen', 'link_id'=>'middle', 'url'=>array('ingredients/search',array('newSearch'=>true))),
 		);
 	}
 	
@@ -85,9 +85,11 @@ class Controller extends CController
 		{
 			if($this->useAjaxLinks){
 				Yii::app()->clientscript->registerCoreScript('bbq');
+				$fancyBox =  new EFancyBox();
+				$fancyBox->publishAssets();
+				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery.iframe-post-form.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/ajax_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/hash_handling.js', CClientScript::POS_HEAD);
-				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery.iframe-post-form.js', CClientScript::POS_HEAD);
 			}
 			$this->render($view, $data);
 		}

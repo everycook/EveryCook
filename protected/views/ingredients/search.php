@@ -19,7 +19,7 @@ $this->menu=array(
 <div>
 <?php $form=$this->beginWidget('CActiveForm', array(
 		'action'=>Yii::app()->createUrl($this->route),
-		'method'=>'get',
+		'method'=>'post',
 	)); ?>
 	<div class="f-left search">
 		<?php echo $form->textField($model2,'query', array('class'=>'search_query')); ?>
@@ -27,7 +27,7 @@ $this->menu=array(
 	</div>
 	
 	<div class="f-right">
-		<?php echo CHtml::link($this->trans->INGREDIENTS_ADVANCE_SEARCH, array('ingredients/advanceSearch'), array('class'=>'button')); ?><br>
+		<?php echo CHtml::link($this->trans->INGREDIENTS_ADVANCE_SEARCH, array('ingredients/advanceSearch','newSearch'=>true), array('class'=>'button')); ?><br>
 	</div>
 	
 	<div class="clearfix"></div>

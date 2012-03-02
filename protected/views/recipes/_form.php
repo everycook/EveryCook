@@ -1,5 +1,14 @@
 <div class="form">
 
+<div class="hidden" id="stepConfig">
+<?php
+	foreach ($stepTypeConfig as $config){
+		echo CHtml::hiddenField('stepConfig['.$config['STT_ID'].'][STT_DEFAULT]', $config['STT_DEFAULT']);
+		echo CHtml::hiddenField('stepConfig['.$config['STT_ID'].'][STT_REQUIRED]', $config['STT_REQUIRED']);
+	}
+?>
+</div>
+
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'recipes-form',
 	'enableAjaxValidation'=>false,
@@ -43,17 +52,17 @@
 	<div class="steps">
 	<?php
 		$fieldOptions = array(
-			array('REC_ID', null, null),
-			array('STE_STEP_NO', null, null),
-			array('STT_ID', $this->trans->RECIPES_STEP_TYPE, $stepTypes),
-			array('ACT_ID', $this->trans->RECIPES_ACTION, $actions),
-			array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients),
-			array('STE_GRAMS', $this->trans->RECIPES_INGREDIENT_AMOUNT, null),
+			array('REC_ID', null, null, null),
+			array('STE_STEP_NO', null, null, null),
+			array('STT_ID', $this->trans->RECIPES_STEP_TYPE, $stepTypes, null),
+			array('ACT_ID', $this->trans->RECIPES_ACTION, $actions, array('empty'=>$this->trans->RECIPES_SEARCH_CHOOSE)),
+			array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('empty'=>$this->trans->RECIPES_SEARCH_CHOOSE)),
+			array('STE_GRAMS', $this->trans->RECIPES_INGREDIENT_AMOUNT, null, null),
 		);
 		$text = array('add'=>$this->trans->RECIPES_ADD_STEP, 'remove'=>$this->trans->RECIPES_REMOVE_STEP, 'move up'=>'-up-', 'move down'=>'-down-', 'options'=>'Options');
 		
-		$htmlOptions = array('empty'=>$this->trans->RECIPES_SEARCH_CHOOSE, 'new'=>new Steps);
-		echo Functions::createInputTable($model->steps, $fieldOptions, $htmlOptions, $form, $text);
+		$options = array('new'=>new Steps);
+		echo Functions::createInputTable($model->steps, $fieldOptions, $options, $form, $text);
 		$newStep = new Steps;
 	?>
 	

@@ -187,8 +187,8 @@ class IngredientsController extends Controller
 	{
 		$model=new Ingredients('search');
 		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['Ingredients']))
-			$model->attributes=$_GET['Ingredients'];
+		if(isset($_POST['Ingredients']))
+			$model->attributes=$_POST['Ingredients'];
 
 		$this->checkRenderAjax('admin',array(
 			'model'=>$model,
@@ -200,18 +200,46 @@ class IngredientsController extends Controller
 		$model->unsetAttributes();  // clear any default values
 		
 		$model2 = new SimpleSearchForm();
-		if(isset($_GET['SimpleSearchForm']))
-			$model2->attributes=$_GET['SimpleSearchForm'];
+		if(isset($_POST['SimpleSearchForm']))
+			$model2->attributes=$_POST['SimpleSearchForm'];
 		
 		if(isset($_GET['query'])){
 			$query = $_GET['query'];
 		} else {
 			$query = $model2->query;
 		}
-		$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$model2->query, 'ingredients.');
 		
-		if(isset($_GET['Ingredients'])) {
-			$model->attributes=$_GET['Ingredients'];
+		$modelAvailable = false;
+		if(isset($_POST['Ingredients'])) {
+			$model->attributes=$_POST['Ingredients'];
+			$modelAvailable = true;
+		}
+		
+		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Ingredients']) && !isset($_GET['newSearch'])){
+			$Session_Ingredient = Yii::app()->session['Ingredient'];
+			if ($Session_Ingredient){
+				if ($Session_Ingredient['query']){
+					$query = $Session_Ingredient['query'];
+					//echo "query from session\n";
+				}
+				if ($Session_Ingredient['model']){
+					$model = $Session_Ingredient['model'];
+					$modelAvailable = true;
+					//echo "model from session\n";
+				}
+			}
+		}
+		
+		$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'ingredients.');
+		
+		if($modelAvailable) {
+			$Session_Ingredient = array();
+			if ($query){
+				$Session_Ingredient['query'] = $query;
+			}
+			$Session_Ingredient['model'] = $model;
+			Yii::app()->session['Ingredient'] = $Session_Ingredient;
+			
 			$criteria = $model->getCriteriaString();
 			//$command = $model->commandBuilder->createFindCommand($model->tableName(), $model->getCriteriaString())
 			$command = Yii::app()->db->createCommand()
@@ -248,6 +276,11 @@ class IngredientsController extends Controller
 			
 			//print_r($rows);
 		} else if ($criteriaString != ''){
+			$Session_Ingredient = array();
+			$Session_Ingredient['query'] = $query;
+			Yii::app()->session['Ingredient'] = $Session_Ingredient;
+			
+			
 			//$rows = $model->commandBuilder->createFindCommand($model->tableName(),$model->commandBuilder->createCriteria($criteriaString))->queryAll();
 			//$rows = $model->commandBuilder->createFindCommand($model->tableName(), $model->getCriteria())->queryAll();
 			$rows = Yii::app()->db->createCommand()

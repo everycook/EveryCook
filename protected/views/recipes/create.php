@@ -18,4 +18,5 @@ $this->menu=array(
 	'stepTypes'=>$stepTypes,
 	'actions'=>$actions,
 	'ingredients'=>$ingredients,
+	'stepTypeConfig'=>$stepTypeConfig,
 	)); ?>
