@@ -3,6 +3,7 @@
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'ingredients-form',
 	'enableAjaxValidation'=>false,
+	'action'=>Yii::app()->createUrl($this->route, array_merge($this->getActionParams(), array('ajaxform'=>true))),
     'htmlOptions'=>array('enctype' => 'multipart/form-data', 'class'=>'ajaxupload'),
 )); 
 	$htmlOptions_type0 = array('empty'=>$this->trans->INGREDIENTS_SEARCH_CHOOSE);
@@ -11,7 +12,15 @@
 ?>
 	<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
 
-	<?php echo $form->errorSummary($model); ?>
+	<?php
+	echo $form->errorSummary($model);
+	if ($this->errorText){
+	
+			echo '<div class="errorSummary">';
+			echo $this->errorText;
+			echo '</div>';
+	}
+	?>
 
 	
 <?php /*
@@ -44,7 +53,12 @@
 	
 	<?php
 	echo Functions::createInput($this->trans->INGREDIENTS_GROUP, $model, 'ING_GROUP', $groupNames, Functions::DROP_DOWN_LIST, 'groupNames', $htmlOptions_type0, $form);
-	echo Functions::createInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'ING_SUBGROUP', $subgroupNames, Functions::DROP_DOWN_LIST, 'subgroupNames', $htmlOptions_type0, $form);
+	if ($model->ING_GROUP){
+		echo Functions::createInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'ING_SUBGROUP', $subgroupNames, Functions::DROP_DOWN_LIST, 'subgroupNames', $htmlOptions_type0, $form);
+	} else {
+		$htmlOptions_subGroup = array('empty'=>$this->trans->INGREDIENTS_CHOOSE_GROUP_FIRST);
+		echo Functions::createInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'ING_SUBGROUP', array(), Functions::DROP_DOWN_LIST, 'subgroupNames', $htmlOptions_subGroup, $form);
+	}
 	echo Functions::createInput($this->trans->INGREDIENTS_STORABILITY, $model, 'ING_STORABILITY', $storability, Functions::DROP_DOWN_LIST, 'storability', $htmlOptions_type0, $form);
 	echo Functions::createInput($this->trans->INGREDIENTS_CONVENIENCE, $model, 'ING_CONVENIENCE', $ingredientConveniences, Functions::DROP_DOWN_LIST, 'ingredientConveniences', $htmlOptions_type0, $form);
 	echo Functions::createInput($this->trans->INGREDIENTS_STATE, $model, 'ING_STATE', $ingredientStates, Functions::DROP_DOWN_LIST, 'ingredientStates', $htmlOptions_type0, $form);
@@ -68,6 +82,13 @@
 		<?php echo $form->error($model,'ING_DENSITY'); ?>
 	</div>
 
+	<?php
+		if (Yii::app()->session['Ingredient_Backup'] && Yii::app()->session['Ingredient_Backup']->ING_PICTURE_ETAG){
+			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'ingredient', 'alt'=>$model->ING_PICTURE_AUTH, 'title'=>$model->ING_PICTURE_AUTH));
+		} else if ($model->ING_ID) {
+			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'png')), '', array('class'=>'ingredient', 'alt'=>$model->ING_PICTURE_AUTH, 'title'=>$model->ING_PICTURE_AUTH));
+		}
+	?>
 	<?php if ($model->ING_ID) {echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'png')), '', array('class'=>'ingredient', 'alt'=>$model->ING_PICTURE_AUTH, 'title'=>$model->ING_PICTURE_AUTH));} ?>
 	<div class="row">
 		<?php echo $form->labelEx($model,'filename'); ?>

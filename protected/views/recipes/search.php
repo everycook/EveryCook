@@ -7,6 +7,12 @@ $this->menu=array(
 	array('label'=>'List Recipes', 'url'=>array('index')),
 	array('label'=>'Create Recipes', 'url'=>array('create')),
 );
+
+//if ($this->validSearchPerformed){
+	$this->mainButtons = array(
+		array('label'=>$this->trans->RECIPES_CREATE, 'link_id'=>'middle_single', 'url'=>array('recipes/create',array())),
+	);
+//}
 ?>
 
 <div>

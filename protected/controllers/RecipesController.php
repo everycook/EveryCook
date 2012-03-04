@@ -57,10 +57,20 @@ class RecipesController extends Controller
 		));
 	}
 
-	private function prepareCreateOrUpdate($oldmodel, $view){
+	private function prepareCreateOrUpdate($id, $view){
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
-			
+		
+		$Session_Recipe_Backup = Yii::app()->session['Recipe_Backup'];
+		if ($Session_Recipe_Backup){
+			$oldmodel = $Session_Recipe_Backup;
+		}
+		if ($id){
+			if (!$oldmodel || $oldmodel->REC_ID != $id){
+				$oldmodel = $this->loadModel($id, true);
+			}
+		}
+		
 		if ($oldmodel){
 			$model = $oldmodel;
 			$oldPicture = $oldmodel->REC_PICTURE;
@@ -74,23 +84,28 @@ class RecipesController extends Controller
 			$model->attributes=$_POST['Recipes'];
 			$steps = array();
 			$stepsOK = true;
-			foreach($_POST['Steps'] as $index => $values){
-				if ($index <= $oldAmount){
-					$newStep = $oldmodel->steps[$index-1];
-				} else {
-					$newStep = new Steps;
-				}
-				$newStep->attributes = $values;
-				foreach ($values as $key=>$value){
-					if ($value == '' && $key != 'REC_ID' && $key != 'STE_STEP_NO'){
-						$this->errorText .= '<li>Value ' . $key . ' of Step' . $index . ' is empty.</li>';
-						array_push($this->errorFields, 'Steps_'.$index.'_'.$key);
-						$stepsOK = false;
+			if (isset($_POST['Steps'])){
+				foreach($_POST['Steps'] as $index => $values){
+					if ($index <= $oldAmount){
+						$newStep = $oldmodel->steps[$index-1];
+					} else {
+						$newStep = new Steps;
 					}
+					$newStep->attributes = $values;
+					foreach ($values as $key=>$value){
+						if ($value == '' && $key != 'REC_ID' && $key != 'STE_STEP_NO'){
+							$this->errorText .= '<li>Value ' . $key . ' of Step' . $index . ' is empty.</li>';
+							array_push($this->errorFields, 'Steps_'.$index.'_'.$key);
+							$stepsOK = false;
+						}
+					}
+					$newStep->STE_STEP_NO = $index;
+					//$steps[$index] = $newStep;
+					array_push($steps, $newStep);
 				}
-				$newStep->STE_STEP_NO = $index;
-				//$steps[$index] = $newStep;
-				array_push($steps, $newStep);
+			} else {
+				$this->errorText .= '<li>No Steps defined!</li>';
+				$stepsOK = false;
 			}
 			
 			$stepsToDelete = array();
@@ -116,15 +131,16 @@ class RecipesController extends Controller
 					$model->REC_PICTURE_ETAG = md5($model->REC_PICTURE);
 				}
 			}
+			if (isset($model->REC_ID)){
+				$model->REC_CHANGED = time();
+			} else {
+				//$model->PRF_UID = Yii::app()->session['userID'];
+				$model->PRF_UID = 1;
+				$model->REC_CREATED = time();
+			}
+			
+			Yii::app()->session['Recipe_Backup'] = $model;
 			if ($stepsOK){
-				if ($oldmodel){
-					$model->REC_CHANGED = time();
-				} else {
-					//$model->PRF_UID = Yii::app()->session['userID'];
-					$model->PRF_UID = 1;
-					$model->REC_CREATED = time();
-				}
-				
 				$transaction=$model->dbConnection->beginTransaction();
 				try {
 					if($model->save()){
@@ -144,6 +160,7 @@ class RecipesController extends Controller
 						}
 						if ($saveOK){
 							$transaction->commit();
+							unset(Yii::app()->session['Recipe_Backup']);
 							if($this->useAjaxLinks){
 								echo "{hash:'" . $this->createUrlHash('view', array('id'=>$model->REC_ID)) . "'}";
 								exit;
@@ -208,8 +225,7 @@ class RecipesController extends Controller
 	 */
 	public function actionUpdate($id)
 	{
-		$model=$this->loadModel($id, true);
-		$this->prepareCreateOrUpdate($model, 'update');
+		$this->prepareCreateOrUpdate($id, 'update');
 	}
 
 	/**
@@ -336,6 +352,7 @@ class RecipesController extends Controller
 					->queryAll();
 			} else {
 				$rows = array();
+				unset(Yii::app()->session['Recipe']);
 			}
 		}
 		
@@ -369,7 +386,11 @@ class RecipesController extends Controller
 	 */
 	public function loadModel($id, $withPicture = false)
 	{
-		$model=Recipes::model()->findByPk($id);
+		if ($id == 'backup'){
+			$model=Yii::app()->session['Recipe_Backup'];
+		} else {
+			$model=Recipes::model()->findByPk($id);
+		}
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;

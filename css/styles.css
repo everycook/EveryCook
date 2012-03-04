@@ -5,6 +5,11 @@ htm, body {
     padding:0;
 }
 
+body {
+	background: url("../pics/bg.png") repeat fixed 0 0 transparent;
+	background-size: 100% auto;
+}
+
 input, select {
 	font-size:1em;
 }

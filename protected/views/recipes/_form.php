@@ -21,7 +21,7 @@
 	<?php
 		echo $form->errorSummary($model);
 		if ($this->errorText != ''){
-			echo '<div class="errorSummary"><p>Please fix the following input errors on steps:</p><ul>';
+			echo '<div class="errorSummary"><p>Please fix the following input errors on Steps:</p><ul>';
 			echo $this->errorText;
 			echo '</ul></div>';
 		}
@@ -44,7 +44,13 @@
 	echo Functions::createInput($this->trans->RECIPES_TYPE, $model, 'REC_TYPE', $recipeTypes, Functions::DROP_DOWN_LIST, 'recipeTypes', $htmlOptions_type0, $form);
 	?>
 	
-	<?php if ($model->REC_ID) {echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'png')), '', array('class'=>'recipe', 'alt'=>$model->REC_PICTURE_AUTH, 'title'=>$model->REC_PICTURE_AUTH));} ?><br />
+	<?php
+		if (Yii::app()->session['Recipe_Backup'] && Yii::app()->session['Recipe_Backup']->REC_PICTURE_ETAG){
+			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'recipe', 'alt'=>$model->REC_PICTURE_AUTH, 'title'=>$model->REC_PICTURE_AUTH));
+		} else if ($model->REC_ID) {
+			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'png')), '', array('class'=>'recipe', 'alt'=>$model->REC_PICTURE_AUTH, 'title'=>$model->REC_PICTURE_AUTH));
+		}
+	?><br />
 	<div class="row">
 		<?php echo $form->labelEx($model,'filename'); ?>
 		<?php echo $form->FileField($model,'filename'); ?>

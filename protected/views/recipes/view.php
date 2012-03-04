@@ -11,10 +11,18 @@ $this->menu=array(
 	array('label'=>'Delete Recipes', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->REC_ID),'confirm'=>'Are you sure you want to delete this item?')),
 	array('label'=>'Manage Recipes', 'url'=>array('admin')),
 );
+
+$this->mainButtons = array(
+	array('label'=>$this->trans->RECIPES_EDIT, 'link_id'=>'middle_single', 'url'=>array('recipes/update',$this->getActionParams())),
+);
 ?>
 
 <div class="detailView">
-	<?php echo CHtml::link($this->trans->SEARCH_BACK_TO_RESULTS, array('recipes/search', 'query'=>$model->REC_ID), array('class'=>'button')); ?><br>
+	<?php
+	if (isset(Yii::app()->session['Recipe'])){
+		echo CHtml::link($this->trans->SEARCH_BACK_TO_RESULTS, array('recipes/search'), array('class'=>'button'));
+	}
+	?><br>
 	<br>
 	<div class="options">
 		<?php echo CHtml::link('+', array('user/addrecipes', 'id'=>$model->REC_ID), array('class'=>'button addRecipe', 'title'=>$this->trans->RECIPES_ADD)); ?><br>

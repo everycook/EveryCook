@@ -170,7 +170,7 @@ jQuery(function($){
 		if (type == 'hidden'){
 			newInput = jQuery('<input type="hidden" name="'+name+'" id="'+id+'" value="'+value+'" />');
 		} else {
-			newInput = jQuery('<label for="'+id+'">'+valueName+'</label><input type="'+type+'" name="'+name+'" id="'+id+'" value="'+value+'" />');
+			newInput = jQuery('<label for="'+id+'">'+valueName+'<span class="required">*</span></label><input type="'+type+'" name="'+name+'" id="'+id+'" value="'+value+'" />');
 		}
 		insertElem.append(newInput);
 	}

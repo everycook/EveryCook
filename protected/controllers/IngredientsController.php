@@ -6,7 +6,9 @@ class IngredientsController extends Controller
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
 	public $layout='//layouts/column2';
-
+	
+	public $errorText = '';
+	
 	/**
 	 * @return array action filters
 	 */
@@ -54,10 +56,54 @@ class IngredientsController extends Controller
 		));
 	}
 	
-	private function prepareCreateOrUpdate($oldmodel, $view){
+	private function checkDuplicate($model){
+		$duplicates = array();
+		$command = Yii::app()->db->createCommand()
+				->from('ingredients')
+				->where('ingredients.NUT_ID=:nut_id', array(':nut_id'=>$model->NUT_ID));
+		$rows = $command->queryAll();
+		if (count($rows)>0){
+			$dup_rows = array();
+			foreach($rows as $row){
+				array_push($dup_rows, $row['ING_ID'] . ': ' . $row['ING_TITLE_EN'] . ' / ' . $row['ING_TITLE_DE']);
+			}
+			$duplicates = array_merge($duplicates, array ('NUT_ID'=>$dup_rows));
+		}
+		
+		$command = Yii::app()->db->createCommand()
+				->from('ingredients');
+		if ($model->ING_TITLE_EN != '' && $model->ING_TITLE_DE != ''){
+			$command->where('ingredients.ING_TITLE_EN like :en or ingredients.ING_TITLE_DE like :de', array(':en'=>'%' . $model->ING_TITLE_EN . '%', ':de'=>'%' . $model->ING_TITLE_DE . '%'));
+		} else if ($model->ING_TITLE_EN != ''){
+			$command->where('ingredients.ING_TITLE_EN like :en', array(':en'=>'%' . $model->ING_TITLE_EN . '%'));
+		} else if ($model->ING_TITLE_DE != ''){
+			$command->where('ingredients.ING_TITLE_DE like :de', array(':de'=>'%' . $model->ING_TITLE_DE . '%'));
+		}
+		$rows = $command->queryAll();
+		if (count($rows)>0){
+			$dup_rows = array();
+			foreach($rows as $row){
+				array_push($dup_rows, $row['ING_ID'] . ': ' . $row['ING_TITLE_EN'] . ' / ' . $row['ING_TITLE_DE']);
+			}
+			$duplicates = array_merge($duplicates, array ('TITLE'=>$dup_rows));
+		}
+		return $duplicates;
+	}
+	
+	private function prepareCreateOrUpdate($id, $view){
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
-
+		
+		$Session_Ingredient_Backup = Yii::app()->session['Ingredient_Backup'];
+		if ($Session_Ingredient_Backup){
+			$oldmodel = $Session_Ingredient_Backup;
+		}
+		if ($id){
+			if (!$oldmodel || $oldmodel->ING_ID != $id){
+				$oldmodel = $this->loadModel($id, true);
+			}
+		}
+		
 		if ($oldmodel){
 			$model = $oldmodel;
 			$oldPicture = $oldmodel->ING_PICTURE;
@@ -79,20 +125,46 @@ class IngredientsController extends Controller
 					$model->ING_PICTURE_ETAG = md5($model->ING_PICTURE);
 				}
 			}
-			if ($oldmodel){
+			if (isset($model->ING_ID)){
 				$model->ING_CHANGED = time();
 			} else {
 				//$model->PRF_UID = Yii::app()->session['userID'];
 				$model->PRF_UID = 1;
 				$model->ING_CREATED = time();
 			}
-			if($model->save()){
-				if($this->useAjaxLinks){
-					echo "{hash:'" . $this->createUrlHash('view', array('id'=>$model->ING_ID)) . "'}";
-					exit;
+			
+			Yii::app()->session['Ingredient_Backup'] = $model;
+			if ($model->validate()){
+				$duplicates = $this->checkDuplicate($model);
+				if ($duplicates != null && count($duplicates)>0 && !isset($_POST['ignoreDuplicates'])){
+					foreach($duplicates as $dup_type => $values){
+						if ($this->errorText != ''){
+							$this->errorText .= '<br />';
+						}
+						if ($dup_type == 'TITLE'){
+							$this->errorText .='<p>There are already Ingredients with a similar title:</p>';
+						} else {
+							$this->errorText .='<p>There are already Ingredients using the same NutrientData entry:</p>';
+						}
+						foreach($values as $dup){
+							$this->errorText .= $dup . '<br />';
+						}
+					}
+					$this->errorText .= CHtml::label('Ignore possible duplicates','ignoreDuplicates') . CHtml::checkBox('ignoreDuplicates');
 				} else {
-					$this->redirect(array('view', 'id'=>$model->ING_ID));
+					if($model->save()){
+						unset(Yii::app()->session['Ingredient_Backup']);
+						if($this->useAjaxLinks){
+							echo "{hash:'" . $this->createUrlHash('view', array('id'=>$model->ING_ID)) . "'}";
+							exit;
+						} else {
+							$this->redirect(array('view', 'id'=>$model->ING_ID));
+						}
+					}
 				}
+			}
+			if ($model->NUT_ID && (!$model->nutrientData || !$model->nutrientData->NUT_DESC || $model->NUT_ID != $model->nutrientData->NUT_ID)){
+				$model->nutrientData = NutrientData::model()->findByPk($model->NUT_ID);
 			}
 		}
 		
@@ -135,8 +207,7 @@ class IngredientsController extends Controller
 	 */
 	public function actionUpdate($id)
 	{
-		$model=$this->loadModel($id, true);
-		$this->prepareCreateOrUpdate($model, 'update');
+		$this->prepareCreateOrUpdate($id, 'update');
 	}
 
 	/**
@@ -382,16 +453,18 @@ class IngredientsController extends Controller
 	}
 	
 	private function getSubGroupDataById($id){
-		$criteria=new CDbCriteria;
-		$criteria->select = 'SUBGRP_ID,SUBGRP_DESC_'.Yii::app()->session['lang'];
 		if ($id){
+			$criteria=new CDbCriteria;
+			$criteria->select = 'SUBGRP_ID,SUBGRP_DESC_'.Yii::app()->session['lang'];
 			$criteria->compare('SUBGRP_OF', $id);
+			
+			$command = Yii::app()->db->commandBuilder->createFindCommand('subgroup_names', $criteria, '');
+			$subgroupNames = $command->queryAll();
+			$subgroupNames = CHtml::listData($subgroupNames,'SUBGRP_ID','SUBGRP_DESC_'.Yii::app()->session['lang']);
+			return $subgroupNames;
+		} else {
+			return array();
 		}
-		
-		$command = Yii::app()->db->commandBuilder->createFindCommand('subgroup_names', $criteria, '');
-		$subgroupNames = $command->queryAll();
-		$subgroupNames = CHtml::listData($subgroupNames,'SUBGRP_ID','SUBGRP_DESC_'.Yii::app()->session['lang']);
-		return $subgroupNames;
 	}
 	
 	public function actionGetSubGroupForm(){
@@ -399,10 +472,14 @@ class IngredientsController extends Controller
 		$subgroupNames = $this->getSubGroupDataById($id);
 		
 		$model=new Ingredients('form');
-		$htmlOptions_type0 = array('empty'=>$this->trans->INGREDIENTS_SEARCH_CHOOSE);
-		//$output = createInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'ING_SUBGROUP', $subgroupNames, 0, 'subgroupNames', $htmlOptions_type0, null);
+		if ($id){
+			$htmlOptions_subGroup = array('empty'=>$this->trans->INGREDIENTS_SEARCH_CHOOSE);
+		} else {
+			$htmlOptions_subGroup = array('empty'=>$this->trans->INGREDIENTS_CHOOSE_GROUP_FIRST);
+		}
+		//$output = createInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'ING_SUBGROUP', $subgroupNames, 0, 'subgroupNames', $htmlOptions_subGroup, null);
 		$fieldName = 'ING_SUBGROUP';
-		$output = CHtml::dropDownList(CHtml::resolveName($model,$fieldName), $model->__get($fieldName), $subgroupNames, $htmlOptions_type0); 
+		$output = CHtml::dropDownList(CHtml::resolveName($model,$fieldName), $model->__get($fieldName), $subgroupNames, $htmlOptions_subGroup); 
 		echo $this->processOutput($output);
 	}
 	
@@ -413,7 +490,11 @@ class IngredientsController extends Controller
 	 */
 	public function loadModel($id, $withPicture = false)
 	{
-		$model=Ingredients::model()->findByPk($id);
+		if ($id == 'backup'){
+			$model=Yii::app()->session['Ingredient_Backup'];
+		} else {
+			$model=Ingredients::model()->findByPk($id);
+		}
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;

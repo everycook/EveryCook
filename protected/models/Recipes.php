@@ -63,7 +63,7 @@ class Recipes extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'recipeTypes' => array(self::BELONGS_TO, 'recipeTypes', 'REC_TYPE'),
+			'recipeTypes' => array(self::BELONGS_TO, 'RecipeTypes', 'REC_TYPE'),
 			'steps' => array(self::HAS_MANY, 'Steps', 'REC_ID'),
 		);
 	}
