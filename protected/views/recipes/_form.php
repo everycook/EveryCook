@@ -2,22 +2,30 @@
 
 <div class="hidden" id="stepConfig">
 <?php
-	foreach ($stepTypeConfig as $config){
-		echo CHtml::hiddenField('stepConfig['.$config['STT_ID'].'][STT_DEFAULT]', $config['STT_DEFAULT']);
-		echo CHtml::hiddenField('stepConfig['.$config['STT_ID'].'][STT_REQUIRED]', $config['STT_REQUIRED']);
-	}
+	echo CHtml::hiddenField('stepConfigValues', $stepTypeConfig);
+	echo CHtml::hiddenField('rowsJSON', $stepsJSON);
+	echo CHtml::hiddenField('errorJSON', CJSON::encode($this->errorFields));
+	
 ?>
 </div>
 
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'recipes-form',
 	'enableAjaxValidation'=>false,
+	'action'=>Yii::app()->createUrl($this->route, array_merge($this->getActionParams(), array('ajaxform'=>true))),
     'htmlOptions'=>array('enctype' => 'multipart/form-data', 'class'=>'ajaxupload'),
 )); ?>
 
 	<p class="note">Fields with <span class="required">*</span> are required.</p>
 
-	<?php echo $form->errorSummary($model); ?>
+	<?php
+		echo $form->errorSummary($model);
+		if ($this->errorText != ''){
+			echo '<div class="errorSummary"><p>Please fix the following input errors on steps:</p><ul>';
+			echo $this->errorText;
+			echo '</ul></div>';
+		}
+	?>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'REC_TITLE_EN'); ?>
@@ -62,8 +70,8 @@
 		$text = array('add'=>$this->trans->RECIPES_ADD_STEP, 'remove'=>$this->trans->RECIPES_REMOVE_STEP, 'move up'=>'-up-', 'move down'=>'-down-', 'options'=>'Options');
 		
 		$options = array('new'=>new Steps);
-		echo Functions::createInputTable($model->steps, $fieldOptions, $options, $form, $text);
-		$newStep = new Steps;
+		//echo Functions::createInputTable($model->steps, $fieldOptions, $options, $form, $text);
+		echo Functions::createInputTable(array(), $fieldOptions, $options, $form, $text);
 	?>
 	
 	</div>

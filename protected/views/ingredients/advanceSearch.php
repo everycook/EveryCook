@@ -23,7 +23,7 @@ $this->menu=array(
 		'id'=>'search_form',
 	)); ?>
 	<div class="f-left search">
-		<?php echo $form->textField($model2,'query', array('class'=>'search_query')); ?>
+		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
 		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/lupe.jpg', array('class'=>'search_button', 'title'=>$this->trans->INGREDIENTS_SEARCH)); ?>
 	</div>
 	

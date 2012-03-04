@@ -22,4 +22,5 @@ $this->menu=array(
 	'actions'=>$actions,
 	'ingredients'=>$ingredients,
 	'stepTypeConfig'=>$stepTypeConfig,
+	'stepsJSON'=>$stepsJSON,
 	)); ?>

@@ -363,7 +363,12 @@ ul.search_choose li {
 	float:left;
 }
 
-
+.addRowContainer .odd input,
+.addRowContainer .odd select,
+.addRowContainer .even input,
+.addRowContainer .even select{
+	width:100%
+}
 
 
 

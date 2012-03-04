@@ -1,5 +1,5 @@
 <?php
-class Functions {
+class Functions extends CHtml{
 	const IMG_TYPE_GIF = 1;
 	const IMG_TYPE_JPG = 2;
 	const IMG_TYPE_PNG = 3;
@@ -17,13 +17,13 @@ class Functions {
 
 	public static function searchCriteriaInput($label, $model, $fieldName, $dataList, $type, $id, $htmlOptions) {
 		$html = '<div class="row" id="'.$id.'">';
-		$html .= CHtml::activeLabel($model,$fieldName, array('label'=>$label));
+		$html .= self::activeLabel($model,$fieldName, array('label'=>$label));
 		$html .= ' ';
 		if ($type == 0){
-			$html .= CHtml::dropDownList(CHtml::resolveName($model,$fieldName), $model->__get($fieldName), $dataList, $htmlOptions); 
+			$html .= self::dropDownList(self::resolveName($model,$fieldName), $model->__get($fieldName), $dataList, $htmlOptions); 
 		} else if ($type == 1){
 			$html .= '<ul class="search_choose">';
-			$html .= CHtml::checkBoxList(CHtml::resolveName($model,$fieldName), $model->__get($fieldName), $dataList, $htmlOptions); 
+			$html .= self::checkBoxList(self::resolveName($model,$fieldName), $model->__get($fieldName), $dataList, $htmlOptions); 
 			$html .= '</ul>';
 			$html .= '<div class="clearfix"></div>';
 		}
@@ -34,13 +34,13 @@ class Functions {
 	
 	public static function createInput($label, $model, $fieldName, $dataList, $type, $id, $htmlOptions, $form) {
 		$html = '<div class="row" id="'.$id.'">';
-		$html .= CHtml::activeLabelEx($model, $fieldName, array('label'=>$label));
+		$html .= self::activeLabelEx($model, $fieldName, array('label'=>$label));
 		$html .= ' ';
 		if ($type == 0){
-			$html .= CHtml::dropDownList(CHtml::resolveName($model,$fieldName), $model->__get($fieldName), $dataList, $htmlOptions); 
+			$html .= self::dropDownList(self::resolveName($model,$fieldName), $model->__get($fieldName), $dataList, $htmlOptions); 
 		} else if ($type == 1){
 			$html .= '<ul class="search_choose">';
-			$html .= CHtml::checkBoxList(CHtml::resolveName($model,$fieldName), $model->__get($fieldName), $dataList, $htmlOptions); 
+			$html .= self::checkBoxList(self::resolveName($model,$fieldName), $model->__get($fieldName), $dataList, $htmlOptions); 
 			$html .= '</ul>';
 			$html .= '<div class="clearfix"></div>';
 		}
@@ -53,7 +53,7 @@ class Functions {
 	}
 	
 	/*
-	Logic from CHtml::resolveName
+	Logic from self::resolveName
 	*/
 	public static function resolveArrayName($model,$attribute,$index){
 		if(($pos=strpos($attribute,'['))!==false) {
@@ -101,12 +101,12 @@ class Functions {
 			foreach($fieldOptions as $field){
 				if($field[1]){
 					if (is_array($field[2])){
-						$html .= '<td>'.CHtml::dropDownList(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0]), $field[2], $field[3]).'</td>';
+						$html .= '<td>'.self::dropDownList(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0]), $field[2], $field[3]).'</td>';
 					} else {
-						$html .= '<td>'.CHtml::textField(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0])).'</td>';
+						$html .= '<td>'.self::textField(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0])).'</td>';
 					}
 				} else {
-					$html .= CHtml::hiddenField(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0]));
+					$html .= self::hiddenField(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0]));
 				}
 			}
 			$html .= '<td><div class="buttonSmall remove">' . $text['remove'] . '</div><div class="buttonSmall up">' . $text['move up'] . '</div><div class="buttonSmall down">' . $text['move down'] . '</div></td>';
@@ -119,19 +119,19 @@ class Functions {
 			foreach($fieldOptions as $field){
 				if($field[1]){
 					if (is_array($field[2])){
-						$newhtml .= '<td>'.CHtml::dropDownList(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0]), $field[2], $htmlOptions).'</td>';
+						$newhtml .= '<td>'.self::dropDownList(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0]), $field[2], $field[3]).'</td>';
 					} else {
-						$newhtml .= '<td>'.CHtml::textField(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0])).'</td>';
+						$newhtml .= '<td>'.self::textField(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0])).'</td>';
 					}
 				} else {
-					$newhtml .= CHtml::hiddenField(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0]));
+					$newhtml .= self::hiddenField(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0]));
 				}
 			}
 			$newhtml .= '<td><div class="buttonSmall remove">' . $text['remove'] . '</div><div class="buttonSmall up">' . $text['move up'] . '</div><div class="buttonSmall down">' . $text['move down'] . '</div></td>';
 			$newhtml .= '</tr>';
 			
-			$html .= '<tr class="'.(($i % 2 == 1)?'odd':'even').'">';
-			$html .= '<td colspan="'.$visibleFields.'"><div class="buttonSmall add">' . $text['add'] . '</div>'. CHtml::hiddenField('addContent', $newhtml).CHtml::hiddenField('lastIndex', $i).'</td>';
+			$html .= '<tr id="newLine">';
+			$html .= '<td colspan="'.$visibleFields.'"><div class="buttonSmall add">' . $text['add'] . '</div>'. self::hiddenField('addContent', $newhtml).self::hiddenField('lastIndex', $i).'</td>';
 			$html .= '</tr>';
 		}
 		
@@ -238,6 +238,26 @@ class Functions {
 		//header("Content-Disposition: attachment; filename=\"image_" . $id . ".png\"");
 		header('Content-Transfer-Encoding: binary');
 		echo $picture;
+	}
+	
+	/**
+	 * Generates a special (HTML5 types) field input for a model attribute.
+	 * If the attribute has input error, the input field's CSS class will
+	 * be appended with {@link errorCss}.
+	 * @param CModel $model the data model
+	 * @param string $attribute the attribute
+	 * @param array $htmlOptions additional HTML attributes. Besides normal HTML attributes, a few special
+	 * attributes are also recognized (see {@link clientChange} and {@link tag} for more details.)
+	 * @return string the generated input field
+	 * @see clientChange
+	 * @see activeInputField
+	 */
+	public static function activeSpecialField($model,$attribute,$type,$htmlOptions=array()){
+		self::resolveNameID($model,$attribute,$htmlOptions);
+		if ($type != 'hidden'){
+			self::clientChange('change',$htmlOptions);
+		}
+		return self::activeInputField($type,$model,$attribute,$htmlOptions);
 	}
 }
 ?>

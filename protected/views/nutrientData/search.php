@@ -45,7 +45,7 @@ if ($this->isFancyAjaxRequest){
 		'method'=>'get',
 	)); ?>
 	<div class="f-left search">
-		<?php echo $form->textField($model2,'query', array('class'=>'search_query')); ?>
+		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
 		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/lupe.jpg', array('class'=>'search_button', 'title'=>$this->trans->NUTRIENT_DATA_SEARCH)); ?>
 	</div>
 

@@ -6,6 +6,9 @@ class RecipesController extends Controller
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
 	public $layout='//layouts/column2';
+	
+	public $errorText = '';
+	public $errorFields = array();
 
 	/**
 	 * @return array action filters
@@ -57,7 +60,7 @@ class RecipesController extends Controller
 	private function prepareCreateOrUpdate($oldmodel, $view){
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
-		
+			
 		if ($oldmodel){
 			$model = $oldmodel;
 			$oldPicture = $oldmodel->REC_PICTURE;
@@ -67,10 +70,10 @@ class RecipesController extends Controller
 			$oldAmount = 0;
 		}
 		
-		if(isset($_POST['Recipes']))
-		{
+		if(isset($_POST['Recipes'])){
 			$model->attributes=$_POST['Recipes'];
 			$steps = array();
+			$stepsOK = true;
 			foreach($_POST['Steps'] as $index => $values){
 				if ($index <= $oldAmount){
 					$newStep = $oldmodel->steps[$index-1];
@@ -78,8 +81,16 @@ class RecipesController extends Controller
 					$newStep = new Steps;
 				}
 				$newStep->attributes = $values;
+				foreach ($values as $key=>$value){
+					if ($value == '' && $key != 'REC_ID' && $key != 'STE_STEP_NO'){
+						$this->errorText .= '<li>Value ' . $key . ' of Step' . $index . ' is empty.</li>';
+						array_push($this->errorFields, 'Steps_'.$index.'_'.$key);
+						$stepsOK = false;
+					}
+				}
 				$newStep->STE_STEP_NO = $index;
-				$steps[$index] = $newStep;
+				//$steps[$index] = $newStep;
+				array_push($steps, $newStep);
 			}
 			
 			$stepsToDelete = array();
@@ -105,50 +116,55 @@ class RecipesController extends Controller
 					$model->REC_PICTURE_ETAG = md5($model->REC_PICTURE);
 				}
 			}
-			if ($oldmodel){
-				$model->REC_CHANGED = time();
-			} else {
-				//$model->PRF_UID = Yii::app()->session['userID'];
-				$model->PRF_UID = 1;
-				$model->REC_CREATED = time();
-			}
-			
-			$transaction=$model->dbConnection->beginTransaction();
-			try {
-				if($model->save()){
-					$saveOK = true;
-					foreach($steps as $step){
-						$step->REC_ID = $model->REC_ID;
-						if(!$step->save()){
-							$saveOK = false;
-							//echo 'error on save Step: errors:' . $step->getErrors(); /* print_r($step);*/
+			if ($stepsOK){
+				if ($oldmodel){
+					$model->REC_CHANGED = time();
+				} else {
+					//$model->PRF_UID = Yii::app()->session['userID'];
+					$model->PRF_UID = 1;
+					$model->REC_CREATED = time();
+				}
+				
+				$transaction=$model->dbConnection->beginTransaction();
+				try {
+					if($model->save()){
+						$saveOK = true;
+						foreach($steps as $step){
+							$step->REC_ID = $model->REC_ID;
+							if(!$step->save()){
+								$saveOK = false;
+								//echo 'error on save Step: errors:' . $step->getErrors(); /* print_r($step);*/
+							}
 						}
-					}
-					foreach($stepsToDelete as $step){
-						if(!$step->delete()){
-							$saveOK = false;
-							//echo 'error on delete Step: ' . $step->getErrors(); /* print_r($step);*/
+						foreach($stepsToDelete as $step){
+							if(!$step->delete()){
+								$saveOK = false;
+								//echo 'error on delete Step: ' . $step->getErrors(); /* print_r($step);*/
+							}
 						}
-					}
-					if ($saveOK){
-						$transaction->commit();
-						if($this->useAjaxLinks){
-							echo "{hash:'" . $this->createUrlHash('view', array('id'=>$model->REC_ID)) . "'}";
-							exit;
+						if ($saveOK){
+							$transaction->commit();
+							if($this->useAjaxLinks){
+								echo "{hash:'" . $this->createUrlHash('view', array('id'=>$model->REC_ID)) . "'}";
+								exit;
+							} else {
+								$this->redirect(array('view', 'id'=>$model->REC_ID));
+							}
 						} else {
-							$this->redirect(array('view', 'id'=>$model->REC_ID));
+							//echo 'any errors occured, rollback';
+							$transaction->rollBack();
 						}
 					} else {
-						//echo 'any errors occured, rollback';
+						//echo 'error on save: ' . $model->getErrors();
 						$transaction->rollBack();
 					}
-				} else {
-					//echo 'error on save: ' . $model->getErrors();
+				} catch(Exception $e) {
+					echo 'Eception occured -&gt; rollback. Exeption was: ' . $e;
 					$transaction->rollBack();
 				}
-			} catch(Exception $e) {
-				echo 'Eception occured -&gt; rollback. Exeption was: ' . $e;
-				$transaction->rollBack();
+			} else {
+				//To show Recipe errors also
+				$model->validate();
 			}
 		}
 		
@@ -162,6 +178,8 @@ class RecipesController extends Controller
 		$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_TITLE_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
 		$ingredients = CHtml::listData($ingredients,'ING_ID','ING_TITLE_'.Yii::app()->session['lang']);
 		
+		$stepsJSON = CJSON::encode($model->steps);
+		$stepTypeConfig = CJSON::encode($stepTypeConfig);
 		
 		$this->checkRenderAjax($view,array(
 			'model'=>$model,
@@ -170,6 +188,7 @@ class RecipesController extends Controller
 			'actions'=>$actions,
 			'ingredients'=>$ingredients,
 			'stepTypeConfig'=>$stepTypeConfig,
+			'stepsJSON'=>$stepsJSON,
 		));
 	}
 	

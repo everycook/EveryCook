@@ -13,13 +13,14 @@
 
 	<?php echo $form->errorSummary($model); ?>
 
+	
+<?php /*
 	<div class="row">
 		<?php echo $form->labelEx($model,'PRF_UID'); ?>
 		<?php echo $form->textField($model,'PRF_UID'); ?>
 		<?php echo $form->error($model,'PRF_UID'); ?>
 	</div>
 	
-<?php /*
 	<div class="row">
 		<?php echo $form->labelEx($model,'ING_CREATED'); ?>
 		<?php echo $form->textField($model,'ING_CREATED'); ?>

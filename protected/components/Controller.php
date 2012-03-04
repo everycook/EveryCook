@@ -38,7 +38,8 @@ class Controller extends CController
 	public $validSearchPerformed = false;
 	
 	public function getIsAjaxRequest(){
-		return $this->isFancyAjaxRequest || Yii::app()->request->isAjaxRequest;
+		$params = $this->getActionParams();
+		return $this->isFancyAjaxRequest || Yii::app()->request->isAjaxRequest || $params['ajaxform'];
 	}
 	
 	public $trans=null;
@@ -85,45 +86,16 @@ class Controller extends CController
 		{
 			if($this->useAjaxLinks){
 				Yii::app()->clientscript->registerCoreScript('bbq');
-				$fancyBox =  new EFancyBox();
+				$fancyBox = new EFancyBox();
 				$fancyBox->publishAssets();
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery.iframe-post-form.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/ajax_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/hash_handling.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/rowcontainer_handling.js', CClientScript::POS_HEAD);
 			}
 			$this->render($view, $data);
 		}
 	}
-	
-	/**
-	 * Creates a relative URL for the specified action defined in this controller.
-	 * @param string $route the URL route. This should be in the format of 'ControllerID/ActionID'.
-	 * If the ControllerID is not present, the current controller ID will be prefixed to the route.
-	 * If the route is empty, it is assumed to be the current action.
-	 * If the controller belongs to a module, the {@link CWebModule::getId module ID}
-	 * will be prefixed to the route. (If you do not want the module ID prefix, the route should start with a slash '/'.)
-	 * @param array $params additional GET parameters (name=>value). Both the name and value will be URL-encoded.
-	 * If the name is '#', the corresponding value will be treated as an anchor
-	 * and will be appended at the end of the URL.
-	 * @param string $ampersand the token separating name-value pairs in the URL.
-	 * @return string the constructed URL
-	 */
-	 /* //it would also change image links, form submit destinations ....
-	public function createUrl($route,$params=array(),$ampersand='&')
-	{
-		$url = parent::createUrl($route,$params,$ampersand);
-		if($this->useAjaxLinks){ //if($this->getIsAjaxRequest()){
-			//Change to HashLink
-			if (strpos($url, '.png') === false){
-				return str_replace('index.php/','index.php#',$url);
-			} else {
-				return $url;
-			}
-		} else {
-			return $url;
-		}
-	}
-	*/
 	
 	public function createUrlHash($route,$params=array(),$ampersand='&')
 	{
