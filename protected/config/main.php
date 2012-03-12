@@ -86,6 +86,9 @@ return array(
 		'clientScript'=>array(
 			'class'=>'CAjaxOptimizedClientScript',
 		),
+		'user'=>array(
+			'class'=>'WebUser',
+		),
 	),
 
 	// application-level parameters that can be accessed

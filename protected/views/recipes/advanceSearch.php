@@ -22,7 +22,7 @@ $this->menu=array(
 )); ?>
 	<div class="f-left search">
 		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
-		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/lupe.jpg', array('class'=>'search_button', 'title'=>$this->trans->RECIPES_SEARCH)); ?>
+		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->RECIPES_SEARCH)); ?>
 	</div>
 	
 	<div class="clearfix"></div>
@@ -76,5 +76,6 @@ $this->menu=array(
 <?php $this->widget('zii.widgets.CListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
+	'id'=>'recipeResult',
 )); ?>
 </div>

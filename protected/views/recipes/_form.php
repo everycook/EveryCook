@@ -4,8 +4,8 @@
 <?php
 	echo CHtml::hiddenField('stepConfigValues', $stepTypeConfig);
 	echo CHtml::hiddenField('rowsJSON', $stepsJSON);
-	echo CHtml::hiddenField('errorJSON', CJSON::encode($this->errorFields));
-	
+	echo CHtml::hiddenField('ingredientsJSON', CJSON::encode($ingredients));
+	echo CHtml::hiddenField('errorJSON', CJSON::encode($this->errorFields));	
 ?>
 </div>
 
@@ -70,7 +70,9 @@
 			array('STE_STEP_NO', null, null, null),
 			array('STT_ID', $this->trans->RECIPES_STEP_TYPE, $stepTypes, null),
 			array('ACT_ID', $this->trans->RECIPES_ACTION, $actions, array('empty'=>$this->trans->RECIPES_SEARCH_CHOOSE)),
-			array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('empty'=>$this->trans->RECIPES_SEARCH_CHOOSE)),
+			//array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('empty'=>$this->trans->RECIPES_SEARCH_CHOOSE)),
+			//array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('fancy'=>true, 'empty'=>$this->trans->RECIPES_SEARCH_CHOOSE, 'url'=>'#'.$this->createUrlHash('ingredients/chooseIngredient',array()), 'htmlOptions'=>array('class'=>'fancyChoose IngredientSelect'))),
+			array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('fancy'=>true, 'empty'=>$this->trans->RECIPES_SEARCH_CHOOSE, 'url'=>array('ingredients/chooseIngredient'), 'htmlOptions'=>array('class'=>'fancyChoose IngredientSelect'))),
 			array('STE_GRAMS', $this->trans->RECIPES_INGREDIENT_AMOUNT, null, null),
 		);
 		$text = array('add'=>$this->trans->RECIPES_ADD_STEP, 'remove'=>$this->trans->RECIPES_REMOVE_STEP, 'move up'=>'-up-', 'move down'=>'-down-', 'options'=>'Options');
@@ -79,7 +81,6 @@
 		//echo Functions::createInputTable($model->steps, $fieldOptions, $options, $form, $text);
 		echo Functions::createInputTable(array(), $fieldOptions, $options, $form, $text);
 	?>
-	
 	</div>
 	<div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>

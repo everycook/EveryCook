@@ -75,7 +75,7 @@ class Functions extends CHtml{
 		return get_class($model).'['.$index.']'.'['.$attribute.']';
 	}
 	
-	public static function createInputTable($valueArray, $fieldOptions, $options, $form, $text) {
+	public static function createInputTable($valueArray, $fieldOptions, $options, $form, $texts) {
 		if (isset($options['new'])){
 			$new = $options['new'];
 			$new->unsetAttributes(); // clear any default values
@@ -92,7 +92,7 @@ class Functions extends CHtml{
 				$visibleFields++;
 			}
 		}
-		$html .='<th>'.$text['options'].'</th>';
+		$html .='<th>'.$texts['options'].'</th>';
 		$html .= '</tr></thead>';
 		$html .= '<tbody>';
 		$i = 1;
@@ -100,7 +100,21 @@ class Functions extends CHtml{
 			$html .= '<tr class="'.(($i % 2 == 1)?'odd':'even').'">';
 			foreach($fieldOptions as $field){
 				if($field[1]){
-					if (is_array($field[2])){
+					$options = $field[3];
+					if ($options['fancy']){
+						$text = $options['empty'];
+						$val = $value->__get($field[0]);
+						if ($val != '' && is_array($field[2])){
+							foreach($field[2] as $row_key=>$row_val){
+								if($row_key == $val){
+									$text = $row_val;
+									break;
+								}
+							}
+						}
+						$htmlOptions = array_merge(array('id'=>self::getIdByName(self::resolveArrayName($value,$field[0].'_DESC','%index%'))),$options['htmlOptions']);
+						$html .= '<td>' . self::hiddenField(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0])) . self::link($text, $options['url'], $htmlOptions) . '</td>';
+					} else if (is_array($field[2])){
 						$html .= '<td>'.self::dropDownList(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0]), $field[2], $field[3]).'</td>';
 					} else {
 						$html .= '<td>'.self::textField(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0])).'</td>';
@@ -109,7 +123,7 @@ class Functions extends CHtml{
 					$html .= self::hiddenField(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0]));
 				}
 			}
-			$html .= '<td><div class="buttonSmall remove">' . $text['remove'] . '</div><div class="buttonSmall up">' . $text['move up'] . '</div><div class="buttonSmall down">' . $text['move down'] . '</div></td>';
+			$html .= '<td><div class="buttonSmall remove">' . $texts['remove'] . '</div><div class="buttonSmall up">' . $texts['move up'] . '</div><div class="buttonSmall down">' . $texts['move down'] . '</div></td>';
 			$html .= '</tr>';
 			$i++;
 		}
@@ -118,7 +132,12 @@ class Functions extends CHtml{
 			$newhtml = '<tr class="%class%">';
 			foreach($fieldOptions as $field){
 				if($field[1]){
-					if (is_array($field[2])){
+					$options = $field[3];
+					if ($options['fancy']){
+						$text = $options['empty'];
+						$htmlOptions = array_merge(array('id'=>self::getIdByName(self::resolveArrayName($new,$field[0].'_DESC','%index%'))),$options['htmlOptions']);
+						$newhtml .= '<td>' . self::hiddenField(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0])) . self::link($text, $options['url'], $htmlOptions) . '</td>';
+					} else if (is_array($field[2])){
 						$newhtml .= '<td>'.self::dropDownList(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0]), $field[2], $field[3]).'</td>';
 					} else {
 						$newhtml .= '<td>'.self::textField(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0])).'</td>';
@@ -127,11 +146,11 @@ class Functions extends CHtml{
 					$newhtml .= self::hiddenField(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0]));
 				}
 			}
-			$newhtml .= '<td><div class="buttonSmall remove">' . $text['remove'] . '</div><div class="buttonSmall up">' . $text['move up'] . '</div><div class="buttonSmall down">' . $text['move down'] . '</div></td>';
+			$newhtml .= '<td><div class="buttonSmall remove">' . $texts['remove'] . '</div><div class="buttonSmall up">' . $texts['move up'] . '</div><div class="buttonSmall down">' . $texts['move down'] . '</div></td>';
 			$newhtml .= '</tr>';
 			
 			$html .= '<tr id="newLine">';
-			$html .= '<td colspan="'.$visibleFields.'"><div class="buttonSmall add">' . $text['add'] . '</div>'. self::hiddenField('addContent', $newhtml).self::hiddenField('lastIndex', $i).'</td>';
+			$html .= '<td colspan="'.$visibleFields.'"><div class="buttonSmall add">' . $texts['add'] . '</div>'. self::hiddenField('addContent', $newhtml).self::hiddenField('lastIndex', $i).'</td>';
 			$html .= '</tr>';
 		}
 		

@@ -192,8 +192,39 @@ class RecipesController extends Controller
 		$stepTypes = CHtml::listData($stepTypeConfig,'STT_ID','STT_DESC_'.Yii::app()->session['lang']);
 		$actions = Yii::app()->db->createCommand()->select('ACT_ID,ACT_DESC_'.Yii::app()->session['lang'])->from('actions')->queryAll();
 		$actions = CHtml::listData($actions,'ACT_ID','ACT_DESC_'.Yii::app()->session['lang']);
-		$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_TITLE_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
-		$ingredients = CHtml::listData($ingredients,'ING_ID','ING_TITLE_'.Yii::app()->session['lang']);
+		//$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_TITLE_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
+		//$ingredients = CHtml::listData($ingredients,'ING_ID','ING_TITLE_'.Yii::app()->session['lang']);
+		
+		if ($model->steps && $model->steps[0] && !$model->steps[0]->ingredient){
+			/*
+			$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_TITLE_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
+			$ingredients = CHtml::listData($ingredients,'ING_ID','ING_TITLE_'.Yii::app()->session['lang']);
+			$usedIngredients = array();
+			foreach($model->steps as $step){
+				foreach($ingredients as $row_key=>$row_val){
+					if($row_key == $val){
+						$usedIngredients = array_merge($usedIngredients,array($row_key=>$row_val));
+						break;
+					}
+				}
+			}
+			*/
+			$neededIngredients = array();
+			foreach($model->steps as $step){
+				array_push($neededIngredients,$step->ING_ID);
+			}
+			if (count(neededIngredients)>0){
+				$criteria=new CDbCriteria;
+				$criteria->select = 'ING_ID,ING_TITLE_'.Yii::app()->session['lang'];
+				$criteria->compare('ING_ID',$neededIngredients);
+				$usedIngredients = Yii::app()->db->commandBuilder->createFindCommand('ingredients', $criteria, '')->queryAll();
+				$usedIngredients = CHtml::listData($usedIngredients,'ING_ID','ING_TITLE_'.Yii::app()->session['lang']);
+			} else {
+				$usedIngredients=array();
+			}
+		} else {
+			$usedIngredients=array();
+		}
 		
 		$stepsJSON = CJSON::encode($model->steps);
 		$stepTypeConfig = CJSON::encode($stepTypeConfig);
@@ -203,7 +234,7 @@ class RecipesController extends Controller
 			'recipeTypes'=>$recipeTypes,
 			'stepTypes'=>$stepTypes,
 			'actions'=>$actions,
-			'ingredients'=>$ingredients,
+			'ingredients'=>$usedIngredients,
 			'stepTypeConfig'=>$stepTypeConfig,
 			'stepsJSON'=>$stepsJSON,
 		));
@@ -253,10 +284,13 @@ class RecipesController extends Controller
 	 */
 	public function actionIndex()
 	{
+		$this->prepareSearch('search');
+		/*
 		$dataProvider=new CActiveDataProvider('Recipes');
 		$this->checkRenderAjax('index',array(
 			'dataProvider'=>$dataProvider,
 		));
+		*/
 	}
 
 	/**
@@ -318,6 +352,9 @@ class RecipesController extends Controller
 				}
 			}
 		}
+		if ($query != $model2->query){
+			$model2->query = $query;
+		}
 		
 		$rows = null;
 		if($ing_id !== null){
@@ -326,13 +363,16 @@ class RecipesController extends Controller
 			Yii::app()->session['Recipe'] = $Session_Recipe;
 			
 			$rows = Yii::app()->db->createCommand()
+				//->select('recipes.*')
 				->from('recipes')
 				->leftJoin('recipe_types', 'recipes.REC_TYPE=recipe_types.RET_ID')
-				->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID')
-				->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID')
-				->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID')
-				->where('ingredients.ING_ID=:id', array(':id'=>$ing_id))
-				->order('steps.STE_STEP_NO')
+				//->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID')
+				->join('steps', 'recipes.REC_ID=steps.REC_ID')
+				//->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID')
+				//->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID')
+				//->where('ingredients.ING_ID=:id', array(':id'=>$ing_id))
+				->where('steps.ING_ID=:id', array(':id'=>$ing_id))
+				//->order('steps.STE_STEP_NO')
 				->queryAll();
 		} else {
 			$criteryaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'recipes.');
@@ -344,11 +384,11 @@ class RecipesController extends Controller
 				$rows = Yii::app()->db->createCommand()
 					->from('recipes')
 					->leftJoin('recipe_types', 'recipes.REC_TYPE=recipe_types.RET_ID')
-					->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID')
-					->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID')
-					->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID')
+					//->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID')
+					//->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID')
+					//->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID')
 					->where($criteryaString)
-					->order('steps.STE_STEP_NO')
+					//->order('steps.STE_STEP_NO')
 					->queryAll();
 			} else {
 				$rows = array();

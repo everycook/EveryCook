@@ -37,8 +37,8 @@ $this->mainButtons = array(
 			?>
 			</ul>
 		</div>
-		<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$model->REC_ID), array('class'=>'delicious_big', 'title'=>$this->trans->RECIPES_DELICIOUS)); ?>
-		<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$model->REC_ID), array('class'=>'disgusting_big','title'=>$this->trans->RECIPES_DISGUSTING)); ?>
+		<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$model->REC_ID), array('class'=>'delicious_big last', 'title'=>$this->trans->RECIPES_DELICIOUS)); ?>
+		<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$model->REC_ID), array('class'=>'disgusting_big last','title'=>$this->trans->RECIPES_DISGUSTING)); ?>
 	</div>
 	
 	<div class="details">

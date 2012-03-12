@@ -28,7 +28,7 @@ class IngredientsController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','getSubGroupSearch','getSubGroupForm'),
+				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','getSubGroupSearch','getSubGroupForm','chooseIngredient'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -266,7 +266,7 @@ class IngredientsController extends Controller
 		));
 	}
 	
-	private function prepareSearch($view){
+	private function prepareSearch($view, $ajaxLayout){
 		$model=new Ingredients('search');
 		$model->unsetAttributes();  // clear any default values
 		
@@ -314,6 +314,7 @@ class IngredientsController extends Controller
 			$criteria = $model->getCriteriaString();
 			//$command = $model->commandBuilder->createFindCommand($model->tableName(), $model->getCriteriaString())
 			$command = Yii::app()->db->createCommand()
+				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, count(products.PRO_ID) as pro_count, count(pro_to_sto.STO_ID) as sto_count')
 				->from('ingredients')
 				->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
 				->leftJoin('group_names', 'ingredients.ING_GROUP=group_names.GRP_ID')
@@ -321,8 +322,12 @@ class IngredientsController extends Controller
 				->leftJoin('ingredient_conveniences', 'ingredients.ING_CONVENIENCE=ingredient_conveniences.CONV_ID')
 				->leftJoin('storability', 'ingredients.ING_STORABILITY=storability.STORAB_ID')
 				->leftJoin('ingredient_states', 'ingredients.ING_STATE=ingredient_states.STATE_ID')
+				->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
+				->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
+				->group('ingredients.ING_ID')
 				//->order('actor.first_name, actor.last_name, film.title')
 				;
+				//echo $command->text;
 			
 			if ($criteria->condition) {
 				if ($criteriaString != ''){
@@ -369,8 +374,9 @@ class IngredientsController extends Controller
 			$this->validSearchPerformed = true;
 		} else {
 			$rows = array();
+			unset(Yii::app()->session['Ingredient']);
 		}
-			
+		
 		$dataProvider=new CArrayDataProvider($rows, array(
 			'id'=>'ING_ID',
 			'pagination'=>array(
@@ -401,24 +407,29 @@ class IngredientsController extends Controller
 				'ingredientConveniences'=>$ingredientConveniences,
 				'storability'=>$storability,
 				'ingredientStates'=>$ingredientStates,
-			));
+			), $ajaxLayout);
 		} else {
 			$this->checkRenderAjax($view,array(
 				'model'=>$model,
 				'model2'=>$model2,
 				'dataProvider'=>$dataProvider,
-			));
+			), $ajaxLayout);
 		}
 	}
 	
 	public function actionAdvanceSearch()
 	{
-		$this->prepareSearch('advanceSearch');
+		$this->prepareSearch('advanceSearch', null);
 	}
 	
 	public function actionSearch()
 	{
-		$this->prepareSearch('search');
+		$this->prepareSearch('search', null);
+	}
+	
+	public function actionChooseIngredient(){
+		$this->isFancyAjaxRequest = true;
+		$this->prepareSearch('search', 'none');
 	}
 	
 	private function getSubGroupData($model){

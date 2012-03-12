@@ -4,7 +4,7 @@
 	<div class="options">
 		<?php echo CHtml::link('+', array('user/addrecipes', 'id'=>$data['REC_ID']), array('class'=>'button addRecipe', 'title'=>$this->trans->RECIPES_ADD)); ?><br>
 		<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data['REC_ID']), array('class'=>'delicious', 'title'=>$this->trans->RECIPES_DELICIOUS)); ?>
-		<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['REC_ID']), array('class'=>'disgusting','title'=>$this->trans->RECIPES_DISGUSTING)); ?>
+		<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['REC_ID']), array('class'=>'disgusting','title'=>$this->trans->RECIPES_DISGUSTING)); ?><br>
 		<?php echo CHtml::link(CHtml::encode($this->trans->RECIPES_VIEW_RECIPE), array('view', 'id'=>$data['REC_ID']), array('class'=>'button last')); ?>
 	</div>
 	

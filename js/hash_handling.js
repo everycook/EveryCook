@@ -1,10 +1,16 @@
-jQuery(function($){
-	var prefix = window.location.pathname.substr(0,window.location.pathname.indexOf('/',1)+1);
+var glob = glob || {};
+
+glob.prefix = window.location.pathname.substr(0,window.location.pathname.indexOf('/',1)+1);
 	
+glob.hashToUrl = function(url){
+	return glob.prefix + 'index.php/' + url;
+};
+
+jQuery(function($){
 	//Initialize Links
 	function initLinks(){
 		$('a[href*="index.php/"]:not(.fancyChoose)').each(function(){
-			$(this).attr('href', "#" + $(this).attr('href').substr(prefix.length+10));
+			$(this).attr('href', "#" + $(this).attr('href').substr(glob.prefix.length+10));
 		});
 	}
 	
@@ -32,7 +38,7 @@ jQuery(function($){
 			 // Show "loading" content while AJAX content loads.
 			$( '.bbq-loading' ).show();
 			
-			url = prefix + 'index.php/' + url;
+			url = glob.hashToUrl(url);
 			
 			$('#changable_content').load( url, function(){
 				// Content loaded, hide "loading" content.

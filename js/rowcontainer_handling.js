@@ -1,10 +1,21 @@
 jQuery(function($){
+	/*use the one in ajax_handling.js*/
+	function initMultiFancyCoose(){
+		jQuery('a.fancyChoose').bind('click.multiFancyCoose', function(){
+			jQuery('.activeFancyField').removeClass('activeFancyField');
+			jQuery(this).siblings('input:first').addClass('activeFancyField');
+		});
+		jQuery('a.fancyChoose').fancybox({'autoScale':true,'autoDimensions':true,'centerOnScroll':true});
+	}
+	
+	
 	var rows;
 	var stepConfig;
 	var lastIndex = 0;
 	var newLineContent;
 	var ingredientSelectContent;
 	var weightContent;
+	var ingredients;
 	function initRowContainer(){
 		stepConfig = jQuery('#stepConfigValues').attr('value');
 		if (stepConfig && stepConfig.length > 0){
@@ -24,11 +35,15 @@ jQuery(function($){
 			newLine = jQuery(newLineContent);
 			ingredientSelectContentElem = newLine.find('[id$=ING_ID]');
 			ingredientSelectContent = ingredientSelectContentElem.parents(':first').html();
-			ingredientSelectContentElem.remove();
+			//ingredientSelectContentElem.remove();
+			ingredientSelectContentElem.parents(':first').html('');
 			weightContentElem = newLine.find('[id$=STE_GRAMS]');
 			weightContent = weightContentElem.parents(':first').html();
 			weightContentElem.remove();
 			newLineContent = '<tr class="%class%">' + newLine.html() + '</tr>';
+			
+			ingredients = jQuery('#ingredientsJSON').attr('value');
+			ingredients = JSON.parse(ingredients);
 			
 			rows = JSON.parse(data);
 			for (var i = 0; i<rows.length; i++){
@@ -57,8 +72,13 @@ jQuery(function($){
 					name = field.attr('name');
 					pos = name.lastIndexOf('[');
 					name = name.substr(pos+1,name.length-pos-2);
-					
-					field.attr('value', data_row[name]);
+				}
+				
+				ingredientField = fieldParents.find('[id$=ING_ID]');
+				if (ingredientField.length > 0){
+					value = data_row['ING_ID'];
+					ingredientField.attr('value',value);
+					jQuery('#' + ingredientField.attr('id') + '_DESC').html(ingredients[value]);
 				}
 			}
 			
@@ -69,6 +89,7 @@ jQuery(function($){
 				jQuery('#'+field).addClass('error');
 				jQuery('[for='+field+']').addClass('error');
 			}
+			initMultiFancyCoose();
 		} else {
 			rows = [];
 		}
@@ -251,6 +272,7 @@ jQuery(function($){
 	jQuery('body').undelegate('.addRowContainer [id$=STT_ID]','change').delegate('.addRowContainer [id$=STT_ID]','change',function(){
 		updateFields(jQuery(this));
 		updateIngredientVisible(jQuery(this).parents('tr:first').find('[id$=ACT_ID]'));
+		initMultiFancyCoose();
 	});
 	
 	function updateIngredientVisible(elem){
@@ -272,5 +294,6 @@ jQuery(function($){
 	
 	jQuery('body').undelegate('.addRowContainer [id$=ACT_ID]','change').delegate('.addRowContainer [id$=ACT_ID]','change',function(){
 		updateIngredientVisible(jQuery(this));
+		initMultiFancyCoose();
 	});
 });

@@ -1,6 +1,6 @@
 htm, body {
-    font-family:sans-serif;
-    font-weight:bold;
+    font-family:Arial,sans-serif;
+    /*font-weight:bold;*/
     margin:0;
     padding:0;
 }
@@ -15,16 +15,16 @@ input, select {
 }
 
 #index_pic_bg {
-    position: fixed;
-    top:0;
-    left:0;
-    width: 100%;
-    height: 100%;
+	position: fixed;
+	top:0;
+	left:0;
+	width: 100%;
+	height: 100%;
 }
 
 #page {
-    position:relative;
-    z-index:1;
+	position:relative;
+	z-index:1;
 	margin:0 5em;
 }
 
@@ -39,19 +39,20 @@ input, select {
 }
 
 .nav_button {
-    display:table;
-    overflow:hidden;
-    background-color:#997F7F;
-    text-align:center;
+	display:table;
+	overflow:hidden;
+	background-color:#997F7F;
+	text-align:center;
 	margin-left:0.8em;
 	float:left;
-    width:12em;
+	width:12em;
 	height:1.5em;
+	border-radius:0.5em;
 }
 
 #logo {
 	float:left;
-    display:table;
+	display:table;
 	margin:0.5em 0 0 0.5em;
 	height:4.2em;
 }
@@ -62,17 +63,17 @@ input, select {
 }
 
 #content_left {
-    width:75%;
+	width:75%;
 	float:left;
 }
 
 #content_right {
-    width:25%;
-    float:right;
+	width:25%;
+	float:right;
 }
 
 #content {
-    padding: 2em;
+	padding: 2em;
 }
 
 #mainButtons {
@@ -113,11 +114,11 @@ input, select {
 
 
 .index_button span, .nav_button  span {
-    overflow:hidden;
-    display:table-cell;
-    vertical-align:middle;
-    width:100%;
-    overflow:hidden;
+	overflow:hidden;
+	display:table-cell;
+	vertical-align:middle;
+	width:100%;
+	overflow:hidden;
 }
 
 
@@ -138,57 +139,48 @@ input, select {
 
 
 label {
-    text-align: right;
-    display: inline-block;
-    width: 14em;
+	text-align: right;
+	display: inline-block;
+	width: 14em;
 	vertical-align: top;
 }
 
 a:link, a:visited, a:hover, a:active, a:focus  {
-    text-decoration:none;
-    color:black;
+	text-decoration:none;
+	color:black;
 }
 
 span.error {
-    font-size: 0.9em;
-    color:red;
+	font-size: 0.9em;
+	color:red;
 }
 
 div.index_div_login{
-    padding-top: 0.8em;
-    padding-bottom: 0.8em;
-    padding-right: 0.8em;
-    padding-left: 0.8em;
-    z-index: 1;
-    visibility: hidden;
-    display:table;
-    overflow:hidden;
-    position:fixed;
-    height:auto;
-    width:25%;
-    background-color:#997F7F;
-    top:8.9%;
-    left:60%;
-    text-align:center;
+	padding-top: 0.8em;
+	padding-bottom: 0.8em;
+	padding-right: 0.8em;
+	padding-left: 0.8em;
+	z-index: 1;
+	visibility: hidden;
+	display:table;
+	overflow:hidden;
+	position:fixed;
+	height:auto;
+	width:25%;
+	background-color:#997F7F;
+	top:8.9%;
+	left:60%;
+	text-align:center;
 }
 
 
-
-
-div.options a {
-	margin-bottom: 0.8em;
-}
-
-div.options a.last {
-	margin-bottom: 0;
-}
 
 .button, .buttonSmall {
 	display: inline-block;
 	/*height:1.7em;*/
 	text-align: center;
 	
-    border-radius:0.8em;
+	border-radius:0.8em;
 	background-color:#997F7F;
 	cursor:pointer;
 }
@@ -206,7 +198,7 @@ a.delicious {
 	width:3em;
 	height:3em;
 	background: url('../pics/delicious.png') repeat scroll 0 0 transparent;
-	background-size: contain auto;
+	background-size: contain;
 }
 
 a.disgusting {
@@ -214,22 +206,22 @@ a.disgusting {
 	width:3em;
 	height:3em;
 	background: url('../pics/disgusting.png') repeat scroll 0 0 transparent;
-	background-size: contain auto;
+	background-size: contain;
 }
 a.delicious_big {
 	display: inline-block;
 	width:5em;
 	height:5em;
-	background: url('../pics/delicious_big.png') repeat scroll 0 0 transparent;
-	background-size: contain auto;
+	background: url('../pics/delicious.png') repeat scroll 0 0 transparent;
+	background-size: contain;
 }
 
 a.disgusting_big {
 	display: inline-block;
 	width:5em;
 	height:5em;
-	background: url('../pics/disgusting_big.png') repeat scroll 0 0 transparent;
-	background-size: contain auto;
+	background: url('../pics/disgusting.png') repeat scroll 0 0 transparent;
+	background-size: contain;
 }
 
 a.addRecipe.button {
@@ -237,9 +229,33 @@ a.addRecipe.button {
 	height:1.7em;
 }
 
+a.cookwith {
+	display: inline-block;
+	width:3em;
+	height:3em;
+	background: url('../pics/cook.png') repeat scroll 0 0 transparent;
+	background-size: contain;
+}
+
+a.nutrientDataOpen {
+	display: inline-block;
+	width:4em;
+	height:4em;
+	background: url('../pics/list.png') repeat scroll 0 0 transparent;
+	background-size: contain;
+}
+
+a.productSearch {
+	display: inline-block;
+	width:4em;
+	height:4em;
+	background: url('../pics/list.png') repeat scroll 0 0 transparent;
+	background-size: contain;
+}
+
 
 div.resultArea {
-    border-radius:1.5em;
+	border-radius:1.5em;
 	background-color:#FFFFFF;
 	padding:0.8em;
 	margin-bottom:0.8em;
@@ -250,35 +266,74 @@ div.resultArea img.ingredient {
 	width:12em;
 	height:12em;
 	float:left;
+	border-radius:0.8em;	
 }
 
 div.resultArea img.recipe {
 	width:12em;
 	height:12em;
 	float:left;
+	border-radius:0.8em;
 }
 
 div.resultArea div.data {
-	margin-left:0.8em;
-	float: left;
+	margin-left:12.8em;
 }
 
 div.resultArea div.name {
 	font-weight:bold;
-	font-size:1.2em;
-	margin-bottom:0.4em;
+	font-size:2em;
+	margin-bottom:0.2em;
 }
+
 
 div.resultArea div.options {
 	float:right;
-	width:10em;
 }
 
-div.resultArea div.options a.disgusting {
+#ingredientResult div.resultArea div.options a {
+	margin-right: 2.8em;
+}
+
+#ingredientResult div.resultArea div.options a.last {
+	margin-right: 0;
+}
+
+#ingredientResult div.resultArea div.details {
+	height:0;
+}
+#ingredientResult div.resultArea div.details  div{
+	margin-left:auto;
+	padding-top:3.5em;
+	width:4em;
+}
+
+#ingredientResult div.nutrientInfo {
+	line-height:3em;
+}
+
+#ingredientResult div.shopInfo {
+	line-height:3em;
+}
+
+#ingredientResult div.prodInfo  {
+	line-height:1.5em;
+	margin-top:1em;
+}
+
+
+
+#recipeResult div.resultArea div.options a.disgusting {
 	float:right;
 }
 
+#recipeResult div.resultArea div.options a {
+	margin-bottom: 0.8em;
+}
 
+#recipeResult div.resultArea div.options a.last {
+	margin-bottom: 0;
+}
 
 div.detailView {
     border-radius:1.7em;
@@ -296,11 +351,20 @@ div.detailView div.options {
 	float:right;
 	width:17em;
 }
+
+div.detailView div.options a {
+	margin-bottom: 0.8em;
+}
+
+div.detailView div.options a.last {
+	margin-bottom: 0 !important;
+}
+
 div.detailView div.options div.ingredients {
 	display: inline-block;
 	padding: 0.8em;
-	
-    border-radius:0.8em;
+	margin-bottom: 0.8em;
+	border-radius:0.8em;
 	background-color:#997F7F;
 	width:15em;
 }
@@ -316,6 +380,7 @@ div.detailView div.options a.disgusting_big {
 div.detailView img.recipe {
 	width:17em;
 	height:17em;
+	border-radius:0.8em;
 }
 
 div.search {
@@ -331,6 +396,8 @@ div.search  input.search_button {
 
 div.search  input.search_query{
 	width:17em;
+	border-radius:0.8em;
+	padding:0 0.5em;
 }
 
 ul.search_choose {
@@ -478,4 +545,54 @@ ul.search_choose li {
 .operations li a:hover
 {
 	background: #80CFFF;
+}
+
+
+
+
+
+
+
+
+body {
+	background:none;
+	background-color:#6D0000;
+}
+
+.nav_button {
+	background-color:#FF4D02;
+}
+
+#container {
+	background-color:#FFDB00;
+}
+
+.index_button {
+	background-color:#FF4D02;
+}
+
+#footer {
+	border-top: 1px solid #BC0000;
+}
+
+
+div.index_div_login{
+	background-color:#FF4D02;
+}
+
+
+.button, .buttonSmall {
+	background-color:#FF4D02;
+}
+
+div.resultArea {
+	background-color:#FFFFFF;
+}
+
+div.detailView {
+	background-color:#FFDB00;
+}
+
+div.detailView div.options div.ingredients {
+	background-color:#FF4D02;
 }
