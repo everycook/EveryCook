@@ -5,11 +5,6 @@ htm, body {
     padding:0;
 }
 
-body {
-	background: url("../pics/bg.png") repeat fixed 0 0 transparent;
-	background-size: 100% auto;
-}
-
 input, select {
 	font-size:1em;
 }
@@ -41,7 +36,6 @@ input, select {
 .nav_button {
 	display:table;
 	overflow:hidden;
-	background-color:#997F7F;
 	text-align:center;
 	margin-left:0.8em;
 	float:left;
@@ -55,11 +49,16 @@ input, select {
 	display:table;
 	margin:0.5em 0 0 0.5em;
 	height:4.2em;
+	width:6.2em;
+}
+
+#designs {
+	float:right;
+	margin:1em 0;
 }
 
 #container {
 	border-radius:1.5em;
-	background-color:#99B299;
 }
 
 #content_left {
@@ -87,7 +86,6 @@ input, select {
 	border-radius:0.5em;
 	height:2em;
 	padding: 0.15em;
-	background-color:#997F7F;
 	text-align:center;
 	width:30%;
 }
@@ -133,7 +131,6 @@ input, select {
 	margin: 1em 2em;
 	font-size: 0.8em;
 	text-align: center;
-	border-top: 1px solid #C9E0ED;
 }
 
 
@@ -145,15 +142,6 @@ label {
 	vertical-align: top;
 }
 
-a:link, a:visited, a:hover, a:active, a:focus  {
-	text-decoration:none;
-	color:black;
-}
-
-span.error {
-	font-size: 0.9em;
-	color:red;
-}
 
 div.index_div_login{
 	padding-top: 0.8em;
@@ -167,7 +155,6 @@ div.index_div_login{
 	position:fixed;
 	height:auto;
 	width:25%;
-	background-color:#997F7F;
 	top:8.9%;
 	left:60%;
 	text-align:center;
@@ -181,47 +168,44 @@ div.index_div_login{
 	text-align: center;
 	
 	border-radius:0.8em;
-	background-color:#997F7F;
 	cursor:pointer;
 }
 
 .button {
 	padding: 0.8em;
-	width:8.4em;
+	/*width:8.4em;*/
 }
 .buttonSmall {
 	padding: 0.4em;
+}
+
+.f-center {
+	margin-right:auto;
+	margin-left:auto;
+	display:table;
 }
 
 a.delicious {
 	display: inline-block;
 	width:3em;
 	height:3em;
-	background: url('../pics/delicious.png') repeat scroll 0 0 transparent;
-	background-size: contain;
 }
 
 a.disgusting {
 	display: inline-block;
 	width:3em;
 	height:3em;
-	background: url('../pics/disgusting.png') repeat scroll 0 0 transparent;
-	background-size: contain;
 }
 a.delicious_big {
 	display: inline-block;
 	width:5em;
 	height:5em;
-	background: url('../pics/delicious.png') repeat scroll 0 0 transparent;
-	background-size: contain;
 }
 
 a.disgusting_big {
 	display: inline-block;
 	width:5em;
 	height:5em;
-	background: url('../pics/disgusting.png') repeat scroll 0 0 transparent;
-	background-size: contain;
 }
 
 a.addRecipe.button {
@@ -233,43 +217,31 @@ a.cookwith {
 	display: inline-block;
 	width:3em;
 	height:3em;
-	background: url('../pics/cook.png') repeat scroll 0 0 transparent;
-	background-size: contain;
 }
 
 a.nutrientDataOpen {
 	display: inline-block;
 	width:4em;
 	height:4em;
-	background: url('../pics/list.png') repeat scroll 0 0 transparent;
-	background-size: contain;
 }
 
 a.productSearch {
 	display: inline-block;
 	width:4em;
 	height:4em;
-	background: url('../pics/list.png') repeat scroll 0 0 transparent;
-	background-size: contain;
 }
 
 
 div.resultArea {
 	border-radius:1.5em;
-	background-color:#FFFFFF;
 	padding:0.8em;
 	margin-bottom:0.8em;
 	min-height: 12em;
 }
 
-div.resultArea img.ingredient {
-	width:12em;
-	height:12em;
-	float:left;
-	border-radius:0.8em;	
-}
-
-div.resultArea img.recipe {
+div.resultArea img.ingredient,
+div.resultArea img.recipe,
+div.resultArea img.product {
 	width:12em;
 	height:12em;
 	float:left;
@@ -336,8 +308,7 @@ div.resultArea div.options {
 }
 
 div.detailView {
-    border-radius:1.7em;
-	background-color:#FFFFFF;
+	border-radius:1.7em;
 	padding:0.8em;
 	margin-bottom:0.8em;
 }
@@ -365,7 +336,6 @@ div.detailView div.options div.ingredients {
 	padding: 0.8em;
 	margin-bottom: 0.8em;
 	border-radius:0.8em;
-	background-color:#997F7F;
 	width:15em;
 }
 
@@ -443,8 +413,9 @@ ul.search_choose li {
 }
 
 
-
-
+body > .backpicfix {
+	position:fixed;
+}
 
 
 
@@ -547,52 +518,3 @@ ul.search_choose li {
 	background: #80CFFF;
 }
 
-
-
-
-
-
-
-
-body {
-	background:none;
-	background-color:#6D0000;
-}
-
-.nav_button {
-	background-color:#FF4D02;
-}
-
-#container {
-	background-color:#FFDB00;
-}
-
-.index_button {
-	background-color:#FF4D02;
-}
-
-#footer {
-	border-top: 1px solid #BC0000;
-}
-
-
-div.index_div_login{
-	background-color:#FF4D02;
-}
-
-
-.button, .buttonSmall {
-	background-color:#FF4D02;
-}
-
-div.resultArea {
-	background-color:#FFFFFF;
-}
-
-div.detailView {
-	background-color:#FFDB00;
-}
-
-div.detailView div.options div.ingredients {
-	background-color:#FF4D02;
-}

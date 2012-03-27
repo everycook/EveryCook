@@ -24,6 +24,9 @@ if ($this->isFancyAjaxRequest){
 	});
 	jQuery('.button.IngredientSelect').bind('click', function(){
 		elem = jQuery('.activeFancyField');
+		if (elem.length == 0){
+			elem = jQuery('.fancyChoose').siblings('input');
+		}
 		elem.attr('value', jQuery(this).attr('href'));
 		elem.siblings('.fancyChoose.IngredientSelect').html(jQuery(this).parent().find('.name:first a').html());
 		jQuery.fancybox.close();
@@ -40,6 +43,11 @@ if ($this->isFancyAjaxRequest){
 	</script>
 	<?php
 }
+
+$ingSearch = array(($this->isFancyAjaxRequest)?'ingredients/advanceChooseIngredient':'ingredients/advanceSearch');
+if (Yii::app()->session['Ingredient'] && Yii::app()->session['Ingredient']['time']){
+	$ingSearch=array_merge($ingSearch,array('newSearch'=>Yii::app()->session['Ingredient']['time']));
+}
 ?>
 
 <div>
@@ -47,6 +55,7 @@ if ($this->isFancyAjaxRequest){
 		'action'=>Yii::app()->createUrl($this->route),
 		'id'=>'ingredients_form',
 		'method'=>'post',
+		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 	)); ?>
 	<div class="f-left search">
 		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
@@ -54,7 +63,7 @@ if ($this->isFancyAjaxRequest){
 	</div>
 	
 	<div class="f-right">
-		<?php echo CHtml::link($this->trans->INGREDIENTS_ADVANCE_SEARCH, array('ingredients/advanceSearch','newSearch'=>true), array('class'=>'button', 'id'=>'advanceSearch')); ?><br>
+		<?php echo CHtml::link($this->trans->INGREDIENTS_ADVANCE_SEARCH, $ingSearch, array('class'=>'button', 'id'=>'advanceSearch')); ?><br>
 	</div>
 	
 	<div class="clearfix"></div>

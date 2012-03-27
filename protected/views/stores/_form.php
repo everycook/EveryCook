@@ -22,15 +22,14 @@
 	</div>
 
 	<div class="row">
+		<?php echo $form->labelEx($model,'STO_PHONE'); ?>
+		<?php echo $form->textField($model,'STO_PHONE',array('size'=>20,'maxlength'=>20)); ?>
+		<?php echo $form->error($model,'STO_PHONE'); ?>
+	</div>
+
+	<div class="row">
 		<?php echo $form->labelEx($model,'SUP_ID'); ?>
-		<!--<?php echo $form->textField($model,'SUP_ID'); ?> -->
-		<!--  STL Added dropDown  -->
-		<?php $test = CHtml::listData(Suppliers::model()->findall(), 'SUP_ID', 'SUP_NAME');
-		while (current($test)) {
-            $test[key($test)]=key($test).' '.$test[key($test)];
-            next($test);
-		}
-		echo $form->dropDownList($model,'SUP_ID', $test, array('empty'=>'select Supplier')); ?>
+		<?php echo $form->textField($model,'SUP_ID'); ?>
 		<?php echo $form->error($model,'SUP_ID'); ?>
 	</div>
 

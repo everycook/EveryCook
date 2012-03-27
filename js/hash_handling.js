@@ -29,7 +29,7 @@ jQuery(function($){
 		$( 'a.bbq-current' ).removeClass( 'bbq-current' );
 		
 		// Hide any visible ajax content.
-		$( '.bbq-content' ).children( ':visible' ).hide();
+		//$( '.bbq-content' ).children( ':visible' ).hide();
 		
 		if (url !== ''){
 			// Add .bbq-current class to "current" nav link(s), only if url isn't empty.

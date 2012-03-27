@@ -17,27 +17,27 @@ jQuery(function($){
 	var weightContent;
 	var ingredients;
 	function initRowContainer(){
-		stepConfig = jQuery('#stepConfigValues').attr('value');
+		var stepConfig = jQuery('#stepConfigValues').attr('value');
 		if (stepConfig && stepConfig.length > 0){
 			stepConfig = JSON.parse(stepConfig);
 		} else {
 			stepConfig = [];
 		}
 		
-		container = jQuery('.addRowContainer');
-		emptyLineContainer = container.find('#newLine');
-		data = jQuery('#rowsJSON').attr('value');
+		var container = jQuery('.addRowContainer');
+		var emptyLineContainer = container.find('#newLine');
+		var data = jQuery('#rowsJSON').attr('value');
 		if (emptyLineContainer.length !== 0 && data.length !== 0){
-			lastIndexElem = emptyLineContainer.find('input[name=lastIndex]')
+			var lastIndexElem = emptyLineContainer.find('input[name=lastIndex]')
 			lastIndex = new Number(lastIndexElem.attr('value')).valueOf();
 			
 			newLineContent = emptyLineContainer.find('input[name=addContent]').attr('value');
-			newLine = jQuery(newLineContent);
-			ingredientSelectContentElem = newLine.find('[id$=ING_ID]');
+			var newLine = jQuery(newLineContent);
+			var ingredientSelectContentElem = newLine.find('[id$=ING_ID]');
 			ingredientSelectContent = ingredientSelectContentElem.parents(':first').html();
 			//ingredientSelectContentElem.remove();
 			ingredientSelectContentElem.parents(':first').html('');
-			weightContentElem = newLine.find('[id$=STE_GRAMS]');
+			var weightContentElem = newLine.find('[id$=STE_GRAMS]');
 			weightContent = weightContentElem.parents(':first').html();
 			weightContentElem.remove();
 			newLineContent = '<tr class="%class%">' + newLine.html() + '</tr>';
@@ -47,43 +47,45 @@ jQuery(function($){
 			
 			rows = JSON.parse(data);
 			for (var i = 0; i<rows.length; i++){
-				data_row = rows[i];
+				var data_row = rows[i];
 				newLine = addEmptyRow(emptyLineContainer);
-				stepType = newLine.find('[id$=STT_ID]');
+				var stepType = newLine.find('[id$=STT_ID]');
 				stepType.attr('value', data_row.STT_ID);
 				updateFields(stepType);
 				
-				actionType = newLine.find('[id$=ACT_ID]');
+				var actionType = newLine.find('[id$=ACT_ID]');
 				actionType.attr('value', data_row.ACT_ID);
 				updateIngredientVisible(actionType);
 				
-				next = newLine.next();
+				var next = newLine.next();
+				var fieldParents;
 				if (next.attr('class') == 'addFields'){
 					fieldParents = newLine.add(next);
 				} else {
 					fieldParents = newLine;
 				}
 				
-				fields = fieldParents.find('[name][type!=hidden]:not([id$=STT_ID]):not([id$=ACT_ID])'); //All non hidden input fields
-				
+				var fields = fieldParents.find('[name][type!=hidden]:not([id$=STT_ID]):not([id$=ACT_ID])'); //All non hidden input fields
+				/*
 				for(var j=0; j<fields.length; j++){
 					field = jQuery(fields[j]);
 					
-					name = field.attr('name');
-					pos = name.lastIndexOf('[');
+					var name = field.attr('name');
+					var pos = name.lastIndexOf('[');
 					name = name.substr(pos+1,name.length-pos-2);
 				}
+				*/
 				
-				ingredientField = fieldParents.find('[id$=ING_ID]');
+				var ingredientField = fieldParents.find('[id$=ING_ID]');
 				if (ingredientField.length > 0){
-					value = data_row['ING_ID'];
+					var value = data_row['ING_ID'];
 					ingredientField.attr('value',value);
 					jQuery('#' + ingredientField.attr('id') + '_DESC').html(ingredients[value]);
 				}
 			}
 			
-			errors = jQuery('#errorJSON').attr('value');
-			fields = JSON.parse(errors);
+			var errors = jQuery('#errorJSON').attr('value');
+			var fields = JSON.parse(errors);
 			for (var i = 0; i<fields.length; i++){
 				field = fields[i];
 				jQuery('#'+field).addClass('error');
@@ -101,7 +103,7 @@ jQuery(function($){
 	initRowContainer();
 	
 	function getIndexFromFieldName(name){
-		currentIndex = name.match(/\[([^\]]+)\]/);
+		var currentIndex = name.match(/\[([^\]]+)\]/);
 		if (!currentIndex){
 			return false;
 		}
@@ -109,18 +111,18 @@ jQuery(function($){
 	}
 	
 	function changeInputTableIndex(elem, changeamount){
-		inputs = elem.find('[name]');//All input fields
+		var inputs = elem.find('[name]');//All input fields
 		
-		currentIndexInt = getIndexFromFieldName(inputs.attr('name'))
+		var currentIndexInt = getIndexFromFieldName(inputs.attr('name'))
 		if (currentIndexInt === false) {
 			return false;
 		}
-		newIndexInt = currentIndexInt+changeamount;
+		var newIndexInt = currentIndexInt+changeamount;
 		
-		newIndexIntStr = '['+newIndexInt+']';
-		newIndexIntStr2 = '_'+newIndexInt+'_';
-		currentIndexStr = '['+currentIndexInt+']';
-		currentIndexStr2 = '_'+currentIndexInt+'_';
+		var newIndexIntStr = '['+newIndexInt+']';
+		var newIndexIntStr2 = '_'+newIndexInt+'_';
+		var currentIndexStr = '['+currentIndexInt+']';
+		var currentIndexStr2 = '_'+currentIndexInt+'_';
 		
 		elem.attr('class', (newIndexInt % 2 == 1)?'odd':'even');
 		
@@ -132,7 +134,7 @@ jQuery(function($){
 	}
 	
 	function addEmptyRow(emptyLineContainer){
-		currentNewLineContent = newLineContent.replace('%class%',(lastIndex % 2 == 1)?'odd':'even');
+		var currentNewLineContent = newLineContent.replace('%class%',(lastIndex % 2 == 1)?'odd':'even');
 		currentNewLineContent = currentNewLineContent.replace(/%index%/g,lastIndex);
 		
 		lastIndex = lastIndex+1;
@@ -147,8 +149,8 @@ jQuery(function($){
 	});
 	
 	jQuery('body').undelegate('.addRowContainer .remove','click').delegate('.addRowContainer .remove','click',function(){
-		row = jQuery(this).parents('tr:first');
-		followedRows = row.nextAll();
+		var row = jQuery(this).parents('tr:first');
+		var followedRows = row.nextAll();
 		
 		lastIndex = lastIndex-1;
 		
@@ -161,7 +163,7 @@ jQuery(function($){
 	});
 	
 	jQuery('body').undelegate('.addRowContainer .up','click').delegate('.addRowContainer .up','click',function(){
-		row = jQuery(this).parents('tr:first');
+		var row = jQuery(this).parents('tr:first');
 		if (row.prev().length){
 			changeInputTableIndex(row, -1);
 			changeInputTableIndex(row.prev(), 1);
@@ -170,8 +172,8 @@ jQuery(function($){
 	});
 
 	jQuery('body').undelegate('.addRowContainer .down','click').delegate('.addRowContainer .down','click',function(){
-		row = jQuery(this).parents('tr:first');
-		followedRows = row.nextAll();
+		var row = jQuery(this).parents('tr:first');
+		var followedRows = row.nextAll();
 		if (row.next().not(row.nextAll().last()).length){
 			changeInputTableIndex(row, 1);
 			changeInputTableIndex(row.next(), -1);
@@ -180,14 +182,15 @@ jQuery(function($){
 	});
 	
 	function addInputTableField(valueName, value, patternElem, insertElem, type){
-		name = patternElem.attr('name');
-		pos = name.lastIndexOf('[');
-		patternField = name.substr(pos+1,name.length-pos-2);
-		name = name.substr(0,pos+1) + valueName + ']';
+		var name = patternElem.attr('name');
+		var pos = name.lastIndexOf('[');
+		var patternField = name.substr(pos+1,name.length-pos-2);
+		var name = name.substr(0,pos+1) + valueName + ']';
 		
-		id = patternElem.attr('id');
-		pos = id.lastIndexOf(patternField);
+		var id = patternElem.attr('id');
+		var pos = id.lastIndexOf(patternField);
 		id = id.substr(0,pos) + valueName;
+		var newInput;
 		if (type == 'hidden'){
 			newInput = jQuery('<input type="hidden" name="'+name+'" id="'+id+'" value="'+value+'" />');
 		} else {
@@ -197,12 +200,12 @@ jQuery(function($){
 	}
 	
 	function updateFields(elem){
-		row = elem.parents('tr:first');
-		next = row.next();
-		value = elem.attr('value');
+		var row = elem.parents('tr:first');
+		var next = row.next();
+		var value = elem.attr('value');
 		
-		defaults = stepConfig[value].STT_DEFAULT.split(';');
-		required = stepConfig[value].STT_REQUIRED.split(';');
+		var defaults = stepConfig[value].STT_DEFAULT.split(';');
+		var required = stepConfig[value].STT_REQUIRED.split(';');
 		
 		if ((defaults.length === 0 || (defaults.length == 1 && defaults[0] == "")) && (required.length === 0 || (required.length == 1 && required[0] == ""))){
 			if (next.attr('class') == 'addFields'){
@@ -214,10 +217,10 @@ jQuery(function($){
 				next = jQuery('<tr class="addFields"><td colspan="'+row.children('td').length+'"></td></tr>');
 				next.insertAfter(row);
 			}
-			insertElem = next.find('td');
-			fieldParents = row.add(next);
-			oldFields = next.find('[name]'); //All input fields
-			weightElem = row.find('[id$=STE_GRAMS]');
+			var insertElem = next.find('td');
+			var fieldParents = row.add(next);
+			var oldFields = next.find('[name]'); //All input fields
+			var weightElem = row.find('[id$=STE_GRAMS]');
 			if (required.indexOf('STE_GRAMS') == -1){
 				weightElem.remove();
 			} else {
@@ -229,7 +232,7 @@ jQuery(function($){
 				}
 			}
 			for(var i=0; i<required.length; i++){
-				field = fieldParents.find('[id$='+required[i]+']');
+				var field = fieldParents.find('[id$='+required[i]+']');
 				if (field.length){
 					oldFields = oldFields.not(field);
 					if (field.attr('type') == 'hidden'){
@@ -241,8 +244,8 @@ jQuery(function($){
 				}
 			}
 			for(var i=0; i<defaults.length; i++){
-				fieldOpt=defaults[i].split('=');
-				field = fieldParents.find('[id$='+fieldOpt[0]+']');
+				var fieldOpt=defaults[i].split('=');
+				var field = fieldParents.find('[id$='+fieldOpt[0]+']');
 				if (field.length){
 					oldFields = oldFields.not(field);
 					field.attr('value',fieldOpt[1]);
@@ -262,7 +265,7 @@ jQuery(function($){
 				}
 			}
 			for(var i=0; i<oldFields.length; i++){
-				field = jQuery(oldFields[i]);
+				var field = jQuery(oldFields[i]);
 				next.find('[for='+field.attr('id')+']').remove();
 				field.remove();
 			}
@@ -276,10 +279,10 @@ jQuery(function($){
 	});
 	
 	function updateIngredientVisible(elem){
-		value = elem.attr('value');
-		text = elem.find(':selected').get(0).text;
-		row = elem.parents('tr:first');
-		ingredientElem = row.find('[id$=ING_ID]');
+		var value = elem.attr('value');
+		var text = elem.find(':selected').get(0).text;
+		var row = elem.parents('tr:first');
+		var ingredientElem = row.find('[id$=ING_ID]');
 		if (text.indexOf('#objectofaction#') == -1){
 			ingredientElem.remove();
 		} else {

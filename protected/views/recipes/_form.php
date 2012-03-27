@@ -1,3 +1,5 @@
+<input type="hidden" id="uploadImageLink" value="<?php echo $this->createUrl('recipes/uploadImage',array('id'=>$model->REC_ID)); ?>"/>
+<input type="hidden" id="imageLink" value="<?php echo $this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'png')); ?>"/>
 <div class="form">
 
 <div class="hidden" id="stepConfig">
@@ -26,18 +28,14 @@
 			echo '</ul></div>';
 		}
 	?>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'REC_TITLE_EN'); ?>
-		<?php echo $form->textField($model,'REC_TITLE_EN',array('size'=>60,'maxlength'=>100)); ?>
-		<?php echo $form->error($model,'REC_TITLE_EN'); ?>
-	</div>
 	
+	<?php foreach($this->allLanguages as $lang){ ?>
 	<div class="row">
-		<?php echo $form->labelEx($model,'REC_TITLE_DE'); ?>
-		<?php echo $form->textField($model,'REC_TITLE_DE',array('size'=>60,'maxlength'=>100)); ?>
-		<?php echo $form->error($model,'REC_TITLE_DE'); ?>
+		<?php echo $form->labelEx($model,'REC_TITLE_'.$lang); ?>
+		<?php echo $form->textField($model,'REC_TITLE_'.$lang,array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->error($model,'REC_TITLE_'.$lang); ?>
 	</div>
+	<?php } ?>
 	
 	<?php
 	$htmlOptions_type0 = array('empty'=>$this->trans->RECIPES_SEARCH_CHOOSE);
@@ -46,9 +44,9 @@
 	
 	<?php
 		if (Yii::app()->session['Recipe_Backup'] && Yii::app()->session['Recipe_Backup']->REC_PICTURE_ETAG){
-			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'recipe', 'alt'=>$model->REC_PICTURE_AUTH, 'title'=>$model->REC_PICTURE_AUTH));
+			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'recipe cropable', 'alt'=>$model->REC_PICTURE_AUTH, 'title'=>$model->REC_PICTURE_AUTH));
 		} else if ($model->REC_ID) {
-			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'png')), '', array('class'=>'recipe', 'alt'=>$model->REC_PICTURE_AUTH, 'title'=>$model->REC_PICTURE_AUTH));
+			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'png')), '', array('class'=>'recipe cropable', 'alt'=>$model->REC_PICTURE_AUTH, 'title'=>$model->REC_PICTURE_AUTH));
 		}
 	?><br />
 	<div class="row">

@@ -159,7 +159,11 @@ class Functions extends CHtml{
 		return $html;
 	}
 	
-	public static function resizePicture($file, $file_new, $width, $height, $qualitaet, $destType)
+	public static function resizePicture($file, $file_new, $width, $height, $qualitaet, $destType){
+		self::resizePicturePart($file, $file_new, $width, $height, $qualitaet, $destType, 0, 0 ,-1 ,-1);
+	}
+	
+	public static function resizePicturePart($file, $file_new, $width, $height, $qualitaet, $destType, $src_x, $src_y, $src_w, $src_h)
 	{
 		if(!file_exists($file))
 			return false;
@@ -184,14 +188,21 @@ class Functions extends CHtml{
 			$width=$height;
 			$height=$width;
 		}*/
+		if ($width > $src_w && $src_w != -1){
+			$width = $src_w;
+		} else if ($height > $src_h && $src_h != -1){
+			$height = $src_h;
+		}
 		if ($width && ($info[0] < $info[1])){
 			$width = ($height / $info[1]) * $info[0];
 		} else { 
-		  $height = ($width / $info[0]) * $info[1]; 
+			$height = ($width / $info[0]) * $info[1]; 
 		}
 		$imagetc = imagecreatetruecolor($width, $height);
-		if (($info[0] > $width) or ($info[1] > $height)){
-			imagecopyresampled($imagetc, $image, 0, 0, 0, 0, $width, $height, $info[0], $info[1]);
+		if (($info[0] > $width) or ($info[1] > $height) or ($width != $src_w) or ($height != src_h) or ($src_x != 0) or ($src_y != 0)){
+			if ($src_w==-1){$src_w=$info[0];}
+			if ($src_h==-1){$src_h=$info[1];}
+			imagecopyresampled($imagetc, $image, 0, 0, $src_x, $src_y, $width, $height, $src_w, $src_h);
 		} else {
 			if ($info[2] == $destType){
 				copy($file,$file_new);
@@ -216,41 +227,46 @@ class Functions extends CHtml{
 		}
 	}
 	
-	public static function getImage($modified, $etag, $picture){
+	public static function getImage($modified, $etag, $picture, $id){
 		//Not using default function to have posibility to set Cache control...
 		//Yii::app()->request->sendFile('image.png', $picture, 'image/png');
-		
-		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
-			//remove information after the semicolon and form a timestamp                                                         
-			$request_modified = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);
-			$request_modified = strtotime($request_modified[0]);
+		if ($id != 'backup'){
+			if ($modified){
+				if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+					//remove information after the semicolon and form a timestamp                                                         
+					$request_modified = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);
+					$request_modified = strtotime($request_modified[0]);
+					
+					// Compare the mtime on the request to the mtime of the image file                                                      
+					if ($modified <= $request_modified) {
+						header('HTTP/1.1 304 Not Modified');
+						exit();
+					}
+				}
+			}
 			
-			// Compare the mtime on the request to the mtime of the image file                                                      
-			if ($modified <= $request_modified) {
-				header('HTTP/1.1 304 Not Modified');
-				exit();
+			if ($etag == '' && $picture != ''){
+				$etag = md5($picture);
 			}
-		}
-		
-		if ($etag == '' && $picture != ''){
-			$etag = md5($picture);
-		}
-		
-		if (isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
-			$request_etag = $_SERVER['HTTP_IF_NONE_MATCH'];  //If-None-Match: “877f3628b738c76a54?
-			if ($etag == $request_etag){
-				header('HTTP/1.1 304 Not Modified');
-				exit();
+			
+			if (isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
+				$request_etag = $_SERVER['HTTP_IF_NONE_MATCH'];  //If-None-Match: “877f3628b738c76a54?
+				if ($etag == $request_etag){
+					header('HTTP/1.1 304 Not Modified');
+					exit();
+				}
 			}
+			
+			//header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+			header('Pragma: public');
+			//header('Expires: ' . gmdate('D, d M Y H:i:s', (time() + 604800)) . ' GMT');  //604800 = 7 days in seconds
+			header('Expires: ' . gmdate('D, d M Y H:i:s', (time() + 86400)) . ' GMT');  //86400 = 1 days in seconds
+			if ($modified){
+				header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $modified) . ' GMT');
+			}
+			header('Cache-Control: public');
+			header('Etag: ' . $etag);
 		}
-		
-		//header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-		header('Pragma: public');
-        //header('Expires: ' . gmdate('D, d M Y H:i:s', (time() + 604800)) . ' GMT');  //604800 = 7 days in seconds
-		header('Expires: ' . gmdate('D, d M Y H:i:s', (time() + 86400)) . ' GMT');  //86400 = 1 days in seconds
-		header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $modified) . ' GMT');
-		header('Cache-Control: public');
-		header('Etag: ' . $etag);
 		header("Content-type: image/png");
 		if(ini_get("output_handler")=='')
 			header('Content-Length: '.(function_exists('mb_strlen') ? mb_strlen($picture,'8bit') : strlen($picture)));
@@ -259,6 +275,48 @@ class Functions extends CHtml{
 		echo $picture;
 	}
 	
+	public static function updatePicture($model, $picFieldName, $oldPicture){
+		$file = CUploadedFile::getInstance($model,'filename');
+		if ($file){
+			self::resizePicture($file->getTempName(), $file->getTempName(), 400, 400, 0.8, self::IMG_TYPE_PNG);
+			$model->__set($picFieldName, file_get_contents($file->getTempName()));
+			$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
+			$model->setScenario('withPic');
+		} else {
+			if ($model->__get($picFieldName) == '' && $oldPicture != ''){
+				$model->__set($picFieldName, $oldPicture);
+				$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
+				$model->setScenario('withPic');
+			} else {
+				$cropInfosAvailable = isset($_POST['imagecrop_w']) && ($_POST['imagecrop_w'] > 0) && isset($_POST['imagecrop_h']) && ($_POST['imagecrop_h'] > 0);
+				if (($model->imagechanged == true || $cropInfosAvailable) && $model->__get($picFieldName) != ''){
+					$tempfile = tempnam(sys_get_temp_dir(), 'img');
+					file_put_contents($tempfile,$model->__get($picFieldName));
+					if ($cropInfosAvailable){
+						self::resizePicturePart($tempfile, $tempfile, 400, 400, 0.8, self::IMG_TYPE_PNG, $_POST['imagecrop_x'], $_POST['imagecrop_y'], $_POST['imagecrop_w'], $_POST['imagecrop_h']);
+					} else {
+						self::resizePicture($tempfile, $tempfile, 400, 400, 0.8, self::IMG_TYPE_PNG);
+					}
+					$model->__set($picFieldName, file_get_contents($tempfile));
+					$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
+					$model->imagechanged = false;
+				}
+			}
+		}
+	}
+	
+	public static function uploadPicture($model, $picFieldName){
+		$file = CUploadedFile::getInstance($model,'filename');
+		if ($file){
+			$model->__set($picFieldName, file_get_contents($file->getTempName()));
+			$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
+			$model->imagechanged = true;
+			$model->setScenario('withPic');
+			return true;
+		} else {
+			return false;
+		}
+	}
 	/**
 	 * Generates a special (HTML5 types) field input for a model attribute.
 	 * If the attribute has input error, the input field's CSS class will

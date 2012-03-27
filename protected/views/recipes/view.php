@@ -20,7 +20,11 @@ $this->mainButtons = array(
 <div class="detailView">
 	<?php
 	if (isset(Yii::app()->session['Recipe'])){
-		echo CHtml::link($this->trans->SEARCH_BACK_TO_RESULTS, array('recipes/search'), array('class'=>'button'));
+		if (isset(Yii::app()->session['Recipe']['model'])){
+			echo CHtml::link($this->trans->SEARCH_BACK_TO_RESULTS, array('recipes/advancesearch'), array('class'=>'button'));
+		} else {
+			echo CHtml::link($this->trans->SEARCH_BACK_TO_RESULTS, array('recipes/search'), array('class'=>'button'));
+		}
 	}
 	?><br>
 	<br>
@@ -37,8 +41,8 @@ $this->mainButtons = array(
 			?>
 			</ul>
 		</div>
-		<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$model->REC_ID), array('class'=>'delicious_big last', 'title'=>$this->trans->RECIPES_DELICIOUS)); ?>
-		<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$model->REC_ID), array('class'=>'disgusting_big last','title'=>$this->trans->RECIPES_DISGUSTING)); ?>
+		<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$model->REC_ID), array('class'=>'delicious_big backpic last', 'title'=>$this->trans->RECIPES_DELICIOUS)); ?>
+		<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$model->REC_ID), array('class'=>'disgusting_big backpic last','title'=>$this->trans->RECIPES_DISGUSTING)); ?>
 	</div>
 	
 	<div class="details">

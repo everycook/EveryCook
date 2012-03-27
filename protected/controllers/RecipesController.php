@@ -33,7 +33,7 @@ class RecipesController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
+				'actions'=>array('create','update','uploadImage'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -57,6 +57,43 @@ class RecipesController extends Controller
 		));
 	}
 
+	public function actionUploadImage(){
+		$id = $_GET['id'];
+		
+		$Session_Recipe_Backup = Yii::app()->session['Recipe_Backup'];
+		if ($Session_Recipe_Backup){
+			$oldmodel = $Session_Recipe_Backup;
+		}
+		if ($id){
+			if (!$oldmodel || $oldmodel->REC_ID != $id){
+				$oldmodel = $this->loadModel($id, true);
+			}
+		}
+		
+		if ($oldmodel){
+			$model = $oldmodel;
+		} else {
+			$model=new Recipes;
+		}
+		
+		if(isset($_POST['Recipes'])){
+			$model->attributes=$_POST['Recipes'];
+			$sucessfull = Functions::uploadPicture($model,'REC_PICTURE');
+			Yii::app()->session['Recipe_Backup'] = $model;
+			
+			if ($sucessfull){
+				echo "{imageId:'backup'}";
+				exit;
+			} else {
+				echo "{error:'nofile'}";
+				exit;
+			}
+		} else {
+			echo "{error:'nodata'}";
+			exit;
+		}
+	}
+	
 	private function prepareCreateOrUpdate($id, $view){
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
@@ -120,17 +157,8 @@ class RecipesController extends Controller
 			
 			$model->steps = $steps;
 			
-			$file = CUploadedFile::getInstance($model,'filename');
-			if ($file){
-				Functions::resizePicture($file->getTempName(), $file->getTempName(), 400, 400, 0.8, Functions::IMG_TYPE_PNG);
-				$model->REC_PICTURE=file_get_contents($file->getTempName());
-				$model->REC_PICTURE_ETAG = md5($model->REC_PICTURE);
-			} else {
-				if ($model->REC_PICTURE == '' && $oldPicture != ''){
-					$model->REC_PICTURE = $oldPicture;
-					$model->REC_PICTURE_ETAG = md5($model->REC_PICTURE);
-				}
-			}
+			Functions::updatePicture($model,'REC_PICTURE', $oldPicture);
+			
 			if (isset($model->REC_ID)){
 				$model->REC_CHANGED = time();
 			} else {
@@ -334,7 +362,7 @@ class RecipesController extends Controller
 			$ing_id = $_GET['ing_id'];
 		}
 		
-		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Recipes']) && !isset($_GET['ing_id']) && !isset($_GET['newSearch'])){
+		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Recipes']) && !isset($_GET['ing_id'])  && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session['Recipe']['time'])){
 			$Session_Recipe = Yii::app()->session['Recipe'];
 			if ($Session_Recipe){
 				if ($Session_Recipe['query']){
@@ -360,6 +388,7 @@ class RecipesController extends Controller
 		if($ing_id !== null){
 			$Session_Recipe = array();
 			$Session_Recipe['ing_id'] = $ing_id;
+			$Session_Recipe['time'] = time();
 			Yii::app()->session['Recipe'] = $Session_Recipe;
 			
 			$rows = Yii::app()->db->createCommand()
@@ -375,10 +404,11 @@ class RecipesController extends Controller
 				//->order('steps.STE_STEP_NO')
 				->queryAll();
 		} else {
-			$criteryaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'recipes.');
-			if ($criteryaString != ''){
+			$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'recipes.');
+			if ($criteriaString != ''){
 				$Session_Recipe = array();
 				$Session_Recipe['query'] = $query;
+				$Session_Recipe['time'] = time();
 				Yii::app()->session['Recipe'] = $Session_Recipe;
 				
 				$rows = Yii::app()->db->createCommand()
@@ -387,7 +417,7 @@ class RecipesController extends Controller
 					//->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID')
 					//->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID')
 					//->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID')
-					->where($criteryaString)
+					->where($criteriaString)
 					//->order('steps.STE_STEP_NO')
 					->queryAll();
 			} else {
@@ -456,6 +486,6 @@ class RecipesController extends Controller
 		if (!$modified){
 			$modified = $model->REC_CREATED;
 		}
-		return Functions::getImage($modified, $model->REC_PICTURE_ETAG, $model->REC_PICTURE);
+		return Functions::getImage($modified, $model->REC_PICTURE_ETAG, $model->REC_PICTURE, $id);
     }
 }

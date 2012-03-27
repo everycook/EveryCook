@@ -26,10 +26,20 @@ class Controller extends CController
 	public $useAjaxLinks = true;
 	
 	public function useDefaultMainButtons(){
+		if (Yii::app()->session['Ingredient'] && Yii::app()->session['Ingredient']['time']){
+			$newIngSearch=array('newSearch'=>Yii::app()->session['Ingredient']['time']);
+		} else {
+			$newIngSearch=array();
+		}
+		if (Yii::app()->session['Recipe'] && Yii::app()->session['Recipe']['time']){
+			$newRecSearch=array('newSearch'=>Yii::app()->session['Recipe']['time']);
+		} else {
+			$newRecSearch=array();
+		}
 		$this->mainButtons = array(
-			array('label'=>'Rezept Suchen', 'link_id'=>'left', 'url'=>array('recipes/search',array('newSearch'=>true))),
+			array('label'=>'Rezept Suchen', 'link_id'=>'left', 'url'=>array('recipes/search',$newRecSearch)),
 			array('label'=>'Die Kochende Maschiene', 'link_id'=>'right', 'url'=>array('site/page', array('view'=>'about'))),
-			array('label'=>'Essen Suchen', 'link_id'=>'middle', 'url'=>array('ingredients/search',array('newSearch'=>true))),
+			array('label'=>'Essen Suchen', 'link_id'=>'middle', 'url'=>array('ingredients/search',$newIngSearch)),
 		);
 	}
 	
@@ -92,6 +102,10 @@ class Controller extends CController
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/ajax_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/hash_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/rowcontainer_handling.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/design_handling.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/iefix_handling.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery.Jcrop.min.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/imgcrop_handling.js', CClientScript::POS_HEAD);
 			}
 			$this->render($view, $data);
 		}

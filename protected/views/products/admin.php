@@ -1,12 +1,12 @@
 <?php
 $this->breadcrumbs=array(
-	'Stores'=>array('index'),
+	'Products'=>array('index'),
 	'Manage',
 );
 
 $this->menu=array(
-	array('label'=>'List Stores', 'url'=>array('index')),
-	array('label'=>'Create Stores', 'url'=>array('create')),
+	array('label'=>'List Products', 'url'=>array('index')),
+	array('label'=>'Create Products', 'url'=>array('create')),
 );
 
 Yii::app()->clientScript->registerScript('search', "
@@ -15,7 +15,7 @@ $('.search-button').click(function(){
 	return false;
 });
 $('.search-form form').submit(function(){
-	$.fn.yiiGridView.update('stores-grid', {
+	$.fn.yiiGridView.update('products-grid', {
 		data: $(this).serialize()
 	});
 	return false;
@@ -23,7 +23,7 @@ $('.search-form form').submit(function(){
 ");
 ?>
 
-<h1>Manage Stores</h1>
+<h1>Manage Products</h1>
 
 <p>
 You may optionally enter a comparison operator (<b>&lt;</b>, <b>&lt;=</b>, <b>&gt;</b>, <b>&gt;=</b>, <b>&lt;&gt;</b>
@@ -38,15 +38,20 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 </div><!-- search-form -->
 
 <?php $this->widget('zii.widgets.grid.CGridView', array(
-	'id'=>'stores-grid',
+	'id'=>'products-grid',
 	'dataProvider'=>$model->search(),
 	'filter'=>$model,
 	'columns'=>array(
-		'STO_ID',
-		'STO_LOC_GPS',
-		'STO_LOC_ADDR',
-		'STO_PHONE',
-		'SUP_ID',
+		'PRO_ID',
+		'PRO_BARCODE',
+		'PRO_PACKAGE_GRAMMS',
+		'ING_ID',
+		'PRO_ECO',
+		'PRO_ETHIC',
+		/*
+		'PRO_PICTURE',
+		'PRO_PICTURE_COPYR',
+		*/
 		array(
 			'class'=>'CButtonColumn',
 		),

@@ -13,14 +13,17 @@ $this->menu=array(
 		array('label'=>$this->trans->INGREDIENTS_CREATE, 'link_id'=>'middle_single', 'url'=>array('ingredients/create',array())),
 	);
 //}
+
 ?>
 <input type="hidden" id="SubGroupSearchLink" value="<?php echo $this->createUrl('ingredients/getSubGroupSearch'); ?>"/>
+<input type="hidden" id="advanceChooseIngredientLink" value="<?php echo $this->createUrl('ingredients/advanceChooseIngredient'); ?>"/>
 
 <div id="ingredientsAdvanceSearch">
 <?php $form=$this->beginWidget('CActiveForm', array(
 		'action'=>Yii::app()->createUrl($this->route),
 		'method'=>'post',
-		'id'=>'search_form',
+		'id'=>'ingredients_form',
+		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 	)); ?>
 	<div class="f-left search">
 		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>

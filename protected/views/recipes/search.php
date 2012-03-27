@@ -13,6 +13,12 @@ $this->menu=array(
 		array('label'=>$this->trans->RECIPES_CREATE, 'link_id'=>'middle_single', 'url'=>array('recipes/create',array())),
 	);
 //}
+
+if (Yii::app()->session['Recipe'] && Yii::app()->session['Recipe']['time']){
+	$newRecSearch=array('newSearch'=>Yii::app()->session['Recipe']['time']);
+} else {
+	$newRecSearch=array();
+}
 ?>
 
 <div>
@@ -26,7 +32,7 @@ $this->menu=array(
 	</div>
 	
 	<div class="f-right">
-		<?php echo CHtml::link($this->trans->RECIPES_ADVANCE_SEARCH, array('recipes/advanceSearch'), array('class'=>'button')); ?><br>
+		<?php echo CHtml::link($this->trans->RECIPES_ADVANCE_SEARCH, array('recipes/advanceSearch', $newRecSearch), array('class'=>'button')); ?><br>
 	</div>
 	
 	<div class="clearfix"></div>	

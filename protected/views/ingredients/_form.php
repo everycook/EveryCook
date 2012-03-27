@@ -1,4 +1,6 @@
 <input type="hidden" id="SubGroupFormLink" value="<?php echo $this->createUrl('ingredients/getSubGroupForm'); ?>"/>
+<input type="hidden" id="uploadImageLink" value="<?php echo $this->createUrl('ingredients/uploadImage',array('id'=>$model->ING_ID)); ?>"/>
+<input type="hidden" id="imageLink" value="<?php echo $this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'png')); ?>"/>
 <div class="form">
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'ingredients-form',
@@ -6,6 +8,7 @@
 	'action'=>Yii::app()->createUrl($this->route, array_merge($this->getActionParams(), array('ajaxform'=>true))),
     'htmlOptions'=>array('enctype' => 'multipart/form-data', 'class'=>'ajaxupload'),
 )); 
+
 	$htmlOptions_type0 = array('empty'=>$this->trans->INGREDIENTS_SEARCH_CHOOSE);
 	$htmlOptions_type1 = array('template'=>'<li>{input} {label}</li>', 'separator'=>"\n", 'checkAll'=>$this->trans->INGREDIENTS_SEARCH_CHECK_ALL, 'checkAllLast'=>false);
 	
@@ -15,7 +18,6 @@
 	<?php
 	echo $form->errorSummary($model);
 	if ($this->errorText){
-	
 			echo '<div class="errorSummary">';
 			echo $this->errorText;
 			echo '</div>';
@@ -64,16 +66,16 @@
 	echo Functions::createInput($this->trans->INGREDIENTS_STATE, $model, 'ING_STATE', $ingredientStates, Functions::DROP_DOWN_LIST, 'ingredientStates', $htmlOptions_type0, $form);
 	
 	if ($model->nutrientData && $model->nutrientData->NUT_DESC){
-		$NutruentDescription = $model->nutrientData->NUT_DESC;
+		$NutrientDescription = $model->nutrientData->NUT_DESC;
 	} else {
-		$NutruentDescription = $this->trans->INGREDIENTS_SEARCH_CHOOSE;
+		$NutrientDescription = $this->trans->INGREDIENTS_SEARCH_CHOOSE;
 	}
 	?>
 	
 	<div class="row" id="nutrientData">
 		<?php echo $form->labelEx($model,'NUT_ID',array('label'=>$this->trans->INGREDIENTS_NUTRIENT)); ?>
 		<?php echo $form->hiddenField($model,'NUT_ID', array('id'=>'NUT_ID')); ?>
-		<?php echo CHtml::link($NutruentDescription, array('nutrientData/chooseNutrientData'), array('class'=>'fancyChoose NutrientDataSelect')) ?>
+		<?php echo CHtml::link($NutrientDescription, array('nutrientData/chooseNutrientData'), array('class'=>'fancyChoose NutrientDataSelect')) ?>
 	</div>
 
 	<div class="row">
@@ -81,15 +83,15 @@
 		<?php echo $form->textField($model,'ING_DENSITY'); ?>
 		<?php echo $form->error($model,'ING_DENSITY'); ?>
 	</div>
-
+	
 	<?php
 		if (Yii::app()->session['Ingredient_Backup'] && Yii::app()->session['Ingredient_Backup']->ING_PICTURE_ETAG){
-			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'ingredient', 'alt'=>$model->ING_PICTURE_AUTH, 'title'=>$model->ING_PICTURE_AUTH));
+			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->ING_PICTURE_AUTH, 'title'=>$model->ING_PICTURE_AUTH));
 		} else if ($model->ING_ID) {
-			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'png')), '', array('class'=>'ingredient', 'alt'=>$model->ING_PICTURE_AUTH, 'title'=>$model->ING_PICTURE_AUTH));
+			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->ING_PICTURE_AUTH, 'title'=>$model->ING_PICTURE_AUTH));
 		}
 	?>
-	<?php if ($model->ING_ID) {echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'png')), '', array('class'=>'ingredient', 'alt'=>$model->ING_PICTURE_AUTH, 'title'=>$model->ING_PICTURE_AUTH));} ?>
+	
 	<div class="row">
 		<?php echo $form->labelEx($model,'filename'); ?>
 		<?php echo $form->FileField($model,'filename'); ?>

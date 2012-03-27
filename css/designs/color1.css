@@ -1,0 +1,94 @@
+body {
+	background: url('../../pics/bg.png') repeat fixed 0 0 transparent;
+	background-size: 100% auto;
+}
+
+a:link, a:visited, a:hover, a:active, a:focus  {
+	text-decoration:none;
+	color:black;
+}
+
+span.error {
+	font-size: 0.9em;
+	color:red;
+}
+
+.nav_button {
+	background-color:#997F7F;
+}
+
+#logo {
+	background: url('../../pics/logo_small_1.png') no-repeat scroll 0 0 transparent;
+	background-size: 100% auto;
+}
+
+#container {
+	background-color:#99B299;
+}
+
+.index_button {
+	background-color:#997F7F;
+}
+
+#footer {
+	border-top: 1px solid #C9E0ED;
+}
+
+div.index_div_login{
+	background-color:#997F7F;
+}
+
+.button, .buttonSmall {
+	background-color:#997F7F;
+}
+
+a.delicious {
+	background: url('../../pics/delicious.png') no-repeat scroll 0 0 transparent;
+	background-size: contain;
+}
+
+a.disgusting {
+	background: url('../../pics/disgusting.png') no-repeat scroll 0 0 transparent;
+	background-size: contain;
+}
+a.delicious_big {
+	background: url('../../pics/delicious.png') no-repeat scroll 0 0 transparent;
+	background-size: contain;
+}
+
+a.disgusting_big {
+	background: url('../../pics/disgusting.png') no-repeat scroll 0 0 transparent;
+	background-size: contain;
+}
+
+a.cookwith {
+	background: url('../../pics/cook.png') no-repeat scroll 0 0 transparent;
+	background-size: contain;
+}
+
+a.nutrientDataOpen {
+	background: url('../../pics/list.png') no-repeat scroll 0 0 transparent;
+	background-size: contain;
+}
+
+a.productSearch {
+	background: url('../../pics/list.png') no-repeat scroll 0 0 transparent;
+	background-size: contain;
+}
+
+div.resultArea {
+	background-color:#FFFFFF;
+}
+
+div.detailView {
+	background-color:#FFFFFF;
+}
+
+div.detailView div.options div.ingredients {
+	background-color:#997F7F;
+}
+
+#fancybox-content{
+	background:#99B299;
+	padding:1em !important;
+}

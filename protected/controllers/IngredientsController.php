@@ -28,11 +28,11 @@ class IngredientsController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','getSubGroupSearch','getSubGroupForm','chooseIngredient'),
+				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','getSubGroupSearch','getSubGroupForm','chooseIngredient','advanceChooseIngredient'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
+				'actions'=>array('create','update','uploadImage'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -90,6 +90,44 @@ class IngredientsController extends Controller
 		return $duplicates;
 	}
 	
+	public function actionUploadImage(){
+		$id = $_GET['id'];
+		
+		$Session_Ingredient_Backup = Yii::app()->session['Ingredient_Backup'];
+		if ($Session_Ingredient_Backup){
+			$oldmodel = $Session_Ingredient_Backup;
+		}
+		if ($id){
+			if (!$oldmodel || $oldmodel->ING_ID != $id){
+				$oldmodel = $this->loadModel($id, true);
+			}
+		}
+		
+		if ($oldmodel){
+			$model = $oldmodel;
+			$oldPicture = $oldmodel->ING_PICTURE;
+		} else {
+			$model=new Ingredients;
+		}
+		
+		if(isset($_POST['Ingredients'])){
+			$model->attributes=$_POST['Ingredients'];
+			$sucessfull = Functions::uploadPicture($model,'ING_PICTURE');
+			Yii::app()->session['Ingredient_Backup'] = $model;
+			
+			if ($sucessfull){
+				echo "{imageId:'backup'}";
+				exit;
+			} else {
+				echo "{error:'nofile'}";
+				exit;
+			}
+		} else {
+			echo "{error:'nodata'}";
+			exit;
+		}
+	}
+		
 	private function prepareCreateOrUpdate($id, $view){
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
@@ -111,20 +149,11 @@ class IngredientsController extends Controller
 			$model=new Ingredients;
 		}
 		
-		if(isset($_POST['Ingredients']))
-		{
+		if(isset($_POST['Ingredients'])){
 			$model->attributes=$_POST['Ingredients'];
-			$file = CUploadedFile::getInstance($model,'filename');
-			if ($file){
-				Functions::resizePicture($file->getTempName(), $file->getTempName(), 400, 400, 0.8, Functions::IMG_TYPE_PNG);
-				$model->ING_PICTURE=file_get_contents($file->getTempName());
-				$model->ING_PICTURE_ETAG = md5($model->ING_PICTURE);
-			} else {
-				if ($model->ING_PICTURE == '' && $oldPicture != ''){
-					$model->ING_PICTURE = $oldPicture;
-					$model->ING_PICTURE_ETAG = md5($model->ING_PICTURE);
-				}
-			}
+			
+			Functions::updatePicture($model,'ING_PICTURE', $oldPicture);
+			
 			if (isset($model->ING_ID)){
 				$model->ING_CHANGED = time();
 			} else {
@@ -135,7 +164,9 @@ class IngredientsController extends Controller
 			
 			Yii::app()->session['Ingredient_Backup'] = $model;
 			if ($model->validate()){
-				$duplicates = $this->checkDuplicate($model);
+				if (!isset($model->ING_ID)){
+					$duplicates = $this->checkDuplicate($model);
+				}
 				if ($duplicates != null && count($duplicates)>0 && !isset($_POST['ignoreDuplicates'])){
 					foreach($duplicates as $dup_type => $values){
 						if ($this->errorText != ''){
@@ -286,7 +317,7 @@ class IngredientsController extends Controller
 			$modelAvailable = true;
 		}
 		
-		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Ingredients']) && !isset($_GET['newSearch'])){
+		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Ingredients']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session['Ingredient']['time'])){
 			$Session_Ingredient = Yii::app()->session['Ingredient'];
 			if ($Session_Ingredient){
 				if ($Session_Ingredient['query']){
@@ -309,6 +340,7 @@ class IngredientsController extends Controller
 				$Session_Ingredient['query'] = $query;
 			}
 			$Session_Ingredient['model'] = $model;
+			$Session_Ingredient['time'] = time();
 			Yii::app()->session['Ingredient'] = $Session_Ingredient;
 			
 			$criteria = $model->getCriteriaString();
@@ -354,6 +386,7 @@ class IngredientsController extends Controller
 		} else if ($criteriaString != ''){
 			$Session_Ingredient = array();
 			$Session_Ingredient['query'] = $query;
+			$Session_Ingredient['time'] = time();
 			Yii::app()->session['Ingredient'] = $Session_Ingredient;
 			
 			
@@ -430,6 +463,11 @@ class IngredientsController extends Controller
 	public function actionChooseIngredient(){
 		$this->isFancyAjaxRequest = true;
 		$this->prepareSearch('search', 'none');
+	}
+	
+	public function actionAdvanceChooseIngredient(){
+		$this->isFancyAjaxRequest = true;
+		$this->prepareSearch('advanceSearch', 'none');
 	}
 	
 	private function getSubGroupData($model){
@@ -531,6 +569,6 @@ class IngredientsController extends Controller
 		if (!$modified){
 			$modified = $model->ING_CREATED;
 		}
-		return Functions::getImage($modified, $model->ING_PICTURE_ETAG, $model->ING_PICTURE);
+		return Functions::getImage($modified, $model->ING_PICTURE_ETAG, $model->ING_PICTURE, $id);
     }
 }

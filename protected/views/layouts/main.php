@@ -15,10 +15,12 @@
 		<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/form.css" />
 		
 		<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/styles.css"/>
+		<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/designs/color1.css" media="screen, projection" id="design"/>
 		
+		<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/jquery.Jcrop.css"/>
 		<title><?php echo CHtml::encode($this->pageTitle); ?></title>
 	</head>
-	<body>
+	<body class="backpic">
 		<?php /*<img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/bg.png" alt="Background" id="index_pic_bg">*/ ?>
 		<div id="page">
 			<?php /*
@@ -42,7 +44,7 @@
 			<?php endif?>
 			*/ ?>
 			<div id="metaNav">
-				<a href="<?php echo Yii::app()->createUrl('site/index',array()); ?>"><img id="logo" src="<?php echo Yii::app()->request->baseUrl; ?>/pics/logo_small.png" alt="EveryCook Logo"></a>
+				<a href="<?php echo Yii::app()->createUrl('site/index',array()); ?>"><div id="logo" class="backpic" alt="EveryCook Logo"></div></a>
 				<div id="metaNavButtons">
 					<a href="#" OnClick="ShowLogin()">
 						<div class="nav_button">
@@ -75,6 +77,10 @@
 							//langlist();
 						?>
 					</div>
+				</div>
+				<div id="designs">
+					<?php echo CHtml::link('Color1', Yii::app()->request->baseUrl . '/css/designs/color1.css'); ?><br>
+					<?php echo CHtml::link('Color2', Yii::app()->request->baseUrl . '/css/designs/color2.css'); ?><br>
 				</div>
 			</div>
 			<div id="changable_content">

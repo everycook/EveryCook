@@ -24,6 +24,7 @@
 class Ingredients extends CActiveRecord
 {
 	public $filename;
+	public $imagechanged;
 	
 	/**
 	 * Returns the static model of the specified AR class.
@@ -51,6 +52,7 @@ class Ingredients extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('ING_GROUP, ING_STATE, ING_CONVENIENCE, ING_STORABILITY, ING_TITLE_EN', 'required'), // ING_SUBGROUP,
+			array('ING_PICTURE_AUTH', 'required', 'on'=>'withPic'),
 			array('PRF_UID, ING_CREATED, ING_CHANGED, NUT_ID, ING_GROUP, ING_SUBGROUP, ING_STATE, ING_CONVENIENCE, ING_STORABILITY', 'numerical', 'integerOnly'=>true),
 			array('ING_DENSITY', 'numerical'),
 			array('ING_PICTURE_AUTH', 'length', 'max'=>30),

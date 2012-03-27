@@ -8,14 +8,14 @@
 	} else {
 		?>
 		<div class="options">
-			<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data['ING_ID']), array('class'=>'delicious', 'title'=>$this->trans->INGREDIENTS_DELICIOUS)); ?>
-			<?php echo CHtml::link('&nbsp;', array('recipes/search', 'ing_id'=>$data['ING_ID']), array('class'=>'cookwith', 'title'=>$this->trans->INGREDIENTS_COOK_WITH)); ?>
-			<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['ING_ID']), array('class'=>'disgusting last','title'=>$this->trans->INGREDIENTS_DISGUSTING)); ?>
+			<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data['ING_ID']), array('class'=>'delicious backpic', 'title'=>$this->trans->INGREDIENTS_DELICIOUS)); ?>
+			<?php echo CHtml::link('&nbsp;', array('recipes/search', 'ing_id'=>$data['ING_ID']), array('class'=>'cookwith backpic', 'title'=>$this->trans->INGREDIENTS_COOK_WITH)); ?>
+			<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['ING_ID']), array('class'=>'disgusting backpic last','title'=>$this->trans->INGREDIENTS_DISGUSTING)); ?>
 		</div>
 		<div class="details">
 			<div>
-				<?php echo CHtml::link('&nbsp;', array('nutrientData/view', 'id'=>$data['NUT_ID']), array('class'=>'nutrientDataOpen', 'title'=>$this->trans->INGREDIENTS_VIEW_FOOD)); ?>
-				<?php echo CHtml::link('&nbsp;', array('products/search', 'id'=>$data['ING_ID']), array('class'=>'productSearch','title'=>$this->trans->INGREDIENTS_VIEW_FOOD)); ?>
+				<?php echo CHtml::link('&nbsp;', array('nutrientData/view', 'id'=>$data['NUT_ID']), array('class'=>'nutrientDataOpen backpic', 'title'=>$this->trans->INGREDIENTS_VIEW_FOOD)); ?>
+				<?php echo CHtml::link('&nbsp;', array('products/search', 'ing_id'=>$data['ING_ID']), array('class'=>'productSearch backpic','title'=>$this->trans->INGREDIENTS_VIEW_FOOD)); ?>
 			</div>
 		</div>
 		<?php

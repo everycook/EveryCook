@@ -21,6 +21,7 @@ $this->menu=array(
 		'STO_ID',
 		'STO_LOC_GPS',
 		'STO_LOC_ADDR',
+		'STO_PHONE',
 		'SUP_ID',
 	),
 )); ?>

@@ -17,6 +17,7 @@
 class Recipes extends CActiveRecord
 {
 	public $filename;
+	public $imagechanged;
 	
 	/**
 	 * Returns the static model of the specified AR class.
@@ -44,6 +45,7 @@ class Recipes extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('REC_CREATED, REC_TYPE, REC_TITLE_EN', 'required'),
+			array('REC_PICTURE_AUTH', 'required', 'on'=>'withPic'),
 			array('REC_CREATED, REC_CHANGED, REC_TYPE', 'numerical', 'integerOnly'=>true),
 			array('REC_PICTURE_AUTH', 'length', 'max'=>30),
 			array('REC_PICTURE_ETAG', 'length', 'max'=>40),
