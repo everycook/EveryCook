@@ -70,7 +70,7 @@ class SubgroupNamesController extends Controller
 		{
 			$model->attributes=$_POST['SubgroupNames'];
 			if($model->save())
-				$this->redirect(array('view','id'=>$model->SUBGRP_ID));
+				$this->redirect(array('view','id'=>$model->SGR_ID));
 		}
 
 		$this->checkRenderAjax('create',array(
@@ -94,7 +94,7 @@ class SubgroupNamesController extends Controller
 		{
 			$model->attributes=$_POST['SubgroupNames'];
 			if($model->save())
-				$this->redirect(array('view','id'=>$model->SUBGRP_ID));
+				$this->redirect(array('view','id'=>$model->SGR_ID));
 		}
 
 		$this->checkRenderAjax('update',array(

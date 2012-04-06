@@ -41,8 +41,8 @@
 	</div>
 
 	<?php
-	if ($model->ingredient && $model->ingredient->__get('ING_TITLE_'.Yii::app()->session['lang'])){
-		$IngredientDescription = $model->ingredient->__get('ING_TITLE_'.Yii::app()->session['lang']);
+	if ($model->ingredient && $model->ingredient->__get('ING_NAME_'.Yii::app()->session['lang'])){
+		$IngredientDescription = $model->ingredient->__get('ING_NAME_'.Yii::app()->session['lang']);
 	} else {
 		$IngredientDescription = $this->trans->PRODUCTS_SEARCH_CHOOSE;
 	}
@@ -57,15 +57,15 @@
 	<?php
 	$htmlOptions_type0 = array('empty'=>$this->trans->PRODUCTS_SEARCH_CHOOSE);
 	
-	echo Functions::createInput($this->trans->PRODUCTS_SUSTAINABILITY, $model, 'PRO_ECO', $ecology, Functions::DROP_DOWN_LIST, 'ecology', $htmlOptions_type0, $form);
-	echo Functions::createInput($this->trans->PRODUCTS_ETHICAL, $model, 'PRO_ETHIC', $ethicalCriteria, Functions::DROP_DOWN_LIST, 'ethicalCriteria', $htmlOptions_type0, $form);
+	echo Functions::createInput($this->trans->PRODUCTS_SUSTAINABILITY, $model, 'ECO_ID', $ecology, Functions::DROP_DOWN_LIST, 'ecology', $htmlOptions_type0, $form);
+	echo Functions::createInput($this->trans->PRODUCTS_ETHICAL, $model, 'ETH_ID', $ethicalCriteria, Functions::DROP_DOWN_LIST, 'ethicalCriteria', $htmlOptions_type0, $form);
 	?>
 	
 	<?php
-		if (Yii::app()->session['Product_Backup'] && Yii::app()->session['Product_Backup']->PRO_PICTURE_ETAG){
-			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'product cropable', 'alt'=>$model->PRO_PICTURE_COPYR, 'title'=>$model->PRO_PICTURE_COPYR));
+		if (Yii::app()->session['Product_Backup'] && Yii::app()->session['Product_Backup']->PRO_IMG_ETAG){
+			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'product cropable', 'alt'=>$model->PRO_IMG_CR, 'title'=>$model->PRO_IMG_CR));
 		} else if ($model->ING_ID) {
-			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$model->PRO_ID, 'ext'=>'png')), '', array('class'=>'product cropable', 'alt'=>$model->PRO_PICTURE_COPYR, 'title'=>$model->PRO_PICTURE_COPYR));
+			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$model->PRO_ID, 'ext'=>'png')), '', array('class'=>'product cropable', 'alt'=>$model->PRO_IMG_CR, 'title'=>$model->PRO_IMG_CR));
 		}
 	?>
 	
@@ -76,9 +76,9 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'PRO_PICTURE_COPYR'); ?>
-		<?php echo $form->textField($model,'PRO_PICTURE_COPYR',array('size'=>30,'maxlength'=>30)); ?>
-		<?php echo $form->error($model,'PRO_PICTURE_COPYR'); ?>
+		<?php echo $form->labelEx($model,'PRO_IMG_CR'); ?>
+		<?php echo $form->textField($model,'PRO_IMG_CR',array('size'=>30,'maxlength'=>30)); ?>
+		<?php echo $form->error($model,'PRO_IMG_CR'); ?>
 	</div>
 
 	<div class="row buttons">

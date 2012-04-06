@@ -1,6 +1,6 @@
 <div class="resultArea">
 	<!-- STL show image -->
-	<?php echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'png')), '', array('class'=>'ingredient', 'alt'=>$data['ING_PICTURE_AUTH'], 'title'=>$data['ING_PICTURE_AUTH'])), array('view', 'id'=>$data['ING_ID'])); ?>
+	<?php echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'png')), '', array('class'=>'ingredient', 'alt'=>$data['ING_IMG_AUTH'], 'title'=>$data['ING_IMG_AUTH'])), array('view', 'id'=>$data['ING_ID'])); ?>
 	
 	<?php
 	if ($this->isFancyAjaxRequest){
@@ -24,7 +24,7 @@
 	
 	<div class="data">
 		<div class="name">
-			<?php echo CHtml::link(CHtml::encode($data['ING_TITLE_'.Yii::app()->session['lang']]), array('view', 'id'=>$data['ING_ID'])); ?>
+			<?php echo CHtml::link(CHtml::encode($data['ING_NAME_'.Yii::app()->session['lang']]), array('view', 'id'=>$data['ING_ID'])); ?>
 		</div>
 		
 		<div class="nutrientInfo">
@@ -42,8 +42,8 @@
 			}?>
 		</div>
 		<div class="shopInfo">
-			<?php if($data['pro_count'] != 0 || $data['sto_count'] != 0){ ?>
-			<span><?php printf(CHtml::encode($this->trans->INGREDIENTS_PRODUCTS_IN_SHOPS), $data['pro_count'], $data['sto_count']); ?></span>
+			<?php if($data['pro_count'] != 0 || $data['sup_count'] != 0){ ?>
+			<span><?php printf(CHtml::encode($this->trans->INGREDIENTS_PRODUCTS_IN_SHOPS), $data['pro_count'], $data['sup_count']); ?></span>
 			<?php } else {
 				echo '&nbsp;';
 			} ?>
@@ -53,12 +53,12 @@
 		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_NUTRIENT) .':</strong> ' . CHtml::link(CHtml::encode($data['NUT_DESC']), array('nutrientData/view', 'id'=>$data['NUT_ID'])) ."</span>\n";
 	*/ 
 		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_GROUP) .':</strong> ' . CHtml::encode($data['GRP_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
-		if ($data['SUBGRP_DESC_'.Yii::app()->session['lang']] != ''){
-			echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_SUBGROUP) .':</strong> ' . CHtml::encode($data['SUBGRP_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
+		if ($data['SGR_DESC_'.Yii::app()->session['lang']] != ''){
+			echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_SUBGROUP) .':</strong> ' . CHtml::encode($data['SGR_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
 		}
-		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_CONVENIENCE) .':</strong> ' . CHtml::encode($data['CONV_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
-		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_STORABILITY) .':</strong> ' . CHtml::encode($data['STORAB_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
-		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_STATE) .':</strong> ' . CHtml::encode($data['STATE_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
+		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_CONVENIENCE) .':</strong> ' . CHtml::encode($data['ICO_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
+		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_STORABILITY) .':</strong> ' . CHtml::encode($data['STB_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
+		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_STATE) .':</strong> ' . CHtml::encode($data['IST_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
 		?>
 		</div>
 	</div>
@@ -84,23 +84,23 @@
 		<?php echo CHtml::encode($data->ING_CHANGED); ?>
 		<br />
 		
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_STATE')); ?>:</strong>
-	<?php echo CHtml::encode($data->ING_STATE); ?>
+	<strong><?php echo CHtml::encode($data->getAttributeLabel('IST_ID')); ?>:</strong>
+	<?php echo CHtml::encode($data->IST_ID); ?>
 	<br />
 
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_CONVENIENCE')); ?>:</strong>
-	<?php echo CHtml::encode($data->ING_CONVENIENCE); ?>
+	<strong><?php echo CHtml::encode($data->getAttributeLabel('ICO_ID')); ?>:</strong>
+	<?php echo CHtml::encode($data->ICO_ID); ?>
 	<br />
 
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_STORABILITY')); ?>:</strong>
-	<?php echo CHtml::encode($data->ING_STORABILITY); ?>
+	<strong><?php echo CHtml::encode($data->getAttributeLabel('STB_ID')); ?>:</strong>
+	<?php echo CHtml::encode($data->STB_ID); ?>
 	<br />
 
 	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_DENSITY')); ?>:</strong>
 	<?php echo CHtml::encode($data->ING_DENSITY); ?>
 	<br />
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_PICTURE')); ?>:</strong>
-	<?php echo CHtml::encode($data->ING_PICTURE); ?><br />
+	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_IMG')); ?>:</strong>
+	<?php echo CHtml::encode($data->ING_IMG); ?><br />
 	
 	
 	<!-- STL show image -->
@@ -108,16 +108,16 @@
 	
 	
 	
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_PICTURE_AUTH')); ?>:</strong>
-	<?php echo CHtml::encode($data->ING_PICTURE_AUTH); ?>
+	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_IMG_AUTH')); ?>:</strong>
+	<?php echo CHtml::encode($data->ING_IMG_AUTH); ?>
 	<br />
 
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_TITLE_EN')); ?>:</strong>
-	<?php echo CHtml::encode($data->ING_TITLE_EN); ?>
+	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_NAME_EN')); ?>:</strong>
+	<?php echo CHtml::encode($data->ING_NAME_EN); ?>
 	<br />
 
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_TITLE_DE')); ?>:</strong>
-	<?php echo CHtml::encode($data->ING_TITLE_DE); ?>
+	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_NAME_DE')); ?>:</strong>
+	<?php echo CHtml::encode($data->ING_NAME_DE); ?>
 	<br />
 
 	*/ ?>

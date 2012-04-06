@@ -10,21 +10,21 @@
 	<?php echo $form->errorSummary($model); ?>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'SUBGRP_OF'); ?>
-		<?php echo $form->textField($model,'SUBGRP_OF'); ?>
-		<?php echo $form->error($model,'SUBGRP_OF'); ?>
+		<?php echo $form->labelEx($model,'GRP_ID'); ?>
+		<?php echo $form->textField($model,'GRP_ID'); ?>
+		<?php echo $form->error($model,'GRP_ID'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'SUBGRP_DESC_EN'); ?>
-		<?php echo $form->textField($model,'SUBGRP_DESC_EN',array('size'=>60,'maxlength'=>100)); ?>
-		<?php echo $form->error($model,'SUBGRP_DESC_EN'); ?>
+		<?php echo $form->labelEx($model,'SGR_DESC_EN'); ?>
+		<?php echo $form->textField($model,'SGR_DESC_EN',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->error($model,'SGR_DESC_EN'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'SUBGRP_DESC_DE'); ?>
-		<?php echo $form->textField($model,'SUBGRP_DESC_DE',array('size'=>60,'maxlength'=>100)); ?>
-		<?php echo $form->error($model,'SUBGRP_DESC_DE'); ?>
+		<?php echo $form->labelEx($model,'SGR_DESC_DE'); ?>
+		<?php echo $form->textField($model,'SGR_DESC_DE',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->error($model,'SGR_DESC_DE'); ?>
 	</div>
 
 	<div class="row buttons">

@@ -17,7 +17,7 @@ jQuery(function($){
 	var weightContent;
 	var ingredients;
 	function initRowContainer(){
-		var stepConfig = jQuery('#stepConfigValues').attr('value');
+		stepConfig = jQuery('#stepConfigValues').attr('value');
 		if (stepConfig && stepConfig.length > 0){
 			stepConfig = JSON.parse(stepConfig);
 		} else {

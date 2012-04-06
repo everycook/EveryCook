@@ -46,11 +46,11 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 		'PRO_BARCODE',
 		'PRO_PACKAGE_GRAMMS',
 		'ING_ID',
-		'PRO_ECO',
-		'PRO_ETHIC',
+		'ECO_ID',
+		'ETH_ID',
 		/*
-		'PRO_PICTURE',
-		'PRO_PICTURE_COPYR',
+		'PRO_IMG',
+		'PRO_IMG_CR',
 		*/
 		array(
 			'class'=>'CButtonColumn',

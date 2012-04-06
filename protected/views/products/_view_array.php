@@ -1,5 +1,5 @@
 <div class="resultArea">
-	<?php echo CHtml::link(CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'png')), '', array('class'=>'product', 'alt'=>$data['PRO_PICTURE_COPYR'], 'title'=>$data['PRO_PICTURE_COPYR'])), array('view', 'id'=>$data['PRO_ID'])); ?>
+	<?php echo CHtml::link(CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'png')), '', array('class'=>'product', 'alt'=>$data['PRO_IMG_CR'], 'title'=>$data['PRO_IMG_CR'])), array('view', 'id'=>$data['PRO_ID'])); ?>
 	
 	
 	<div class="options">
@@ -38,20 +38,20 @@
 	<?php echo CHtml::encode($data['ING_ID']); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('PRO_ECO')); ?>:</b>
-	<?php echo CHtml::encode($data['PRO_ECO']); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('ECO_ID')); ?>:</b>
+	<?php echo CHtml::encode($data['ECO_ID']); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('PRO_ETHIC')); ?>:</b>
-	<?php echo CHtml::encode($data['PRO_ETHIC']); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('ETH_ID')); ?>:</b>
+	<?php echo CHtml::encode($data['ETH_ID']); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('PRO_PICTURE')); ?>:</b>
-	<?php echo CHtml::encode($data['PRO_PICTURE']); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('PRO_IMG')); ?>:</b>
+	<?php echo CHtml::encode($data['PRO_IMG']); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('PRO_PICTURE_COPYR')); ?>:</b>
-	<?php echo CHtml::encode($data['PRO_PICTURE_COPYR']); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('PRO_IMG_CR')); ?>:</b>
+	<?php echo CHtml::encode($data['PRO_IMG_CR']); ?>
 	<br />
 
 	*/ ?>

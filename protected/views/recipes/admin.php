@@ -45,12 +45,12 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 		'REC_ID',
 		'REC_CREATED',
 		'REC_CHANGED',
-		'REC_PICTURE',
-		'REC_PICTURE_AUTH',
-		'REC_TYPE',
+		'REC_IMG',
+		'REC_IMG_AUTH',
+		'RET_ID',
 		/*
-		'REC_TITLE_EN',
-		'REC_TITLE_DE',
+		'REC_NAME_EN',
+		'REC_NAME_DE',
 		*/
 		array(
 			'class'=>'CButtonColumn',

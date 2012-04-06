@@ -5,8 +5,10 @@
  *
  * The followings are the available columns in table 'step_types':
  * @property integer $STT_ID
- * @property string $STT_DESC_EN
- * @property string $STT_DESC_DE
+ * @property string $STT_DEFAULT
+ * @property string $STT_REQUIRED
+ * @property string $STT_DESC_EN_GB
+ * @property string $STT_DESC_DE_CH
  */
 class StepTypes extends CActiveRecord
 {
@@ -35,11 +37,12 @@ class StepTypes extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('STT_DESC_EN', 'required'),
-			array('STT_DESC_DE', 'safe'),
+			array('STT_DEFAULT, STT_REQUIRED, STT_DESC_EN_GB', 'required'),
+			array('STT_DEFAULT, STT_REQUIRED', 'length', 'max'=>200),
+			array('STT_DESC_DE_CH', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('STT_ID, STT_DESC_EN, STT_DESC_DE', 'safe', 'on'=>'search'),
+			array('STT_ID, STT_DEFAULT, STT_REQUIRED, STT_DESC_EN_GB, STT_DESC_DE_CH', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -61,8 +64,10 @@ class StepTypes extends CActiveRecord
 	{
 		return array(
 			'STT_ID' => 'Stt',
-			'STT_DESC_EN' => 'Stt Desc En',
-			'STT_DESC_DE' => 'Stt Desc De',
+			'STT_DEFAULT' => 'Stt Default',
+			'STT_REQUIRED' => 'Stt Required',
+			'STT_DESC_EN_GB' => 'Stt Desc En Gb',
+			'STT_DESC_DE_CH' => 'Stt Desc De Ch',
 		);
 	}
 
@@ -78,8 +83,10 @@ class StepTypes extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('STT_ID',$this->STT_ID);
-		$criteria->compare('STT_DESC_EN',$this->STT_DESC_EN,true);
-		$criteria->compare('STT_DESC_DE',$this->STT_DESC_DE,true);
+		$criteria->compare('STT_DEFAULT',$this->STT_DEFAULT,true);
+		$criteria->compare('STT_REQUIRED',$this->STT_REQUIRED,true);
+		$criteria->compare('STT_DESC_EN_GB',$this->STT_DESC_EN_GB,true);
+		$criteria->compare('STT_DESC_DE_CH',$this->STT_DESC_DE_CH,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

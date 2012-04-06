@@ -6,18 +6,18 @@
 )); ?>
 
 	<div class="row">
-		<?php echo $form->label($model,'STORAB_ID'); ?>
-		<?php echo $form->textField($model,'STORAB_ID'); ?>
+		<?php echo $form->label($model,'STB_ID'); ?>
+		<?php echo $form->textField($model,'STB_ID'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'STORAB_DESC_EN'); ?>
-		<?php echo $form->textField($model,'STORAB_DESC_EN',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->label($model,'STB_DESC_EN'); ?>
+		<?php echo $form->textField($model,'STB_DESC_EN',array('size'=>60,'maxlength'=>100)); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'STORAB_DESC_DE'); ?>
-		<?php echo $form->textField($model,'STORAB_DESC_DE',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->label($model,'STB_DESC_DE'); ?>
+		<?php echo $form->textField($model,'STB_DESC_DE',array('size'=>60,'maxlength'=>100)); ?>
 	</div>
 
 	<div class="row buttons">

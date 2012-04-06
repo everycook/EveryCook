@@ -47,23 +47,23 @@
 	
 	<?php foreach($this->allLanguages as $lang){ ?>
 	<div class="row">
-		<?php echo $form->labelEx($model,'ING_TITLE_'.$lang); ?>
-		<?php echo $form->textField($model,'ING_TITLE_'.$lang,array('size'=>60,'maxlength'=>100)); ?>
-		<?php echo $form->error($model,'ING_TITLE_'.$lang); ?>
+		<?php echo $form->labelEx($model,'ING_NAME_'.$lang); ?>
+		<?php echo $form->textField($model,'ING_NAME_'.$lang,array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->error($model,'ING_NAME_'.$lang); ?>
 	</div>
 	<?php } ?>
 	
 	<?php
-	echo Functions::createInput($this->trans->INGREDIENTS_GROUP, $model, 'ING_GROUP', $groupNames, Functions::DROP_DOWN_LIST, 'groupNames', $htmlOptions_type0, $form);
-	if ($model->ING_GROUP){
-		echo Functions::createInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'ING_SUBGROUP', $subgroupNames, Functions::DROP_DOWN_LIST, 'subgroupNames', $htmlOptions_type0, $form);
+	echo Functions::createInput($this->trans->INGREDIENTS_GROUP, $model, 'GRP_ID', $groupNames, Functions::DROP_DOWN_LIST, 'groupNames', $htmlOptions_type0, $form);
+	if ($model->GRP_ID){
+		echo Functions::createInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'SGR_ID', $subgroupNames, Functions::DROP_DOWN_LIST, 'subgroupNames', $htmlOptions_type0, $form);
 	} else {
 		$htmlOptions_subGroup = array('empty'=>$this->trans->INGREDIENTS_CHOOSE_GROUP_FIRST);
-		echo Functions::createInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'ING_SUBGROUP', array(), Functions::DROP_DOWN_LIST, 'subgroupNames', $htmlOptions_subGroup, $form);
+		echo Functions::createInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'SGR_ID', array(), Functions::DROP_DOWN_LIST, 'subgroupNames', $htmlOptions_subGroup, $form);
 	}
-	echo Functions::createInput($this->trans->INGREDIENTS_STORABILITY, $model, 'ING_STORABILITY', $storability, Functions::DROP_DOWN_LIST, 'storability', $htmlOptions_type0, $form);
-	echo Functions::createInput($this->trans->INGREDIENTS_CONVENIENCE, $model, 'ING_CONVENIENCE', $ingredientConveniences, Functions::DROP_DOWN_LIST, 'ingredientConveniences', $htmlOptions_type0, $form);
-	echo Functions::createInput($this->trans->INGREDIENTS_STATE, $model, 'ING_STATE', $ingredientStates, Functions::DROP_DOWN_LIST, 'ingredientStates', $htmlOptions_type0, $form);
+	echo Functions::createInput($this->trans->INGREDIENTS_STORABILITY, $model, 'STB_ID', $storability, Functions::DROP_DOWN_LIST, 'storability', $htmlOptions_type0, $form);
+	echo Functions::createInput($this->trans->INGREDIENTS_CONVENIENCE, $model, 'ICO_ID', $ingredientConveniences, Functions::DROP_DOWN_LIST, 'ingredientConveniences', $htmlOptions_type0, $form);
+	echo Functions::createInput($this->trans->INGREDIENTS_STATE, $model, 'IST_ID', $ingredientStates, Functions::DROP_DOWN_LIST, 'ingredientStates', $htmlOptions_type0, $form);
 	
 	if ($model->nutrientData && $model->nutrientData->NUT_DESC){
 		$NutrientDescription = $model->nutrientData->NUT_DESC;
@@ -85,10 +85,10 @@
 	</div>
 	
 	<?php
-		if (Yii::app()->session['Ingredient_Backup'] && Yii::app()->session['Ingredient_Backup']->ING_PICTURE_ETAG){
-			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->ING_PICTURE_AUTH, 'title'=>$model->ING_PICTURE_AUTH));
+		if (Yii::app()->session['Ingredient_Backup'] && Yii::app()->session['Ingredient_Backup']->ING_IMG_ETAG){
+			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
 		} else if ($model->ING_ID) {
-			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->ING_PICTURE_AUTH, 'title'=>$model->ING_PICTURE_AUTH));
+			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
 		}
 	?>
 	
@@ -99,9 +99,9 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'ING_PICTURE_AUTH'); ?>
-		<?php echo $form->textField($model,'ING_PICTURE_AUTH',array('size'=>30,'maxlength'=>30)); ?>
-		<?php echo $form->error($model,'ING_PICTURE_AUTH'); ?>
+		<?php echo $form->labelEx($model,'ING_IMG_AUTH'); ?>
+		<?php echo $form->textField($model,'ING_IMG_AUTH',array('size'=>30,'maxlength'=>30)); ?>
+		<?php echo $form->error($model,'ING_IMG_AUTH'); ?>
 	</div>
 
 	<div class="row buttons">

@@ -10,13 +10,17 @@
  * @property integer $STE_STEP_NO
  * @property integer $STE_GRAMS
  * @property integer $STE_CELSIUS
- * @property double $STE_KPA
+ * @property integer $STE_KPA
  * @property integer $STE_RPM
  * @property integer $STE_CLOCKWISE
  * @property integer $STE_STIR_RUN
  * @property integer $STE_STIR_PAUSE
  * @property integer $STE_STEP_DURATION
  * @property integer $STT_ID
+ * @property integer $CREATED_BY
+ * @property string $CREATED_ON
+ * @property integer $CHANGED_BY
+ * @property string $CHANGED_ON
  */
 class Steps extends CActiveRecord
 {
@@ -45,13 +49,12 @@ class Steps extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('REC_ID, STE_STEP_NO', 'required'),
-			array('REC_ID, ACT_ID, ING_ID, STE_STEP_NO, STE_GRAMS, STE_CELSIUS, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, STT_ID', 'numerical', 'integerOnly'=>true),
-			array('STE_KPA', 'numerical'),
-			array('recipe, ingredient, action, stepType', 'safe'),
+			array('REC_ID, STE_STEP_NO, CREATED_BY, CREATED_ON', 'required'),
+			array('REC_ID, ACT_ID, ING_ID, STE_STEP_NO, STE_GRAMS, STE_CELSIUS, STE_KPA, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, STT_ID, CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
+			array('CHANGED_ON, recipe, ingredient, action, stepType', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('REC_ID, ACT_ID, ING_ID, STE_STEP_NO, STE_GRAMS, STE_CELSIUS, STE_KPA, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, STT_ID', 'safe', 'on'=>'search'),
+			array('REC_ID, ACT_ID, ING_ID, STE_STEP_NO, STE_GRAMS, STE_CELSIUS, STE_KPA, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, STT_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -89,11 +92,15 @@ class Steps extends CActiveRecord
 			'STE_STIR_PAUSE' => 'Ste Stir Pause',
 			'STE_STEP_DURATION' => 'Ste Step Duration',
 			'STT_ID' => 'Stt',
+			'CREATED_BY' => 'Created By',
+			'CREATED_ON' => 'Created On',
+			'CHANGED_BY' => 'Changed By',
+			'CHANGED_ON' => 'Changed On',
 		);
 	}
 
 	public function getSearchFields(){
-		return array('REC_ID', 'REC_TITLE_EN, REC_TITLE_DE');
+		return array('REC_ID', 'REC_NAME_' . Yii::app()->session['lang']);
 	}
 	
 	public function getCriteria(){
@@ -150,20 +157,20 @@ class Steps extends CActiveRecord
 			),
 			/*
 			'groupNames' => array(
-				'asc' => 'ING_GROUP',
-				'desc' => 'ING_GROUP DESC',
+				'asc' => 'GRP_ID',
+				'desc' => 'GRP_ID DESC',
 			),
 			'subgroupNames' => array(
-				'asc' => 'ING_SUBGROUP',
-				'desc' => 'ING_SUBGROUP DESC',
+				'asc' => 'SGR_ID',
+				'desc' => 'SGR_ID DESC',
 			),
 			'ingredientConveniences' => array(
-				'asc' => 'ING_CONVENIENCE',
-				'desc' => 'ING_CONVENIENCE DESC',
+				'asc' => 'ICO_ID',
+				'desc' => 'ICO_ID DESC',
 			),
 			'storability' => array(
-				'asc' => 'ING_STORABILITY',
-				'desc' => 'ING_STORABILITY DESC',
+				'asc' => 'STB_ID',
+				'desc' => 'STB_ID DESC',
 			),
 			*/
 			'*',

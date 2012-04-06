@@ -65,25 +65,25 @@ class IngredientsController extends Controller
 		if (count($rows)>0){
 			$dup_rows = array();
 			foreach($rows as $row){
-				array_push($dup_rows, $row['ING_ID'] . ': ' . $row['ING_TITLE_EN'] . ' / ' . $row['ING_TITLE_DE']);
+				array_push($dup_rows, $row['ING_ID'] . ': ' . $row['ING_NAME_EN'] . ' / ' . $row['ING_NAME_DE']);
 			}
 			$duplicates = array_merge($duplicates, array ('NUT_ID'=>$dup_rows));
 		}
 		
 		$command = Yii::app()->db->createCommand()
 				->from('ingredients');
-		if ($model->ING_TITLE_EN != '' && $model->ING_TITLE_DE != ''){
-			$command->where('ingredients.ING_TITLE_EN like :en or ingredients.ING_TITLE_DE like :de', array(':en'=>'%' . $model->ING_TITLE_EN . '%', ':de'=>'%' . $model->ING_TITLE_DE . '%'));
-		} else if ($model->ING_TITLE_EN != ''){
-			$command->where('ingredients.ING_TITLE_EN like :en', array(':en'=>'%' . $model->ING_TITLE_EN . '%'));
-		} else if ($model->ING_TITLE_DE != ''){
-			$command->where('ingredients.ING_TITLE_DE like :de', array(':de'=>'%' . $model->ING_TITLE_DE . '%'));
+		if ($model->ING_NAME_EN != '' && $model->ING_NAME_DE != ''){
+			$command->where('ingredients.ING_NAME_EN like :en or ingredients.ING_NAME_DE like :de', array(':en'=>'%' . $model->ING_NAME_EN . '%', ':de'=>'%' . $model->ING_NAME_DE . '%'));
+		} else if ($model->ING_NAME_EN != ''){
+			$command->where('ingredients.ING_NAME_EN like :en', array(':en'=>'%' . $model->ING_NAME_EN . '%'));
+		} else if ($model->ING_NAME_DE != ''){
+			$command->where('ingredients.ING_NAME_DE like :de', array(':de'=>'%' . $model->ING_NAME_DE . '%'));
 		}
 		$rows = $command->queryAll();
 		if (count($rows)>0){
 			$dup_rows = array();
 			foreach($rows as $row){
-				array_push($dup_rows, $row['ING_ID'] . ': ' . $row['ING_TITLE_EN'] . ' / ' . $row['ING_TITLE_DE']);
+				array_push($dup_rows, $row['ING_ID'] . ': ' . $row['ING_NAME_EN'] . ' / ' . $row['ING_NAME_DE']);
 			}
 			$duplicates = array_merge($duplicates, array ('TITLE'=>$dup_rows));
 		}
@@ -105,14 +105,14 @@ class IngredientsController extends Controller
 		
 		if ($oldmodel){
 			$model = $oldmodel;
-			$oldPicture = $oldmodel->ING_PICTURE;
+			$oldPicture = $oldmodel->ING_IMG;
 		} else {
 			$model=new Ingredients;
 		}
 		
 		if(isset($_POST['Ingredients'])){
 			$model->attributes=$_POST['Ingredients'];
-			$sucessfull = Functions::uploadPicture($model,'ING_PICTURE');
+			$sucessfull = Functions::uploadPicture($model,'ING_IMG');
 			Yii::app()->session['Ingredient_Backup'] = $model;
 			
 			if ($sucessfull){
@@ -144,7 +144,7 @@ class IngredientsController extends Controller
 		
 		if ($oldmodel){
 			$model = $oldmodel;
-			$oldPicture = $oldmodel->ING_PICTURE;
+			$oldPicture = $oldmodel->ING_IMG;
 		} else {
 			$model=new Ingredients;
 		}
@@ -152,8 +152,8 @@ class IngredientsController extends Controller
 		if(isset($_POST['Ingredients'])){
 			$model->attributes=$_POST['Ingredients'];
 			
-			Functions::updatePicture($model,'ING_PICTURE', $oldPicture);
-			
+			Functions::updatePicture($model,'ING_IMG', $oldPicture);
+			/*
 			if (isset($model->ING_ID)){
 				$model->ING_CHANGED = time();
 			} else {
@@ -161,7 +161,7 @@ class IngredientsController extends Controller
 				$model->PRF_UID = 1;
 				$model->ING_CREATED = time();
 			}
-			
+			*/
 			Yii::app()->session['Ingredient_Backup'] = $model;
 			if ($model->validate()){
 				if (!isset($model->ING_ID)){
@@ -203,13 +203,13 @@ class IngredientsController extends Controller
 		$nutrientData = CHtml::listData($nutrientData,'NUT_ID','NUT_DESC');
 		$groupNames = Yii::app()->db->createCommand()->select('GRP_ID,GRP_DESC_'.Yii::app()->session['lang'])->from('group_names')->queryAll();
 		$groupNames = CHtml::listData($groupNames,'GRP_ID','GRP_DESC_'.Yii::app()->session['lang']);
-		$subgroupNames = $this->getSubGroupDataById($model->ING_GROUP);
-		$ingredientConveniences = Yii::app()->db->createCommand()->select('CONV_ID,CONV_DESC_'.Yii::app()->session['lang'])->from('ingredient_conveniences')->queryAll();
-		$ingredientConveniences = CHtml::listData($ingredientConveniences,'CONV_ID','CONV_DESC_'.Yii::app()->session['lang']);
-		$storability = Yii::app()->db->createCommand()->select('STORAB_ID,STORAB_DESC_'.Yii::app()->session['lang'])->from('storability')->queryAll();
-		$storability = CHtml::listData($storability,'STORAB_ID','STORAB_DESC_'.Yii::app()->session['lang']);
-		$ingredientStates = Yii::app()->db->createCommand()->select('STATE_ID,STATE_DESC_'.Yii::app()->session['lang'])->from('ingredient_states')->queryAll();
-		$ingredientStates = CHtml::listData($ingredientStates,'STATE_ID','STATE_DESC_'.Yii::app()->session['lang']);
+		$subgroupNames = $this->getSubGroupDataById($model->GRP_ID);
+		$ingredientConveniences = Yii::app()->db->createCommand()->select('ICO_ID,ICO_DESC_'.Yii::app()->session['lang'])->from('ingredient_conveniences')->queryAll();
+		$ingredientConveniences = CHtml::listData($ingredientConveniences,'ICO_ID','ICO_DESC_'.Yii::app()->session['lang']);
+		$storability = Yii::app()->db->createCommand()->select('STB_ID,STB_DESC_'.Yii::app()->session['lang'])->from('storability')->queryAll();
+		$storability = CHtml::listData($storability,'STB_ID','STB_DESC_'.Yii::app()->session['lang']);
+		$ingredientStates = Yii::app()->db->createCommand()->select('IST_ID,IST_DESC_'.Yii::app()->session['lang'])->from('ingredient_states')->queryAll();
+		$ingredientStates = CHtml::listData($ingredientStates,'IST_ID','IST_DESC_'.Yii::app()->session['lang']);
 		
 		$this->checkRenderAjax($view,array(
 			'model'=>$model,
@@ -346,14 +346,14 @@ class IngredientsController extends Controller
 			$criteria = $model->getCriteriaString();
 			//$command = $model->commandBuilder->createFindCommand($model->tableName(), $model->getCriteriaString())
 			$command = Yii::app()->db->createCommand()
-				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, count(products.PRO_ID) as pro_count, count(pro_to_sto.STO_ID) as sto_count')
+				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, count(products.PRO_ID) as pro_count, count(pro_to_sto.SUP_ID) as sup_count')
 				->from('ingredients')
 				->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
-				->leftJoin('group_names', 'ingredients.ING_GROUP=group_names.GRP_ID')
-				->leftJoin('subgroup_names', 'ingredients.ING_SUBGROUP=subgroup_names.SUBGRP_ID')
-				->leftJoin('ingredient_conveniences', 'ingredients.ING_CONVENIENCE=ingredient_conveniences.CONV_ID')
-				->leftJoin('storability', 'ingredients.ING_STORABILITY=storability.STORAB_ID')
-				->leftJoin('ingredient_states', 'ingredients.ING_STATE=ingredient_states.STATE_ID')
+				->leftJoin('group_names', 'ingredients.GRP_ID=group_names.GRP_ID')
+				->leftJoin('subgroup_names', 'ingredients.SGR_ID=subgroup_names.SGR_ID')
+				->leftJoin('ingredient_conveniences', 'ingredients.ICO_ID=ingredient_conveniences.ICO_ID')
+				->leftJoin('storability', 'ingredients.STB_ID=storability.STB_ID')
+				->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID')
 				->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
 				->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
 				->group('ingredients.ING_ID')
@@ -395,11 +395,11 @@ class IngredientsController extends Controller
 			$rows = Yii::app()->db->createCommand()
 				->from('ingredients')
 				->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
-				->leftJoin('group_names', 'ingredients.ING_GROUP=group_names.GRP_ID')
-				->leftJoin('subgroup_names', 'ingredients.ING_SUBGROUP=subgroup_names.SUBGRP_ID')
-				->leftJoin('ingredient_conveniences', 'ingredients.ING_CONVENIENCE=ingredient_conveniences.CONV_ID')
-				->leftJoin('storability', 'ingredients.ING_STORABILITY=storability.STORAB_ID')
-				->leftJoin('ingredient_states', 'ingredients.ING_STATE=ingredient_states.STATE_ID')
+				->leftJoin('group_names', 'ingredients.GRP_ID=group_names.GRP_ID')
+				->leftJoin('subgroup_names', 'ingredients.SGR_ID=subgroup_names.SGR_ID')
+				->leftJoin('ingredient_conveniences', 'ingredients.ICO_ID=ingredient_conveniences.ICO_ID')
+				->leftJoin('storability', 'ingredients.STB_ID=storability.STB_ID')
+				->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID')
 				->where($criteriaString)
 				//->order('actor.first_name, actor.last_name, film.title')
 				->queryAll();
@@ -423,12 +423,12 @@ class IngredientsController extends Controller
 			$groupNames = Yii::app()->db->createCommand()->select('GRP_ID,GRP_DESC_'.Yii::app()->session['lang'])->from('group_names')->queryAll();
 			$groupNames = CHtml::listData($groupNames,'GRP_ID','GRP_DESC_'.Yii::app()->session['lang']);
 			$subgroupNames = $this->getSubGroupData($model);
-			$ingredientConveniences = Yii::app()->db->createCommand()->select('CONV_ID,CONV_DESC_'.Yii::app()->session['lang'])->from('ingredient_conveniences')->queryAll();
-			$ingredientConveniences = CHtml::listData($ingredientConveniences,'CONV_ID','CONV_DESC_'.Yii::app()->session['lang']);
-			$storability = Yii::app()->db->createCommand()->select('STORAB_ID,STORAB_DESC_'.Yii::app()->session['lang'])->from('storability')->queryAll();
-			$storability = CHtml::listData($storability,'STORAB_ID','STORAB_DESC_'.Yii::app()->session['lang']);
-			$ingredientStates = Yii::app()->db->createCommand()->select('STATE_ID,STATE_DESC_'.Yii::app()->session['lang'])->from('ingredient_states')->queryAll();
-			$ingredientStates = CHtml::listData($ingredientStates,'STATE_ID','STATE_DESC_'.Yii::app()->session['lang']);
+			$ingredientConveniences = Yii::app()->db->createCommand()->select('ICO_ID,ICO_DESC_'.Yii::app()->session['lang'])->from('ingredient_conveniences')->queryAll();
+			$ingredientConveniences = CHtml::listData($ingredientConveniences,'ICO_ID','ICO_DESC_'.Yii::app()->session['lang']);
+			$storability = Yii::app()->db->createCommand()->select('STB_ID,STB_DESC_'.Yii::app()->session['lang'])->from('storability')->queryAll();
+			$storability = CHtml::listData($storability,'STB_ID','STB_DESC_'.Yii::app()->session['lang']);
+			$ingredientStates = Yii::app()->db->createCommand()->select('IST_ID,IST_DESC_'.Yii::app()->session['lang'])->from('ingredient_states')->queryAll();
+			$ingredientStates = CHtml::listData($ingredientStates,'IST_ID','IST_DESC_'.Yii::app()->session['lang']);
 		
 			$this->checkRenderAjax($view,array(
 				'model'=>$model,
@@ -471,17 +471,17 @@ class IngredientsController extends Controller
 	}
 	
 	private function getSubGroupData($model){
-		if(isset($model) && $model->ING_GROUP){
+		if(isset($model) && $model->GRP_ID){
 			$criteria=new CDbCriteria;
-			$criteria->select = 'SUBGRP_ID,SUBGRP_DESC_'.Yii::app()->session['lang'];
+			$criteria->select = 'SGR_ID,SGR_DESC_'.Yii::app()->session['lang'];
 			//$criteria->from('subgroup_names');
 			
-			$criteria->compare('SUBGRP_OF',$model->ING_GROUP);
-			//$criteria->compare('SUBGRP_ID',$model->ING_SUBGROUP, false, 'OR');
+			$criteria->compare('GRP_ID',$model->GRP_ID);
+			//$criteria->compare('SGR_ID',$model->SGR_ID, false, 'OR');
 		
 			$command = Yii::app()->db->commandBuilder->createFindCommand('subgroup_names', $criteria, '');
 			$subgroupNames = $command->queryAll();
-			$subgroupNames = CHtml::listData($subgroupNames,'SUBGRP_ID','SUBGRP_DESC_'.Yii::app()->session['lang']);
+			$subgroupNames = CHtml::listData($subgroupNames,'SGR_ID','SGR_DESC_'.Yii::app()->session['lang']);
 			return $subgroupNames;
 		} else {
 			return array();
@@ -497,19 +497,19 @@ class IngredientsController extends Controller
 		$subgroupNames = $this->getSubGroupData($model);
 		
 		$htmlOptions_type1 = array('template'=>'<li>{input} {label}</li>', 'separator'=>"\n", 'checkAll'=>$this->trans->INGREDIENTS_SEARCH_CHECK_ALL, 'checkAllLast'=>false);
-		$output = Functions::searchCriteriaInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'ING_SUBGROUP', $subgroupNames, 1, 'subgroupNames', $htmlOptions_type1);
+		$output = Functions::searchCriteriaInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'SGR_ID', $subgroupNames, 1, 'subgroupNames', $htmlOptions_type1);
 		echo $this->processOutput($output);
 	}
 	
 	private function getSubGroupDataById($id){
 		if ($id){
 			$criteria=new CDbCriteria;
-			$criteria->select = 'SUBGRP_ID,SUBGRP_DESC_'.Yii::app()->session['lang'];
-			$criteria->compare('SUBGRP_OF', $id);
+			$criteria->select = 'SGR_ID,SGR_DESC_'.Yii::app()->session['lang'];
+			$criteria->compare('GRP_ID', $id);
 			
 			$command = Yii::app()->db->commandBuilder->createFindCommand('subgroup_names', $criteria, '');
 			$subgroupNames = $command->queryAll();
-			$subgroupNames = CHtml::listData($subgroupNames,'SUBGRP_ID','SUBGRP_DESC_'.Yii::app()->session['lang']);
+			$subgroupNames = CHtml::listData($subgroupNames,'SGR_ID','SGR_DESC_'.Yii::app()->session['lang']);
 			return $subgroupNames;
 		} else {
 			return array();
@@ -526,8 +526,8 @@ class IngredientsController extends Controller
 		} else {
 			$htmlOptions_subGroup = array('empty'=>$this->trans->INGREDIENTS_CHOOSE_GROUP_FIRST);
 		}
-		//$output = createInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'ING_SUBGROUP', $subgroupNames, 0, 'subgroupNames', $htmlOptions_subGroup, null);
-		$fieldName = 'ING_SUBGROUP';
+		//$output = createInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'SGR_ID', $subgroupNames, 0, 'subgroupNames', $htmlOptions_subGroup, null);
+		$fieldName = 'SGR_ID';
 		$output = CHtml::dropDownList(CHtml::resolveName($model,$fieldName), $model->__get($fieldName), $subgroupNames, $htmlOptions_subGroup); 
 		echo $this->processOutput($output);
 	}
@@ -565,10 +565,10 @@ class IngredientsController extends Controller
     public function actionDisplaySavedImage($id, $ext)
     {
 		$model=$this->loadModel($id, true);
-		$modified = $model->ING_CHANGED;
+		$modified = $model->CREATED_ON;
 		if (!$modified){
-			$modified = $model->ING_CREATED;
+			$modified = $model->CHANGED_ON;
 		}
-		return Functions::getImage($modified, $model->ING_PICTURE_ETAG, $model->ING_PICTURE, $id);
+		return Functions::getImage($modified, $model->ING_IMG_ETAG, $model->ING_IMG, $id);
     }
 }

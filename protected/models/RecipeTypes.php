@@ -5,8 +5,8 @@
  *
  * The followings are the available columns in table 'recipe_types':
  * @property integer $RET_ID
- * @property string $RET_DESC_EN
- * @property string $RET_DESC_DE
+ * @property string $RET_DESC_EN_GB
+ * @property string $RET_DESC_DE_CH
  */
 class RecipeTypes extends CActiveRecord
 {
@@ -35,11 +35,11 @@ class RecipeTypes extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('RET_DESC_EN, RET_DESC_DE', 'required'),
-			array('RET_DESC_EN, RET_DESC_DE', 'length', 'max'=>100),
+			array('RET_DESC_EN_GB, RET_DESC_DE_CH', 'required'),
+			array('RET_DESC_EN_GB, RET_DESC_DE_CH', 'length', 'max'=>100),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('RET_ID, RET_DESC_EN, RET_DESC_DE', 'safe', 'on'=>'search'),
+			array('RET_ID, RET_DESC_EN_GB, RET_DESC_DE_CH', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -61,8 +61,8 @@ class RecipeTypes extends CActiveRecord
 	{
 		return array(
 			'RET_ID' => 'Ret',
-			'RET_DESC_EN' => 'Ret Desc En',
-			'RET_DESC_DE' => 'Ret Desc De',
+			'RET_DESC_EN_GB' => 'Ret Desc En Gb',
+			'RET_DESC_DE_CH' => 'Ret Desc De Ch',
 		);
 	}
 
@@ -78,8 +78,8 @@ class RecipeTypes extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('RET_ID',$this->RET_ID);
-		$criteria->compare('RET_DESC_EN',$this->RET_DESC_EN,true);
-		$criteria->compare('RET_DESC_DE',$this->RET_DESC_DE,true);
+		$criteria->compare('RET_DESC_EN_GB',$this->RET_DESC_EN_GB,true);
+		$criteria->compare('RET_DESC_DE_CH',$this->RET_DESC_DE_CH,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

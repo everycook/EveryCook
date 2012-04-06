@@ -4,9 +4,9 @@
  * This is the model class for table "ingredient_conveniences".
  *
  * The followings are the available columns in table 'ingredient_conveniences':
- * @property integer $CONV_ID
- * @property string $CONV_DESC_EN
- * @property string $CONV_DESC_DE
+ * @property integer $ICO_ID
+ * @property string $ICO_DESC_EN_GB
+ * @property string $ICO_DESC_DE_CH
  */
 class IngredientConveniences extends CActiveRecord
 {
@@ -35,11 +35,11 @@ class IngredientConveniences extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('CONV_DESC_EN, CONV_DESC_DE', 'required'),
-			array('CONV_DESC_EN, CONV_DESC_DE', 'length', 'max'=>100),
+			array('ICO_DESC_EN_GB, ICO_DESC_DE_CH', 'required'),
+			array('ICO_DESC_EN_GB, ICO_DESC_DE_CH', 'length', 'max'=>100),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('CONV_ID, CONV_DESC_EN, CONV_DESC_DE', 'safe', 'on'=>'search'),
+			array('ICO_ID, ICO_DESC_EN_GB, ICO_DESC_DE_CH', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -60,9 +60,9 @@ class IngredientConveniences extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'CONV_ID' => 'Conv',
-			'CONV_DESC_EN' => 'Conv Desc En',
-			'CONV_DESC_DE' => 'Conv Desc De',
+			'ICO_ID' => 'Ico',
+			'ICO_DESC_EN_GB' => 'Ico Desc En Gb',
+			'ICO_DESC_DE_CH' => 'Ico Desc De Ch',
 		);
 	}
 
@@ -77,9 +77,9 @@ class IngredientConveniences extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('CONV_ID',$this->CONV_ID);
-		$criteria->compare('CONV_DESC_EN',$this->CONV_DESC_EN,true);
-		$criteria->compare('CONV_DESC_DE',$this->CONV_DESC_DE,true);
+		$criteria->compare('ICO_ID',$this->ICO_ID);
+		$criteria->compare('ICO_DESC_EN_GB',$this->ICO_DESC_EN_GB,true);
+		$criteria->compare('ICO_DESC_DE_CH',$this->ICO_DESC_DE_CH,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

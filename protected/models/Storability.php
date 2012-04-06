@@ -4,9 +4,9 @@
  * This is the model class for table "storability".
  *
  * The followings are the available columns in table 'storability':
- * @property integer $STORAB_ID
- * @property string $STORAB_DESC_EN
- * @property string $STORAB_DESC_DE
+ * @property integer $STB_ID
+ * @property string $STB_DESC_EN_GB
+ * @property string $STB_DESC_DE_CH
  */
 class Storability extends CActiveRecord
 {
@@ -35,11 +35,11 @@ class Storability extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('STORAB_DESC_EN, STORAB_DESC_DE', 'required'),
-			array('STORAB_DESC_EN, STORAB_DESC_DE', 'length', 'max'=>100),
+			array('STB_DESC_EN_GB, STB_DESC_DE_CH', 'required'),
+			array('STB_DESC_EN_GB, STB_DESC_DE_CH', 'length', 'max'=>100),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('STORAB_ID, STORAB_DESC_EN, STORAB_DESC_DE', 'safe', 'on'=>'search'),
+			array('STB_ID, STB_DESC_EN_GB, STB_DESC_DE_CH', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -60,9 +60,9 @@ class Storability extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'STORAB_ID' => 'Storab',
-			'STORAB_DESC_EN' => 'Storab Desc En',
-			'STORAB_DESC_DE' => 'Storab Desc De',
+			'STB_ID' => 'Stb',
+			'STB_DESC_EN_GB' => 'Stb Desc En Gb',
+			'STB_DESC_DE_CH' => 'Stb Desc De Ch',
 		);
 	}
 
@@ -77,9 +77,9 @@ class Storability extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('STORAB_ID',$this->STORAB_ID);
-		$criteria->compare('STORAB_DESC_EN',$this->STORAB_DESC_EN,true);
-		$criteria->compare('STORAB_DESC_DE',$this->STORAB_DESC_DE,true);
+		$criteria->compare('STB_ID',$this->STB_ID);
+		$criteria->compare('STB_DESC_EN_GB',$this->STB_DESC_EN_GB,true);
+		$criteria->compare('STB_DESC_DE_CH',$this->STB_DESC_DE_CH,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

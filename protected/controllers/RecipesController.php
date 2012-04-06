@@ -78,7 +78,7 @@ class RecipesController extends Controller
 		
 		if(isset($_POST['Recipes'])){
 			$model->attributes=$_POST['Recipes'];
-			$sucessfull = Functions::uploadPicture($model,'REC_PICTURE');
+			$sucessfull = Functions::uploadPicture($model,'REC_IMG');
 			Yii::app()->session['Recipe_Backup'] = $model;
 			
 			if ($sucessfull){
@@ -110,7 +110,7 @@ class RecipesController extends Controller
 		
 		if ($oldmodel){
 			$model = $oldmodel;
-			$oldPicture = $oldmodel->REC_PICTURE;
+			$oldPicture = $oldmodel->REC_IMG;
 			$oldAmount = count($oldmodel->steps);
 		} else {
 			$model=new Recipes;
@@ -157,8 +157,8 @@ class RecipesController extends Controller
 			
 			$model->steps = $steps;
 			
-			Functions::updatePicture($model,'REC_PICTURE', $oldPicture);
-			
+			Functions::updatePicture($model,'REC_IMG', $oldPicture);
+			/*
 			if (isset($model->REC_ID)){
 				$model->REC_CHANGED = time();
 			} else {
@@ -166,6 +166,7 @@ class RecipesController extends Controller
 				$model->PRF_UID = 1;
 				$model->REC_CREATED = time();
 			}
+			*/
 			
 			Yii::app()->session['Recipe_Backup'] = $model;
 			if ($stepsOK){
@@ -220,13 +221,13 @@ class RecipesController extends Controller
 		$stepTypes = CHtml::listData($stepTypeConfig,'STT_ID','STT_DESC_'.Yii::app()->session['lang']);
 		$actions = Yii::app()->db->createCommand()->select('ACT_ID,ACT_DESC_'.Yii::app()->session['lang'])->from('actions')->queryAll();
 		$actions = CHtml::listData($actions,'ACT_ID','ACT_DESC_'.Yii::app()->session['lang']);
-		//$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_TITLE_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
-		//$ingredients = CHtml::listData($ingredients,'ING_ID','ING_TITLE_'.Yii::app()->session['lang']);
+		//$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
+		//$ingredients = CHtml::listData($ingredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
 		
 		if ($model->steps && $model->steps[0] && !$model->steps[0]->ingredient){
 			/*
-			$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_TITLE_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
-			$ingredients = CHtml::listData($ingredients,'ING_ID','ING_TITLE_'.Yii::app()->session['lang']);
+			$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
+			$ingredients = CHtml::listData($ingredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
 			$usedIngredients = array();
 			foreach($model->steps as $step){
 				foreach($ingredients as $row_key=>$row_val){
@@ -243,10 +244,10 @@ class RecipesController extends Controller
 			}
 			if (count(neededIngredients)>0){
 				$criteria=new CDbCriteria;
-				$criteria->select = 'ING_ID,ING_TITLE_'.Yii::app()->session['lang'];
+				$criteria->select = 'ING_ID,ING_NAME_'.Yii::app()->session['lang'];
 				$criteria->compare('ING_ID',$neededIngredients);
 				$usedIngredients = Yii::app()->db->commandBuilder->createFindCommand('ingredients', $criteria, '')->queryAll();
-				$usedIngredients = CHtml::listData($usedIngredients,'ING_ID','ING_TITLE_'.Yii::app()->session['lang']);
+				$usedIngredients = CHtml::listData($usedIngredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
 			} else {
 				$usedIngredients=array();
 			}
@@ -394,7 +395,7 @@ class RecipesController extends Controller
 			$rows = Yii::app()->db->createCommand()
 				//->select('recipes.*')
 				->from('recipes')
-				->leftJoin('recipe_types', 'recipes.REC_TYPE=recipe_types.RET_ID')
+				->leftJoin('recipe_types', 'recipes.RET_ID=recipe_types.RET_ID')
 				//->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID')
 				->join('steps', 'recipes.REC_ID=steps.REC_ID')
 				//->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID')
@@ -413,7 +414,7 @@ class RecipesController extends Controller
 				
 				$rows = Yii::app()->db->createCommand()
 					->from('recipes')
-					->leftJoin('recipe_types', 'recipes.REC_TYPE=recipe_types.RET_ID')
+					->leftJoin('recipe_types', 'recipes.RET_ID=recipe_types.RET_ID')
 					//->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID')
 					//->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID')
 					//->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID')
@@ -482,10 +483,10 @@ class RecipesController extends Controller
     public function actionDisplaySavedImage($id, $ext)
     {
 		$model=$this->loadModel($id, true);
-		$modified = $model->REC_CHANGED;
+		$modified = $model->CREATED_ON;
 		if (!$modified){
-			$modified = $model->REC_CREATED;
+			$modified = $model->CHANGED_ON;
 		}
-		return Functions::getImage($modified, $model->REC_PICTURE_ETAG, $model->REC_PICTURE, $id);
+		return Functions::getImage($modified, $model->REC_IMG_ETAG, $model->REC_IMG, $id);
     }
 }

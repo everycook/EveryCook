@@ -4,9 +4,9 @@
  * This is the model class for table "ingredient_states".
  *
  * The followings are the available columns in table 'ingredient_states':
- * @property integer $STATE_ID
- * @property string $STATE_DESC_EN
- * @property string $STATE_DESC_DE
+ * @property integer $IST_ID
+ * @property string $IST_DESC_EN_GB
+ * @property string $IST_DESC_DE_CH
  */
 class IngredientStates extends CActiveRecord
 {
@@ -35,11 +35,11 @@ class IngredientStates extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('STATE_DESC_EN', 'required'),
-			array('STATE_DESC_EN, STATE_DESC_DE', 'length', 'max'=>100),
+			array('IST_DESC_EN_GB', 'required'),
+			array('IST_DESC_EN_GB, IST_DESC_DE_CH', 'length', 'max'=>100),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('STATE_ID, STATE_DESC_EN, STATE_DESC_DE', 'safe', 'on'=>'search'),
+			array('IST_ID, IST_DESC_EN_GB, IST_DESC_DE_CH', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -60,9 +60,9 @@ class IngredientStates extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'STATE_ID' => 'State',
-			'STATE_DESC_EN' => 'State Desc En',
-			'STATE_DESC_DE' => 'State Desc De',
+			'IST_ID' => 'Ist',
+			'IST_DESC_EN_GB' => 'Ist Desc En Gb',
+			'IST_DESC_DE_CH' => 'Ist Desc De Ch',
 		);
 	}
 
@@ -77,9 +77,9 @@ class IngredientStates extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('STATE_ID',$this->STATE_ID);
-		$criteria->compare('STATE_DESC_EN',$this->STATE_DESC_EN,true);
-		$criteria->compare('STATE_DESC_DE',$this->STATE_DESC_DE,true);
+		$criteria->compare('IST_ID',$this->IST_ID);
+		$criteria->compare('IST_DESC_EN_GB',$this->IST_DESC_EN_GB,true);
+		$criteria->compare('IST_DESC_DE_CH',$this->IST_DESC_DE_CH,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

@@ -10,7 +10,7 @@
 	
 	<div class="data">
 		<div class="name">
-			<?php echo CHtml::link(CHtml::encode($data->__get('REC_TITLE_' . Yii::app()->session['lang'])), array('view', 'id'=>$data->REC_ID)); ?>
+			<?php echo CHtml::link(CHtml::encode($data->__get('REC_NAME_' . Yii::app()->session['lang'])), array('view', 'id'=>$data->REC_ID)); ?>
 		</div>
 		
 		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_CREATED')); ?>:</b>
@@ -21,26 +21,26 @@
 		<?php echo CHtml::encode($data->REC_CHANGED); ?>
 		<br />
 
-		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_PICTURE')); ?>:</b>
-		<?php echo CHtml::encode($data->REC_PICTURE); ?>
+		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_IMG')); ?>:</b>
+		<?php echo CHtml::encode($data->REC_IMG); ?>
 		<br />
 
-		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_PICTURE_AUTH')); ?>:</b>
-		<?php echo CHtml::encode($data->REC_PICTURE_AUTH); ?>
+		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_IMG_AUTH')); ?>:</b>
+		<?php echo CHtml::encode($data->REC_IMG_AUTH); ?>
 		<br />
 
-		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_TYPE')); ?>:</b>
-		<?php echo CHtml::encode($data->REC_TYPE); ?>
+		<b><?php echo CHtml::encode($data->getAttributeLabel('RET_ID')); ?>:</b>
+		<?php echo CHtml::encode($data->RET_ID); ?>
 		<br />
 	</div>
 
 	<?php /*
-	<b><?php echo CHtml::encode($data->getAttributeLabel('REC_TITLE_EN')); ?>:</b>
-	<?php echo CHtml::encode($data->REC_TITLE_EN); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('REC_NAME_EN')); ?>:</b>
+	<?php echo CHtml::encode($data->REC_NAME_EN); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('REC_TITLE_DE')); ?>:</b>
-	<?php echo CHtml::encode($data->REC_TITLE_DE); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('REC_NAME_DE')); ?>:</b>
+	<?php echo CHtml::encode($data->REC_NAME_DE); ?>
 	<br />
 
 	*/ ?>

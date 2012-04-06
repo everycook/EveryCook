@@ -6,6 +6,10 @@
  * The followings are the available columns in table 'producers':
  * @property integer $PRD_ID
  * @property string $PRD_NAME
+ * @property integer $CREATED_BY
+ * @property string $CREATED_ON
+ * @property integer $CHANGED_BY
+ * @property string $CHANGED_ON
  */
 class Producers extends CActiveRecord
 {
@@ -34,11 +38,13 @@ class Producers extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('PRD_NAME', 'required'),
+			array('PRD_NAME, CREATED_BY, CREATED_ON', 'required'),
+			array('CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
 			array('PRD_NAME', 'length', 'max'=>100),
+			array('CHANGED_ON', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('PRD_ID, PRD_NAME', 'safe', 'on'=>'search'),
+			array('PRD_ID, PRD_NAME, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -61,6 +67,10 @@ class Producers extends CActiveRecord
 		return array(
 			'PRD_ID' => 'Prd',
 			'PRD_NAME' => 'Prd Name',
+			'CREATED_BY' => 'Created By',
+			'CREATED_ON' => 'Created On',
+			'CHANGED_BY' => 'Changed By',
+			'CHANGED_ON' => 'Changed On',
 		);
 	}
 
@@ -77,6 +87,10 @@ class Producers extends CActiveRecord
 
 		$criteria->compare('PRD_ID',$this->PRD_ID);
 		$criteria->compare('PRD_NAME',$this->PRD_NAME,true);
+		$criteria->compare('CREATED_BY',$this->CREATED_BY);
+		$criteria->compare('CREATED_ON',$this->CREATED_ON,true);
+		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare('CHANGED_ON',$this->CHANGED_ON,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

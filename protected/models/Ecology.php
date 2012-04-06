@@ -5,8 +5,12 @@
  *
  * The followings are the available columns in table 'ecology':
  * @property integer $ECO_ID
- * @property string $ECO_DESC_EN
- * @property string $ECO_DESC_DE
+ * @property string $ECO_DESC_EN_GB
+ * @property string $ECO_DESC_DE_CH
+ * @property integer $CREATED_BY
+ * @property string $CREATED_ON
+ * @property integer $CHANGED_BY
+ * @property string $CHANGED_ON
  */
 class Ecology extends CActiveRecord
 {
@@ -35,11 +39,13 @@ class Ecology extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('ECO_DESC_EN, ECO_DESC_DE', 'required'),
-			array('ECO_DESC_EN, ECO_DESC_DE', 'length', 'max'=>100),
+			array('ECO_DESC_EN_GB, ECO_DESC_DE_CH, CREATED_BY, CREATED_ON', 'required'),
+			array('CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
+			array('ECO_DESC_EN_GB, ECO_DESC_DE_CH', 'length', 'max'=>100),
+			array('CHANGED_ON', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('ECO_ID, ECO_DESC_EN, ECO_DESC_DE', 'safe', 'on'=>'search'),
+			array('ECO_ID, ECO_DESC_EN_GB, ECO_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -61,8 +67,12 @@ class Ecology extends CActiveRecord
 	{
 		return array(
 			'ECO_ID' => 'Eco',
-			'ECO_DESC_EN' => 'Eco Desc En',
-			'ECO_DESC_DE' => 'Eco Desc De',
+			'ECO_DESC_EN_GB' => 'Eco Desc En Gb',
+			'ECO_DESC_DE_CH' => 'Eco Desc De Ch',
+			'CREATED_BY' => 'Created By',
+			'CREATED_ON' => 'Created On',
+			'CHANGED_BY' => 'Changed By',
+			'CHANGED_ON' => 'Changed On',
 		);
 	}
 
@@ -78,8 +88,12 @@ class Ecology extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('ECO_ID',$this->ECO_ID);
-		$criteria->compare('ECO_DESC_EN',$this->ECO_DESC_EN,true);
-		$criteria->compare('ECO_DESC_DE',$this->ECO_DESC_DE,true);
+		$criteria->compare('ECO_DESC_EN_GB',$this->ECO_DESC_EN_GB,true);
+		$criteria->compare('ECO_DESC_DE_CH',$this->ECO_DESC_DE_CH,true);
+		$criteria->compare('CREATED_BY',$this->CREATED_BY);
+		$criteria->compare('CREATED_ON',$this->CREATED_ON,true);
+		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare('CHANGED_ON',$this->CHANGED_ON,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

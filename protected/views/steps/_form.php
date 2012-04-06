@@ -36,7 +36,7 @@ $this->widget('application.extensions.fancybox.EFancyBox', array(
 	
 	/*
 	if ($model->ingredient && $model->ingredient->ING_ID){
-		$ingredientDescription = $model->ingredient->__get('ING_TITLE_' . Yii::app()->session['lang'])
+		$ingredientDescription = $model->ingredient->__get('ING_NAME_' . Yii::app()->session['lang'])
 	} else {
 		$ingredientDescription = $this->trans->RECIPES_SEARCH_CHOOSE;
 	}

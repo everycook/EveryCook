@@ -31,22 +31,22 @@
 	
 	<?php foreach($this->allLanguages as $lang){ ?>
 	<div class="row">
-		<?php echo $form->labelEx($model,'REC_TITLE_'.$lang); ?>
-		<?php echo $form->textField($model,'REC_TITLE_'.$lang,array('size'=>60,'maxlength'=>100)); ?>
-		<?php echo $form->error($model,'REC_TITLE_'.$lang); ?>
+		<?php echo $form->labelEx($model,'REC_NAME_'.$lang); ?>
+		<?php echo $form->textField($model,'REC_NAME_'.$lang,array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->error($model,'REC_NAME_'.$lang); ?>
 	</div>
 	<?php } ?>
 	
 	<?php
 	$htmlOptions_type0 = array('empty'=>$this->trans->RECIPES_SEARCH_CHOOSE);
-	echo Functions::createInput($this->trans->RECIPES_TYPE, $model, 'REC_TYPE', $recipeTypes, Functions::DROP_DOWN_LIST, 'recipeTypes', $htmlOptions_type0, $form);
+	echo Functions::createInput($this->trans->RECIPES_TYPE, $model, 'RET_ID', $recipeTypes, Functions::DROP_DOWN_LIST, 'recipeTypes', $htmlOptions_type0, $form);
 	?>
 	
 	<?php
-		if (Yii::app()->session['Recipe_Backup'] && Yii::app()->session['Recipe_Backup']->REC_PICTURE_ETAG){
-			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'recipe cropable', 'alt'=>$model->REC_PICTURE_AUTH, 'title'=>$model->REC_PICTURE_AUTH));
+		if (Yii::app()->session['Recipe_Backup'] && Yii::app()->session['Recipe_Backup']->REC_IMG_ETAG){
+			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'recipe cropable', 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));
 		} else if ($model->REC_ID) {
-			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'png')), '', array('class'=>'recipe cropable', 'alt'=>$model->REC_PICTURE_AUTH, 'title'=>$model->REC_PICTURE_AUTH));
+			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'png')), '', array('class'=>'recipe cropable', 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));
 		}
 	?><br />
 	<div class="row">
@@ -56,9 +56,9 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'REC_PICTURE_AUTH'); ?>
-		<?php echo $form->textField($model,'REC_PICTURE_AUTH',array('size'=>30,'maxlength'=>30)); ?>
-		<?php echo $form->error($model,'REC_PICTURE_AUTH'); ?>
+		<?php echo $form->labelEx($model,'REC_IMG_AUTH'); ?>
+		<?php echo $form->textField($model,'REC_IMG_AUTH',array('size'=>30,'maxlength'=>30)); ?>
+		<?php echo $form->error($model,'REC_IMG_AUTH'); ?>
 	</div>
 	
 	<div class="steps">

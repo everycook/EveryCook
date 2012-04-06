@@ -70,7 +70,7 @@ class IngredientConveniencesController extends Controller
 		{
 			$model->attributes=$_POST['IngredientConveniences'];
 			if($model->save())
-				$this->redirect(array('view','id'=>$model->CONV_ID));
+				$this->redirect(array('view','id'=>$model->ICO_ID));
 		}
 
 		$this->checkRenderAjax('create',array(
@@ -94,7 +94,7 @@ class IngredientConveniencesController extends Controller
 		{
 			$model->attributes=$_POST['IngredientConveniences'];
 			if($model->save())
-				$this->redirect(array('view','id'=>$model->CONV_ID));
+				$this->redirect(array('view','id'=>$model->ICO_ID));
 		}
 
 		$this->checkRenderAjax('update',array(

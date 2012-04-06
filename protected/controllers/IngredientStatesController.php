@@ -70,7 +70,7 @@ class IngredientStatesController extends Controller
 		{
 			$model->attributes=$_POST['IngredientStates'];
 			if($model->save())
-				$this->redirect(array('view','id'=>$model->STATE_ID));
+				$this->redirect(array('view','id'=>$model->IST_ID));
 		}
 
 		$this->checkRenderAjax('create',array(
@@ -94,7 +94,7 @@ class IngredientStatesController extends Controller
 		{
 			$model->attributes=$_POST['IngredientStates'];
 			if($model->save())
-				$this->redirect(array('view','id'=>$model->STATE_ID));
+				$this->redirect(array('view','id'=>$model->IST_ID));
 		}
 
 		$this->checkRenderAjax('update',array(

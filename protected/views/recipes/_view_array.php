@@ -1,5 +1,5 @@
 <div class="resultArea">
-	<?php echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'png')), '', array('class'=>'recipe', 'alt'=>$data['REC_PICTURE_AUTH'], 'title'=>$data['REC_PICTURE_AUTH'])), array('view', 'id'=>$data['REC_ID'])); ?>
+	<?php echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'png')), '', array('class'=>'recipe', 'alt'=>$data['REC_IMG_AUTH'], 'title'=>$data['REC_IMG_AUTH'])), array('view', 'id'=>$data['REC_ID'])); ?>
 	
 	<div class="options">
 		<?php echo CHtml::link('+', array('user/addrecipes', 'id'=>$data['REC_ID']), array('class'=>'button backpic addRecipe', 'title'=>$this->trans->RECIPES_ADD)); ?><br>
@@ -10,7 +10,7 @@
 	
 	<div class="data">
 		<div class="name">
-			<?php echo CHtml::link(CHtml::encode($data['REC_TITLE_' . Yii::app()->session['lang']]), array('view', 'id'=>$data['REC_ID'])); ?>
+			<?php echo CHtml::link(CHtml::encode($data['REC_NAME_' . Yii::app()->session['lang']]), array('view', 'id'=>$data['REC_ID'])); ?>
 		</div>
 
 <?php /*
@@ -22,11 +22,11 @@
 		<?php echo CHtml::encode($data['REC_CHANGED']); ?>
 		<br />
 		<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>
-		<?php echo CHtml::encode($data['REC_PICTURE']); ?>
+		<?php echo CHtml::encode($data['REC_IMG']); ?>
 		<br />
 
 		<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>
-		<?php echo CHtml::encode($data['REC_PICTURE_AUTH']); ?>
+		<?php echo CHtml::encode($data['REC_IMG_AUTH']); ?>
 		<br />
 */ ?>
 
@@ -54,23 +54,23 @@
 		<?php echo CHtml::encode($data->ING_CHANGED); ?>
 		<br />
 		
-	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_STATE')); ?>:</b>
-	<?php echo CHtml::encode($data->ING_STATE); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('IST_ID')); ?>:</b>
+	<?php echo CHtml::encode($data->IST_ID); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_CONVENIENCE')); ?>:</b>
-	<?php echo CHtml::encode($data->ING_CONVENIENCE); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('ICO_ID')); ?>:</b>
+	<?php echo CHtml::encode($data->ICO_ID); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_STORABILITY')); ?>:</b>
-	<?php echo CHtml::encode($data->ING_STORABILITY); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('STB_ID')); ?>:</b>
+	<?php echo CHtml::encode($data->STB_ID); ?>
 	<br />
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_DENSITY')); ?>:</b>
 	<?php echo CHtml::encode($data->ING_DENSITY); ?>
 	<br />
-	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_PICTURE')); ?>:</b>
-	<?php echo CHtml::encode($data->ING_PICTURE); ?><br />
+	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_IMG')); ?>:</b>
+	<?php echo CHtml::encode($data->ING_IMG); ?><br />
 	
 	
 	<!-- STL show image -->
@@ -78,16 +78,16 @@
 	
 	
 	
-	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_PICTURE_AUTH')); ?>:</b>
-	<?php echo CHtml::encode($data->ING_PICTURE_AUTH); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_IMG_AUTH')); ?>:</b>
+	<?php echo CHtml::encode($data->ING_IMG_AUTH); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_TITLE_EN')); ?>:</b>
-	<?php echo CHtml::encode($data->ING_TITLE_EN); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_NAME_EN')); ?>:</b>
+	<?php echo CHtml::encode($data->ING_NAME_EN); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_TITLE_DE')); ?>:</b>
-	<?php echo CHtml::encode($data->ING_TITLE_DE); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_NAME_DE')); ?>:</b>
+	<?php echo CHtml::encode($data->ING_NAME_DE); ?>
 	<br />
 
 	*/ ?>

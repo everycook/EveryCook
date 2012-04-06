@@ -10,15 +10,15 @@
 	<?php echo $form->errorSummary($model); ?>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'STATE_DESC_EN'); ?>
-		<?php echo $form->textField($model,'STATE_DESC_EN',array('size'=>60,'maxlength'=>100)); ?>
-		<?php echo $form->error($model,'STATE_DESC_EN'); ?>
+		<?php echo $form->labelEx($model,'IST_DESC_EN'); ?>
+		<?php echo $form->textField($model,'IST_DESC_EN',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->error($model,'IST_DESC_EN'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'STATE_DESC_DE'); ?>
-		<?php echo $form->textField($model,'STATE_DESC_DE',array('size'=>60,'maxlength'=>100)); ?>
-		<?php echo $form->error($model,'STATE_DESC_DE'); ?>
+		<?php echo $form->labelEx($model,'IST_DESC_DE'); ?>
+		<?php echo $form->textField($model,'IST_DESC_DE',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->error($model,'IST_DESC_DE'); ?>
 	</div>
 
 	<div class="row buttons">

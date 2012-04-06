@@ -5,8 +5,12 @@
  *
  * The followings are the available columns in table 'group_names':
  * @property integer $GRP_ID
- * @property string $GRP_DESC_EN
- * @property string $GRP_DESC_DE
+ * @property string $GRP_DESC_EN_GB
+ * @property string $GRP_DESC_DE_CH
+ * @property integer $CREATED_BY
+ * @property string $CREATED_ON
+ * @property integer $CHANGED_BY
+ * @property string $CHANGED_ON
  */
 class GroupNames extends CActiveRecord
 {
@@ -35,11 +39,13 @@ class GroupNames extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('GRP_DESC_EN, GRP_DESC_DE', 'required'),
-			array('GRP_DESC_EN, GRP_DESC_DE', 'length', 'max'=>100),
+			array('GRP_DESC_EN_GB, GRP_DESC_DE_CH, CREATED_BY, CREATED_ON', 'required'),
+			array('CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
+			array('GRP_DESC_EN_GB, GRP_DESC_DE_CH', 'length', 'max'=>100),
+			array('CHANGED_ON', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('GRP_ID, GRP_DESC_EN, GRP_DESC_DE', 'safe', 'on'=>'search'),
+			array('GRP_ID, GRP_DESC_EN_GB, GRP_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -61,8 +67,12 @@ class GroupNames extends CActiveRecord
 	{
 		return array(
 			'GRP_ID' => 'Grp',
-			'GRP_DESC_EN' => 'Grp Desc En',
-			'GRP_DESC_DE' => 'Grp Desc De',
+			'GRP_DESC_EN_GB' => 'Grp Desc En Gb',
+			'GRP_DESC_DE_CH' => 'Grp Desc De Ch',
+			'CREATED_BY' => 'Created By',
+			'CREATED_ON' => 'Created On',
+			'CHANGED_BY' => 'Changed By',
+			'CHANGED_ON' => 'Changed On',
 		);
 	}
 
@@ -78,8 +88,12 @@ class GroupNames extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('GRP_ID',$this->GRP_ID);
-		$criteria->compare('GRP_DESC_EN',$this->GRP_DESC_EN,true);
-		$criteria->compare('GRP_DESC_DE',$this->GRP_DESC_DE,true);
+		$criteria->compare('GRP_DESC_EN_GB',$this->GRP_DESC_EN_GB,true);
+		$criteria->compare('GRP_DESC_DE_CH',$this->GRP_DESC_DE_CH,true);
+		$criteria->compare('CREATED_BY',$this->CREATED_BY);
+		$criteria->compare('CREATED_ON',$this->CREATED_ON,true);
+		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare('CHANGED_ON',$this->CHANGED_ON,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

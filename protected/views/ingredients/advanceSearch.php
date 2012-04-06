@@ -36,11 +36,11 @@ $this->menu=array(
 	$htmlOptions_type0 = array('empty'=>$this->trans->INGREDIENTS_SEARCH_CHOOSE);
 	$htmlOptions_type1 = array('template'=>'<li>{input} {label}</li>', 'separator'=>"\n", 'checkAll'=>$this->trans->INGREDIENTS_SEARCH_CHECK_ALL, 'checkAllLast'=>false);
 	
-	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_GROUP, $model, 'ING_GROUP', $groupNames, Functions::CHECK_BOX_LIST, 'groupNames', $htmlOptions_type1);
-	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'ING_SUBGROUP', $subgroupNames, Functions::CHECK_BOX_LIST, 'subgroupNames', $htmlOptions_type1);
-	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_STORABILITY, $model, 'ING_STORABILITY', $storability, Functions::CHECK_BOX_LIST, 'storability', $htmlOptions_type1);
-	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_CONVENIENCE, $model, 'ING_CONVENIENCE', $ingredientConveniences, Functions::DROP_DOWN_LIST, 'ingredientConveniences', $htmlOptions_type0);
-	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_STATE, $model, 'ING_STATE', $ingredientStates, Functions::DROP_DOWN_LIST, 'ingredientStates', $htmlOptions_type0);
+	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_GROUP, $model, 'GRP_ID', $groupNames, Functions::CHECK_BOX_LIST, 'groupNames', $htmlOptions_type1);
+	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'SGR_ID', $subgroupNames, Functions::CHECK_BOX_LIST, 'subgroupNames', $htmlOptions_type1);
+	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_STORABILITY, $model, 'STB_ID', $storability, Functions::CHECK_BOX_LIST, 'storability', $htmlOptions_type1);
+	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_CONVENIENCE, $model, 'ICO_ID', $ingredientConveniences, Functions::DROP_DOWN_LIST, 'ingredientConveniences', $htmlOptions_type0);
+	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_STATE, $model, 'IST_ID', $ingredientStates, Functions::DROP_DOWN_LIST, 'ingredientStates', $htmlOptions_type0);
 	//echo searchCriteriaInput($this->trans->INGREDIENTS_NUTRIENT, $model, 'NUT_ID', $nutrientData, Functions::DROP_DOWN_LIST, 'nutrientData', $htmlOptions_type0);
 	?>
 	
@@ -77,23 +77,23 @@ $this->menu=array(
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'ING_PICTURE'); ?>
-		<?php echo $form->textField($model,'ING_PICTURE'); ?>
+		<?php echo $form->label($model,'ING_IMG'); ?>
+		<?php echo $form->textField($model,'ING_IMG'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'ING_PICTURE_AUTH'); ?>
-		<?php echo $form->textField($model,'ING_PICTURE_AUTH',array('size'=>30,'maxlength'=>30)); ?>
+		<?php echo $form->label($model,'ING_IMG_AUTH'); ?>
+		<?php echo $form->textField($model,'ING_IMG_AUTH',array('size'=>30,'maxlength'=>30)); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'ING_TITLE_EN'); ?>
-		<?php echo $form->textField($model,'ING_TITLE_EN',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->label($model,'ING_NAME_EN'); ?>
+		<?php echo $form->textField($model,'ING_NAME_EN',array('size'=>60,'maxlength'=>100)); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'ING_TITLE_DE'); ?>
-		<?php echo $form->textField($model,'ING_TITLE_DE',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->label($model,'ING_NAME_DE'); ?>
+		<?php echo $form->textField($model,'ING_NAME_DE',array('size'=>60,'maxlength'=>100)); ?>
 	</div>
 	
 	<div class="row buttons">

@@ -59,28 +59,28 @@ if (Yii::app()->session['Recipe'] && Yii::app()->session['Recipe']['time']){
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'REC_PICTURE'); ?>
-		<?php echo $form->textField($model,'REC_PICTURE'); ?>
+		<?php echo $form->label($model,'REC_IMG'); ?>
+		<?php echo $form->textField($model,'REC_IMG'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'REC_PICTURE_AUTH'); ?>
-		<?php echo $form->textField($model,'REC_PICTURE_AUTH',array('size'=>30,'maxlength'=>30)); ?>
+		<?php echo $form->label($model,'REC_IMG_AUTH'); ?>
+		<?php echo $form->textField($model,'REC_IMG_AUTH',array('size'=>30,'maxlength'=>30)); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'REC_TYPE'); ?>
-		<?php echo $form->textField($model,'REC_TYPE'); ?>
+		<?php echo $form->label($model,'RET_ID'); ?>
+		<?php echo $form->textField($model,'RET_ID'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'REC_TITLE_EN'); ?>
-		<?php echo $form->textField($model,'REC_TITLE_EN',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->label($model,'REC_NAME_EN'); ?>
+		<?php echo $form->textField($model,'REC_NAME_EN',array('size'=>60,'maxlength'=>100)); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'REC_TITLE_DE'); ?>
-		<?php echo $form->textField($model,'REC_TITLE_DE',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->label($model,'REC_NAME_DE'); ?>
+		<?php echo $form->textField($model,'REC_NAME_DE',array('size'=>60,'maxlength'=>100)); ?>
 	</div>
 
 	<div class="row buttons">

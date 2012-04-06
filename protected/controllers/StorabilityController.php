@@ -70,7 +70,7 @@ class StorabilityController extends Controller
 		{
 			$model->attributes=$_POST['Storability'];
 			if($model->save())
-				$this->redirect(array('view','id'=>$model->STORAB_ID));
+				$this->redirect(array('view','id'=>$model->STB_ID));
 		}
 
 		$this->checkRenderAjax('create',array(
@@ -94,7 +94,7 @@ class StorabilityController extends Controller
 		{
 			$model->attributes=$_POST['Storability'];
 			if($model->save())
-				$this->redirect(array('view','id'=>$model->STORAB_ID));
+				$this->redirect(array('view','id'=>$model->STB_ID));
 		}
 
 		$this->checkRenderAjax('update',array(

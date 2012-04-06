@@ -11,27 +11,27 @@
 	
 	<div class="data">
 		<div class="name">
-		<?php echo CHtml::link(CHtml::encode($data->__get('ING_TITLE_' . Yii::app()->session['lang'])), array('view', 'id'=>$data->ING_ID)); ?>
+		<?php echo CHtml::link(CHtml::encode($data->__get('ING_NAME_' . Yii::app()->session['lang'])), array('view', 'id'=>$data->ING_ID)); ?>
 		</div>
 		
 		<b><?php echo CHtml::encode($data->getAttributeLabel('NUT_ID')); ?>:</b>
 		<?php echo CHtml::link(CHtml::encode($data->nutrientData->NUT_DESC), array('nutrientData/view', 'id'=>$data->nutrientData->NUT_ID)); ?>
 		<br />
 		
-		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_GROUP')); ?>:</b>
+		<b><?php echo CHtml::encode($data->getAttributeLabel('GRP_ID')); ?>:</b>
 		<?php echo CHtml::encode($data->groupNames->__get('GRP_DESC_' . Yii::app()->session['lang'])); ?>
 		<br />
 
-		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_SUBGROUP')); ?>:</b>
-		<?php echo CHtml::encode($data->subgroupNames->__get('SUBGRP_DESC_' . Yii::app()->session['lang'])); ?>
+		<b><?php echo CHtml::encode($data->getAttributeLabel('SGR_ID')); ?>:</b>
+		<?php echo CHtml::encode($data->subgroupNames->__get('SGR_DESC_' . Yii::app()->session['lang'])); ?>
 		<br />
 		
-		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_CONVENIENCE')); ?>:</b>
-		<?php echo CHtml::encode($data->ingredientConveniences->__get('CONV_DESC_' . Yii::app()->session['lang'])); ?>
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ICO_ID')); ?>:</b>
+		<?php echo CHtml::encode($data->ingredientConveniences->__get('ICO_DESC_' . Yii::app()->session['lang'])); ?>
 		<br />
 
-		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_STORABILITY')); ?>:</b>
-		<?php echo CHtml::encode($data->storability->__get('STORAB_DESC_' . Yii::app()->session['lang'])); ?>
+		<b><?php echo CHtml::encode($data->getAttributeLabel('STB_ID')); ?>:</b>
+		<?php echo CHtml::encode($data->storability->__get('STB_DESC_' . Yii::app()->session['lang'])); ?>
 		<br />
 	</div>
 	
@@ -53,23 +53,23 @@
 		<?php echo CHtml::encode($data->ING_CHANGED); ?>
 		<br />
 		
-	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_STATE')); ?>:</b>
-	<?php echo CHtml::encode($data->ING_STATE); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('IST_ID')); ?>:</b>
+	<?php echo CHtml::encode($data->IST_ID); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_CONVENIENCE')); ?>:</b>
-	<?php echo CHtml::encode($data->ING_CONVENIENCE); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('ICO_ID')); ?>:</b>
+	<?php echo CHtml::encode($data->ICO_ID); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_STORABILITY')); ?>:</b>
-	<?php echo CHtml::encode($data->ING_STORABILITY); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('STB_ID')); ?>:</b>
+	<?php echo CHtml::encode($data->STB_ID); ?>
 	<br />
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_DENSITY')); ?>:</b>
 	<?php echo CHtml::encode($data->ING_DENSITY); ?>
 	<br />
-	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_PICTURE')); ?>:</b>
-	<?php echo CHtml::encode($data->ING_PICTURE); ?><br />
+	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_IMG')); ?>:</b>
+	<?php echo CHtml::encode($data->ING_IMG); ?><br />
 	
 	
 	<!-- STL show image -->
@@ -77,16 +77,16 @@
 	
 	
 	
-	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_PICTURE_AUTH')); ?>:</b>
-	<?php echo CHtml::encode($data->ING_PICTURE_AUTH); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_IMG_AUTH')); ?>:</b>
+	<?php echo CHtml::encode($data->ING_IMG_AUTH); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_TITLE_EN')); ?>:</b>
-	<?php echo CHtml::encode($data->ING_TITLE_EN); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_NAME_EN')); ?>:</b>
+	<?php echo CHtml::encode($data->ING_NAME_EN); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_TITLE_DE')); ?>:</b>
-	<?php echo CHtml::encode($data->ING_TITLE_DE); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('ING_NAME_DE')); ?>:</b>
+	<?php echo CHtml::encode($data->ING_NAME_DE); ?>
 	<br />
 
 	*/ ?>

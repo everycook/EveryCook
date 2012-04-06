@@ -26,23 +26,23 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'PRO_ECO'); ?>
-		<?php echo $form->textField($model,'PRO_ECO'); ?>
+		<?php echo $form->label($model,'ECO_ID'); ?>
+		<?php echo $form->textField($model,'ECO_ID'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'PRO_ETHIC'); ?>
-		<?php echo $form->textField($model,'PRO_ETHIC'); ?>
+		<?php echo $form->label($model,'ETH_ID'); ?>
+		<?php echo $form->textField($model,'ETH_ID'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'PRO_PICTURE'); ?>
-		<?php echo $form->textField($model,'PRO_PICTURE'); ?>
+		<?php echo $form->label($model,'PRO_IMG'); ?>
+		<?php echo $form->textField($model,'PRO_IMG'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'PRO_PICTURE_COPYR'); ?>
-		<?php echo $form->textField($model,'PRO_PICTURE_COPYR',array('size'=>30,'maxlength'=>30)); ?>
+		<?php echo $form->label($model,'PRO_IMG_CR'); ?>
+		<?php echo $form->textField($model,'PRO_IMG_CR',array('size'=>30,'maxlength'=>30)); ?>
 	</div>
 
 	<div class="row buttons">

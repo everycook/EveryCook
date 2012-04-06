@@ -20,31 +20,29 @@ $this->menu=array(
 	'attributes'=>array(
 		'ING_ID',
 		'PRF_UID',
-		'ING_CREATED',
-		'ING_CHANGED',
 		array(
             'label'=>'nut',
 			'type'=>'raw',
             'value'=>CHtml::link(CHtml::encode($model->NUT_ID), array('nutrientData/view','id'=>$model->NUT_ID)),
 		),
-		'ING_GROUP',
-		'ING_SUBGROUP',
-		'ING_STATE',
-		'ING_CONVENIENCE',
-		'ING_STORABILITY',
+		'GRP_ID',
+		'SGR_ID',
+		'IST_ID',
+		'ICO_ID',
+		'STB_ID',
 		'ING_DENSITY',
-		'ING_PICTURE',
+		'ING_IMG',
 /*        array(
            'label'=>'Image',
            'type'=>'image',
-           'name'=>$model->ING_PICTURE,
-           'value'=>$model->ING_PICTURE,
+           'name'=>$model->ING_IMG,
+           'value'=>$model->ING_IMG,
         'value'=>'Yii::app()->request->baseUrl."/upload/".$data->file_content'
 
         
         ),*/
-		'ING_PICTURE_AUTH',
-		'ING_TITLE_EN',
-		'ING_TITLE_DE',
+		'ING_IMG_AUTH',
+		'ING_NAME_EN_GB',
+		'ING_NAME_DE_CH',
 	),
 )); ?>

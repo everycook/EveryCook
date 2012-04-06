@@ -47,7 +47,7 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 		'ING_CREATED',
 		'ING_CHANGED',
 		'NUT_ID',
-		'ING_GROUP',
+		'GRP_ID',
 		array(
 			'name'=>'nutrientData',
 			'value'=>'$data->nutrientData->NUT_DESC',
@@ -58,26 +58,26 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 		),
 		array(
 			'name'=>'subgroupNames',
-			'value'=>'$data->subgroupNames->SUBGRP_DESC_DE',
+			'value'=>'$data->subgroupNames->SGR_DESC_DE',
 		),
 		array(
 			'name'=>'ingredientConveniences',
-			'value'=>'$data->ingredientConveniences->CONV_DESC_DE',
+			'value'=>'$data->ingredientConveniences->ICO_DESC_DE',
 		),
 		array(
 			'name'=>'storability',
-			'value'=>'$data->storability->STORAB_DESC_DE',
+			'value'=>'$data->storability->STB_DESC_DE',
 		),
 		/*
-		'ING_SUBGROUP',
-		'ING_STATE',
-		'ING_CONVENIENCE',
-		'ING_STORABILITY',
+		'SGR_ID',
+		'IST_ID',
+		'ICO_ID',
+		'STB_ID',
 		'ING_DENSITY',
-		'ING_PICTURE',
-		'ING_PICTURE_AUTH',
-		'ING_TITLE_EN',
-		'ING_TITLE_DE',
+		'ING_IMG',
+		'ING_IMG_AUTH',
+		'ING_NAME_EN',
+		'ING_NAME_DE',
 		*/
 		array(
 			'class'=>'CButtonColumn',

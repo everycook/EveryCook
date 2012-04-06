@@ -8,10 +8,17 @@
  * @property integer $PRO_BARCODE
  * @property integer $PRO_PACKAGE_GRAMMS
  * @property integer $ING_ID
- * @property integer $PRO_ECO
- * @property integer $PRO_ETHIC
- * @property string $PRO_PICTURE
- * @property string $PRO_PICTURE_COPYR
+ * @property integer $ECO_ID
+ * @property integer $ETH_ID
+ * @property string $PRO_IMG
+ * @property string $PRO_IMG_CR
+ * @property string $PRO_IMG_ETAG
+ * @property string $PRO_NAME_EN_GB
+ * @property string $PRO_NAME_DE_CH
+ * @property integer $CREATED_BY
+ * @property string $CREATED_ON
+ * @property integer $CHANGED_BY
+ * @property string $CHANGED_ON
  */
 class Products extends CActiveRecord
 {
@@ -43,16 +50,16 @@ class Products extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('PRO_ECO, PRO_ETHIC, PRO_NAME_EN', 'required'),
-			array('PRO_PICTURE_COPYR', 'required', 'on'=>'withPic'),
-			array('PRO_BARCODE, PRO_PACKAGE_GRAMMS, ING_ID, PRO_ECO, PRO_ETHIC', 'numerical', 'integerOnly'=>true),
-			array('PRO_PICTURE_COPYR', 'length', 'max'=>30),
-			array('PRO_PICTURE_ETAG', 'length', 'max'=>40),
-			array('PRO_NAME_EN, PRO_NAME_DE', 'length', 'max'=>60),
-			array('PRO_PICTURE', 'safe'),
+			array('ECO_ID, ETH_ID, PRO_IMG_ETAG, PRO_NAME_EN_GB, PRO_NAME_DE_CH, CREATED_BY, CREATED_ON', 'required'),
+			array('PRO_IMG_CR', 'required', 'on'=>'withPic'),
+			array('PRO_BARCODE, PRO_PACKAGE_GRAMMS, ING_ID, ECO_ID, ETH_ID, CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
+			array('PRO_IMG_CR', 'length', 'max'=>30),
+			array('PRO_IMG_ETAG', 'length', 'max'=>40),
+			array('PRO_NAME_EN_GB, PRO_NAME_DE_CH', 'length', 'max'=>100),
+			array('PRO_IMG, CHANGED_ON', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('PRO_ID, PRO_BARCODE, PRO_PACKAGE_GRAMMS, ING_ID, PRO_ECO, PRO_ETHIC, PRO_PICTURE, PRO_PICTURE_ETAG, PRO_PICTURE_COPYR, PRO_NAME_EN, PRO_NAME_DE', 'safe', 'on'=>'search'),
+			array('PRO_ID, PRO_BARCODE, PRO_PACKAGE_GRAMMS, ING_ID, ECO_ID, ETH_ID, PRO_IMG, PRO_IMG_CR, PRO_IMG_ETAG, PRO_NAME_EN_GB, PRO_NAME_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -65,8 +72,8 @@ class Products extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'ingredient' => array(self::BELONGS_TO, 'Ingredients', 'ING_ID'),
-			'ecology' => array(self::BELONGS_TO, 'Ecology', 'PRO_ECO'),
-			'ethicalCriteria' => array(self::BELONGS_TO, 'EthicalCriteria', 'PRO_ETHIC'),
+			'ecology' => array(self::BELONGS_TO, 'Ecology', 'ECO_ID'),
+			'ethicalCriteria' => array(self::BELONGS_TO, 'EthicalCriteria', 'ETH_ID'),
 		);
 	}
 
@@ -80,10 +87,17 @@ class Products extends CActiveRecord
 			'PRO_BARCODE' => 'Pro Barcode',
 			'PRO_PACKAGE_GRAMMS' => 'Pro Package Gramms',
 			'ING_ID' => 'Ing',
-			'PRO_ECO' => 'Pro Eco',
-			'PRO_ETHIC' => 'Pro Ethic',
-			'PRO_PICTURE' => 'Pro Picture',
-			'PRO_PICTURE_COPYR' => 'Pro Picture Copyr',
+			'ECO_ID' => 'Eco',
+			'ETH_ID' => 'Eth',
+			'PRO_IMG' => 'Pro Img',
+			'PRO_IMG_CR' => 'Pro Img Cr',
+			'PRO_IMG_ETAG' => 'Pro Img Etag',
+			'PRO_NAME_EN_GB' => 'Pro Name En Gb',
+			'PRO_NAME_DE_CH' => 'Pro Name De Ch',
+			'CREATED_BY' => 'Created By',
+			'CREATED_ON' => 'Created On',
+			'CHANGED_BY' => 'Changed By',
+			'CHANGED_ON' => 'Changed On',
 		);
 	}
 
@@ -98,28 +112,17 @@ class Products extends CActiveRecord
 		$criteria->compare('PRO_BARCODE',$this->PRO_BARCODE);
 		$criteria->compare('PRO_PACKAGE_GRAMMS',$this->PRO_PACKAGE_GRAMMS);
 		$criteria->compare('ING_ID',$this->ING_ID);
-		$criteria->compare('PRO_ECO',$this->PRO_ECO);
-		$criteria->compare('PRO_ETHIC',$this->PRO_ETHIC);
-		$criteria->compare('PRO_PICTURE',$this->PRO_PICTURE,true);
-		$criteria->compare('PRO_PICTURE_ETAG',$this->PRO_PICTURE_ETAG,true);
-		$criteria->compare('PRO_PICTURE_COPYR',$this->PRO_PICTURE_COPYR,true);
-		
-		
-		$criteria->compare('REC_ID',$this->REC_ID);
-		$criteria->compare('ACT_ID',$this->ACT_ID);
-		$criteria->compare('ING_ID',$this->ING_ID);
-		$criteria->compare('STE_STEP_NO',$this->STE_STEP_NO);
-		$criteria->compare('STE_GRAMS',$this->STE_GRAMS);
-		$criteria->compare('STE_CELSIUS',$this->STE_CELSIUS);
-		$criteria->compare('STE_KPA',$this->STE_KPA);
-		$criteria->compare('STE_RPM',$this->STE_RPM);
-		$criteria->compare('STE_CLOCKWISE',$this->STE_CLOCKWISE);
-		$criteria->compare('STE_STIR_RUN',$this->STE_STIR_RUN);
-		$criteria->compare('STE_STIR_PAUSE',$this->STE_STIR_PAUSE);
-		$criteria->compare('STE_STEP_DURATION',$this->STE_STEP_DURATION);
-		$criteria->compare('STT_ID',$this->STT_ID);
-		
-		//$criteria->with = array('ingredient' => array('nutrientData'));
+		$criteria->compare('ECO_ID',$this->ECO_ID);
+		$criteria->compare('ETH_ID',$this->ETH_ID);
+		$criteria->compare('PRO_IMG',$this->PRO_IMG,true);
+		$criteria->compare('PRO_IMG_CR',$this->PRO_IMG_CR,true);
+		$criteria->compare('PRO_IMG_ETAG',$this->PRO_IMG_ETAG,true);
+		$criteria->compare('PRO_NAME_EN_GB',$this->PRO_NAME_EN_GB,true);
+		$criteria->compare('PRO_NAME_DE_CH',$this->PRO_NAME_DE_CH,true);
+		$criteria->compare('CREATED_BY',$this->CREATED_BY);
+		$criteria->compare('CREATED_ON',$this->CREATED_ON,true);
+		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare('CHANGED_ON',$this->CHANGED_ON,true);
 		$criteria->with = array('ingredient');
 		
 		$criteria->compare('ING_ID',$this->ingredient,true);

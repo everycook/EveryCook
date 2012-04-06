@@ -22,9 +22,9 @@ $this->menu=array(
 		'PRO_BARCODE',
 		'PRO_PACKAGE_GRAMMS',
 		'ING_ID',
-		'PRO_ECO',
-		'PRO_ETHIC',
-		'PRO_PICTURE',
-		'PRO_PICTURE_COPYR',
+		'ECO_ID',
+		'ETH_ID',
+		'PRO_IMG',
+		'PRO_IMG_CR',
 	),
 )); ?>

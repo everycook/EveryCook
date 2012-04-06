@@ -10,15 +10,15 @@
 	<?php echo $form->errorSummary($model); ?>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'STORAB_DESC_EN'); ?>
-		<?php echo $form->textField($model,'STORAB_DESC_EN',array('size'=>60,'maxlength'=>100)); ?>
-		<?php echo $form->error($model,'STORAB_DESC_EN'); ?>
+		<?php echo $form->labelEx($model,'STB_DESC_EN'); ?>
+		<?php echo $form->textField($model,'STB_DESC_EN',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->error($model,'STB_DESC_EN'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'STORAB_DESC_DE'); ?>
-		<?php echo $form->textField($model,'STORAB_DESC_DE',array('size'=>60,'maxlength'=>100)); ?>
-		<?php echo $form->error($model,'STORAB_DESC_DE'); ?>
+		<?php echo $form->labelEx($model,'STB_DESC_DE'); ?>
+		<?php echo $form->textField($model,'STB_DESC_DE',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->error($model,'STB_DESC_DE'); ?>
 	</div>
 
 	<div class="row buttons">

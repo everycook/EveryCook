@@ -5,8 +5,12 @@
  *
  * The followings are the available columns in table 'ethical_criteria':
  * @property integer $ETH_ID
- * @property string $ETH_DESC_EN
- * @property string $ETH_DESC_DE
+ * @property string $ETH_DESC_EN_GB
+ * @property string $ETH_DESC_DE_CH
+ * @property integer $CREATED_BY
+ * @property string $CREATED_ON
+ * @property integer $CHANGED_BY
+ * @property string $CHANGED_ON
  */
 class EthicalCriteria extends CActiveRecord
 {
@@ -35,11 +39,13 @@ class EthicalCriteria extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('ETH_DESC_EN, ETH_DESC_DE', 'required'),
-			array('ETH_DESC_EN, ETH_DESC_DE', 'length', 'max'=>100),
+			array('ETH_DESC_EN_GB, ETH_DESC_DE_CH, CREATED_BY, CREATED_ON', 'required'),
+			array('CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
+			array('ETH_DESC_EN_GB, ETH_DESC_DE_CH', 'length', 'max'=>100),
+			array('CHANGED_ON', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('ETH_ID, ETH_DESC_EN, ETH_DESC_DE', 'safe', 'on'=>'search'),
+			array('ETH_ID, ETH_DESC_EN_GB, ETH_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -61,8 +67,12 @@ class EthicalCriteria extends CActiveRecord
 	{
 		return array(
 			'ETH_ID' => 'Eth',
-			'ETH_DESC_EN' => 'Eth Desc En',
-			'ETH_DESC_DE' => 'Eth Desc De',
+			'ETH_DESC_EN_GB' => 'Eth Desc En Gb',
+			'ETH_DESC_DE_CH' => 'Eth Desc De Ch',
+			'CREATED_BY' => 'Created By',
+			'CREATED_ON' => 'Created On',
+			'CHANGED_BY' => 'Changed By',
+			'CHANGED_ON' => 'Changed On',
 		);
 	}
 
@@ -78,8 +88,12 @@ class EthicalCriteria extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('ETH_ID',$this->ETH_ID);
-		$criteria->compare('ETH_DESC_EN',$this->ETH_DESC_EN,true);
-		$criteria->compare('ETH_DESC_DE',$this->ETH_DESC_DE,true);
+		$criteria->compare('ETH_DESC_EN_GB',$this->ETH_DESC_EN_GB,true);
+		$criteria->compare('ETH_DESC_DE_CH',$this->ETH_DESC_DE_CH,true);
+		$criteria->compare('CREATED_BY',$this->CREATED_BY);
+		$criteria->compare('CREATED_ON',$this->CREATED_ON,true);
+		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare('CHANGED_ON',$this->CHANGED_ON,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

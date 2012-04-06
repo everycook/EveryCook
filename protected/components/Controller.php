@@ -54,13 +54,13 @@ class Controller extends CController
 	
 	public $trans=null;
 	
-	public $allLanguages=array('EN','DE');
+	public $allLanguages=array('EN_GB','DE_CH');
 	
 	protected function beforeAction($action)
 	{
 		//TODO use language from current user
 		if (!isset(Yii::app()->session['lang'])){
-			Yii::app()->session['lang'] = 'DE';
+			Yii::app()->session['lang'] = 'DE_CH';
 		}
 		$this->trans=InterfaceMenu::model()->findByPk(Yii::app()->session['lang']);
 		if($this->trans===null)

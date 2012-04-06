@@ -5,9 +5,22 @@
  *
  * The followings are the available columns in table 'stores':
  * @property integer $STO_ID
- * @property string $STO_LOC_GPS
- * @property string $STO_LOC_ADDR
+ * @property string $STO_NAME
+ * @property string $STO_STREET
+ * @property string $STO_HOUSE_NO
+ * @property integer $STO_ZIP
+ * @property string $STO_CITY
+ * @property integer $STO_COUNTRY
+ * @property string $STO_STATE
+ * @property integer $STY_ID
+ * @property string $STO_GPS
+ * @property string $STO_PHONE
+ * @property string $STO_IMG
  * @property integer $SUP_ID
+ * @property integer $CREATED_BY
+ * @property string $CREATED_ON
+ * @property integer $CHANGED_BY
+ * @property string $CHANGED_ON
  */
 class Stores extends CActiveRecord
 {
@@ -36,13 +49,14 @@ class Stores extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('SUP_ID', 'required'),
-			array('SUP_ID', 'numerical', 'integerOnly'=>true),
-			array('STO_LOC_GPS', 'length', 'max'=>100),
-			array('STO_LOC_ADDR', 'length', 'max'=>200),
+			array('STO_NAME, STO_HOUSE_NO, STO_ZIP, STO_CITY, STO_COUNTRY, STO_STATE, STY_ID, SUP_ID, CREATED_BY, CREATED_ON', 'required'),
+			array('STO_ZIP, STO_COUNTRY, STY_ID, SUP_ID, CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
+			array('STO_NAME, STO_STREET, STO_CITY, STO_STATE, STO_GPS', 'length', 'max'=>100),
+			array('STO_HOUSE_NO, STO_PHONE', 'length', 'max'=>20),
+			array('STO_IMG, CHANGED_ON', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('STO_ID, STO_LOC_GPS, STO_LOC_ADDR, SUP_ID', 'safe', 'on'=>'search'),
+			array('STO_ID, STO_NAME, STO_STREET, STO_HOUSE_NO, STO_ZIP, STO_CITY, STO_COUNTRY, STO_STATE, STY_ID, STO_GPS, STO_PHONE, STO_IMG, SUP_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -64,9 +78,22 @@ class Stores extends CActiveRecord
 	{
 		return array(
 			'STO_ID' => 'Sto',
-			'STO_LOC_GPS' => 'Sto Loc Gps',
-			'STO_LOC_ADDR' => 'Sto Loc Addr',
+			'STO_NAME' => 'Sto Name',
+			'STO_STREET' => 'Sto Street',
+			'STO_HOUSE_NO' => 'Sto House No',
+			'STO_ZIP' => 'Sto Zip',
+			'STO_CITY' => 'Sto City',
+			'STO_COUNTRY' => 'Sto Country',
+			'STO_STATE' => 'Sto State',
+			'STY_ID' => 'Sty',
+			'STO_GPS' => 'Sto Gps',
+			'STO_PHONE' => 'Sto Phone',
+			'STO_IMG' => 'Sto Img',
 			'SUP_ID' => 'Sup',
+			'CREATED_BY' => 'Created By',
+			'CREATED_ON' => 'Created On',
+			'CHANGED_BY' => 'Changed By',
+			'CHANGED_ON' => 'Changed On',
 		);
 	}
 
@@ -82,9 +109,22 @@ class Stores extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('STO_ID',$this->STO_ID);
-		$criteria->compare('STO_LOC_GPS',$this->STO_LOC_GPS,true);
-		$criteria->compare('STO_LOC_ADDR',$this->STO_LOC_ADDR,true);
+		$criteria->compare('STO_NAME',$this->STO_NAME,true);
+		$criteria->compare('STO_STREET',$this->STO_STREET,true);
+		$criteria->compare('STO_HOUSE_NO',$this->STO_HOUSE_NO,true);
+		$criteria->compare('STO_ZIP',$this->STO_ZIP);
+		$criteria->compare('STO_CITY',$this->STO_CITY,true);
+		$criteria->compare('STO_COUNTRY',$this->STO_COUNTRY);
+		$criteria->compare('STO_STATE',$this->STO_STATE,true);
+		$criteria->compare('STY_ID',$this->STY_ID);
+		$criteria->compare('STO_GPS',$this->STO_GPS,true);
+		$criteria->compare('STO_PHONE',$this->STO_PHONE,true);
+		$criteria->compare('STO_IMG',$this->STO_IMG,true);
 		$criteria->compare('SUP_ID',$this->SUP_ID);
+		$criteria->compare('CREATED_BY',$this->CREATED_BY);
+		$criteria->compare('CREATED_ON',$this->CREATED_ON,true);
+		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare('CHANGED_ON',$this->CHANGED_ON,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

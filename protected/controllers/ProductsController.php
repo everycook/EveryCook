@@ -112,7 +112,7 @@ class ProductsController extends Controller
 		
 		if(isset($_POST['Products'])){
 			$model->attributes=$_POST['Products'];
-			$sucessfull = Functions::uploadPicture($model,'PRO_PICTURE');
+			$sucessfull = Functions::uploadPicture($model,'PRO_IMG');
 			Yii::app()->session['Product_Backup'] = $model;
 			
 			if ($sucessfull){
@@ -144,7 +144,7 @@ class ProductsController extends Controller
 		
 		if ($oldmodel){
 			$model = $oldmodel;
-			$oldPicture = $oldmodel->PRO_PICTURE;
+			$oldPicture = $oldmodel->PRO_IMG;
 		} else {
 			$model=new Products;
 		}
@@ -152,7 +152,7 @@ class ProductsController extends Controller
 		if(isset($_POST['Products'])){
 			$model->attributes=$_POST['Products'];
 			
-			Functions::updatePicture($model,'PRO_PICTURE', $oldPicture);
+			Functions::updatePicture($model,'PRO_IMG', $oldPicture);
 			
 			/*
 			if (isset($model->PRO_ID)){
@@ -196,7 +196,7 @@ class ProductsController extends Controller
 					}
 				}
 			}
-			if ($model->ING_ID && (!$model->ingredient || !$model->ingredient->__get('ING_TITLE_'.Yii::app()->session['lang']) || $model->ING_ID != $model->ingredient->ING_ID)){
+			if ($model->ING_ID && (!$model->ingredient || !$model->ingredient->__get('ING_NAME_'.Yii::app()->session['lang']) || $model->ING_ID != $model->ingredient->ING_ID)){
 				$model->ingredient = Ingredients::model()->findByPk($model->ING_ID);
 			}
 		}
@@ -305,8 +305,8 @@ class ProductsController extends Controller
 			$rows = Yii::app()->db->createCommand()
 				->from('products')
 				->leftJoin('ingredients', 'products.ING_ID=ingredients.ING_ID')
-				->leftJoin('ecology', 'products.PRO_ECO=ecology.ECO_ID')
-				->leftJoin('ethical_criteria', 'products.PRO_ETHIC=ethical_criteria.ETH_ID')
+				->leftJoin('ecology', 'products.ECO_ID=ecology.ECO_ID')
+				->leftJoin('ethical_criteria', 'products.ETH_ID=ethical_criteria.ETH_ID')
 				->where('products.ING_ID=:id', array(':id'=>$ing_id))
 				->queryAll();
 		} else {
@@ -320,8 +320,8 @@ class ProductsController extends Controller
 				$rows = Yii::app()->db->createCommand()
 					->from('products')
 					->leftJoin('ingredients', 'products.ING_ID=ingredients.ING_ID')
-					->leftJoin('ecology', 'products.PRO_ECO=ecology.ECO_ID')
-					->leftJoin('ethical_criteria', 'products.PRO_ETHIC=ethical_criteria.ETH_ID')
+					->leftJoin('ecology', 'products.ECO_ID=ecology.ECO_ID')
+					->leftJoin('ethical_criteria', 'products.ETH_ID=ethical_criteria.ETH_ID')
 					->where($criteriaString)
 					->queryAll();
 			} else {
@@ -403,6 +403,10 @@ class ProductsController extends Controller
     public function actionDisplaySavedImage($id, $ext)
     {
 		$model=$this->loadModel($id, true);
-		return Functions::getImage(null, $model->PRO_PICTURE_ETAG, $model->PRO_PICTURE, $id);
+		$modified = $model->CREATED_ON;
+		if (!$modified){
+			$modified = $model->CHANGED_ON;
+		}
+		return Functions::getImage($modified, $model->PRO_IMG_ETAG, $model->PRO_IMG, $id);
     }
 }

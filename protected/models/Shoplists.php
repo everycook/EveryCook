@@ -5,9 +5,13 @@
  *
  * The followings are the available columns in table 'shoplists':
  * @property integer $SHO_ID
- * @property string $SHO_DATE
+ * @property integer $SHO_DATE
  * @property string $SHO_PRODUCTS
  * @property string $SHO_QUANTITIES
+ * @property integer $CREATED_BY
+ * @property string $CREATED_ON
+ * @property integer $CHANGED_BY
+ * @property string $CHANGED_ON
  */
 class Shoplists extends CActiveRecord
 {
@@ -36,11 +40,12 @@ class Shoplists extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('SHO_DATE', 'required'),
-			array('SHO_PRODUCTS, SHO_QUANTITIES', 'safe'),
+			array('SHO_DATE, CREATED_BY, CREATED_ON', 'required'),
+			array('SHO_DATE, CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
+			array('SHO_PRODUCTS, SHO_QUANTITIES, CHANGED_ON', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('SHO_ID, SHO_DATE, SHO_PRODUCTS, SHO_QUANTITIES', 'safe', 'on'=>'search'),
+			array('SHO_ID, SHO_DATE, SHO_PRODUCTS, SHO_QUANTITIES, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -65,6 +70,10 @@ class Shoplists extends CActiveRecord
 			'SHO_DATE' => 'Sho Date',
 			'SHO_PRODUCTS' => 'Sho Products',
 			'SHO_QUANTITIES' => 'Sho Quantities',
+			'CREATED_BY' => 'Created By',
+			'CREATED_ON' => 'Created On',
+			'CHANGED_BY' => 'Changed By',
+			'CHANGED_ON' => 'Changed On',
 		);
 	}
 
@@ -80,9 +89,13 @@ class Shoplists extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('SHO_ID',$this->SHO_ID);
-		$criteria->compare('SHO_DATE',$this->SHO_DATE,true);
+		$criteria->compare('SHO_DATE',$this->SHO_DATE);
 		$criteria->compare('SHO_PRODUCTS',$this->SHO_PRODUCTS,true);
 		$criteria->compare('SHO_QUANTITIES',$this->SHO_QUANTITIES,true);
+		$criteria->compare('CREATED_BY',$this->CREATED_BY);
+		$criteria->compare('CREATED_ON',$this->CREATED_ON,true);
+		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare('CHANGED_ON',$this->CHANGED_ON,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

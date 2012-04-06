@@ -35,7 +35,7 @@ $this->mainButtons = array(
 			<ul>
 			<?php foreach($model->steps as $step){
 				if ($step->ingredient != null){
-					echo '<li>' . CHtml::link($step->ingredient->__get('ING_TITLE_' . Yii::app()->session['lang']), array('ingredients/view', 'id'=>$step->ingredient->ING_ID), array('title'=>$this->trans->RECIPES_TOOLTIP_OPEN_INGREDIENT)) . '</li>';
+					echo '<li>' . CHtml::link($step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']), array('ingredients/view', 'id'=>$step->ingredient->ING_ID), array('title'=>$this->trans->RECIPES_TOOLTIP_OPEN_INGREDIENT)) . '</li>';
 				}
 			}
 			?>
@@ -47,9 +47,9 @@ $this->mainButtons = array(
 	
 	<div class="details">
 		<div class="name">
-			<?php echo CHtml::link(CHtml::encode($model->__get('REC_TITLE_' . Yii::app()->session['lang'])), array('view', 'id'=>$model->REC_ID)); ?>
+			<?php echo CHtml::link(CHtml::encode($model->__get('REC_NAME_' . Yii::app()->session['lang'])), array('view', 'id'=>$model->REC_ID)); ?>
 		</div>
-		<?php echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'png')), '', array('class'=>'recipe', 'alt'=>$model->REC_PICTURE_AUTH, 'title'=>$model->REC_PICTURE_AUTH)); ?><br />
+		<?php echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'png')), '', array('class'=>'recipe', 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH)); ?><br />
 		
 		<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>
 		<?php echo CHtml::encode($model->recipeTypes->__get('RET_DESC_' . Yii::app()->session['lang'])); ?>
@@ -65,7 +65,7 @@ $this->mainButtons = array(
 				}
 				$text = $step->action->__get('ACT_DESC_' . Yii::app()->session['lang']);
 				if ($step->ingredient != null){
-					$replText = '<span class="igredient">' . $step->ingredient->__get('ING_TITLE_' . Yii::app()->session['lang']) . '</span> ';
+					$replText = '<span class="igredient">' . $step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']) . '</span> ';
 					if ($step->STE_GRAMS){
 						$replText .= '<span class="amount">' . $step->STE_GRAMS . 'g' . '</span> ';
 					}
@@ -88,10 +88,10 @@ $this->mainButtons = array(
 		'REC_ID',
 		'REC_CREATED',
 		'REC_CHANGED',
-		'REC_PICTURE',
-		'REC_PICTURE_AUTH',
-		'REC_TYPE',
-		'REC_TITLE_EN',
-		'REC_TITLE_DE',
+		'REC_IMG',
+		'REC_IMG_AUTH',
+		'RET_ID',
+		'REC_NAME_EN',
+		'REC_NAME_DE',
 	),
 )); */ ?>

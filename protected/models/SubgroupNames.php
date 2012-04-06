@@ -4,10 +4,10 @@
  * This is the model class for table "subgroup_names".
  *
  * The followings are the available columns in table 'subgroup_names':
- * @property integer $SUBGRP_ID
- * @property integer $SUBGRP_OF
- * @property string $SUBGRP_DESC_EN
- * @property string $SUBGRP_DESC_DE
+ * @property integer $SGR_ID
+ * @property integer $GRP_ID
+ * @property string $SGR_DESC_EN_GB
+ * @property string $SGR_DESC_DE_CH
  */
 class SubgroupNames extends CActiveRecord
 {
@@ -36,12 +36,12 @@ class SubgroupNames extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('SUBGRP_OF, SUBGRP_DESC_EN', 'required'),
-			array('SUBGRP_OF', 'numerical', 'integerOnly'=>true),
-			array('SUBGRP_DESC_EN, SUBGRP_DESC_DE', 'length', 'max'=>100),
+			array('GRP_ID, SGR_DESC_EN_GB', 'required'),
+			array('GRP_ID', 'numerical', 'integerOnly'=>true),
+			array('SGR_DESC_EN_GB, SGR_DESC_DE_CH', 'length', 'max'=>100),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('SUBGRP_ID, SUBGRP_OF, SUBGRP_DESC_EN, SUBGRP_DESC_DE', 'safe', 'on'=>'search'),
+			array('SGR_ID, GRP_ID, SGR_DESC_EN_GB, SGR_DESC_DE_CH', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -62,10 +62,10 @@ class SubgroupNames extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'SUBGRP_ID' => 'Subgrp',
-			'SUBGRP_OF' => 'Subgrp Of',
-			'SUBGRP_DESC_EN' => 'Subgrp Desc En',
-			'SUBGRP_DESC_DE' => 'Subgrp Desc De',
+			'SGR_ID' => 'Sgr',
+			'GRP_ID' => 'Grp',
+			'SGR_DESC_EN_GB' => 'Sgr Desc En Gb',
+			'SGR_DESC_DE_CH' => 'Sgr Desc De Ch',
 		);
 	}
 
@@ -80,10 +80,10 @@ class SubgroupNames extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('SUBGRP_ID',$this->SUBGRP_ID);
-		$criteria->compare('SUBGRP_OF',$this->SUBGRP_OF);
-		$criteria->compare('SUBGRP_DESC_EN',$this->SUBGRP_DESC_EN,true);
-		$criteria->compare('SUBGRP_DESC_DE',$this->SUBGRP_DESC_DE,true);
+		$criteria->compare('SGR_ID',$this->SGR_ID);
+		$criteria->compare('GRP_ID',$this->GRP_ID);
+		$criteria->compare('SGR_DESC_EN_GB',$this->SGR_DESC_EN_GB,true);
+		$criteria->compare('SGR_DESC_DE_CH',$this->SGR_DESC_DE_CH,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
