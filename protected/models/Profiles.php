@@ -9,6 +9,7 @@
  * @property string $PRF_LASTNAME
  * @property string $PRF_NICK
  * @property string $PRF_EMAIL
+ * @property string $PRF_LANG
  * @property string $PRF_IMG
  * @property string $PRF_PW
  * @property string $PRF_LOC_GPS
@@ -27,6 +28,12 @@
  */
 class Profiles extends CActiveRecord
 {
+	/**
+	* Private Attributes
+	*/
+	public $pw_repeat;
+   public $verifyCaptcha;
+
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @return Profiles the static model class
@@ -52,14 +59,22 @@ class Profiles extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('PRF_NICK, PRF_EMAIL, CREATED_BY, CREATED_ON', 'required'),
+			array('PRF_NICK, PRF_EMAIL, PRF_PW, PRF_LANG', 'required'),
 			array('CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
 			array('PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_LOC_GPS', 'length', 'max'=>100),
 			array('PRF_PW', 'length', 'max'=>256),
-			array('PRF_IMG, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, CHANGED_ON', 'safe'),
+			array('PRF_LANG, PRF_IMG, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, CHANGED_ON', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_IMG, PRF_PW, PRF_LOC_GPS, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_LANG, PRF_IMG, PRF_PW, PRF_LOC_GPS, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			
+			// register
+			//array('pw_repeat','safe'),
+			array('pw_repeat','required', 'on'=>'register'),
+			array('PRF_NICK, PRF_EMAIL','unique', 'on'=>'register'),
+			//array('pw_repeat','compare','compareAttribute'=>'PRF_PW', 'on'=>'register'),
+         //array('verifyCaptcha', 'captcha', 'allowEmpty'=>!CCaptcha::checkRequirements()),
+         //array('verifyCaptcha', 'CaptchaExtendedValidator', 'allowEmpty'=>!CCaptcha::checkRequirements()),
 		);
 	}
 
@@ -85,6 +100,7 @@ class Profiles extends CActiveRecord
 			'PRF_LASTNAME' => 'Prf Lastname',
 			'PRF_NICK' => 'Prf Nick',
 			'PRF_EMAIL' => 'Prf Email',
+         'PRF_LANG' => 'Prf Lang',
 			'PRF_IMG' => 'Prf Img',
 			'PRF_PW' => 'Prf Pw',
 			'PRF_LOC_GPS' => 'Prf Loc Gps',
@@ -100,6 +116,7 @@ class Profiles extends CActiveRecord
 			'CREATED_ON' => 'Created On',
 			'CHANGED_BY' => 'Changed By',
 			'CHANGED_ON' => 'Changed On',
+         'verifyCode'=>'Verification Code',
 		);
 	}
 
@@ -119,6 +136,7 @@ class Profiles extends CActiveRecord
 		$criteria->compare('PRF_LASTNAME',$this->PRF_LASTNAME,true);
 		$criteria->compare('PRF_NICK',$this->PRF_NICK,true);
 		$criteria->compare('PRF_EMAIL',$this->PRF_EMAIL,true);
+		$criteria->compare('PRF_LANG',$this->PRF_LANG,true);
 		$criteria->compare('PRF_IMG',$this->PRF_IMG,true);
 		$criteria->compare('PRF_PW',$this->PRF_PW,true);
 		$criteria->compare('PRF_LOC_GPS',$this->PRF_LOC_GPS,true);
@@ -139,4 +157,16 @@ class Profiles extends CActiveRecord
 			'criteria'=>$criteria,
 		));
 	}
+
+	/**
+	* perform one-way encryption on the password before we store it in the database
+	*/
+	/*protected function afterValidate() {
+		parent::afterValidate();
+		$this->PRF_PW = $this->encrypt($this->PRF_PW);
+	}
+
+	private function encrypt($value) {
+		return md5($value);
+	}*/
 }

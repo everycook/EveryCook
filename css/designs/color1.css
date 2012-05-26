@@ -3,10 +3,15 @@ body {
 	background-size: 100% auto;
 }
 
+
 a:link, a:visited, a:hover, a:active, a:focus  {
 	text-decoration:none;
 	color:black;
 }
+
+
+a.actionlink {text-decoration: underline;}
+a.actionlink:hover {text-decoration: underline; color:blue;}
 
 span.error {
 	font-size: 0.9em;

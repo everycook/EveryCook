@@ -36,10 +36,11 @@ class Controller extends CController
 		} else {
 			$newRecSearch=array();
 		}
+		
 		$this->mainButtons = array(
-			array('label'=>'Rezept Suchen', 'link_id'=>'left', 'url'=>array('recipes/search',$newRecSearch)),
-			array('label'=>'Die Kochende Maschiene', 'link_id'=>'right', 'url'=>array('site/page', array('view'=>'about'))),
-			array('label'=>'Essen Suchen', 'link_id'=>'middle', 'url'=>array('ingredients/search',$newIngSearch)),
+			array('label'=>$this->trans->BOTL_CONTENT, 'link_id'=>'left', 'url'=>array('recipes/search',$newRecSearch)),
+			array('label'=>$this->trans->BOTR_CONTENT, 'link_id'=>'right', 'url'=>array('site/page', array('view'=>'about'))),
+			array('label'=>$this->trans->BOTM_CONTENT, 'link_id'=>'middle', 'url'=>array('ingredients/search',$newIngSearch)),
 		);
 	}
 	
@@ -49,20 +50,36 @@ class Controller extends CController
 	
 	public function getIsAjaxRequest(){
 		$params = $this->getActionParams();
-		return $this->isFancyAjaxRequest || Yii::app()->request->isAjaxRequest || $params['ajaxform'];
+		return $this->isFancyAjaxRequest || Yii::app()->request->isAjaxRequest || (isset($params['ajaxform']) && $params['ajaxform']);
 	}
 	
-	public $trans=null;
-	
-	public $allLanguages=array('EN_GB','DE_CH');
+	private $trans=null;
+	public function getTrans()
+	{
+		return $this->trans;
+	}
 	
 	protected function beforeAction($action)
 	{
-		//TODO use language from current user
-		if (!isset(Yii::app()->session['lang'])){
-			Yii::app()->session['lang'] = 'DE_CH';
-		}
-		$this->trans=InterfaceMenu::model()->findByPk(Yii::app()->session['lang']);
+      //$this->trans=InterfaceMenu::model()->findByPk('DE_CH');
+      //if(isset(Yii::app()->request->cookies['PHPSESSID'])) {
+		   if ($this->trans===null){
+			   // if user isGuest, take session cookie
+		      if (Yii::app()->user->isGuest){
+		         // if no language is defined, set default language
+				   if (!isset(Yii::app()->session['lang'])){
+					   Yii::app()->session['lang'] = 'EN_GB';
+				   }
+				   $this->trans=InterfaceMenu::model()->findByPk(Yii::app()->session['lang']);
+			   }
+		
+			   // if user is registeredUser, load its saved language setting
+			   else {
+               $this->trans=InterfaceMenu::model()->findByPk(Yii::app()->user->lang);
+            }
+		   }
+      //}
+//$this->trans=InterfaceMenu::model()->findByPk(Yii::app()->session['lang']);
 		if($this->trans===null)
 			throw new CHttpException(404,'Error loading translation texts.');
 		return parent::beforeAction($action);
@@ -106,6 +123,8 @@ class Controller extends CController
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/iefix_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery.Jcrop.min.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/imgcrop_handling.js', CClientScript::POS_HEAD);
+
+				Yii::app()->clientscript->registerCoreScript('yiiactiveform');
 			}
 			$this->render($view, $data);
 		}
@@ -120,4 +139,13 @@ class Controller extends CController
 		}
 		return $url;
 	}
+
+   public function init(){
+        // register class paths for extension captcha extended
+        Yii::$classMap = array_merge( Yii::$classMap, array(
+            'CaptchaExtendedAction' => Yii::getPathOfAlias('ext.captchaExtended').DIRECTORY_SEPARATOR.'CaptchaExtendedAction.php',
+            'CaptchaExtendedValidator' => Yii::getPathOfAlias('ext.captchaExtended').DIRECTORY_SEPARATOR.'CaptchaExtendedValidator.php'
+        ));
+    }
+
 }

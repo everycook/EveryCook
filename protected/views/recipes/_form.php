@@ -31,9 +31,9 @@
 	
 	<?php foreach($this->allLanguages as $lang){ ?>
 	<div class="row">
-		<?php echo $form->labelEx($model,'REC_NAME_'.$lang); ?>
-		<?php echo $form->textField($model,'REC_NAME_'.$lang,array('size'=>60,'maxlength'=>100)); ?>
-		<?php echo $form->error($model,'REC_NAME_'.$lang); ?>
+		<?php echo $form->labelEx($model,'REC_NAME_'.strtoupper($lang)); ?>
+		<?php echo $form->textField($model,'REC_NAME_'.strtoupper($lang),array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->error($model,'REC_NAME_'.strtoupper($lang)); ?>
 	</div>
 	<?php } ?>
 	
