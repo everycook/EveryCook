@@ -346,7 +346,7 @@ class IngredientsController extends Controller
 			$criteria = $model->getCriteriaString();
 			//$command = $model->commandBuilder->createFindCommand($model->tableName(), $model->getCriteriaString())
 			$command = Yii::app()->db->createCommand()
-				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, count(products.PRO_ID) as pro_count, count(pro_to_sto.SUP_ID) as sup_count')
+				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, count(products.PRO_ID) as pro_count' /*, count(pro_to_sto.SUP_ID) as sup_count'*/)
 				->from('ingredients')
 				->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
 				->leftJoin('group_names', 'ingredients.GRP_ID=group_names.GRP_ID')
@@ -355,11 +355,23 @@ class IngredientsController extends Controller
 				->leftJoin('storability', 'ingredients.STB_ID=storability.STB_ID')
 				->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID')
 				->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
-				->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
+				//->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
 				->group('ingredients.ING_ID')
 				//->order('actor.first_name, actor.last_name, film.title')
 				;
 				//echo $command->text;
+			$supplierCommand = Yii::app()->db->createCommand()
+				->select('ingredients.id, count(products.PRO_ID) as pro_count, count(pro_to_sto.SUP_ID) as sup_count')
+				->from('ingredients')
+				->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
+				->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
+				->leftJoin('suppliers', 'suppliers.SUP_ID=pro_to_sto.SUP_ID')
+				->group('ingredients.ING_ID suppliers.SUP_ID')
+				
+				
+				//TODO: where ingredients.id in command values
+			
+			
 			
 			if ($criteria->condition) {
 				if ($criteriaString != ''){
@@ -522,7 +534,7 @@ class IngredientsController extends Controller
 		
 		$model=new Ingredients('form');
 		if ($id){
-			$htmlOptions_subGroup = array('empty'=>$this->trans->INGREDIENTS_SEARCH_CHOOSE);
+			$htmlOptions_subGroup = array('empty'=>$this->trans->GENERAL_CHOOSE);
 		} else {
 			$htmlOptions_subGroup = array('empty'=>$this->trans->INGREDIENTS_CHOOSE_GROUP_FIRST);
 		}

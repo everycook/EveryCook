@@ -24,6 +24,8 @@
  */
 class Stores extends CActiveRecord
 {
+	public $filename;
+	public $imagechanged;
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @return Stores the static model class
@@ -49,10 +51,12 @@ class Stores extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('STO_NAME, STO_HOUSE_NO, STO_ZIP, STO_CITY, STO_COUNTRY, STO_STATE, STY_ID, SUP_ID, CREATED_BY, CREATED_ON', 'required'),
+			array('STO_NAME, STO_STREET, STO_ZIP, STO_CITY, STO_COUNTRY, STY_ID, SUP_ID, CREATED_BY, CREATED_ON', 'required'),
+			array('STO_IMG_AUTH', 'required', 'on'=>'withPic'),
 			array('STO_ZIP, STO_COUNTRY, STY_ID, SUP_ID, CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
 			array('STO_NAME, STO_STREET, STO_CITY, STO_STATE, STO_GPS', 'length', 'max'=>100),
 			array('STO_HOUSE_NO, STO_PHONE', 'length', 'max'=>20),
+			array('STO_IMG_AUTH', 'length', 'max'=>30),
 			array('STO_IMG, CHANGED_ON', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
@@ -95,6 +99,10 @@ class Stores extends CActiveRecord
 			'CHANGED_BY' => 'Changed By',
 			'CHANGED_ON' => 'Changed On',
 		);
+	}
+	
+	public function getSearchFields(){
+		return array('STO_ID', 'STO_NAME', 'STO_STREET');
 	}
 
 	/**

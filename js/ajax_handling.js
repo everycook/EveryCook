@@ -1,4 +1,4 @@
-var glob = glob || {};
+﻿var glob = glob || {};
 
 jQuery(function($){
 	function initAjaxUpload(){
@@ -24,6 +24,10 @@ jQuery(function($){
 	glob.initAjaxUpload = initAjaxUpload;
 	
 	function initFancyCoose(){
+		jQuery('a.fancyChoose').bind('click.multiFancyCoose', function(){
+			jQuery('.activeFancyField').removeClass('activeFancyField');
+			jQuery(this).siblings('input:first').addClass('activeFancyField');
+		});
 		jQuery('a.fancyChoose').fancybox({'autoScale':true,'autoDimensions':true,'centerOnScroll':true});
 	}
 	
@@ -35,22 +39,54 @@ jQuery(function($){
 	initFancyCoose();
 	
 	
-	jQuery('body').undelegate('form:not(.ajaxupload)','submit').delegate('form:not(.ajaxupload)','submit',function(){
+	jQuery('body').undelegate('form:not(.ajaxupload):not(.fancyForm):not(#login-form)','submit').delegate('form:not(.ajaxupload):not(.fancyForm):not(#login-form)','submit',function(){
 		var form = jQuery(this);
-		if (form.attr('method').toLowerCase() == 'get'){
-			jQuery.ajax({'type':'get', 'url':form.attr('action') + '?' + form.serialize(),'cache':false,'success':function(data){
-				jQuery('#changable_content').html(data);
+		try {
+			submitValue = "";
+			pressedButton = arguments[0].originalEvent.explicitOriginalTarget;
+			submitValue = "&" + encodeURI(pressedButton.name + "=" + pressedButton.value);
+		} catch(ex){
+		}
+		return submitForm(form, form.attr('action'), submitValue, function(data){jQuery('#changable_content').html(data)});
+	});
+	
+	function submitForm(form, destUrl, submitValue, successFunc){
+		if (form.attr('method').toLowerCase() == 'get'){		
+			if (destUrl.indexOf('?')>0){
+				destUrl = destUrl + '&';
+			} else {
+				destUrl = destUrl + '?';
+			}
+			jQuery.ajax({'type':'get', 'url':destUrl + form.serialize() + submitValue,'cache':false,'success':function(data){
+				successFunc(data);
 			}});
 		} else {
-			jQuery.ajax({'type':'post', 'url':form.attr('action'), 'data': form.serialize(),'cache':false,'success':function(data){
-				jQuery('#changable_content').html(data);
+			var queryInput = form.find('#SimpleSearchForm_query');
+			if (queryInput.length){
+				queryValue = queryInput.attr('value').trim();
+				if (queryValue.length > 0){
+					if (destUrl.indexOf('?')>0){
+						destUrl = destUrl + '&';
+					} else {
+						destUrl = destUrl + '?';
+					}
+					destUrl = destUrl + 'query=' + queryValue;
+					
+					glob.changeHash('query', queryValue, true);
+				} else {
+					glob.changeHash('query', null, true);
+				}
+			}
+			
+			jQuery.ajax({'type':'post', 'url':destUrl, 'data': form.serialize() + submitValue,'cache':false,'success':function(data){
+				successFunc(data);
 			}});
 		}	
 		return false;
-	});
+	}
 	
 	
-	
+	//Ingredient functions
 	jQuery('body').undelegate('#ingredients_form #groupNames input','click').delegate('#ingredients_form #groupNames input','click',function(){
 		jQuery.ajax({'type':'post', 'url':jQuery('#SubGroupSearchLink').attr('value'),'data':jQuery('#ingredients_form').serialize(),'cache':false,'success':function(html){
 			jQuery('#subgroupNames').replaceWith(html);
@@ -64,23 +100,6 @@ jQuery(function($){
 		}});
 	});
 	
-	//Inredient Fancy Choose functions
-	jQuery('body').undelegate('#ingredients_form.fancyForm','submit').delegate('#ingredients_form.fancyForm','submit', function(){
-		jQuery.ajax({'type':'post', 'url':jQuery('#advanceChooseIngredientLink').attr('href'),'data':jQuery('#ingredients_form.fancyForm').serialize(),'cache':false,'success':function(html){jQuery.fancybox({'content':html});}});
-		return false;
-	});
-	
-	jQuery('body').undelegate('.fancyForm .button.IngredientSelect','click').delegate('.fancyForm .button.IngredientSelect','click', function(){
-		elem = jQuery('.activeFancyField');
-		if (elem.length == 0){
-			elem = jQuery('.fancyChoose').siblings('input');
-		}
-		elem.attr('value', jQuery(this).attr('href'));
-		elem.siblings('.fancyChoose.IngredientSelect').html(jQuery(this).parent().find('.name:first a').html());
-		jQuery.fancybox.close();
-		return false;
-	});
-	
 	jQuery('body').undelegate('.fancyForm #advanceSearch.button','click').delegate('.fancyForm #advanceSearch.button','click', function(){
 		var url = jQuery(this).attr('href');
 		if (url.indexOf('#')===0){
@@ -88,6 +107,91 @@ jQuery(function($){
 		}
 		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(html){jQuery.fancybox({'content':html});}});
 		return false;
+	});
+	
+	//Product functions
+	jQuery('body').undelegate('#producer .add','click').delegate('#producer .add','click', function(){
+		var list = jQuery('#producerList');
+		var rows = list.find('li').length + 1;
+		var newelem = jQuery('<li><input type="hidden" id="PRD_ID'+rows+'" value="0" name="PRD_ID['+rows+']"><a class="fancyChoose ProducerSelect" href="/EveryCook/index.php/producers/chooseProducer">' + jQuery('#newProducerText').attr('value') + '</a><span class="buttonSmall remove">' + jQuery('#removeText').attr('value') + '<span></li>');
+		list.append(newelem);
+		initFancyCoose();
+	});
+	jQuery('body').undelegate('#producer .remove','click').delegate('#producer .remove','click', function(){
+		var elem = jQuery(this);
+		elem.parent().remove();
+	});
+	
+	//Store assing functions
+	jQuery('body').undelegate('#STO_MAP','change').delegate('#STO_MAP','change', function(){
+		var input = jQuery(this);
+		var value = input.attr('value');
+		var values = value.split('_');
+		jQuery('#ProToSto_SUP_ID').attr('value',values[1]);
+		jQuery('#ProToSto_STY_ID').attr('value',values[2]);
+		return false;
+	});
+	jQuery('body').undelegate('#STO_SEARCH','change').delegate('#STO_SEARCH','change', function(){
+		//TODO: this (hidde field) is not trigered...
+		var input = jQuery(this);
+		var value = input.attr('value');
+		var values = value.split('_');
+		if (values[1]>0){
+			jQuery('#ProToSto_SUP_ID').attr('value',values[1]);
+		}
+		if (values[2]>0){
+			jQuery('#ProToSto_STY_ID').attr('value',values[2]);
+		}
+		return false;
+	});
+	
+	//FancyForm functions
+	jQuery('body').undelegate('.fancyForm','submit').delegate('.fancyForm','submit', function(){
+		var form = jQuery(this);
+		try {
+			submitValue = "";
+			pressedButton = arguments[0].originalEvent.explicitOriginalTarget;
+			submitValue = "&" + encodeURI(pressedButton.name + "=" + pressedButton.value);
+		} catch(ex){
+		}
+		jQuery.ajax({'type':'post', 'url':jQuery('#FancyChooseSubmitLink').attr('value'),'data':form.serialize() + submitValue,'cache':false,'success':function(html){jQuery.fancybox({'content':html});}});
+		return false;
+	});
+	
+	jQuery('body').undelegate('.fancyForm .button.IngredientSelect','click').delegate('.fancyForm .button.IngredientSelect','click', function(){
+		return fancyChooseSelect ('IngredientSelect', this);
+	});
+	
+	jQuery('body').undelegate('.fancyForm .button.ProducerSelect','click').delegate('.fancyForm .button.ProducerSelect','click', function(){
+		return fancyChooseSelect ('ProducerSelect', this);
+	});
+	jQuery('body').undelegate('.fancyForm .button.StoresSelect','click').delegate('.fancyForm .button.StoresSelect','click', function(){
+		return fancyChooseSelect ('StoresSelect', this);
+	});
+	
+	function fancyChooseSelect (fieldIdentifier, caller){
+		elem = jQuery('.activeFancyField');
+		if (elem.length == 0){
+			elem = jQuery('.fancyChoose.'+fieldIdentifier).siblings('input.fancyValue');
+		}
+		elem.attr('value', jQuery(caller).attr('href'));
+		elem.siblings('a.fancyChoose.' + fieldIdentifier).html(jQuery(caller).parent().find('.name').text());
+		jQuery.fancybox.close();
+		elem.change();
+		return false;
+	}
+	
+	jQuery('body').undelegate('.openFancyBySubmit','click').delegate('.openFancyBySubmit','click', function(){
+		elem = jQuery(this);
+		form = elem.parents('form:first');
+		url = jQuery('#OpenFancyLink').attr('value');
+		submitForm(form, url, '', function(data){jQuery.fancybox({'content':data})});
+	});
+	
+	jQuery('body').undelegate('.emptyOnEnter','click').delegate('.emptyOnEnter','click', function(){
+		var elem = jQuery(this);
+		elem.attr('value','');
+		elem.removeClass('emptyOnEnter');
 	});
 });
 

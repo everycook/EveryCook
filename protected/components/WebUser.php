@@ -16,7 +16,11 @@ class WebUser extends CWebUser {
 		$request=$app->getRequest();
 
 		//if(!$request->getIsAjaxRequest())
+		if (Yii::app()->getController()->useAjaxLinks){
+			$this->setReturnUrl(Controller::urlToUrlWithHash($request->getUrl()));
+		} else {
 			$this->setReturnUrl($request->getUrl());
+		}
 
 		if(($url=$this->loginUrl)!==null)
 		{

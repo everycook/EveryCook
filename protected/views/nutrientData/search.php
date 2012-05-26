@@ -46,12 +46,12 @@ if ($this->isFancyAjaxRequest){
 	)); ?>
 	<div class="f-left search">
 		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
-		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->NUTRIENT_DATA_SEARCH)); ?>
+		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
 	</div>
 
 	<?php if (!$this->getIsAjaxRequest()){ ?>
 	<div class="f-right">
-		<?php echo CHtml::link($this->trans->INGREDIENTS_ADVANCE_SEARCH, array('nutrientData/advanceSearch'), array('class'=>'button')); ?><br>
+		<?php echo CHtml::link($this->trans->GENERAL_ADVANCE_SEARCH, array('nutrientData/advanceSearch'), array('class'=>'button')); ?><br>
 	</div>
 	<?php } ?>
 	
@@ -62,6 +62,6 @@ if ($this->isFancyAjaxRequest){
 <?php $this->widget('zii.widgets.CListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
-	'ajaxUpdate'=>'nutrientDataSearch',
+	'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 )); ?>
 </div>

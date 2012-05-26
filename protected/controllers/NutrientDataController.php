@@ -48,10 +48,22 @@ class NutrientDataController extends Controller
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionView($id)
-	{
+	public function actionView($id) {
+		$model = $this->loadModel($id);
+		if (isset($_GET['ing_id'])){
+			$ingredientName = Yii::app()->db->createCommand()->select('ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->where('ING_ID = :ing_id',array(':ing_id'=>$_GET['ing_id']))->queryAll();
+		} else {
+			$ingredientName = Yii::app()->db->createCommand()->select('ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->where('NUT_ID = :nut_id',array(':nut_id'=>$id))->queryAll();
+		}
+		if ($ingredientName != null && count($ingredientName)==1){
+			$ingredientName = $ingredientName[0]['ING_NAME_'.Yii::app()->session['lang']];
+		} else {
+			$ingredientName = null;
+		}
+		
 		$this->checkRenderAjax('view',array(
-			'model'=>$this->loadModel($id),
+			'model'=>$model,
+			'ingredientName'=>$ingredientName,
 		));
 	}
 

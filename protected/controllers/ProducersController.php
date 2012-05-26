@@ -27,7 +27,7 @@ class ProducersController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view'),
+				'actions'=>array('index','view','chooseProducer'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -121,16 +121,88 @@ class ProducersController extends Controller
 		else
 			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
 	}
-
+	
+	public function actionChooseProducer(){
+		$this->isFancyAjaxRequest = true;
+		$this->prepareSearch('search', 'none');
+	}
+	
+	private function prepareSearch($view, $ajaxLayout){
+		$model=new Producers('search');
+		$model->unsetAttributes();  // clear any default values
+		
+		$model2 = new SimpleSearchForm();
+		if(isset($_POST['SimpleSearchForm']))
+			$model2->attributes=$_POST['SimpleSearchForm'];
+		
+		if(isset($_GET['query'])){
+			$query = $_GET['query'];
+		} else {
+			$query = $model2->query;
+		}
+		
+		$modelAvailable = false;
+		if(isset($_POST['Producers'])) {
+			$model->attributes=$_POST['Producers'];
+			$modelAvailable = true;
+		}
+		
+		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Producers']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session['Producer']['time'])){
+			$Session_Producer = Yii::app()->session['Producer'];
+			if ($Session_Producer){
+				if ($Session_Producer['query']){
+					$query = $Session_Producer['query'];
+					//echo "query from session\n";
+				}
+				if ($Session_Producer['model']){
+					$model = $Session_Producer['model'];
+					$modelAvailable = true;
+					//echo "model from session\n";
+				}
+			}
+		}
+		
+		$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'producers.');
+		if ($criteriaString != ''){
+			$Session_Producer = array();
+			$Session_Producer['query'] = $query;
+			$Session_Producer['time'] = time();
+			Yii::app()->session['Producer'] = $Session_Producer;
+			
+			
+			//$rows = $model->commandBuilder->createFindCommand($model->tableName(),$model->commandBuilder->createCriteria($criteriaString))->queryAll();
+			
+			//$rows = $model->commandBuilder->createFindCommand($model->tableName(), $model->getCriteria())->queryAll();
+			$rows = Yii::app()->db->createCommand()
+				->from('producers')
+				->where($criteriaString)
+				//->order('actor.first_name, actor.last_name, film.title')
+				->queryAll();
+			$this->validSearchPerformed = true;
+		} else {
+			$rows = array();
+			unset(Yii::app()->session['Producer']);
+		}
+		
+		$dataProvider=new CArrayDataProvider($rows, array(
+			'id'=>'PRD_ID',
+			'pagination'=>array(
+				'pageSize'=>10,
+			),
+		));
+		
+		$this->checkRenderAjax($view,array(
+			'model'=>$model,
+			'model2'=>$model2,
+			'dataProvider'=>$dataProvider,
+		), $ajaxLayout);
+	}
+	
 	/**
 	 * Lists all models.
 	 */
-	public function actionIndex()
-	{
-		$dataProvider=new CActiveDataProvider('Producers');
-		$this->checkRenderAjax('index',array(
-			'dataProvider'=>$dataProvider,
-		));
+	public function actionIndex() {
+		$this->prepareSearch('search', null);
 	}
 
 	/**

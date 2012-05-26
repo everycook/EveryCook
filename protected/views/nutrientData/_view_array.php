@@ -1,5 +1,5 @@
 <div class="view nutrientData">
-	<?php echo CHtml::link($this->trans->NUTRIENT_DATA_CHOOSE, $data['NUT_ID'], array('class'=>'f-right button NutrientDataSelect')); ?>
+	<?php echo CHtml::link($this->trans->GENERAL_SELECT, $data['NUT_ID'], array('class'=>'f-right button NutrientDataSelect')); ?>
 	
 	<b><?php echo CHtml::encode($this->trans->NUTRIENT_DATA_DESCRIPTION); ?>:</b>
 	<?php echo CHtml::link(CHtml::encode($data['NUT_DESC']), array('view', 'id'=>$data['NUT_ID'])); ?>

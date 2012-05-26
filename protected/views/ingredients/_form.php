@@ -9,7 +9,7 @@
     'htmlOptions'=>array('enctype' => 'multipart/form-data', 'class'=>'ajaxupload'),
 )); 
 
-	$htmlOptions_type0 = array('empty'=>$this->trans->INGREDIENTS_SEARCH_CHOOSE);
+	$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
 	$htmlOptions_type1 = array('template'=>'<li>{input} {label}</li>', 'separator'=>"\n", 'checkAll'=>$this->trans->INGREDIENTS_SEARCH_CHECK_ALL, 'checkAllLast'=>false);
 	
 ?>
@@ -68,13 +68,13 @@
 	if ($model->nutrientData && $model->nutrientData->NUT_DESC){
 		$NutrientDescription = $model->nutrientData->NUT_DESC;
 	} else {
-		$NutrientDescription = $this->trans->INGREDIENTS_SEARCH_CHOOSE;
+		$NutrientDescription = $this->trans->GENERAL_CHOOSE;
 	}
 	?>
 	
 	<div class="row" id="nutrientData">
 		<?php echo $form->labelEx($model,'NUT_ID',array('label'=>$this->trans->INGREDIENTS_NUTRIENT)); ?>
-		<?php echo $form->hiddenField($model,'NUT_ID', array('id'=>'NUT_ID')); ?>
+		<?php echo $form->hiddenField($model,'NUT_ID', array('id'=>'NUT_ID', 'class'=>'fancyValue')); ?>
 		<?php echo CHtml::link($NutrientDescription, array('nutrientData/chooseNutrientData'), array('class'=>'fancyChoose NutrientDataSelect')) ?>
 	</div>
 
@@ -105,7 +105,7 @@
 	</div>
 
 	<div class="row buttons">
-		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
+		<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE); ?>
 	</div>
 
 <?php $this->endWidget(); ?>

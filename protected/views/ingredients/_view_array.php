@@ -4,17 +4,17 @@
 	
 	<?php
 	if ($this->isFancyAjaxRequest){
-		echo CHtml::link($this->trans->NUTRIENT_DATA_CHOOSE, $data['ING_ID'], array('class'=>'f-right button IngredientSelect'));
+		echo CHtml::link($this->trans->GENERAL_SELECT, $data['ING_ID'], array('class'=>'f-right button IngredientSelect'));
 	} else {
 		?>
 		<div class="options">
-			<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data['ING_ID']), array('class'=>'delicious backpic', 'title'=>$this->trans->INGREDIENTS_DELICIOUS)); ?>
+			<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data['ING_ID']), array('class'=>'delicious backpic', 'title'=>$this->trans->GENERAL_DELICIOUS)); ?>
 			<?php echo CHtml::link('&nbsp;', array('recipes/search', 'ing_id'=>$data['ING_ID']), array('class'=>'cookwith backpic', 'title'=>$this->trans->INGREDIENTS_COOK_WITH)); ?>
-			<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['ING_ID']), array('class'=>'disgusting backpic last','title'=>$this->trans->INGREDIENTS_DISGUSTING)); ?>
+			<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['ING_ID']), array('class'=>'disgusting backpic last','title'=>$this->trans->GENERAL_DISGUSTING)); ?>
 		</div>
 		<div class="details">
 			<div>
-				<?php echo CHtml::link('&nbsp;', array('nutrientData/view', 'id'=>$data['NUT_ID']), array('class'=>'nutrientDataOpen backpic', 'title'=>$this->trans->INGREDIENTS_VIEW_FOOD)); ?>
+				<?php echo CHtml::link('&nbsp;', array('nutrientData/view', 'id'=>$data['NUT_ID'], 'ing_id'=>$data['ING_ID']), array('class'=>'nutrientDataOpen backpic', 'title'=>$this->trans->INGREDIENTS_VIEW_FOOD)); ?>
 				<?php echo CHtml::link('&nbsp;', array('products/search', 'ing_id'=>$data['ING_ID']), array('class'=>'productSearch backpic','title'=>$this->trans->INGREDIENTS_VIEW_FOOD)); ?>
 			</div>
 		</div>
@@ -29,8 +29,8 @@
 		
 		<div class="nutrientInfo">
 			<?php if ($data['NUT_ID']){ ?>
-			<span><strong><?php echo CHtml::encode($this->trans->INGREDIENTS_FETT); ?>:</strong>
-			<?php echo CHtml::encode($data['NUT_CHOLINE']); ?></span>
+			<span><strong><?php echo CHtml::encode($this->trans->INGREDIENTS_LIPID); ?>:</strong>
+			<?php echo CHtml::encode($data['NUT_LIPID']); ?></span>
 			
 			<span><strong><?php echo CHtml::encode($this->trans->INGREDIENTS_ENERGY); ?>:</strong>
 			<?php echo CHtml::encode($data['NUT_ENERG']); ?></span>

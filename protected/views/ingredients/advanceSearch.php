@@ -10,13 +10,17 @@ $this->menu=array(
 
 //if ($this->validSearchPerformed){
 	$this->mainButtons = array(
-		array('label'=>$this->trans->INGREDIENTS_CREATE, 'link_id'=>'middle_single', 'url'=>array('ingredients/create',array())),
+		array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('ingredients/create',array())),
 	);
 //}
 
+if ($this->isFancyAjaxRequest){
+	?>
+	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('ingredients/advanceChooseIngredient'); ?>"/>
+	<?php
+}
 ?>
 <input type="hidden" id="SubGroupSearchLink" value="<?php echo $this->createUrl('ingredients/getSubGroupSearch'); ?>"/>
-<input type="hidden" id="advanceChooseIngredientLink" value="<?php echo $this->createUrl('ingredients/advanceChooseIngredient'); ?>"/>
 
 <div id="ingredientsAdvanceSearch">
 <?php $form=$this->beginWidget('CActiveForm', array(
@@ -27,13 +31,13 @@ $this->menu=array(
 	)); ?>
 	<div class="f-left search">
 		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
-		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->INGREDIENTS_SEARCH)); ?>
+		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
 	</div>
 	
 	<div class="clearfix"></div>
 	
 <?php 
-	$htmlOptions_type0 = array('empty'=>$this->trans->INGREDIENTS_SEARCH_CHOOSE);
+	$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
 	$htmlOptions_type1 = array('template'=>'<li>{input} {label}</li>', 'separator'=>"\n", 'checkAll'=>$this->trans->INGREDIENTS_SEARCH_CHECK_ALL, 'checkAllLast'=>false);
 	
 	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_GROUP, $model, 'GRP_ID', $groupNames, Functions::CHECK_BOX_LIST, 'groupNames', $htmlOptions_type1);
@@ -46,8 +50,8 @@ $this->menu=array(
 	
 	<div class="row" id="nutrientData">
 		<?php echo $form->label($model,'NUT_ID',array('label'=>$this->trans->INGREDIENTS_NUTRIENT)); ?>
-		<?php echo $form->hiddenField($model,'NUT_ID', array('id'=>'NUT_ID')); ?>
-		<?php echo CHtml::link($this->trans->INGREDIENTS_SEARCH_CHOOSE, array('nutrientData/chooseNutrientData'), array('class'=>'fancyChoose NutrientDataSelect')) ?>
+		<?php echo $form->hiddenField($model,'NUT_ID', array('id'=>'NUT_ID', 'class'=>'fancyValue')); ?>
+		<?php echo CHtml::link($this->trans->GENERAL_CHOOSE, array('nutrientData/chooseNutrientData'), array('class'=>'fancyChoose NutrientDataSelect')) ?>
 	</div>
 	
 <?php /*
@@ -97,11 +101,10 @@ $this->menu=array(
 	</div>
 	
 	<div class="row buttons">
-		<?php echo CHtml::submitButton($this->trans->INGREDIENTS_SEARCH); ?>
+		<?php echo CHtml::submitButton($this->trans->GENERAL_SEARCH); ?>
 	</div>
 */ ?>
 
-<?php $this->endWidget(); ?>
 <br />
 
 <?php $this->widget('zii.widgets.CListView', array(
@@ -111,4 +114,6 @@ $this->menu=array(
 	'id'=>'ingredientResult',
 	/*'ajaxUpdate'=>'ingredientsAdvanceSearch',*/
 )); ?>
+
+<?php $this->endWidget(); ?>
 </div>

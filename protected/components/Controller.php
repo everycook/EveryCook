@@ -70,11 +70,13 @@ class Controller extends CController
 	
 	public function renderAjax($view, $data=null, $ajaxLayout=null)
 	{
+		if (!isset(Yii::app()->session['ajaxSession'])){
+			Yii::app()->session['ajaxSession'] = true;
+		}
 		if ($ajaxLayout==null){
 			$ajaxLayout = $this->layout.'_ajax';
 		}
-		if($this->beforeRender($view))
-		{
+		if($this->beforeRender($view)) {
 			$output=$this->renderPartial($view,$data,true);
 			if(($layoutFile=$this->getLayoutFile($ajaxLayout))!==false)
 					$output=$this->renderFile($layoutFile,array('content'=>$output),true);
@@ -106,17 +108,28 @@ class Controller extends CController
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/iefix_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery.Jcrop.min.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/imgcrop_handling.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerCoreScript('yiiactiveform');
+				
+				$ziiBaseScriptUrl=Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('zii.widgets.assets'));
+				Yii::app()->clientscript->registerScriptFile($ziiBaseScriptUrl.'/listview'.'/jquery.yiilistview.js',CClientScript::POS_END);
 			}
 			$this->render($view, $data);
 		}
 	}
 	
-	public function createUrlHash($route,$params=array(),$ampersand='&')
-	{
+	public function createUrlHash($route,$params=array(),$ampersand='&') {
 		$url = parent::createUrl($route,$params,$ampersand);
 		$pos = strpos($url, 'index.php/');
 		if ($pos !== false){
 			$url = substr($url, $pos+10);
+		}
+		return $url;
+	}
+	
+	public static function urlToUrlWithHash($url) {
+		$pos = strpos($url, 'index.php/');
+		if ($pos !== false){
+			$url = substr($url, 0, $pos+9) . "#" . substr($url, $pos+10);
 		}
 		return $url;
 	}

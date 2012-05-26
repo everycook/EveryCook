@@ -149,10 +149,20 @@ class ProductsController extends Controller
 			$model=new Products;
 		}
 		
+		$ing_id = null;
+		if(isset($_GET['ing_id'])){
+			$ing_id = $_GET['ing_id'];
+			
+			if (!$model->ING_ID && $ing_id){
+				$model->ING_ID = $ing_id;
+			}
+		}
+		
 		if(isset($_POST['Products'])){
 			$model->attributes=$_POST['Products'];
 			
 			Functions::updatePicture($model,'PRO_IMG', $oldPicture);
+			
 			
 			/*
 			if (isset($model->PRO_ID)){
@@ -163,6 +173,22 @@ class ProductsController extends Controller
 				$model->PRO_CREATED = time();
 			}
 			*/
+			if(isset($_POST['PRD_ID'])){
+				if (!isset($model->oldProducers) || $model->oldProducers == null){
+					$model->oldProducers = $model->producers;
+				}
+				$criteria=new CDbCriteria;
+				$criteria->compare('PRD_ID',$_POST['PRD_ID']);
+				$producers = new Producers;
+				$model->producers = $producers->findAll($criteria, true);
+				//$model->producers = Products::model()->findall($criteria);
+			} else {
+				$model->producers = array();
+			}
+			
+			if (isset($_POST['PACKAGE_MULT'])){
+				$model->PRO_PACKAGE_GRAMMS = $model->PRO_PACKAGE_GRAMMS * $_POST['PACKAGE_MULT'];
+			}
 			
 			Yii::app()->session['Product_Backup'] = $model;
 			if ($model->validate()){
@@ -185,27 +211,80 @@ class ProductsController extends Controller
 					}
 					$this->errorText .= CHtml::label('Ignore possible duplicates','ignoreDuplicates') . CHtml::checkBox('ignoreDuplicates');
 				} else {
-					if($model->save()){
-						unset(Yii::app()->session['Product_Backup']);
-						if($this->useAjaxLinks){
-							echo "{hash:'" . $this->createUrlHash('view', array('id'=>$model->PRO_ID)) . "'}";
-							exit;
-						} else {
-							$this->redirect(array('view', 'id'=>$model->PRO_ID));
+					$transaction=$model->dbConnection->beginTransaction();
+					try {
+						if($model->save()){
+							//Check Producer to add / to remove
+							//TODO
+							$producersExist = array();
+							if (isset($model->oldProducers) && $model->oldProducers != null && count($model->oldProducers)>0){
+								$toRemove = array_merge(array(),$model->oldProducers);
+								for($i=0; $i<count($model->producers); $i++){
+									$found = false;
+									$producersStatus[$i] = 'exist';
+									$j=0;
+									foreach($toRemove as $oldProducer){
+										if ($model->producers[$i]->PRD_ID == $oldProducer->PRD_ID){
+											$producersExist[$i] = true;
+											unset($toRemove[$j]);
+											break;
+										}
+										$j++;
+									}
+								}
+							}
+							for($i=0; $i<count($model->producers); $i++){
+								if (!isset($producersExist[$i]) || !$producersExist[$i]){
+									$ProToPrd = new ProToPrd;
+									$ProToPrd->PRO_ID = $model->PRO_ID;
+									$ProToPrd->PRD_ID = $model->producers[$i]->PRD_ID;
+									//try {
+										$ProToPrd->Save();
+									//} catch(Exception $e) {
+									//	$this->errorText .= 'Exception occured: ' . $e . '<br />';
+									//}
+								}
+							}
+							$model->oldProducers = $model->producers;
+							
+							if (isset($toRemove) && $toRemove!=null && count($toRemove)>0){
+								$removeIDs = array();
+								foreach($toRemove as $producer){
+									if (isset($producer)){
+										array_push($removeIDs, $producer->PRD_ID);
+									}
+								}
+								ProToPrd::model()->deleteAllByAttributes(array('PRO_ID'=>$model->PRO_ID, 'PRD_ID'=>$removeIDs));
+							}
+							
+							unset(Yii::app()->session['Product_Backup']);
+							if (isset($_POST['saveAddAssing'])){
+								$dest = array('stores/assign',array('pro_id'=>$model->PRO_ID));
+							} else {
+								$dest = array('view', array('id'=>$model->PRO_ID));
+							}
+							if($this->useAjaxLinks){
+								echo "{hash:'" . $this->createUrlHash($dest[0],$dest[1]) . "'}";
+								exit;
+							} else {
+								$this->redirect($dest);
+							}
 						}
+					} catch(Exception $e) {
+						$this->errorText .= 'Exception occured -&gt; rollback. Exception was: ' . $e . '<br />';
+						$transaction->rollBack();
 					}
 				}
 			}
-			if ($model->ING_ID && (!$model->ingredient || !$model->ingredient->__get('ING_NAME_'.Yii::app()->session['lang']) || $model->ING_ID != $model->ingredient->ING_ID)){
-				$model->ingredient = Ingredients::model()->findByPk($model->ING_ID);
-			}
 		}
-		
+		if ($model->ING_ID && (!$model->ingredient || !$model->ingredient->__get('ING_NAME_'.Yii::app()->session['lang']) || $model->ING_ID != $model->ingredient->ING_ID)){
+			$model->ingredient = Ingredients::model()->findByPk($model->ING_ID);
+		}
 		$ecology = Yii::app()->db->createCommand()->select('ECO_ID,ECO_DESC_'.Yii::app()->session['lang'])->from('ecology')->queryAll();
 		$ecology = CHtml::listData($ecology,'ECO_ID','ECO_DESC_'.Yii::app()->session['lang']);
 		$ethicalCriteria = Yii::app()->db->createCommand()->select('ETH_ID,ETH_DESC_'.Yii::app()->session['lang'])->from('ethical_criteria')->queryAll();
 		$ethicalCriteria = CHtml::listData($ethicalCriteria,'ETH_ID','ETH_DESC_'.Yii::app()->session['lang']);
-			
+		
 		$this->checkRenderAjax($view,array(
 			'model'=>$model,
 			'ecology'=>$ecology,
@@ -341,6 +420,7 @@ class ProductsController extends Controller
 			'model'=>$model,
 			'model2'=>$model2,
 			'dataProvider'=>$dataProvider,
+			'ing_id'=>$ing_id,
 		));
 	}
 

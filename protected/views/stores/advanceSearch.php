@@ -1,0 +1,161 @@
+<?php
+$this->breadcrumbs=array(
+	'Stores',
+);
+
+$this->menu=array(
+	array('label'=>'Create stores', 'url'=>array('create')),
+	array('label'=>'Manage stores', 'url'=>array('admin')),
+);
+
+//if ($this->validSearchPerformed){
+	$this->mainButtons = array(
+		array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('stores/create',array())),
+	);
+//}
+
+if ($this->isFancyAjaxRequest){
+	?>
+	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('stores/advanceChooseStores'); ?>"/>
+	<?php
+}
+?>
+<div id="storesAdvanceSearch">
+<?php $form=$this->beginWidget('CActiveForm', array(
+		'action'=>Yii::app()->createUrl($this->route),
+		'method'=>'post',
+		'id'=>'stores_form',
+		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
+	)); ?>
+	<div class="f-left search">
+		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
+		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
+	</div>
+	
+	<div class="clearfix"></div>
+	
+<?php 
+	/*
+	$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
+	$htmlOptions_type1 = array('template'=>'<li>{input} {label}</li>', 'separator'=>"\n", 'checkAll'=>$this->trans->STORES_SEARCH_CHECK_ALL, 'checkAllLast'=>false);
+	
+	echo Functions::searchCriteriaInput($this->trans->stores_GROUP, $model, 'GRP_ID', $groupNames, Functions::CHECK_BOX_LIST, 'groupNames', $htmlOptions_type1);
+	echo Functions::searchCriteriaInput($this->trans->stores_SUBGROUP, $model, 'SGR_ID', $subgroupNames, Functions::CHECK_BOX_LIST, 'subgroupNames', $htmlOptions_type1);
+	echo Functions::searchCriteriaInput($this->trans->stores_STORABILITY, $model, 'STB_ID', $storability, Functions::CHECK_BOX_LIST, 'storability', $htmlOptions_type1);
+	echo Functions::searchCriteriaInput($this->trans->stores_CONVENIENCE, $model, 'ICO_ID', $storesConveniences, Functions::DROP_DOWN_LIST, 'storesConveniences', $htmlOptions_type0);
+	echo Functions::searchCriteriaInput($this->trans->stores_STATE, $model, 'IST_ID', $storestates, Functions::DROP_DOWN_LIST, 'storestates', $htmlOptions_type0);
+	//echo searchCriteriaInput($this->trans->stores_NUTRIENT, $model, 'NUT_ID', $nutrientData, Functions::DROP_DOWN_LIST, 'nutrientData', $htmlOptions_type0);
+	*/
+	/*
+	?>
+	
+	<div class="row" id="nutrientData">
+		<?php echo $form->label($model,'NUT_ID',array('label'=>$this->trans->stores_NUTRIENT)); ?>
+		<?php echo $form->hiddenField($model,'NUT_ID', array('id'=>'NUT_ID', 'class'=>'fancyValue')); ?>
+		<?php echo CHtml::link($this->trans->GENERAL_CHOOSE, array('nutrientData/chooseNutrientData'), array('class'=>'fancyChoose NutrientDataSelect')) ?>
+	</div>
+	
+<?php */ /*
+	
+	<div class="row">
+		<?php echo $form->label($model,'STO_ID'); ?>
+		<?php echo $form->textField($model,'STO_ID'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'STO_NAME'); ?>
+		<?php echo $form->textField($model,'STO_NAME',array('size'=>60,'maxlength'=>100)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'STO_STREET'); ?>
+		<?php echo $form->textField($model,'STO_STREET',array('size'=>60,'maxlength'=>100)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'STO_HOUSE_NO'); ?>
+		<?php echo $form->textField($model,'STO_HOUSE_NO',array('size'=>20,'maxlength'=>20)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'STO_ZIP'); ?>
+		<?php echo $form->textField($model,'STO_ZIP'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'STO_CITY'); ?>
+		<?php echo $form->textField($model,'STO_CITY',array('size'=>60,'maxlength'=>100)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'STO_COUNTRY'); ?>
+		<?php echo $form->textField($model,'STO_COUNTRY'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'STO_STATE'); ?>
+		<?php echo $form->textField($model,'STO_STATE',array('size'=>60,'maxlength'=>100)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'STY_ID'); ?>
+		<?php echo $form->textField($model,'STY_ID'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'STO_GPS'); ?>
+		<?php echo $form->textField($model,'STO_GPS',array('size'=>60,'maxlength'=>100)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'STO_PHONE'); ?>
+		<?php echo $form->textField($model,'STO_PHONE',array('size'=>20,'maxlength'=>20)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'STO_IMG'); ?>
+		<?php echo $form->textField($model,'STO_IMG'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'SUP_ID'); ?>
+		<?php echo $form->textField($model,'SUP_ID'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'CREATED_BY'); ?>
+		<?php echo $form->textField($model,'CREATED_BY'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'CREATED_ON'); ?>
+		<?php echo $form->textField($model,'CREATED_ON'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'CHANGED_BY'); ?>
+		<?php echo $form->textField($model,'CHANGED_BY'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'CHANGED_ON'); ?>
+		<?php echo $form->textField($model,'CHANGED_ON'); ?>
+	</div>
+	
+	<div class="row buttons">
+		<?php echo CHtml::submitButton($this->trans->GENERAL_SEARCH); ?>
+	</div>
+*/ ?>
+
+<br />
+
+<?php $this->widget('zii.widgets.CListView', array(
+	'dataProvider'=>$dataProvider,
+	'itemView'=>'_view_array',
+	'ajaxUpdate'=>false,
+	'id'=>'storesResult',
+	/*'ajaxUpdate'=>'storesAdvanceSearch',*/
+)); ?>
+
+<?php $this->endWidget(); ?>
+</div>

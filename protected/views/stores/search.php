@@ -1,26 +1,26 @@
 <?php
 $this->breadcrumbs=array(
-	'Ingredients',
+	'Stores',
 );
 
 $this->menu=array(
-	array('label'=>'Create Ingredients', 'url'=>array('create')),
-	array('label'=>'Manage Ingredients', 'url'=>array('admin')),
+	array('label'=>'List Stores', 'url'=>array('index')),
+	array('label'=>'Create Stores', 'url'=>array('create')),
 );
 
 //if ($this->validSearchPerformed){
 	$this->mainButtons = array(
-		array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('ingredients/create',array())),
+		array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('stores/create',array())),
 	);
 //}
 
-$ingSearch = array(($this->isFancyAjaxRequest)?'ingredients/advanceChooseIngredient':'ingredients/advanceSearch');
-if (Yii::app()->session['Ingredient'] && Yii::app()->session['Ingredient']['time']){
-	$ingSearch=array_merge($ingSearch,array('newSearch'=>Yii::app()->session['Ingredient']['time']));
+$ingSearch = array(($this->isFancyAjaxRequest)?'stores/advanceChooseStores':'stores/advanceSearch');
+if (Yii::app()->session['Stores'] && Yii::app()->session['Stores']['time']){
+	$ingSearch=array_merge($ingSearch,array('newSearch'=>Yii::app()->session['Stores']['time']));
 }
 
 if ($this->isFancyAjaxRequest){ ?>
-	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('ingredients/chooseIngredient'); ?>"/>
+	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('stores/chooseStores'); ?>"/>
 	<?php
 }
 ?>
@@ -29,7 +29,7 @@ if ($this->isFancyAjaxRequest){ ?>
 <div>
 <?php $form=$this->beginWidget('CActiveForm', array(
 		'action'=>Yii::app()->createUrl($this->route),
-		'id'=>'ingredients_form',
+		'id'=>'stores_form',
 		'method'=>'post',
 		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 	)); ?>
@@ -48,7 +48,7 @@ if ($this->isFancyAjaxRequest){ ?>
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'ajaxUpdate'=>false,
-	'id'=>'ingredientResult',
+	'id'=>'StoresResult',
 )); ?>
 
 <?php $this->endWidget(); ?>

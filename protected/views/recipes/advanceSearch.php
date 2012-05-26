@@ -10,7 +10,7 @@ $this->menu=array(
 
 //if ($this->validSearchPerformed){
 	$this->mainButtons = array(
-		array('label'=>$this->trans->RECIPES_CREATE, 'link_id'=>'middle_single', 'url'=>array('recipes/create',array())),
+		array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('recipes/create',array())),
 	);
 //}
 ?>
@@ -22,7 +22,7 @@ $this->menu=array(
 )); ?>
 	<div class="f-left search">
 		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
-		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->RECIPES_SEARCH)); ?>
+		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
 	</div>
 	
 	<div class="clearfix"></div>

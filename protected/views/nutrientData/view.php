@@ -13,8 +13,18 @@ $this->menu=array(
 );
 ?>
 
-<h1>View NutrientData #<?php echo $model->NUT_ID; ?></h1>
-
+<?php
+	if (Yii::app()->session['Ingredient'] && Yii::app()->session['Ingredient']['model']){
+		$back_url = array('ingredients/advanceSearch');
+	} else {
+		$back_url = array('ingredients/search');
+	}
+	echo CHtml::link(CHtml::encode($this->trans->PRODUCTS_BACK_TO_INGREDIENTS), $back_url, array('class'=>'button f-center')); 
+	
+	if ($ingredientName != null){
+		echo '<h1>'. $ingredientName .'</h1>';
+	}
+?>
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,
 	'attributes'=>array(
@@ -69,3 +79,5 @@ $this->menu=array(
 		'NUT_REFUSE',
 	),
 )); ?>
+
+<?php echo CHtml::link(CHtml::encode($this->trans->PRODUCTS_BACK_TO_INGREDIENTS), $back_url, array('class'=>'button f-center'));  ?>

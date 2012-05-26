@@ -1,5 +1,8 @@
 <input type="hidden" id="uploadImageLink" value="<?php echo $this->createUrl('products/uploadImage',array('id'=>$model->PRO_ID)); ?>"/>
 <input type="hidden" id="imageLink" value="<?php echo $this->createUrl('products/displaySavedImage', array('id'=>'backup', 'ext'=>'png')); ?>"/>
+
+<input type="hidden" id="newProducerText" value="<?php echo $this->trans->GENERAL_CHOOSE; ?>"/>
+<input type="hidden" id="removeText" value="<?php echo $this->trans->GENERAL_REMOVE; ?>"/>
 <div class="form">
 
 <?php $form=$this->beginWidget('CActiveForm', array(
@@ -13,20 +16,64 @@
 
 	<?php echo $form->errorSummary($model); 
 	if ($this->errorText){
-			echo '<div class="errorSummary">';
-			echo $this->errorText;
-			echo '</div>';
+		echo '<div class="errorSummary">';
+		echo $this->errorText;
+		echo '</div>';
 	}
 	?>
+	
+	<?php
+	if ($model->ingredient && $model->ingredient->__get('ING_NAME_'.Yii::app()->session['lang'])){
+		$IngredientDescription = $model->ingredient->__get('ING_NAME_'.Yii::app()->session['lang']);
+	} else {
+		$IngredientDescription = $this->trans->GENERAL_CHOOSE;
+	}
+	?>
+	
+	<div class="row" id="ingredient">
+		<?php echo $form->label($model,'ING_ID',array('label'=>$this->trans->PRODUCTS_INGREDIENT)); ?>
+		<?php echo $form->hiddenField($model,'ING_ID', array('id'=>'ING_ID', 'class'=>'fancyValue')); ?>
+		<?php echo CHtml::link($IngredientDescription, array('ingredients/chooseIngredient'), array('class'=>'fancyChoose IngredientSelect')) ?>
+	</div>
 
 	
 	<?php foreach($this->allLanguages as $lang){ ?>
 	<div class="row">
-		<?php echo $form->labelEx($model,'PRO_NAME_'.$lang, array('label'=>$this->trans->__get('PRODUCTS_DESCRIPTION_'.$lang))); ?>
+		<?php echo $form->labelEx($model,'PRO_NAME_'.$lang, array('label'=>$this->trans->__get('PRODUCTS_DESCRIPTION') . ' ' . $lang)); ?>
 		<?php echo $form->textField($model,'PRO_NAME_'.$lang,array('size'=>60,'maxlength'=>60)); ?>
 		<?php echo $form->error($model,'PRO_NAME_'.$lang); ?>
 	</div>
 	<?php } ?>
+	
+	
+	<?php
+	if ($model->producers && count($model->producers)>0){
+		echo '<div class="row" id="producer">';
+		echo CHtml::label($this->trans->PRODUCTS_PRODUCERS, 'PRD_ID_0');
+		$i = 0;
+		echo '<ul id="producerList">';
+		foreach($model->producers as $producer){
+			echo '<li>';
+			echo CHtml::hiddenField('PRD_ID['.$i.']', $model->producers[$i]->PRD_ID, array('id'=>'PRD_ID'.$i, 'class'=>'fancyValue'));
+			echo CHtml::link($model->producers[$i]->PRD_NAME, array('producers/chooseProducer'), array('class'=>'fancyChoose ProducerSelect'));
+			echo '<span class="buttonSmall remove">' . $this->trans->GENERAL_REMOVE . '<span>';
+			echo '</li>';
+			$i++;
+		}
+		echo '</ul><div class="clearfix"></div><span class="buttonSmall add">&nbsp;&nbsp;+&nbsp;&nbsp;</span></div>';
+	} else {
+		echo '<div class="row" id="producer">';
+		echo CHtml::label($this->trans->PRODUCTS_PRODUCERS, 'PRD_ID_0');
+		echo '<ul id="producerList">';
+		echo '<li>';
+		echo CHtml::hiddenField('PRO_ID[0]', '', array('id'=>'PRD_ID_0', 'class'=>'fancyValue'));
+		echo CHtml::link($this->trans->GENERAL_CHOOSE, array('producers/chooseProducer'), array('class'=>'fancyChoose ProducerSelect'));
+		echo '<span class="buttonSmall remove">' . $this->trans->GENERAL_REMOVE . '<span>';
+		echo '</li>';
+		echo '</ul><div class="clearfix"></div><span class="buttonSmall add">&nbsp;&nbsp;+&nbsp;&nbsp;</span></div>';
+	}
+	?>
+
 	
 	<div class="row">
 		<?php echo $form->labelEx($model,'PRO_BARCODE',array('label'=>$this->trans->PRODUCTS_BARCODE)); ?>
@@ -37,25 +84,12 @@
 	<div class="row">
 		<?php echo $form->labelEx($model,'PRO_PACKAGE_GRAMMS',array('label'=>$this->trans->PRODUCTS_PACKAGE_GRAMMS)); ?>
 		<?php echo $form->textField($model,'PRO_PACKAGE_GRAMMS'); ?>
+		<?php echo CHtml::dropdownList('PACKAGE_MULT', '1', array('1'=>'g','1000'=>'kg')); ?>
 		<?php echo $form->error($model,'PRO_PACKAGE_GRAMMS'); ?>
 	</div>
-
-	<?php
-	if ($model->ingredient && $model->ingredient->__get('ING_NAME_'.Yii::app()->session['lang'])){
-		$IngredientDescription = $model->ingredient->__get('ING_NAME_'.Yii::app()->session['lang']);
-	} else {
-		$IngredientDescription = $this->trans->PRODUCTS_SEARCH_CHOOSE;
-	}
-	?>
 	
-	<div class="row" id="ingredient">
-		<?php echo $form->label($model,'ING_ID',array('label'=>$this->trans->PRODUCTS_INGREDIENT)); ?>
-		<?php echo $form->hiddenField($model,'ING_ID', array('id'=>'ING_ID')); ?>
-		<?php echo CHtml::link($IngredientDescription, array('ingredients/chooseIngredient'), array('class'=>'fancyChoose IngredientSelect')) ?>
-	</div>
-
 	<?php
-	$htmlOptions_type0 = array('empty'=>$this->trans->PRODUCTS_SEARCH_CHOOSE);
+	$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
 	
 	echo Functions::createInput($this->trans->PRODUCTS_SUSTAINABILITY, $model, 'ECO_ID', $ecology, Functions::DROP_DOWN_LIST, 'ecology', $htmlOptions_type0, $form);
 	echo Functions::createInput($this->trans->PRODUCTS_ETHICAL, $model, 'ETH_ID', $ethicalCriteria, Functions::DROP_DOWN_LIST, 'ethicalCriteria', $htmlOptions_type0, $form);
@@ -82,7 +116,10 @@
 	</div>
 
 	<div class="row buttons">
-		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
+		<?php
+		echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE, array('name'=>'save', 'class'=>'button'));
+		echo CHtml::submitButton($this->trans->PRODUCTS_ASSIGN_STORE, array('name'=>'saveAddAssing', 'class'=>'button'));
+		?>
 	</div>
 
 <?php $this->endWidget(); ?>

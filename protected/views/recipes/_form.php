@@ -38,7 +38,7 @@
 	<?php } ?>
 	
 	<?php
-	$htmlOptions_type0 = array('empty'=>$this->trans->RECIPES_SEARCH_CHOOSE);
+	$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
 	echo Functions::createInput($this->trans->RECIPES_TYPE, $model, 'RET_ID', $recipeTypes, Functions::DROP_DOWN_LIST, 'recipeTypes', $htmlOptions_type0, $form);
 	?>
 	
@@ -67,13 +67,13 @@
 			array('REC_ID', null, null, null),
 			array('STE_STEP_NO', null, null, null),
 			array('STT_ID', $this->trans->RECIPES_STEP_TYPE, $stepTypes, null),
-			array('ACT_ID', $this->trans->RECIPES_ACTION, $actions, array('empty'=>$this->trans->RECIPES_SEARCH_CHOOSE)),
-			//array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('empty'=>$this->trans->RECIPES_SEARCH_CHOOSE)),
-			//array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('fancy'=>true, 'empty'=>$this->trans->RECIPES_SEARCH_CHOOSE, 'url'=>'#'.$this->createUrlHash('ingredients/chooseIngredient',array()), 'htmlOptions'=>array('class'=>'fancyChoose IngredientSelect'))),
-			array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('fancy'=>true, 'empty'=>$this->trans->RECIPES_SEARCH_CHOOSE, 'url'=>array('ingredients/chooseIngredient'), 'htmlOptions'=>array('class'=>'fancyChoose IngredientSelect'))),
+			array('ACT_ID', $this->trans->RECIPES_ACTION, $actions, array('empty'=>$this->trans->GENERAL_CHOOSE)),
+			//array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('empty'=>$this->trans->GENERAL_CHOOSE)),
+			//array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('fancy'=>true, 'empty'=>$this->trans->GENERAL_CHOOSE, 'url'=>'#'.$this->createUrlHash('ingredients/chooseIngredient',array()), 'htmlOptions'=>array('class'=>'fancyChoose IngredientSelect'))),
+			array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('fancy'=>true, 'empty'=>$this->trans->GENERAL_CHOOSE, 'url'=>array('ingredients/chooseIngredient'), 'htmlOptions'=>array('class'=>'fancyChoose IngredientSelect'))),
 			array('STE_GRAMS', $this->trans->RECIPES_INGREDIENT_AMOUNT, null, null),
 		);
-		$text = array('add'=>$this->trans->RECIPES_ADD_STEP, 'remove'=>$this->trans->RECIPES_REMOVE_STEP, 'move up'=>'-up-', 'move down'=>'-down-', 'options'=>'Options');
+		$text = array('add'=>$this->trans->GENERAL_ADD, 'remove'=>$this->trans->GENERAL_REMOVE, 'move up'=>'-up-', 'move down'=>'-down-', 'options'=>'Options');
 		
 		$options = array('new'=>new Steps);
 		//echo Functions::createInputTable($model->steps, $fieldOptions, $options, $form, $text);
@@ -81,7 +81,7 @@
 	?>
 	</div>
 	<div class="row buttons">
-		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
+		<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE); ?>
 	</div>
 
 <?php $this->endWidget(); ?>

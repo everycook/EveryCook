@@ -13,7 +13,7 @@ $this->menu=array(
 );
 
 $this->mainButtons = array(
-	array('label'=>$this->trans->RECIPES_EDIT, 'link_id'=>'middle_single', 'url'=>array('recipes/update',$this->getActionParams())),
+	array('label'=>$this->trans->GENERAL_EDIT, 'link_id'=>'middle_single', 'url'=>array('recipes/update',$this->getActionParams())),
 );
 ?>
 
@@ -41,8 +41,8 @@ $this->mainButtons = array(
 			?>
 			</ul>
 		</div>
-		<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$model->REC_ID), array('class'=>'delicious_big backpic last', 'title'=>$this->trans->RECIPES_DELICIOUS)); ?>
-		<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$model->REC_ID), array('class'=>'disgusting_big backpic last','title'=>$this->trans->RECIPES_DISGUSTING)); ?>
+		<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$model->REC_ID), array('class'=>'delicious_big backpic last', 'title'=>$this->trans->GENERAL_DELICIOUS)); ?>
+		<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$model->REC_ID), array('class'=>'disgusting_big backpic last','title'=>$this->trans->GENERAL_DISGUSTING)); ?>
 	</div>
 	
 	<div class="details">

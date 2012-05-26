@@ -43,10 +43,24 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 	'filter'=>$model,
 	'columns'=>array(
 		'STO_ID',
-		'STO_LOC_GPS',
-		'STO_LOC_ADDR',
+		'STO_NAME',
+		'STO_STREET',
+		'STO_HOUSE_NO',
+		'STO_ZIP',
+		'STO_CITY',
+		/*
+		'STO_COUNTRY',
+		'STO_STATE',
+		'STY_ID',
+		'STO_GPS',
 		'STO_PHONE',
+		'STO_IMG',
 		'SUP_ID',
+		'CREATED_BY',
+		'CREATED_ON',
+		'CHANGED_BY',
+		'CHANGED_ON',
+		*/
 		array(
 			'class'=>'CButtonColumn',
 		),

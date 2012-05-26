@@ -1,5 +1,5 @@
 jQuery(function($){
-	/*use the one in ajax_handling.js*/
+	/*TODO use the one in ajax_handling.js*/
 	function initMultiFancyCoose(){
 		jQuery('a.fancyChoose').bind('click.multiFancyCoose', function(){
 			jQuery('.activeFancyField').removeClass('activeFancyField');
@@ -66,15 +66,15 @@ jQuery(function($){
 				}
 				
 				var fields = fieldParents.find('[name][type!=hidden]:not([id$=STT_ID]):not([id$=ACT_ID])'); //All non hidden input fields
-				/*
 				for(var j=0; j<fields.length; j++){
-					field = jQuery(fields[j]);
+					var field = jQuery(fields[j]);
 					
 					var name = field.attr('name');
 					var pos = name.lastIndexOf('[');
 					name = name.substr(pos+1,name.length-pos-2);
+					var value = data_row[name];
+					field.attr('value',value);
 				}
-				*/
 				
 				var ingredientField = fieldParents.find('[id$=ING_ID]');
 				if (ingredientField.length > 0){
@@ -111,7 +111,13 @@ jQuery(function($){
 	}
 	
 	function changeInputTableIndex(elem, changeamount){
-		var inputs = elem.find('[name]');//All input fields
+		var next = elem.next();
+		var inputs;
+		if (next.attr('class') === 'addFields'){
+			inputs = elem.add(next).find('[name]');//All input fields
+		} else {
+			inputs = elem.find('[name]');//All input fields
+		}
 		
 		var currentIndexInt = getIndexFromFieldName(inputs.attr('name'))
 		if (currentIndexInt === false) {
@@ -124,7 +130,9 @@ jQuery(function($){
 		var currentIndexStr = '['+currentIndexInt+']';
 		var currentIndexStr2 = '_'+currentIndexInt+'_';
 		
-		elem.attr('class', (newIndexInt % 2 == 1)?'odd':'even');
+		if (elem.attr('class') != 'addFields'){
+			elem.attr('class', (newIndexInt % 2 == 1)?'odd':'even');
+		}
 		
 		inputs.each(function(){
 			elem = jQuery(this);
@@ -164,20 +172,47 @@ jQuery(function($){
 	
 	jQuery('body').undelegate('.addRowContainer .up','click').delegate('.addRowContainer .up','click',function(){
 		var row = jQuery(this).parents('tr:first');
-		if (row.prev().length){
+		
+		var next = row.next();
+		if (next.attr('class') !== 'addFields'){
+			next = null;
+		}
+		
+		var prevEntry = row.prev();
+		if (prevEntry.attr('class') === 'addFields'){
+			prevEntry = prevEntry.prev();
+		}
+		
+		if (prevEntry.length){
 			changeInputTableIndex(row, -1);
-			changeInputTableIndex(row.prev(), 1);
-			row.insertBefore(row.prev());
+			changeInputTableIndex(prevEntry, 1);
+			row.insertBefore(prevEntry);
+			if (next != null){
+				next.insertAfter(row);
+			}
 		}
 	});
 
 	jQuery('body').undelegate('.addRowContainer .down','click').delegate('.addRowContainer .down','click',function(){
 		var row = jQuery(this).parents('tr:first');
-		var followedRows = row.nextAll();
-		if (row.next().not(row.nextAll().last()).length){
+		
+		var prev = row.prev();
+		if (prev.attr('class') !== 'addFields'){
+			prev = null;
+		}
+		
+		var nextEntry = row.next();
+		if (nextEntry.attr('class') === 'addFields'){
+			nextEntry = nextEntry.next();
+		}
+		
+		if (nextEntry.not(row.nextAll().last()).length){
 			changeInputTableIndex(row, 1);
-			changeInputTableIndex(row.next(), -1);
-			row.insertAfter(row.next());
+			changeInputTableIndex(nextEntry, -1);
+			row.insertAfter(nextEntry);			
+			if (prev != null){
+				prev.insertBefore(row);
+			}
 		}
 	});
 	

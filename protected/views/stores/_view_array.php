@@ -1,5 +1,46 @@
-<div class="view">
-
+<div class="resultArea">
+	<?php
+	if ($this->isFancyAjaxRequest){
+		echo CHtml::link($this->trans->GENERAL_SELECT, $data['STO_ID'] . '_' .$data['SUP_ID'] . '_' .$data['STY_ID'], array('class'=>'f-right button StoresSelect'));
+	} else {
+		?>
+		<div class="options">
+			<?php echo CHtml::link('&nbsp;', array('favorite', 'id'=>$data['STO_ID']), array('class'=>'favorite backpic', 'title'=>$this->trans->STORES_FAVORITE)); ?>
+		</div>
+		<?php
+	}
+	?>
+	
+	<div class="data">
+		<div class="name">
+			<?php echo CHtml::link(CHtml::encode($data['STO_NAME']), array('view', 'id'=>$data['STO_ID'])); ?>
+		</div>
+		
+		<div class="adress">
+		<?php
+			if ($data['STO_STREET'] != null && strlen($data['STO_STREET'])>0){
+				echo '<span class="street">' . CHtml::encode($data['STO_STREET']) . '&nbsp;';
+				echo CHtml::encode($data['STO_HOUSE_NO']) . '</span>';
+			}
+			if ($data['STO_CITY'] != null && strlen($data['STO_CITY'])>0){
+				echo '<span class="city">' . CHtml::encode($data['STO_ZIP']) . '&nbsp;';
+				echo CHtml::encode($data['STO_CITY']) . '</span>';
+			}
+			if ($data['STO_COUNTRY'] != null && strlen($data['STO_COUNTRY'])>0 && $data['STO_COUNTRY'] != 0){
+				echo '<span class="country">' . CHtml::encode($data['STO_COUNTRY']) . '</span>';
+			}
+			if ($data['STO_STATE'] != null && strlen($data['STO_STATE'])>0){
+				echo '<span class="state">' . CHtml::encode($data['STO_STATE']) . '</span>';
+			}
+		?>
+		</div>
+	</div>
+	
+	<div class="clearfix"></div>
+	
+	<?php
+	/*
+	
 	<b><?php echo CHtml::encode($data->getAttributeLabel('STO_ID')); ?>:</b>
 	<?php echo CHtml::link(CHtml::encode($data->STO_ID), array('view', 'id'=>$data->STO_ID)); ?>
 	<br />

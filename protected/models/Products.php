@@ -24,6 +24,7 @@ class Products extends CActiveRecord
 {
 	public $filename;
 	public $imagechanged;
+	public $oldProducers = null;
 	
 	/**
 	 * Returns the static model of the specified AR class.
@@ -50,7 +51,7 @@ class Products extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('ECO_ID, ETH_ID, PRO_IMG_ETAG, PRO_NAME_EN_GB, PRO_NAME_DE_CH, CREATED_BY, CREATED_ON', 'required'),
+			array('ECO_ID, ETH_ID, PRO_NAME_EN_GB, PRO_NAME_DE_CH, CREATED_BY, CREATED_ON', 'required'),
 			array('PRO_IMG_CR', 'required', 'on'=>'withPic'),
 			array('PRO_BARCODE, PRO_PACKAGE_GRAMMS, ING_ID, ECO_ID, ETH_ID, CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
 			array('PRO_IMG_CR', 'length', 'max'=>30),
@@ -74,6 +75,9 @@ class Products extends CActiveRecord
 			'ingredient' => array(self::BELONGS_TO, 'Ingredients', 'ING_ID'),
 			'ecology' => array(self::BELONGS_TO, 'Ecology', 'ECO_ID'),
 			'ethicalCriteria' => array(self::BELONGS_TO, 'EthicalCriteria', 'ETH_ID'),
+			//'proToPrds' => array(self::MANY_MANY, 'ProToPrd', 'PRO_ID'),
+			//'producers' => array(self::HAS_MANY, 'Producers', 'PRD_ID'),
+			'producers' => array(self::MANY_MANY, 'Producers', 'pro_to_prd(PRO_ID,PRD_ID)'),
 		);
 	}
 
@@ -124,6 +128,7 @@ class Products extends CActiveRecord
 		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
 		$criteria->compare('CHANGED_ON',$this->CHANGED_ON,true);
 		$criteria->with = array('ingredient');
+		$criteria->with = array('producers' => array('with' => 'ingredient', 'with' => 'stepType'));
 		
 		$criteria->compare('ING_ID',$this->ingredient,true);
 		

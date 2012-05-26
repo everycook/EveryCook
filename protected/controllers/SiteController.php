@@ -33,10 +33,15 @@ class SiteController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$this->useDefaultMainButtons();
-		// renders the view file 'protected/views/site/index.php'
-		// using the default layout 'protected/views/layouts/main.php'
-		$this->checkRenderAjax('index');
+		if (!$this->getIsAjaxRequest() && isset(Yii::app()->session['ajaxSession']) && Yii::app()->session['ajaxSession']){
+			$this->layout='//layouts/main';
+			$this->checkRenderAjax('empty');
+		} else {
+			$this->useDefaultMainButtons();
+			// renders the view file 'protected/views/site/index.php'
+			// using the default layout 'protected/views/layouts/main.php'
+			$this->checkRenderAjax('index');
+		}
 	}
 
 	/**

@@ -173,10 +173,14 @@ div.index_div_login{
 
 .button {
 	padding: 0.8em;
+	border: none;
 	/*width:8.4em;*/
 }
 .buttonSmall {
 	padding: 0.4em;
+}
+div.form input.button {
+	margin-right: 1em;
 }
 
 .f-center {
@@ -221,14 +225,14 @@ a.cookwith {
 
 a.nutrientDataOpen {
 	display: inline-block;
-	width:4em;
-	height:4em;
+	width:3em;
+	height:3em;
 }
 
 a.productSearch {
 	display: inline-block;
-	width:4em;
-	height:4em;
+	width:3em;
+	height:3em;
 }
 
 
@@ -237,11 +241,17 @@ div.resultArea {
 	padding:0.8em;
 	margin-bottom:0.8em;
 	min-height: 12em;
+	min-width: 30em;
+}
+
+div.resultArea.noPic {
+	min-height:0;
 }
 
 div.resultArea img.ingredient,
 div.resultArea img.recipe,
-div.resultArea img.product {
+div.resultArea img.product,
+div.resultArea img.store {
 	width:12em;
 	height:12em;
 	float:left;
@@ -252,6 +262,9 @@ div.resultArea div.data {
 	margin-left:12.8em;
 }
 
+div.resultArea.noPic div.data {
+	margin-left:0;
+}
 div.resultArea div.name {
 	font-weight:bold;
 	font-size:2em;
@@ -277,7 +290,7 @@ div.resultArea div.options {
 #ingredientResult div.resultArea div.details  div{
 	margin-left:auto;
 	padding-top:3.5em;
-	width:4em;
+	width:3em;
 }
 
 #ingredientResult div.nutrientInfo {
@@ -355,10 +368,10 @@ div.detailView img.recipe {
 
 div.search {
 	margin-bottom: 0.8em;
+	width:300px;
 }
 
-div.search  input.search_button {
-	/*width:50px;*/
+.search_button {
 	height:3.4em;
 	vertical-align: middle;
 	margin-right: 0.2em;
@@ -417,16 +430,42 @@ body > .backpicfix {
 	position:fixed;
 }
 
+#producer {
+}
 
+#producer label {
+	float: left;
+}
 
+#producer #producerList {
+	float: left;
+	width: 30em;
+	padding-left: 0;
+	margin: 0;
+}
 
+#producer #producerList li {
+	list-style: none;
+}
 
+#producer .add {
+	margin-left: 12.6em;
+}
 
+#producer .remove {
+	margin-left: 2em;
+}
+#StoresResult .resultArea {
+	min-width: 45em;
+}
 
+#storeSearch label {
+	vertical-align: middle;
+}
 
-
-
-
+#content table.detail-view {
+	margin: 10px 0;
+}
 
 
 
