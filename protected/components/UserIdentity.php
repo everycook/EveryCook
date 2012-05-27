@@ -3,7 +3,7 @@
 /**
  * UserIdentity represents the data needed to identity a user.
  * It contains the authentication method that checks if the provided
- * data can identity the user.
+ * data can identify the user.
  */
 class UserIdentity extends CUserIdentity
 {
@@ -15,19 +15,35 @@ class UserIdentity extends CUserIdentity
 	 * against some persistent user identity storage (e.g. database).
 	 * @return boolean whether authentication succeeds.
 	 */
+
+   const ERROR_ACCOUNT_NOT_ACTIVE=3;
+   private $_id;
+
 	public function authenticate()
 	{
-		$users=array(
-			// username => password
-			'demo'=>'demo',
-			'admin'=>'admin',
-		);
-		if(!isset($users[$this->username]))
-			$this->errorCode=self::ERROR_USERNAME_INVALID;
-		else if($users[$this->username]!==$this->password)
-			$this->errorCode=self::ERROR_PASSWORD_INVALID;
-		else
-			$this->errorCode=self::ERROR_NONE;
+		$record=Profiles::model()->findByAttributes(array('PRF_NICK'=>$this->username));
+     	if($record===null) {
+         $this->errorCode=self::ERROR_USERNAME_INVALID;
+      }
+      else {
+         if($record->PRF_ACTIVE === '0') {
+            $this->errorCode=self::ERROR_ACCOUNT_NOT_ACTIVE;
+         }
+        	else if($record->PRF_PW!==crypt($this->password, $record->PRF_PW)) {
+            $this->errorCode=self::ERROR_PASSWORD_INVALID;
+	      }
+        	else {
+            $this->_id=$record->PRF_UID;
+		      $this->setState('lang', $record->PRF_LANG);
+		      $this->setState('nick', $record->PRF_NICK);
+		      //Yii::app()->session['lang'] = $record->PRF_LANG;
+            $this->errorCode=self::ERROR_NONE;
+        	}
+      }
 		return !$this->errorCode;
+	}
+
+	public function getId() {
+		return $this->_id;
 	}
 }

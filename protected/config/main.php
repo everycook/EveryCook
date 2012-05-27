@@ -34,14 +34,21 @@ return array(
 	// application components
 	'components'=>array(
 		'user'=>array(
+                        'class'=>'WebUser',
 			// enable cookie-based authentication
 			'allowAutoLogin'=>true,
 		),
 		
 		// uncomment the following to enable URLs in path-format
+
 		'urlManager'=>array(
 			'urlFormat'=>'path',
 			'rules'=>array(
+				// call gii by /path/to/index.php/gii
+			        'gii'=>'gii',
+			        'gii/<controller:\w+>'=>'gii/<controller>',
+			        'gii/<controller:\w+>/<action:\w+>'=>'gii/<controller>/<action>',
+
 				'<controller:\w+>'=>'<controller>/index',
 				'<controller:\w+>/<id:\d+>'=>'<controller>/view',
 				'<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
@@ -67,8 +74,8 @@ return array(
 		
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors
-            'errorAction'=>'site/error',
-        ),
+            		'errorAction'=>'site/error',
+        	),
 		'log'=>array(
 			'class'=>'CLogRouter',
 			'routes'=>array(
@@ -87,9 +94,7 @@ return array(
 		'clientScript'=>array(
 			'class'=>'CAjaxOptimizedClientScript',
 		),
-		'user'=>array(
-			'class'=>'WebUser',
-		),
+		'Randomness'=>array('class'=>'Randomness',),
 	),
 
 	// application-level parameters that can be accessed

@@ -11,12 +11,11 @@ $this->breadcrumbs=array(
 
 <div class="form">
 <?php $form=$this->beginWidget('CActiveForm', array(
-	'id'=>'login-form',
+	'id'=>'verification-form',
 	'enableClientValidation'=>true,
-	/*
 	'clientOptions'=>array(
 		'validateOnSubmit'=>true,
-	),*/
+	),
 )); ?>
 
 	<p class="note">Fields with <span class="required">*</span> are required.</p>

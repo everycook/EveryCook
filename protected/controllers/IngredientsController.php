@@ -8,6 +8,8 @@ class IngredientsController extends Controller
 	public $layout='//layouts/column2';
 	
 	public $errorText = '';
+
+	public $allLanguages = array("de-CH", "en-GB");
 	
 	/**
 	 * @return array action filters

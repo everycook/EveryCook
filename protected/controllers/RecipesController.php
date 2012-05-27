@@ -9,6 +9,7 @@ class RecipesController extends Controller
 	
 	public $errorText = '';
 	public $errorFields = array();
+	public $allLanguages = array("de-CH", "en-GB");
 
 	/**
 	 * @return array action filters
