@@ -196,22 +196,25 @@ jQuery(function($){
 	jQuery('body').undelegate('.addRowContainer .down','click').delegate('.addRowContainer .down','click',function(){
 		var row = jQuery(this).parents('tr:first');
 		
-		var prev = row.prev();
-		if (prev.attr('class') !== 'addFields'){
-			prev = null;
+		var nextEntry;
+		var next = row.next();
+		if (next.attr('class') !== 'addFields'){
+			nextEntry = next;
+			next = null;
+		} else {
+			nextEntry = next.next();
 		}
-		
-		var nextEntry = row.next();
-		if (nextEntry.attr('class') === 'addFields'){
-			nextEntry = nextEntry.next();
+		var insertPos = nextEntry.next();
+		if (insertPos.attr('class') !== 'addFields'){
+			insertPos = nextEntry;
 		}
 		
 		if (nextEntry.not(row.nextAll().last()).length){
 			changeInputTableIndex(row, 1);
 			changeInputTableIndex(nextEntry, -1);
-			row.insertAfter(nextEntry);			
-			if (prev != null){
-				prev.insertBefore(row);
+			row.insertAfter(insertPos);			
+			if (next != null){
+				next.insertAfter(row);
 			}
 		}
 	});

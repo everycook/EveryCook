@@ -118,7 +118,7 @@
 	<div class="row buttons">
 		<?php
 		echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE, array('name'=>'save', 'class'=>'button'));
-		echo CHtml::submitButton($this->trans->PRODUCTS_ASSIGN_STORE, array('name'=>'saveAddAssing', 'class'=>'button'));
+		echo CHtml::submitButton($this->trans->PRODUCTS_SAVE_AND_ASSIGN, array('name'=>'saveAddAssing', 'class'=>'button'));
 		?>
 	</div>
 

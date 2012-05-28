@@ -39,7 +39,7 @@ jQuery(function($){
 	initFancyCoose();
 	
 	
-	jQuery('body').undelegate('form:not(.ajaxupload):not(.fancyForm):not(#login-form)','submit').delegate('form:not(.ajaxupload):not(.fancyForm):not(#login-form)','submit',function(){
+	jQuery('body').undelegate('form:not(.ajaxupload):not(.fancyForm):not(#login-form):not(#profiles-register-form)','submit').delegate('form:not(.ajaxupload):not(.fancyForm):not(#login-form):not(#profiles-register-form)','submit',function(){
 		var form = jQuery(this);
 		try {
 			submitValue = "";
@@ -62,7 +62,7 @@ jQuery(function($){
 			}});
 		} else {
 			var queryInput = form.find('#SimpleSearchForm_query');
-			if (queryInput.length){
+			if (queryInput.length && !queryInput.hasClass('notUrl')){
 				queryValue = queryInput.attr('value').trim();
 				if (queryValue.length > 0){
 					if (destUrl.indexOf('?')>0){
@@ -192,6 +192,10 @@ jQuery(function($){
 		var elem = jQuery(this);
 		elem.attr('value','');
 		elem.removeClass('emptyOnEnter');
+	});
+	
+	jQuery('body').undelegate('#Profiles_PRF_LANG','change').delegate('#Profiles_PRF_LANG','change',function(){
+		window.location = jQuery('#LanguageChangeLink').val() + '?lang=' + jQuery('#Profiles_PRF_LANG').val();
 	});
 });
 

@@ -163,16 +163,14 @@ class ProductsController extends Controller
 			
 			Functions::updatePicture($model,'PRO_IMG', $oldPicture);
 			
-			
-			/*
-			if (isset($model->PRO_ID)){
-				$model->PRO_CHANGED = time();
+			if ($model->isNewRecord){
+				$model->CREATED_BY = Yii::app()->user->id;
+				$model->CREATED_ON = time();
 			} else {
-				//$model->PRF_UID = Yii::app()->session['userID'];
-				$model->PRF_UID = 1;
-				$model->PRO_CREATED = time();
+				$model->CHANGED_BY = Yii::app()->user->id;
+				$model->CHANGED_ON = time();
 			}
-			*/
+			
 			if(isset($_POST['PRD_ID'])){
 				if (!isset($model->oldProducers) || $model->oldProducers == null){
 					$model->oldProducers = $model->producers;

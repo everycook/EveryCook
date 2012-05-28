@@ -8,8 +8,6 @@ class IngredientsController extends Controller
 	public $layout='//layouts/column2';
 	
 	public $errorText = '';
-
-	public $allLanguages = array("de-CH", "en-GB");
 	
 	/**
 	 * @return array action filters
@@ -155,15 +153,15 @@ class IngredientsController extends Controller
 			$model->attributes=$_POST['Ingredients'];
 			
 			Functions::updatePicture($model,'ING_IMG', $oldPicture);
-			/*
-			if (isset($model->ING_ID)){
-				$model->ING_CHANGED = time();
+			
+			if ($model->isNewRecord){
+				$model->CREATED_BY = Yii::app()->user->id;
+				$model->CREATED_ON = time();
 			} else {
-				//$model->PRF_UID = Yii::app()->session['userID'];
-				$model->PRF_UID = 1;
-				$model->ING_CREATED = time();
+				$model->CHANGED_BY = Yii::app()->user->id;
+				$model->CHANGED_ON = time();
 			}
-			*/
+			
 			Yii::app()->session['Ingredient_Backup'] = $model;
 			if ($model->validate()){
 				if (!isset($model->ING_ID)){
@@ -348,7 +346,7 @@ class IngredientsController extends Controller
 			$criteria = $model->getCriteriaString();
 			//$command = $model->commandBuilder->createFindCommand($model->tableName(), $model->getCriteriaString())
 			$command = Yii::app()->db->createCommand()
-				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, count(products.PRO_ID) as pro_count' /*, count(pro_to_sto.SUP_ID) as sup_count'*/)
+				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, count(products.PRO_ID) as pro_count, count(pro_to_sto.SUP_ID) as sup_count')
 				->from('ingredients')
 				->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
 				->leftJoin('group_names', 'ingredients.GRP_ID=group_names.GRP_ID')
@@ -357,11 +355,12 @@ class IngredientsController extends Controller
 				->leftJoin('storability', 'ingredients.STB_ID=storability.STB_ID')
 				->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID')
 				->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
-				//->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
+				->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
 				->group('ingredients.ING_ID')
 				//->order('actor.first_name, actor.last_name, film.title')
 				;
 				//echo $command->text;
+				/*
 			$supplierCommand = Yii::app()->db->createCommand()
 				->select('ingredients.id, count(products.PRO_ID) as pro_count, count(pro_to_sto.SUP_ID) as sup_count')
 				->from('ingredients')
@@ -372,7 +371,7 @@ class IngredientsController extends Controller
 				
 				
 				//TODO: where ingredients.id in command values
-			
+			*/
 			
 			
 			if ($criteria->condition) {

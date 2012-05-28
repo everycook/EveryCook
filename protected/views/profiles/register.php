@@ -2,10 +2,11 @@
 
 <div class="flash-success">
 	<?php echo Yii::app()->user->getFlash('register');?>
-<?php echo '<br />'.CHtml::link(InterfaceMenu::model()->findByPk(Yii::app()->session['lang'])->LOGIN,array('site/login'), array('class' => 'actionlink')); ?>
+<?php echo '<br />'.CHtml::link($this->trans->LOGIN,array('site/login'), array('class' => 'actionlink')); ?>
 </div>
 
 <?php else: ?>
+<input type="hidden" id="LanguageChangeLink" value="<?php echo CController::createUrl('Profiles/LanguageChanged'); ?>"/>
 
 <div class="form">
 
@@ -24,14 +25,21 @@
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'PRF_LANG'); ?>
-		<!--<?php echo $form->textField($model,'PRF_LANG'); ?> -->
-		<?php echo $form->dropDownList($model,'PRF_LANG', CHtml::listData(InterfaceMenu::model()->findAll(),'IME_LANG', 'IME_LANGNAME'), array('empty'=>'Choose...',
+		<?php /*echo $form->textField($model,'PRF_LANG'); */?>
+		<?php /*echo $form->dropDownList($model,'PRF_LANG', CHtml::listData(InterfaceMenu::model()->findAll(),'IME_LANG', 'IME_LANGNAME'), array('empty'=>'Choose...',*/
+		
+		 echo $form->dropDownList($model,'PRF_LANG', array('EN_GB'=>'English','DE_CH'=>'Deutsch','FR_FR'=>'Francais'), array('empty'=>'Choose...',
+		//'submit'=>CController::createUrl('Profiles/LanguageChanged')
 //'ajax' => array(
 //'type'=>'POST', //request type
-//'url'=>CController::createUrl('Profiles/LanguageChanged'), //url to call.
+//'url'=>CController::createUrl('Profiles/LanguageChanged', array('noajax'=>true)), //url to call.
 //Style: CController::createUrl('currentController/methodToCall')
-//'update'=>'#city_id', //selector to update
+//'update'=>'#changable_content', //selector to update
 //'data'=>'js:javascript statement' 
+/*'success' => 'function (data){
+	alert("test");
+	jQuery("html").html(data);
+}',*/
 //leave out the data key to pass all form values through
 //)
 )); ?>

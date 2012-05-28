@@ -31,7 +31,7 @@
 	<div class="row" id="storeSearch">
 		<?php echo $form->label($model2,'query',array('label'=>$this->trans->GENERAL_SEARCH)); ?>
 		<?php /*echo $form->textField($model2,'query',$this->trans->STORES_ASSIGN_ADDRESS_OR_NAME, array('class'=>'emptyOnEnter'));*/ ?>
-		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query emptyOnEnter')); ?>
+		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query emptyOnEnter notUrl')); ?>
 		<?php echo $form->hiddenField($model,'PRO_ID',array('id'=>'STO_SEARCH', 'class'=>'fancyValue')); ?>
 		<?php echo CHtml::image(Yii::app()->request->baseUrl . '/pics/search.png', $this->trans->GENERAL_SEARCH, array('class'=>'search_button openFancyBySubmit fancyChoose StoresSelect')); ?>
 	</div>

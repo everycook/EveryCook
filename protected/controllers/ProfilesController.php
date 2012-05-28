@@ -33,8 +33,7 @@ class ProfilesController extends Controller
 				'users'=>array('@'),
 			),
 			array('allow',  // allow all users to perform 'register' action
-				'actions'=>array('register', 'verifyRegistration', 'captcha'),
-
+				'actions'=>array('register', 'verifyRegistration', 'captcha', 'languageChanged'),
 				'users'=>array('*'),
 			),
 			array('deny',  // deny all users
@@ -263,14 +262,12 @@ class ProfilesController extends Controller
     */
    public function actionLanguageChanged()
    {
-      Yii::app()->session['lang'] = 'DE_CH';
-      $this->trans=InterfaceMenu::model()->findByPk(Yii::app()->session['lang']);
+      Yii::app()->session['lang'] = $_GET['lang'];
+      self::$trans=new Translations(Yii::app()->session['lang']);
       $model=new Profiles;
-      $model->PRF_LANG = 'DE_CH';
+      $model->PRF_LANG = $_GET['lang'];
 
       $this->checkRenderAjax('register',array('model'=>$model,));
-      
-      //$this->refresh();
    }
 
 	/**

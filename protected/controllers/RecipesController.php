@@ -9,7 +9,6 @@ class RecipesController extends Controller
 	
 	public $errorText = '';
 	public $errorFields = array();
-	public $allLanguages = array("de-CH", "en-GB");
 
 	/**
 	 * @return array action filters
@@ -159,15 +158,14 @@ class RecipesController extends Controller
 			$model->steps = $steps;
 			
 			Functions::updatePicture($model,'REC_IMG', $oldPicture);
-			/*
-			if (isset($model->REC_ID)){
-				$model->REC_CHANGED = time();
+			
+			if ($model->isNewRecord){
+				$model->CREATED_BY = Yii::app()->user->id;
+				$model->CREATED_ON = time();
 			} else {
-				//$model->PRF_UID = Yii::app()->session['userID'];
-				$model->PRF_UID = 1;
-				$model->REC_CREATED = time();
+				$model->CHANGED_BY = Yii::app()->user->id;
+				$model->CHANGED_ON = time();
 			}
-			*/
 			
 			Yii::app()->session['Recipe_Backup'] = $model;
 			if ($stepsOK){

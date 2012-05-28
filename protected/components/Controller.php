@@ -50,36 +50,39 @@ class Controller extends CController
 	
 	public function getIsAjaxRequest(){
 		$params = $this->getActionParams();
+		if (isset($params['noajax']) && $params['noajax']){
+			return false;
+		}
 		return $this->isFancyAjaxRequest || Yii::app()->request->isAjaxRequest || (isset($params['ajaxform']) && $params['ajaxform']);
 	}
 	
-	private $trans=null;
+	public $allLanguages = array("EN_GB", "DE_CH");
+	
+	protected static $trans=null;
 	public function getTrans()
 	{
-		return $this->trans;
+		return self::$trans;
 	}
 	
 	protected function beforeAction($action)
 	{
-      //$this->trans=InterfaceMenu::model()->findByPk('DE_CH');
-      //if(isset(Yii::app()->request->cookies['PHPSESSID'])) {
-		   if ($this->trans===null){
-			   // if user isGuest, take session cookie
-		      if (Yii::app()->user->isGuest){
-		         // if no language is defined, set default language
-				   if (!isset(Yii::app()->session['lang'])){
-					   Yii::app()->session['lang'] = 'EN_GB';
-				   }
-				   $this->trans=InterfaceMenu::model()->findByPk(Yii::app()->session['lang']);
-			   }
-		
-			   // if user is registeredUser, load its saved language setting
-			   else {
-               $this->trans=InterfaceMenu::model()->findByPk(Yii::app()->user->lang);
-            }
-		   }
-      //}
-//$this->trans=InterfaceMenu::model()->findByPk(Yii::app()->session['lang']);
+		if ($this->trans===null){
+			// if user isGuest, take session cookie
+			if (Yii::app()->user->isGuest){
+				// if no language is defined, set default language
+				if (!isset(Yii::app()->session['lang'])){
+					Yii::app()->session['lang'] = 'EN_GB';
+				}
+				//echo 'load text, guest';
+				self::$trans = new Translations(Yii::app()->session['lang']);
+			}
+
+			// if user is registeredUser, load its saved language setting
+			else {
+				//echo 'load text, user';
+				self::$trans=new Translations(Yii::app()->user->lang);
+			}
+		}
 		if($this->trans===null)
 			throw new CHttpException(404,'Error loading translation texts.');
 		return parent::beforeAction($action);
@@ -115,6 +118,7 @@ class Controller extends CController
 		{
 			if($this->useAjaxLinks){
 				Yii::app()->clientscript->registerCoreScript('bbq');
+				Yii::app()->clientscript->registerCoreScript('yii');
 				$fancyBox = new EFancyBox();
 				$fancyBox->publishAssets();
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery.iframe-post-form.js', CClientScript::POS_HEAD);

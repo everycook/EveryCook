@@ -162,23 +162,21 @@ class StoresController extends Controller
 			
 			Functions::updatePicture($model,'STO_IMG', $oldPicture);
 			
-			/*
-			if (isset($model->STO_ID)){
-				$model->CHANGED_ON = time();
-			} else {
-				//$model->PRF_UID = Yii::app()->session['userID'];
-				$model->CREATED_BY = 1;
+			if ($model->isNewRecord){
+				$model->CREATED_BY = Yii::app()->user->id;
 				$model->CREATED_ON = time();
+			} else {
+				$model->CHANGED_BY = Yii::app()->user->id;
+				$model->CHANGED_ON = time();
 			}
-			*/
 			
 			Yii::app()->session['Stores_Backup'] = $model;
 			if (isset($_POST['save'])){
-				saveModel($model);
+				$this->saveModel($model);
 			} else if (isset($_POST['Address_to_GPS'])){
-				addressToGPS($model);
+				$this->addressToGPS($model);
 			} else if (isset($_POST['GPS_to_Address'])){
-				GPSToAddress($model);
+				$this->GPSToAddress($model);
 			}
 		}
 		$supplier = Yii::app()->db->createCommand()->select('SUP_ID,SUP_NAME')->from('suppliers')->queryAll();

@@ -11,7 +11,7 @@ class CAjaxOptimizedClientScript extends CClientScript {
 		if(!$this->hasScripts)
 			return;
 		
-		if (!Yii::app()->request->isAjaxRequest)
+		if (!Yii::app()->controller->getIsAjaxRequest())
 			$this->renderCoreScripts();
 
 		if(!empty($this->scriptMap))
@@ -19,7 +19,7 @@ class CAjaxOptimizedClientScript extends CClientScript {
 
 		$this->unifyScripts();
 
-		if (!Yii::app()->request->isAjaxRequest){
+		if (!Yii::app()->controller->getIsAjaxRequest()){
 			$this->renderHead($output);
 			if($this->enableJavaScript) {
 				$this->renderBodyBegin($output);
