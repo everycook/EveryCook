@@ -65,25 +65,25 @@ class IngredientsController extends Controller
 		if (count($rows)>0){
 			$dup_rows = array();
 			foreach($rows as $row){
-				array_push($dup_rows, $row['ING_ID'] . ': ' . $row['ING_NAME_EN'] . ' / ' . $row['ING_NAME_DE']);
+				array_push($dup_rows, $row['ING_ID'] . ': ' . $row['ING_NAME_EN_GB'] . ' / ' . $row['ING_NAME_DE_CH']);
 			}
 			$duplicates = array_merge($duplicates, array ('NUT_ID'=>$dup_rows));
 		}
 		
 		$command = Yii::app()->db->createCommand()
 				->from('ingredients');
-		if ($model->ING_NAME_EN != '' && $model->ING_NAME_DE != ''){
-			$command->where('ingredients.ING_NAME_EN like :en or ingredients.ING_NAME_DE like :de', array(':en'=>'%' . $model->ING_NAME_EN . '%', ':de'=>'%' . $model->ING_NAME_DE . '%'));
-		} else if ($model->ING_NAME_EN != ''){
-			$command->where('ingredients.ING_NAME_EN like :en', array(':en'=>'%' . $model->ING_NAME_EN . '%'));
-		} else if ($model->ING_NAME_DE != ''){
-			$command->where('ingredients.ING_NAME_DE like :de', array(':de'=>'%' . $model->ING_NAME_DE . '%'));
+		if ($model->ING_NAME_EN_GB != '' && $model->ING_NAME_DE_CH != ''){
+			$command->where('ingredients.ING_NAME_EN_GB like :en or ingredients.ING_NAME_DE_CH like :de', array(':en'=>'%' . $model->ING_NAME_EN_GB . '%', ':de'=>'%' . $model->ING_NAME_DE_CH . '%'));
+		} else if ($model->ING_NAME_EN_GB != ''){
+			$command->where('ingredients.ING_NAME_EN_GB like :en', array(':en'=>'%' . $model->ING_NAME_EN_GB . '%'));
+		} else if ($model->ING_NAME_DE_CH != ''){
+			$command->where('ingredients.ING_NAME_DE_CH like :de', array(':de'=>'%' . $model->ING_NAME_DE_CH . '%'));
 		}
 		$rows = $command->queryAll();
 		if (count($rows)>0){
 			$dup_rows = array();
 			foreach($rows as $row){
-				array_push($dup_rows, $row['ING_ID'] . ': ' . $row['ING_NAME_EN'] . ' / ' . $row['ING_NAME_DE']);
+				array_push($dup_rows, $row['ING_ID'] . ': ' . $row['ING_NAME_EN_GB'] . ' / ' . $row['ING_NAME_DE_CH']);
 			}
 			$duplicates = array_merge($duplicates, array ('TITLE'=>$dup_rows));
 		}
