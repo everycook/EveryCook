@@ -17,7 +17,7 @@
  * @property integer $CHANGED_BY
  * @property string $CHANGED_ON
  */
-class Recipes extends CActiveRecord
+class Recipes extends ActiveRecordEC
 {
 	public $filename;
 	public $imagechanged;

@@ -40,9 +40,10 @@ return array(
 		),
 		
 		// uncomment the following to enable URLs in path-format
-
 		'urlManager'=>array(
 			'urlFormat'=>'path',
+                        'showScriptName'=>false,
+                        'caseSensitive'=>false,
 			'rules'=>array(
 				// call gii by /path/to/index.php/gii
 			        'gii'=>'gii',
@@ -56,7 +57,6 @@ return array(
 				'<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
 			),
 		),
-		
 		/*
 		'db'=>array(
 			'connectionString' => 'sqlite:'.dirname(__FILE__).'/../data/testdrive.db',
@@ -65,7 +65,18 @@ return array(
 		// uncomment the following to use a MySQL database
 		
 		'db'=>array(
+			'class'=>'CDbConnection',
 			'connectionString' => 'mysql:host=localhost;dbname=30608_everycook',
+			'emulatePrepare' => true,
+			'username' => 'root',
+			'password' => '',
+			'charset' => 'utf8',
+		),
+
+		// for tables profiles, meals, meals_to_cou, shoplists
+		'dbp'=>array(
+			'class'=>'CDbConnection',
+			'connectionString' => 'mysql:host=localhost;dbname=30608_everycook_priv',
 			'emulatePrepare' => true,
 			'username' => 'root',
 			'password' => '',

@@ -11,7 +11,7 @@
  * @property integer $CHANGED_BY
  * @property string $CHANGED_ON
  */
-class Suppliers extends CActiveRecord
+class Suppliers extends ActiveRecordEC
 {
 	/**
 	 * Returns the static model of the specified AR class.

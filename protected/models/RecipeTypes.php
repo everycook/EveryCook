@@ -8,7 +8,7 @@
  * @property string $RET_DESC_EN_GB
  * @property string $RET_DESC_DE_CH
  */
-class RecipeTypes extends CActiveRecord
+class RecipeTypes extends ActiveRecordEC
 {
 	/**
 	 * Returns the static model of the specified AR class.

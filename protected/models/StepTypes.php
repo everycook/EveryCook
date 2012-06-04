@@ -10,7 +10,7 @@
  * @property string $STT_DESC_EN_GB
  * @property string $STT_DESC_DE_CH
  */
-class StepTypes extends CActiveRecord
+class StepTypes extends ActiveRecordEC
 {
 	/**
 	 * Returns the static model of the specified AR class.

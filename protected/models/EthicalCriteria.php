@@ -12,7 +12,7 @@
  * @property integer $CHANGED_BY
  * @property string $CHANGED_ON
  */
-class EthicalCriteria extends CActiveRecord
+class EthicalCriteria extends ActiveRecordEC
 {
 	/**
 	 * Returns the static model of the specified AR class.

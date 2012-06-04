@@ -8,7 +8,7 @@
  * @property string $STB_DESC_EN_GB
  * @property string $STB_DESC_DE_CH
  */
-class Storability extends CActiveRecord
+class Storability extends ActiveRecordEC
 {
 	/**
 	 * Returns the static model of the specified AR class.

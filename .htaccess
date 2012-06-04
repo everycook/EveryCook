@@ -1,14 +1,14 @@
 #Options +FollowSymLinks
 #IndexIgnore */*
 
-#RewriteEngine On
+RewriteEngine On
      
 # if a directory or a file exists, use it directly
-#RewriteCond %{REQUEST_FILENAME} !-f
-#RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 
 # otherwise forward it to index.php
-#RewriteRule `(.*)\?*$ index.php/$1 [L,QSA]
+RewriteRule `(.*)\?*$ index.php/$1 [L,QSA]
 
-deny from all
+#deny from all
 #Options +FollowSymLinks

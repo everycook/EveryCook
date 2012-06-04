@@ -8,7 +8,7 @@
  * @property string $IST_DESC_EN_GB
  * @property string $IST_DESC_DE_CH
  */
-class IngredientStates extends CActiveRecord
+class IngredientStates extends ActiveRecordEC
 {
 	/**
 	 * Returns the static model of the specified AR class.

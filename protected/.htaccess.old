@@ -1,0 +1,14 @@
+IndexIgnore */*
+
+<IfModule mod_rewrite.c>
+   RewriteEngine on
+
+   #RewriteBase /
+
+   RewriteCond %{REQUEST_FILENAME} !-f
+   RewriteCond %{REQUEST_FILENAME} !-d
+
+   RewriteRule ^.*$ /everycook/index.php
+</IfModule>
+
+ErrorDocument 500 "<h2>Application error</h2>Yii application failed to start properly"

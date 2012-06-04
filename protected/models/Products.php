@@ -20,7 +20,7 @@
  * @property integer $CHANGED_BY
  * @property string $CHANGED_ON
  */
-class Products extends CActiveRecord
+class Products extends ActiveRecordEC
 {
 	public $filename;
 	public $imagechanged;

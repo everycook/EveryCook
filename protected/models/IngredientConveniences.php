@@ -8,7 +8,7 @@
  * @property string $ICO_DESC_EN_GB
  * @property string $ICO_DESC_DE_CH
  */
-class IngredientConveniences extends CActiveRecord
+class IngredientConveniences extends ActiveRecordEC
 {
 	/**
 	 * Returns the static model of the specified AR class.

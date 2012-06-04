@@ -13,7 +13,7 @@
  * @property integer $CHANGED_BY
  * @property string $CHANGED_ON
  */
-class Shoplists extends CActiveRecord
+class Shoplists extends ActiveRecordECPriv
 {
 	/**
 	 * Returns the static model of the specified AR class.

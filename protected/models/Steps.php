@@ -22,7 +22,7 @@
  * @property integer $CHANGED_BY
  * @property string $CHANGED_ON
  */
-class Steps extends CActiveRecord
+class Steps extends ActiveRecordEC
 {
 	/**
 	 * Returns the static model of the specified AR class.

@@ -15,7 +15,7 @@
  * @property string $ACT_DESC_EN_GB
  * @property string $ACT_DESC_DE_CH
  */
-class Actions extends CActiveRecord
+class Actions extends ActiveRecordEC
 {
 	/**
 	 * Returns the static model of the specified AR class.

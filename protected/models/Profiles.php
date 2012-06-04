@@ -26,7 +26,7 @@
  * @property integer $CHANGED_BY
  * @property string $CHANGED_ON
  */
-class Profiles extends CActiveRecord
+class Profiles extends ActiveRecordECPriv
 {
 	/**
 	* Private Attributes
@@ -60,13 +60,13 @@ class Profiles extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('PRF_NICK, PRF_EMAIL, PRF_PW, PRF_LANG', 'required'),
-			array('CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
+			//array('CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
 			array('PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_LOC_GPS', 'length', 'max'=>100),
 			array('PRF_PW', 'length', 'max'=>256),
 			array('PRF_LANG, PRF_IMG, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, CHANGED_ON', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_LANG, PRF_IMG, PRF_PW, PRF_LOC_GPS, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_LANG, PRF_IMG, PRF_PW, PRF_LOC_GPS, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS', 'safe', 'on'=>'search'),
 			
 			// register
 			//array('pw_repeat','safe'),
@@ -112,10 +112,10 @@ class Profiles extends CActiveRecord
 			'PRF_NOTLIKES_R' => 'Prf Notlikes R',
 			'PRF_NOTLIKES_P' => 'Prf Notlikes P',
 			'PRF_SHOPLISTS' => 'Prf Shoplists',
-			'CREATED_BY' => 'Created By',
-			'CREATED_ON' => 'Created On',
-			'CHANGED_BY' => 'Changed By',
-			'CHANGED_ON' => 'Changed On',
+			//'CREATED_BY' => 'Created By',
+			//'CREATED_ON' => 'Created On',
+			//'CHANGED_BY' => 'Changed By',
+			//'CHANGED_ON' => 'Changed On',
          'verifyCode'=>'Verification Code',
 		);
 	}
@@ -148,10 +148,10 @@ class Profiles extends CActiveRecord
 		$criteria->compare('PRF_NOTLIKES_R',$this->PRF_NOTLIKES_R,true);
 		$criteria->compare('PRF_NOTLIKES_P',$this->PRF_NOTLIKES_P,true);
 		$criteria->compare('PRF_SHOPLISTS',$this->PRF_SHOPLISTS,true);
-		$criteria->compare('CREATED_BY',$this->CREATED_BY);
-		$criteria->compare('CREATED_ON',$this->CREATED_ON,true);
-		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
-		$criteria->compare('CHANGED_ON',$this->CHANGED_ON,true);
+		//$criteria->compare('CREATED_BY',$this->CREATED_BY);
+		//$criteria->compare('CREATED_ON',$this->CREATED_ON,true);
+		//$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
+		//$criteria->compare('CHANGED_ON',$this->CHANGED_ON,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

@@ -9,7 +9,7 @@
  * @property string $SGR_DESC_EN_GB
  * @property string $SGR_DESC_DE_CH
  */
-class SubgroupNames extends CActiveRecord
+class SubgroupNames extends ActiveRecordEC
 {
 	/**
 	 * Returns the static model of the specified AR class.

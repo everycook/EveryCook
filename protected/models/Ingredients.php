@@ -23,7 +23,7 @@
  * @property integer $CHANGED_BY
  * @property string $CHANGED_ON
  */
-class Ingredients extends CActiveRecord
+class Ingredients extends ActiveRecordEC
 {
 	public $filename;
 	public $imagechanged;
@@ -219,6 +219,7 @@ class Ingredients extends CActiveRecord
 	}
 	
 	/**
+
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
 	 */
