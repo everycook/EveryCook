@@ -29,7 +29,7 @@ class StoresController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','chooseStores','advanceChooseStores','displaySavedImage'),
+				'actions'=>array('index','view','search','advanceSearch','chooseStores','advanceChooseStores','displaySavedImage','getStoresInRange'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -103,6 +103,7 @@ class StoresController extends Controller
 	
 	private function saveModel($model){
 		if ($model->validate()){
+			$duplicates = null;
 			if (!isset($model->STO_ID)){
 				$duplicates = $this->checkDuplicate($model);
 			}
@@ -141,20 +142,21 @@ class StoresController extends Controller
 		// $this->performAjaxValidation($model);
 		
 		$Session_Stores = Yii::app()->session['Stores_Backup'];
-		if ($Session_Stores){
+		if (isset($Session_Stores)){
 			$oldmodel = $Session_Stores;
 		}
-		if ($id){
-			if (!$oldmodel || $oldmodel->STO_ID != $id){
+		if (isset($id)){
+			if (!isset($oldmodel) || $oldmodel->STO_ID != $id){
 				$oldmodel = $this->loadModel($id, true);
 			}
 		}
 		
-		if ($oldmodel){
+		if (isset($oldmodel)){
 			$model = $oldmodel;
 			$oldPicture = $oldmodel->STO_IMG;
 		} else {
 			$model=new Stores;
+			$oldPicture = null;
 		}
 		
 		if(isset($_POST['Stores'])){
@@ -236,9 +238,10 @@ class StoresController extends Controller
 		}
 		if(isset($_POST['ProToSto'])){
 			if ($model->validate()){
+				$duplicates = null;
 				if (!isset($model->PRO_ID)){
 					$duplicates = $this->checkDuplicateAssing($model);
-				}
+					}
 				if ($duplicates != null && count($duplicates)>0 && !isset($_POST['ignoreDuplicates'])){
 					foreach($duplicates as $dup_type => $values){
 						if ($this->errorText != ''){
@@ -278,7 +281,7 @@ class StoresController extends Controller
 		$productName = $productName[0]['PRO_NAME_'.Yii::app()->session['lang']];
 		
 		//TODO get shops form current location
-		$nearShops = array('1_1_6'=>'Basel Gundeli','2_1_5'=>'Basel Banhof SBB');
+		$nearShops = array();
 		
 		$this->checkRenderAjax('assign',array(
 			'model'=>$model,
@@ -355,12 +358,12 @@ class StoresController extends Controller
 		
 		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Stores']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session['Stores']['time'])){
 			$Session_Stores = Yii::app()->session['Stores'];
-			if ($Session_Stores){
-				if ($Session_Stores['query']){
+			if (isset($Session_Stores)){
+				if (isset($Session_Stores['query'])){
 					$query = $Session_Stores['query'];
 					//echo "query from session\n";
 				}
-				if ($Session_Stores['model']){
+				if (isset($Session_Stores['model'])){
 					$model = $Session_Stores['model'];
 					$modelAvailable = true;
 					//echo "model from session\n";
@@ -372,7 +375,7 @@ class StoresController extends Controller
 		
 		if($modelAvailable) {
 			$Session_Stores = array();
-			if ($query){
+			if (isset($query)){
 				$Session_Stores['query'] = $query;
 			}
 			$Session_Stores['model'] = $model;
@@ -382,7 +385,7 @@ class StoresController extends Controller
 			$criteria = $model->getCriteriaString();
 			//$command = $model->commandBuilder->createFindCommand($model->tableName(), $criteria);
 			
-			if ($criteria->condition) {
+			if (isset($criteria->condition) && $criteria->condition != '') {
 				if ($criteriaString != ''){
 					$command = Yii::app()->db->createCommand()->from($model->tableName())->where($criteria->condition . ' AND ' . $criteriaString);
 				} else {
@@ -391,7 +394,7 @@ class StoresController extends Controller
 				//TODO verify: bind params seams not to work on "IN" condition...
 				$command = Functions::preparedStatementToStatement($command, $criteria->params);
 				$this->validSearchPerformed = true;
-			} else if ($criteriaString){
+			} else if (isset($criteriaString) && $criteriaString != ''){
 				$command->where($criteriaString);
 				$this->validSearchPerformed = true;
 			}
@@ -416,6 +419,7 @@ class StoresController extends Controller
 		
 		$dataProvider=new CArrayDataProvider($rows, array(
 			'id'=>'STO_ID',
+			'keyField'=>'STO_ID',
 			'pagination'=>array(
 				'pageSize'=>10,
 			),
@@ -487,4 +491,23 @@ class StoresController extends Controller
 		}
 		return Functions::getImage($modified, $model->STO_IMG_ETAG, $model->STO_IMG, $id);
     }
+	
+	
+	public function actionGetStoresInRange(){
+		$southWestLat = $_POST["southWestLat"];
+		$southWestLng = $_POST["southWestLng"];
+		$northEastLat = $_POST["northEastLat"];
+		$northEastLng = $_POST["northEastLng"];
+		$zoom = $_POST["zoom"];
+		
+		$stores = Yii::app()->db->createCommand()->select('stores.*, STY_TYPE_'.Yii::app()->session['lang']. ' as STY_TYPE, SUP_NAME')
+			->from('stores')			
+			->leftJoin('store_types', 'stores.STY_ID=store_types.STY_ID')
+			->leftJoin('suppliers', 'stores.SUP_ID=suppliers.SUP_ID')
+			->where("MBRContains(GeomFromText('POLYGON(($northEastLat $northEastLng, $southWestLat $northEastLng,$southWestLat $southWestLng,$northEastLat $southWestLng,$northEastLat $northEastLng))'), stores.STO_GPS_POINT) = 1")
+			//->limit(100)
+			->queryAll();
+		
+		$this->renderPartial('store_xml',array('stores'=>$stores,'zoom'=>$zoom));
+	}
 }

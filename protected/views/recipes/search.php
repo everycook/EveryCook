@@ -83,7 +83,7 @@ if (Yii::app()->session['Recipe'] && Yii::app()->session['Recipe']['time']){
 		<?php echo $form->textField($model,'REC_NAME_DE',array('size'=>60,'maxlength'=>100)); ?>
 	</div>
 
-	<div class="row buttons">
+	<div class="buttons">
 		<?php echo CHtml::submitButton('Search'); ?>
 	</div>
 
@@ -92,6 +92,6 @@ if (Yii::app()->session['Recipe'] && Yii::app()->session['Recipe']['time']){
 <?php $this->widget('zii.widgets.CListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
-	'id'=>'recipeResult',
+	'id'=>'recipesResult',
 )); ?>
 </div>

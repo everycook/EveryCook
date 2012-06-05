@@ -82,7 +82,7 @@ $this->mainButtons = array(
 	<div class="clearfix"></div>
 </div>
 
-<?php print_r($data); /*$this->widget('zii.widgets.CDetailView', array(
+<?php /*$this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,
 	'attributes'=>array(
 		'REC_ID',

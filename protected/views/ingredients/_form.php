@@ -104,7 +104,7 @@
 		<?php echo $form->error($model,'ING_IMG_AUTH'); ?>
 	</div>
 
-	<div class="row buttons">
+	<div class="buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE); ?>
 	</div>
 

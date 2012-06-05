@@ -39,7 +39,7 @@ jQuery(function($){
 	initFancyCoose();
 	
 	
-	jQuery('body').undelegate('form:not(.ajaxupload):not(.fancyForm):not(#login-form):not(#profiles-register-form)','submit').delegate('form:not(.ajaxupload):not(.fancyForm):not(#login-form):not(#profiles-register-form)','submit',function(){
+	jQuery('body').undelegate('form:not(.ajaxupload):not(.fancyForm):not(.noAjax)','submit').delegate('form:not(.ajaxupload):not(.fancyForm):not(.noAjax)','submit',function(){
 		var form = jQuery(this);
 		try {
 			submitValue = "";
@@ -47,7 +47,16 @@ jQuery(function($){
 			submitValue = "&" + encodeURI(pressedButton.name + "=" + pressedButton.value);
 		} catch(ex){
 		}
-		return submitForm(form, form.attr('action'), submitValue, function(data){jQuery('#changable_content').html(data)});
+		return submitForm(form, form.attr('action'), submitValue, function(data){
+			if (data.indexOf('{')===0){
+				eval('var data = ' + data + ';');
+			}
+			if (data.hash){
+				window.location.hash = data.hash;
+			} else {
+				jQuery('#changable_content').html(data);
+			}
+		});
 	});
 	
 	function submitForm(form, destUrl, submitValue, successFunc){

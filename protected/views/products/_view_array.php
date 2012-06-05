@@ -13,9 +13,11 @@
 		</div>
 		
 		<?php
+		/*
 		echo '<span><strong>' . CHtml::encode($this->trans->PRODUCTS_AVAILABLE_AT) .':</strong> ' . CHtml::encode($data['avail_store']) ."</span><br/>\n";
 		echo '<span>'; printf($this->trans->PRODUCTS_DISTANCE_TO_YOU, $data['dist_you']); echo '</span><br/>'."\n";
 		echo '<span>'; printf($this->trans->PRODUCTS_DISTANCE_TO_HOME, $data['dist_home']); echo '</span><br/>'."\n";
+		*/
 		
 		echo '<span><strong>' . CHtml::encode($this->trans->PRODUCTS_SUSTAINABILITY) .':</strong> ' . CHtml::encode($data['ECO_DESC_'.Yii::app()->session['lang']]) ."</span><br/>\n";
 		echo CHtml::link(CHtml::encode($this->trans->PRODUCTS_ASSIGN_SHOP), array('stores/assign', 'pro_id'=>$data['PRO_ID']), array('class'=>'button f-right'));

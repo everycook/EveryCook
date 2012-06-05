@@ -80,8 +80,8 @@
 		echo Functions::createInputTable(array(), $fieldOptions, $options, $form, $text);
 	?>
 	</div>
-	<div class="row buttons">
-		<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE); ?>
+	<div class="buttons">
+		<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE, array('class'=>'button')); ?>
 	</div>
 
 <?php $this->endWidget(); ?>

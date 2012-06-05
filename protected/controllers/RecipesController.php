@@ -61,16 +61,16 @@ class RecipesController extends Controller
 		$id = $_GET['id'];
 		
 		$Session_Recipe_Backup = Yii::app()->session['Recipe_Backup'];
-		if ($Session_Recipe_Backup){
+		if (isset($Session_Recipe_Backup)){
 			$oldmodel = $Session_Recipe_Backup;
 		}
-		if ($id){
-			if (!$oldmodel || $oldmodel->REC_ID != $id){
+		if (isset($id)){
+			if (!isset($oldmodel) || $oldmodel->REC_ID != $id){
 				$oldmodel = $this->loadModel($id, true);
 			}
 		}
 		
-		if ($oldmodel){
+		if (isset($oldmodel)){
 			$model = $oldmodel;
 		} else {
 			$model=new Recipes;
@@ -99,21 +99,22 @@ class RecipesController extends Controller
 		// $this->performAjaxValidation($model);
 		
 		$Session_Recipe_Backup = Yii::app()->session['Recipe_Backup'];
-		if ($Session_Recipe_Backup){
+		if (isset($Session_Recipe_Backup)){
 			$oldmodel = $Session_Recipe_Backup;
 		}
-		if ($id){
-			if (!$oldmodel || $oldmodel->REC_ID != $id){
+		if (isset($id)){
+			if (!isset($oldmodel) || $oldmodel->REC_ID != $id){
 				$oldmodel = $this->loadModel($id, true);
 			}
 		}
 		
-		if ($oldmodel){
+		if (isset($oldmodel)){
 			$model = $oldmodel;
 			$oldPicture = $oldmodel->REC_IMG;
 			$oldAmount = count($oldmodel->steps);
 		} else {
 			$model=new Recipes;
+			$oldPicture = null;
 			$oldAmount = 0;
 		}
 		
@@ -146,7 +147,7 @@ class RecipesController extends Controller
 			}
 			
 			$stepsToDelete = array();
-			if ($oldmodel){
+			if (isset($oldmodel)){
 				$newAmount = count($steps);
 				if ($oldAmount > $newAmount){
 					for($i = $newAmount; $i < $oldAmount; $i++){
@@ -223,7 +224,7 @@ class RecipesController extends Controller
 		//$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
 		//$ingredients = CHtml::listData($ingredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
 		
-		if ($model->steps && $model->steps[0] && !$model->steps[0]->ingredient){
+		if (isset($model->steps) && $model->steps[0] && !$model->steps[0]->ingredient){
 			/*
 			$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
 			$ingredients = CHtml::listData($ingredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
@@ -241,7 +242,7 @@ class RecipesController extends Controller
 			foreach($model->steps as $step){
 				array_push($neededIngredients,$step->ING_ID);
 			}
-			if (count(neededIngredients)>0){
+			if (count($neededIngredients)>0){
 				$criteria=new CDbCriteria;
 				$criteria->select = 'ING_ID,ING_NAME_'.Yii::app()->session['lang'];
 				$criteria->compare('ING_ID',$neededIngredients);
@@ -364,16 +365,16 @@ class RecipesController extends Controller
 		
 		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Recipes']) && !isset($_GET['ing_id'])  && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session['Recipe']['time'])){
 			$Session_Recipe = Yii::app()->session['Recipe'];
-			if ($Session_Recipe){
-				if ($Session_Recipe['query']){
+			if (isset($Session_Recipe)){
+				if (isset($Session_Recipe['query'])){
 					$query = $Session_Recipe['query'];
 					//echo "query from session\n";
 				}
-				if ($Session_Recipe['ing_id']){
+				if (isset($Session_Recipe['ing_id'])){
 					$ing_id = $Session_Recipe['ing_id'];
 					//echo "ing_id from session\n";
 				}
-				if ($Session_Recipe['model']){
+				if (isset($Session_Recipe['model'])){
 					$model = $Session_Recipe['model'];
 					$modelAvailable = true;
 					//echo "model from session\n";
@@ -428,6 +429,7 @@ class RecipesController extends Controller
 		
 		$dataProvider=new CArrayDataProvider($rows, array(
 			'id'=>'REC_ID',
+			'keyField'=>'REC_ID',
 			'pagination'=>array(
 				'pageSize'=>10,
 			),
@@ -482,9 +484,9 @@ class RecipesController extends Controller
     public function actionDisplaySavedImage($id, $ext)
     {
 		$model=$this->loadModel($id, true);
-		$modified = $model->CREATED_ON;
-		if (!$modified){
-			$modified = $model->CHANGED_ON;
+		$modified = $model->CHANGED_ON;
+		if (!isset($modified)){
+			$modified = $model->CREATED_ON;
 		}
 		return Functions::getImage($modified, $model->REC_IMG_ETAG, $model->REC_IMG, $id);
     }

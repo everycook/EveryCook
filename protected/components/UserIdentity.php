@@ -8,38 +8,38 @@
 class UserIdentity extends CUserIdentity
 {
 	/**
-	 * Authenticates a user.
-	 * The example implementation makes sure if the username and password
-	 * are both 'demo'.
-	 * In practical applications, this should be changed to authenticate
-	 * against some persistent user identity storage (e.g. database).
-	 * @return boolean whether authentication succeeds.
-	 */
+	* Authenticates a user.
+	* The example implementation makes sure if the username and password
+	* are both 'demo'.
+	* In practical applications, this should be changed to authenticate
+	* against some persistent user identity storage (e.g. database).
+	* @return boolean whether authentication succeeds.
+	*/
 
-   const ERROR_ACCOUNT_NOT_ACTIVE=3;
-   private $_id;
+	const ERROR_ACCOUNT_NOT_ACTIVE=3;
+	private $_id;
 
 	public function authenticate()
 	{
 		$record=Profiles::model()->findByAttributes(array('PRF_NICK'=>$this->username));
-     	if($record===null) {
-         $this->errorCode=self::ERROR_USERNAME_INVALID;
-      }
-      else {
-         if($record->PRF_ACTIVE === '0') {
-            $this->errorCode=self::ERROR_ACCOUNT_NOT_ACTIVE;
-         }
-        	else if($record->PRF_PW!==crypt($this->password, $record->PRF_PW)) {
-            $this->errorCode=self::ERROR_PASSWORD_INVALID;
-	      }
-        	else {
-            $this->_id=$record->PRF_UID;
-		      $this->setState('lang', $record->PRF_LANG);
-		      $this->setState('nick', $record->PRF_NICK);
-		      //Yii::app()->session['lang'] = $record->PRF_LANG;
-            $this->errorCode=self::ERROR_NONE;
-        	}
-      }
+		if($record===null) {
+			$this->errorCode=self::ERROR_USERNAME_INVALID;
+		}
+		else {
+			if($record->PRF_ACTIVE === '0') {
+				$this->errorCode=self::ERROR_ACCOUNT_NOT_ACTIVE;
+			}
+			else if($record->PRF_PW!==crypt($this->password, $record->PRF_PW)) {
+				$this->errorCode=self::ERROR_PASSWORD_INVALID;
+			}
+			else {
+				$this->_id=$record->PRF_UID;
+				$this->setState('lang', $record->PRF_LANG);
+				$this->setState('nick', $record->PRF_NICK);
+				Yii::app()->session['lang'] = $record->PRF_LANG;
+				$this->errorCode=self::ERROR_NONE;
+			}
+		}
 		return !$this->errorCode;
 	}
 

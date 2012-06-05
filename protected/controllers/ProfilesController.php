@@ -7,8 +7,6 @@ class ProfilesController extends Controller
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
 	public $layout='//layouts/column2';
-	public $key = 'success';
-   private $arg;
 
 	/**
 	 * @return array action filters
@@ -171,7 +169,7 @@ class ProfilesController extends Controller
 	 */
 	public function actionRegister() 
 	{ 
-      $arg = $hash;
+	        //$arg = $hash;
 		$model=new Profiles('register'); 
 		// uncomment the following code to enable ajax-based validation 
 		if(isset($_POST['ajax']) && $_POST['ajax']==='profiles-register-form') { 

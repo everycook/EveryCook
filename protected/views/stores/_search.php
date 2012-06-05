@@ -51,8 +51,13 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'STO_GPS'); ?>
-		<?php echo $form->textField($model,'STO_GPS',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->label($model,'STO_GPS_LAT'); ?>
+		<?php echo $form->textField($model,'STO_GPS_LAT'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'STO_GPS_LNG'); ?>
+		<?php echo $form->textField($model,'STO_GPS_LNG'); ?>
 	</div>
 
 	<div class="row">
@@ -63,6 +68,12 @@
 	<div class="row">
 		<?php echo $form->label($model,'STO_IMG'); ?>
 		<?php echo $form->textField($model,'STO_IMG'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'STO_IMG_AUTH'); ?>
+		<?php echo $form->textField($model,'STO_IMG_AUTH',array('size'=>60,'maxlength'=>100)); ?>
+	</div>
 	</div>
 
 	<div class="row">
@@ -90,7 +101,7 @@
 		<?php echo $form->textField($model,'CHANGED_ON'); ?>
 	</div>
 
-	<div class="row buttons">
+	<div class="buttons">
 		<?php echo CHtml::submitButton('Search'); ?>
 	</div>
 

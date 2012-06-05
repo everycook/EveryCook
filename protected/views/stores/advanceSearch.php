@@ -142,7 +142,7 @@ if ($this->isFancyAjaxRequest){
 		<?php echo $form->textField($model,'CHANGED_ON'); ?>
 	</div>
 	
-	<div class="row buttons">
+	<div class="buttons">
 		<?php echo CHtml::submitButton($this->trans->GENERAL_SEARCH); ?>
 	</div>
 */ ?>

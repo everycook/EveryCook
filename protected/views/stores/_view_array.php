@@ -19,18 +19,18 @@
 		<div class="adress">
 		<?php
 			if ($data['STO_STREET'] != null && strlen($data['STO_STREET'])>0){
-				echo '<span class="street">' . CHtml::encode($data['STO_STREET']) . '&nbsp;';
-				echo CHtml::encode($data['STO_HOUSE_NO']) . '</span>';
+				echo '<div class="street">' . CHtml::encode($data['STO_STREET']) . '&nbsp;';
+				echo CHtml::encode($data['STO_HOUSE_NO']) . '</div>';
 			}
 			if ($data['STO_CITY'] != null && strlen($data['STO_CITY'])>0){
-				echo '<span class="city">' . CHtml::encode($data['STO_ZIP']) . '&nbsp;';
-				echo CHtml::encode($data['STO_CITY']) . '</span>';
+				echo '<div class="city">' . CHtml::encode($data['STO_ZIP']) . '&nbsp;';
+				echo CHtml::encode($data['STO_CITY']) . '</div>';
 			}
 			if ($data['STO_COUNTRY'] != null && strlen($data['STO_COUNTRY'])>0 && $data['STO_COUNTRY'] != 0){
-				echo '<span class="country">' . CHtml::encode($data['STO_COUNTRY']) . '</span>';
+				echo '<div class="country">' . CHtml::encode($data['STO_COUNTRY']) . '</div>';
 			}
 			if ($data['STO_STATE'] != null && strlen($data['STO_STATE'])>0){
-				echo '<span class="state">' . CHtml::encode($data['STO_STATE']) . '</span>';
+				echo '<div class="state">' . CHtml::encode($data['STO_STATE']) . '</div>';
 			}
 		?>
 		</div>

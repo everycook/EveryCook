@@ -70,7 +70,7 @@ If you have business inquiries or other questions, please fill out the following
 	</div>
 	<?php endif; ?>
 
-	<div class="row buttons">
+	<div class="buttons">
 		<?php echo CHtml::submitButton('Submit'); ?>
 	</div>
 

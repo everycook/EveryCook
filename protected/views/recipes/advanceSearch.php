@@ -47,7 +47,7 @@ $this->menu=array(
 		<?php echo $form->textField($model,'RET_ID'); ?>
 	</div>
 
-	<div class="row buttons">
+	<div class="buttons">
 		<?php echo CHtml::submitButton('Search'); ?>
 	</div>
 
@@ -56,6 +56,6 @@ $this->menu=array(
 <?php $this->widget('zii.widgets.CListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
-	'id'=>'recipeResult',
+	'id'=>'recipesResult',
 )); ?>
 </div>

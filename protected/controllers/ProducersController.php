@@ -149,12 +149,12 @@ class ProducersController extends Controller
 		
 		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Producers']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session['Producer']['time'])){
 			$Session_Producer = Yii::app()->session['Producer'];
-			if ($Session_Producer){
-				if ($Session_Producer['query']){
+			if (isset($Session_Producer)){
+				if (isset($Session_Producer['query'])){
 					$query = $Session_Producer['query'];
 					//echo "query from session\n";
 				}
-				if ($Session_Producer['model']){
+				if (isset($Session_Producer['model'])){
 					$model = $Session_Producer['model'];
 					$modelAvailable = true;
 					//echo "model from session\n";
@@ -186,6 +186,7 @@ class ProducersController extends Controller
 		
 		$dataProvider=new CArrayDataProvider($rows, array(
 			'id'=>'PRD_ID',
+			'keyField'=>'PRD_ID',
 			'pagination'=>array(
 				'pageSize'=>10,
 			),

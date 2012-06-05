@@ -250,7 +250,7 @@
 		<?php echo $form->textField($model,'NUT_REFUSE'); ?>
 	</div>
 
-	<div class="row buttons">
+	<div class="buttons">
 		<?php echo CHtml::submitButton('Search'); ?>
 	</div>
 

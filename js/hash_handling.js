@@ -43,7 +43,7 @@ glob.changeHash = function(newParamName, newParamValue, noSubmit){
 jQuery(function($){
 	//Initialize Links
 	function initLinks(){
-		$('a[href*="index.php/"]:not(.fancyChoose)').each(function(){
+		$('a[href*="index.php/"]:not(.fancyChoose):not(.noAjax)').each(function(){
 			$(this).attr('href', "#" + $(this).attr('href').substr(glob.prefix.length+10));
 		});
 	}

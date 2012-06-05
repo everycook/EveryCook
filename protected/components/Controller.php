@@ -81,6 +81,7 @@ class Controller extends CController
 			else {
 				//echo 'load text, user';
 				self::$trans=new Translations(Yii::app()->user->lang);
+				Yii::app()->session['lang'] = Yii::app()->user->lang;
 			}
 		}
 		if($this->trans===null)
@@ -129,6 +130,7 @@ class Controller extends CController
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/iefix_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery.Jcrop.min.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/imgcrop_handling.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/map_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerCoreScript('yiiactiveform');
 				
 				$ziiBaseScriptUrl=Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('zii.widgets.assets'));

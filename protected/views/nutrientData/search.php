@@ -63,5 +63,6 @@ if ($this->isFancyAjaxRequest){
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
+	'id'=>'nutrientDataResult',
 )); ?>
 </div>

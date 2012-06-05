@@ -38,7 +38,7 @@ if ($this->isFancyAjaxRequest){
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'ajaxUpdate'=>false,
-	'id'=>'producerResult',
+	'id'=>'producersResult',
 )); ?>
 
 <?php $this->endWidget(); ?>

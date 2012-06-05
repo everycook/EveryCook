@@ -13,16 +13,20 @@
  * @property integer $STO_COUNTRY
  * @property string $STO_STATE
  * @property integer $STY_ID
- * @property string $STO_GPS
+ * @property double $STO_GPS_LAT
+ * @property double $STO_GPS_LNG
+ * @property string $STO_GPS_POINT
  * @property string $STO_PHONE
  * @property string $STO_IMG
+ * @property string $STO_IMG_AUTH
+ * @property string $STO_IMG_ETAG
  * @property integer $SUP_ID
  * @property integer $CREATED_BY
- * @property string $CREATED_ON
+ * @property integer $CREATED_ON
  * @property integer $CHANGED_BY
- * @property string $CHANGED_ON
+ * @property integer $CHANGED_ON
  */
-class Stores extends CActiveRecord
+class Stores extends ActiveRecordEC
 {
 	public $filename;
 	public $imagechanged;
@@ -51,16 +55,17 @@ class Stores extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('STO_NAME, STO_STREET, STO_ZIP, STO_CITY, STO_COUNTRY, STY_ID, SUP_ID, CREATED_BY, CREATED_ON', 'required'),
+			array('STO_NAME, STO_STREET, STO_ZIP, STO_CITY, STO_COUNTRY, STO_GPS_LAT, STO_GPS_LNG, STO_GPS_POINT, STO_IMG_AUTH, STO_IMG_ETAG, STY_ID, SUP_ID, CREATED_BY, CREATED_ON', 'required'),
 			array('STO_IMG_AUTH', 'required', 'on'=>'withPic'),
-			array('STO_ZIP, STO_COUNTRY, STY_ID, SUP_ID, CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
-			array('STO_NAME, STO_STREET, STO_CITY, STO_STATE, STO_GPS', 'length', 'max'=>100),
+			array('STO_ZIP, STO_COUNTRY, STY_ID, SUP_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('STO_GPS_LAT, STO_GPS_LNG', 'numerical'),
+			array('STO_NAME, STO_STREET, STO_CITY, STO_STATE, STO_IMG_AUTH', 'length', 'max'=>100),
 			array('STO_HOUSE_NO, STO_PHONE', 'length', 'max'=>20),
-			array('STO_IMG_AUTH', 'length', 'max'=>30),
-			array('STO_IMG, CHANGED_ON', 'safe'),
+			array('STO_IMG_ETAG', 'length', 'max'=>40),
+			array('STO_IMG', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('STO_ID, STO_NAME, STO_STREET, STO_HOUSE_NO, STO_ZIP, STO_CITY, STO_COUNTRY, STO_STATE, STY_ID, STO_GPS, STO_PHONE, STO_IMG, SUP_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('STO_ID, STO_NAME, STO_STREET, STO_HOUSE_NO, STO_ZIP, STO_CITY, STO_COUNTRY, STO_STATE, STY_ID, STO_GPS_LAT, STO_GPS_LNG, STO_GPS_POINT, STO_PHONE, STO_IMG, STO_IMG_AUTH, STO_IMG_ETAG, SUP_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -91,8 +96,13 @@ class Stores extends CActiveRecord
 			'STO_STATE' => 'Sto State',
 			'STY_ID' => 'Sty',
 			'STO_GPS' => 'Sto Gps',
+			'STO_GPS_LAT' => 'Sto Gps Lat',
+			'STO_GPS_LNG' => 'Sto Gps Lng',
+			'STO_GPS_POINT' => 'Sto Gps Point',
 			'STO_PHONE' => 'Sto Phone',
 			'STO_IMG' => 'Sto Img',
+			'STO_IMG_AUTH' => 'Sto Img Auth',
+			'STO_IMG_ETAG' => 'Sto Img Etag',
 			'SUP_ID' => 'Sup',
 			'CREATED_BY' => 'Created By',
 			'CREATED_ON' => 'Created On',
@@ -125,14 +135,18 @@ class Stores extends CActiveRecord
 		$criteria->compare('STO_COUNTRY',$this->STO_COUNTRY);
 		$criteria->compare('STO_STATE',$this->STO_STATE,true);
 		$criteria->compare('STY_ID',$this->STY_ID);
-		$criteria->compare('STO_GPS',$this->STO_GPS,true);
+		$criteria->compare('STO_GPS_LAT',$this->STO_GPS_LAT);
+		$criteria->compare('STO_GPS_LNG',$this->STO_GPS_LNG);
+		$criteria->compare('STO_GPS_POINT',$this->STO_GPS_POINT,true);
 		$criteria->compare('STO_PHONE',$this->STO_PHONE,true);
 		$criteria->compare('STO_IMG',$this->STO_IMG,true);
+		$criteria->compare('STO_IMG_AUTH',$this->STO_IMG_AUTH,true);
+		$criteria->compare('STO_IMG_ETAG',$this->STO_IMG_ETAG,true);
 		$criteria->compare('SUP_ID',$this->SUP_ID);
 		$criteria->compare('CREATED_BY',$this->CREATED_BY);
-		$criteria->compare('CREATED_ON',$this->CREATED_ON,true);
+		$criteria->compare('CREATED_ON',$this->CREATED_ON);
 		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
-		$criteria->compare('CHANGED_ON',$this->CHANGED_ON,true);
+		$criteria->compare('CHANGED_ON',$this->CHANGED_ON);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

@@ -133,7 +133,7 @@ class Functions extends CHtml{
 			foreach($fieldOptions as $field){
 				if($field[1]){
 					$options = $field[3];
-					if ($options['fancy']){
+					if (isset($options['fancy']) && $options['fancy']){
 						$text = $options['empty'];
 						$htmlOptions = array_merge(array('id'=>self::getIdByName(self::resolveArrayName($new,$field[0].'_DESC','%index%'))),$options['htmlOptions']);
 						$newhtml .= '<td>' . self::hiddenField(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0]), array('class'=>'fancyValue')) . self::link($text, $options['url'], $htmlOptions) . '</td>';

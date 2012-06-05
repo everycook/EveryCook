@@ -94,20 +94,21 @@ class IngredientsController extends Controller
 		$id = $_GET['id'];
 		
 		$Session_Ingredient_Backup = Yii::app()->session['Ingredient_Backup'];
-		if ($Session_Ingredient_Backup){
+		if (isset($Session_Ingredient_Backup)){
 			$oldmodel = $Session_Ingredient_Backup;
 		}
-		if ($id){
-			if (!$oldmodel || $oldmodel->ING_ID != $id){
+		if (isset($id)){
+			if (!isset($oldmodel) || $oldmodel->ING_ID != $id){
 				$oldmodel = $this->loadModel($id, true);
 			}
 		}
 		
-		if ($oldmodel){
+		if (isset($oldmodel)){
 			$model = $oldmodel;
 			$oldPicture = $oldmodel->ING_IMG;
 		} else {
 			$model=new Ingredients;
+			$oldPicture = null;
 		}
 		
 		if(isset($_POST['Ingredients'])){
@@ -133,20 +134,21 @@ class IngredientsController extends Controller
 		// $this->performAjaxValidation($model);
 		
 		$Session_Ingredient_Backup = Yii::app()->session['Ingredient_Backup'];
-		if ($Session_Ingredient_Backup){
+		if (isset($Session_Ingredient_Backup)){
 			$oldmodel = $Session_Ingredient_Backup;
 		}
-		if ($id){
-			if (!$oldmodel || $oldmodel->ING_ID != $id){
+		if (isset($id)){
+			if (!isset($oldmodel) || $oldmodel->ING_ID != $id){
 				$oldmodel = $this->loadModel($id, true);
 			}
 		}
 		
-		if ($oldmodel){
+		if (isset($oldmodel)){
 			$model = $oldmodel;
 			$oldPicture = $oldmodel->ING_IMG;
 		} else {
 			$model=new Ingredients;
+			$oldPicture=null;
 		}
 		
 		if(isset($_POST['Ingredients'])){
@@ -164,6 +166,7 @@ class IngredientsController extends Controller
 			
 			Yii::app()->session['Ingredient_Backup'] = $model;
 			if ($model->validate()){
+				$duplicates = null;
 				if (!isset($model->ING_ID)){
 					$duplicates = $this->checkDuplicate($model);
 				}
@@ -319,12 +322,12 @@ class IngredientsController extends Controller
 		
 		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Ingredients']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session['Ingredient']['time'])){
 			$Session_Ingredient = Yii::app()->session['Ingredient'];
-			if ($Session_Ingredient){
-				if ($Session_Ingredient['query']){
+			if (isset($Session_Ingredient)){
+				if (isset($Session_Ingredient['query'])){
 					$query = $Session_Ingredient['query'];
 					//echo "query from session\n";
 				}
-				if ($Session_Ingredient['model']){
+				if (isset($Session_Ingredient['model'])){
 					$model = $Session_Ingredient['model'];
 					$modelAvailable = true;
 					//echo "model from session\n";
@@ -336,7 +339,7 @@ class IngredientsController extends Controller
 		
 		if($modelAvailable) {
 			$Session_Ingredient = array();
-			if ($query){
+			if (isset($query)){
 				$Session_Ingredient['query'] = $query;
 			}
 			$Session_Ingredient['model'] = $model;
@@ -374,7 +377,7 @@ class IngredientsController extends Controller
 			*/
 			
 			
-			if ($criteria->condition) {
+			if (isset($criteria->condition) && $criteria->condition != '') {
 				if ($criteriaString != ''){
 					$command->where($criteria->condition . ' AND ' . $criteriaString);
 				} else {
@@ -389,7 +392,7 @@ class IngredientsController extends Controller
 				//TODO verify: bind params seams not to work on "IN" condition...
 				$command = Functions::preparedStatementToStatement($command, $criteria->params);
 				$this->validSearchPerformed = true;
-			} else if ($criteriaString){
+			} else if ($criteriaString != ''){
 				$command->where($criteriaString);
 				$this->validSearchPerformed = true;
 			}
@@ -406,6 +409,7 @@ class IngredientsController extends Controller
 			//$rows = $model->commandBuilder->createFindCommand($model->tableName(),$model->commandBuilder->createCriteria($criteriaString))->queryAll();
 			//$rows = $model->commandBuilder->createFindCommand($model->tableName(), $model->getCriteria())->queryAll();
 			$rows = Yii::app()->db->createCommand()
+				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, count(products.PRO_ID) as pro_count, count(pro_to_sto.SUP_ID) as sup_count')
 				->from('ingredients')
 				->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
 				->leftJoin('group_names', 'ingredients.GRP_ID=group_names.GRP_ID')
@@ -413,7 +417,10 @@ class IngredientsController extends Controller
 				->leftJoin('ingredient_conveniences', 'ingredients.ICO_ID=ingredient_conveniences.ICO_ID')
 				->leftJoin('storability', 'ingredients.STB_ID=storability.STB_ID')
 				->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID')
+				->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
+				->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
 				->where($criteriaString)
+				->group('ingredients.ING_ID')
 				//->order('actor.first_name, actor.last_name, film.title')
 				->queryAll();
 			
@@ -425,6 +432,7 @@ class IngredientsController extends Controller
 		
 		$dataProvider=new CArrayDataProvider($rows, array(
 			'id'=>'ING_ID',
+			'keyField'=>'ING_ID',
 			'pagination'=>array(
 				'pageSize'=>10,
 			),
@@ -447,7 +455,7 @@ class IngredientsController extends Controller
 				'model'=>$model,
 				'model2'=>$model2,
 				'dataProvider'=>$dataProvider,
-				'nutrientData'=>$nutrientData,
+				//'nutrientData'=>$nutrientData,
 				'groupNames'=>$groupNames,
 				'subgroupNames'=>$subgroupNames,
 				'ingredientConveniences'=>$ingredientConveniences,
@@ -515,7 +523,7 @@ class IngredientsController extends Controller
 	}
 	
 	private function getSubGroupDataById($id){
-		if ($id){
+		if (isset($id)){
 			$criteria=new CDbCriteria;
 			$criteria->select = 'SGR_ID,SGR_DESC_'.Yii::app()->session['lang'];
 			$criteria->compare('GRP_ID', $id);
@@ -534,7 +542,7 @@ class IngredientsController extends Controller
 		$subgroupNames = $this->getSubGroupDataById($id);
 		
 		$model=new Ingredients('form');
-		if ($id){
+		if (isset($id)){
 			$htmlOptions_subGroup = array('empty'=>$this->trans->GENERAL_CHOOSE);
 		} else {
 			$htmlOptions_subGroup = array('empty'=>$this->trans->INGREDIENTS_CHOOSE_GROUP_FIRST);
@@ -578,9 +586,9 @@ class IngredientsController extends Controller
     public function actionDisplaySavedImage($id, $ext)
     {
 		$model=$this->loadModel($id, true);
-		$modified = $model->CREATED_ON;
+		$modified = $model->CHANGED_ON;
 		if (!$modified){
-			$modified = $model->CHANGED_ON;
+			$modified = $model->CREATED_ON;
 		}
 		return Functions::getImage($modified, $model->ING_IMG_ETAG, $model->ING_IMG, $id);
     }

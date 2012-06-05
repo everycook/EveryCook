@@ -46,14 +46,26 @@
                         <?/*Yii::app()->user->isGuest */?>
 			<div id="metaNav">
 				<a href="<?php echo Yii::app()->createUrl('site/index',array()); ?>"><div id="logo" class="backpic" alt="EveryCook Logo"></div></a>
-   			<div>
-            	<?php echo 'session:'; if(Yii::app()->user->isGuest) echo Yii::app()->session['lang']; ?>
-					<?php echo 'user:'; if(!Yii::app()->user->isGuest){ echo Yii::app()->user->lang; echo "Welcome User: ".Yii::app()->user->nick;} ?>
+				<div style="float: left;">
+					<?php 
+					if(Yii::app()->user->isGuest) {
+						echo 'session: ' . Yii::app()->session['lang'];
+					} else {
+						echo 'user: ' . Yii::app()->user->lang;
+						echo "<br>Welcome User: ".Yii::app()->user->nick;
+					}
+					?>
 				</div>
 
 				<div id="metaNavButtons">
 					<!-- <a href="#site/login" OnClick="ShowLogin()"> -->
-					<a href="<?php if(Yii::app()->user->isGuest) echo '#site/login'; else echo '#site/logout'; ?>">
+					<?php
+					if(Yii::app()->user->isGuest) {
+						echo '<a href="'. Yii::app()->createUrl('site/login',array()) . '">';
+					} else {
+						echo '<a class="noAjax" href="' . Yii::app()->createUrl('site/logout',array()) . '">';
+					}
+					?>
 						<div class="nav_button">
 							<span id="login"><?php if(Yii::app()->user->isGuest) echo $this->trans->LOGIN; else echo 'Logout'; ?></span>                  
 						</div>

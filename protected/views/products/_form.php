@@ -115,7 +115,7 @@
 		<?php echo $form->error($model,'PRO_IMG_CR'); ?>
 	</div>
 
-	<div class="row buttons">
+	<div class="buttons">
 		<?php
 		echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE, array('name'=>'save', 'class'=>'button'));
 		echo CHtml::submitButton($this->trans->PRODUCTS_SAVE_AND_ASSIGN, array('name'=>'saveAddAssing', 'class'=>'button'));

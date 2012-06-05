@@ -100,7 +100,7 @@ if ($this->isFancyAjaxRequest){
 		<?php echo $form->textField($model,'ING_NAME_DE',array('size'=>60,'maxlength'=>100)); ?>
 	</div>
 	
-	<div class="row buttons">
+	<div class="buttons">
 		<?php echo CHtml::submitButton($this->trans->GENERAL_SEARCH); ?>
 	</div>
 */ ?>
@@ -111,7 +111,7 @@ if ($this->isFancyAjaxRequest){
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'ajaxUpdate'=>false,
-	'id'=>'ingredientResult',
+	'id'=>'ingredientsResult',
 	/*'ajaxUpdate'=>'ingredientsAdvanceSearch',*/
 )); ?>
 

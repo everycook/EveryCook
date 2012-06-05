@@ -50,6 +50,7 @@ class NutrientDataController extends Controller
 	 */
 	public function actionView($id) {
 		$model = $this->loadModel($id);
+		$ingredientName = null;
 		if (isset($_GET['ing_id'])){
 			$ingredientName = Yii::app()->db->createCommand()->select('ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->where('ING_ID = :ing_id',array(':ing_id'=>$_GET['ing_id']))->queryAll();
 		} else {
@@ -179,7 +180,7 @@ class NutrientDataController extends Controller
 		$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$model2->query, '');
 		
 		$criteria=$model->getCriteria();
-		if ($criteriaString){
+		if (isset($criteriaString) && $criteriaString != ''){
 			$criteria->addCondition($criteriaString);
 		}
 		
@@ -192,6 +193,7 @@ class NutrientDataController extends Controller
 			
 		$dataProvider=new CArrayDataProvider($rows, array(
 			'id'=>'NUT_ID',
+			'keyField'=>'NUT_ID',
 			'pagination'=>array(
 				'pageSize'=>10,
 			),

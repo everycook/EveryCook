@@ -162,7 +162,7 @@ div.index_div_login{
 
 
 
-.button, .buttonSmall {
+.button, .buttonSmall, input[type='submit'], input[type='button'] {
 	display: inline-block;
 	/*height:1.7em;*/
 	text-align: center;
@@ -171,7 +171,7 @@ div.index_div_login{
 	cursor:pointer;
 }
 
-.button {
+.button, input[type='submit'], input[type='button'] {
 	padding: 0.8em;
 	border: none;
 	/*width:8.4em;*/
@@ -276,47 +276,47 @@ div.resultArea div.options {
 	float:right;
 }
 
-#ingredientResult div.resultArea div.options a {
+#ingredientsResult div.resultArea div.options a {
 	margin-right: 2.8em;
 }
 
-#ingredientResult div.resultArea div.options a.last {
+#ingredientsResult div.resultArea div.options a.last {
 	margin-right: 0;
 }
 
-#ingredientResult div.resultArea div.details {
+#ingredientsResult div.resultArea div.details {
 	height:0;
 }
-#ingredientResult div.resultArea div.details  div{
+#ingredientsResult div.resultArea div.details  div{
 	margin-left:auto;
 	padding-top:3.5em;
 	width:3em;
 }
 
-#ingredientResult div.nutrientInfo {
+#ingredientsResult div.nutrientInfo {
 	line-height:3em;
 }
 
-#ingredientResult div.shopInfo {
+#ingredientsResult div.shopInfo {
 	line-height:3em;
 }
 
-#ingredientResult div.prodInfo  {
+#ingredientsResult div.prodInfo  {
 	line-height:1.5em;
 	margin-top:1em;
 }
 
 
 
-#recipeResult div.resultArea div.options a.disgusting {
+#recipesResult div.resultArea div.options a.disgusting {
 	float:right;
 }
 
-#recipeResult div.resultArea div.options a {
+#recipesResult div.resultArea div.options a {
 	margin-bottom: 0.8em;
 }
 
-#recipeResult div.resultArea div.options a.last {
+#recipesResult div.resultArea div.options a.last {
 	margin-bottom: 0;
 }
 
@@ -455,7 +455,7 @@ body > .backpicfix {
 #producer .remove {
 	margin-left: 2em;
 }
-#StoresResult .resultArea {
+#storesResult .resultArea {
 	min-width: 45em;
 }
 
@@ -467,13 +467,20 @@ body > .backpicfix {
 	margin: 10px 0;
 }
 
+div.form .row  input[type='text'],
+div.form .row  select,
+div.form .row  textarea {
+	width: 17em;
+}
 
+select.PACKAGE_MULT {
+	width: 5em;
+}
 
-
-
-
-
-
+div.mapDetails {
+	float: left;
+	margin-right: 1em;
+}
 
 
 

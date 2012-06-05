@@ -59,14 +59,13 @@ class StepsController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if ($oldmodel){
+		if (isset($oldmodel)){
 			$model = $oldmodel;
 		} else {
 			$model = new Steps;
 		}
 		
-		if(isset($_POST['Steps']))
-		{
+		if(isset($_POST['Steps'])) {
 			$model->attributes=$_POST['Steps'];
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->REC_ID,'id2'=>$model->STE_STEP_NO));

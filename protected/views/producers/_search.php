@@ -15,7 +15,7 @@
 		<?php echo $form->textField($model,'PRD_NAME',array('size'=>60,'maxlength'=>100)); ?>
 	</div>
 
-	<div class="row buttons">
+	<div class="buttons">
 		<?php echo CHtml::submitButton('Search'); ?>
 	</div>
 

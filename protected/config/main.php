@@ -42,8 +42,8 @@ return array(
 		// uncomment the following to enable URLs in path-format
 		'urlManager'=>array(
 			'urlFormat'=>'path',
-                        'showScriptName'=>false,
-                        'caseSensitive'=>false,
+			//'showScriptName'=>false,
+			'caseSensitive'=>false,
 			'rules'=>array(
 				// call gii by /path/to/index.php/gii
 			        'gii'=>'gii',
@@ -76,7 +76,7 @@ return array(
 		// for tables profiles, meals, meals_to_cou, shoplists
 		'dbp'=>array(
 			'class'=>'CDbConnection',
-			'connectionString' => 'mysql:host=localhost;dbname=30608_everycook_priv',
+			'connectionString' => 'mysql:host=localhost;dbname=30608_ecprivate',
 			'emulatePrepare' => true,
 			'username' => 'root',
 			'password' => '',

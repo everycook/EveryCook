@@ -11,7 +11,13 @@ class CAjaxOptimizedClientScript extends CClientScript {
 		if(!$this->hasScripts)
 			return;
 		
-		if (!Yii::app()->controller->getIsAjaxRequest())
+		if (method_exists(Yii::app()->controller,'getIsAjaxRequest')){
+			$ajaxRequest = Yii::app()->controller->getIsAjaxRequest();
+		} else {
+			$ajaxRequest = Yii::app()->request->isAjaxRequest;
+		}
+		
+		if (!$ajaxRequest)
 			$this->renderCoreScripts();
 
 		if(!empty($this->scriptMap))
@@ -19,7 +25,7 @@ class CAjaxOptimizedClientScript extends CClientScript {
 
 		$this->unifyScripts();
 
-		if (!Yii::app()->controller->getIsAjaxRequest()){
+		if (!$ajaxRequest){
 			$this->renderHead($output);
 			if($this->enableJavaScript) {
 				$this->renderBodyBegin($output);
@@ -42,7 +48,7 @@ class CAjaxOptimizedClientScript extends CClientScript {
 		return $scripttag;
 	}
 	protected function checkNotExistInsertLink($link){
-		return "check = JQuery.('link[href=" . $link . "]'); if(check.length==0){" . $this->replaceTagStartAndEnd("JQuery('head').append('".CHtml::linkTag(null,null,null,null,$link)."');") . "}";
+		return "check = jQuery.('link[href=" . $link . "]'); if(check.length==0){" . $this->replaceTagStartAndEnd("jQuery('head').append('".CHtml::linkTag(null,null,null,null,$link)."');") . "}";
 	}
 	
 	protected function checkNotExistInsertCssFile($url,$media){

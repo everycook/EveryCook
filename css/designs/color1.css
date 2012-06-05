@@ -43,7 +43,7 @@ div.index_div_login{
 	background-color:#997F7F;
 }
 
-.button, .buttonSmall {
+.button, .buttonSmall, input[type='submit'], input[type='button'] {
 	background-color:#997F7F;
 }
 

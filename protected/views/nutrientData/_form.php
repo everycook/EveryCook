@@ -303,7 +303,7 @@
 		<?php echo $form->error($model,'NUT_REFUSE'); ?>
 	</div>
 
-	<div class="row buttons">
+	<div class="buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE); ?>
 	</div>
 

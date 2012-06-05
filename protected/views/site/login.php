@@ -13,6 +13,7 @@ $this->breadcrumbs=array(
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'login-form',
 	'enableClientValidation'=>true,
+	'htmlOptions'=>array('class'=>'noAjax'),
 	/*
 	'clientOptions'=>array(
 		'validateOnSubmit'=>true,
@@ -44,7 +45,7 @@ $this->breadcrumbs=array(
 	<?php echo CHtml::link($this->trans->REGISTER_REGISTER_NOW,array('profiles/register'), array('class'=>'actionlink')); ?>
 	</p>
 
-	<div class="row buttons">
+	<div class="buttons">
 		<?php echo CHtml::submitButton('Login'); ?>
 	</div>   
 

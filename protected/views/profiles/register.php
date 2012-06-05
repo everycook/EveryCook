@@ -14,6 +14,7 @@
 	'id'=>'profiles-register-form',
 	//'enableAjaxValidation'=>true,
 	'enableClientValidation'=>true,
+	'htmlOptions'=>array('class'=>'noAjax'),
 	'clientOptions'=>array(
 		'validateOnSubmit'=>true,
 	),
@@ -130,7 +131,7 @@
 </div>
 <?php endif; ?>
 -->
-	<div class="row buttons">
+	<div class="buttons">
 		<?php echo CHtml::submitButton('Create'); ?>
 	</div>
 

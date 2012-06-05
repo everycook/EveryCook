@@ -1,25 +1,25 @@
 <?php
 class ActiveRecordEC extends CActiveRecord {
+	protected function beforeValidate() {
+		if(!Yii::app()->user->isGuest) {
+			$dateTime = new DateTime();
+			if($this->getIsNewRecord()) {
+				// get UnixTimeStamp
+				$this->CREATED_ON = $dateTime->getTimestamp();
+				$this->CREATED_BY = Yii::app()->user->id;
+			}
+			$this->CHANGED_ON = $dateTime->getTimestamp();
+			$this->CHANGED_BY = Yii::app()->user->id;
+			return true;
+		}
+		parent::beforeValidate();
+	}
 
-   protected function beforeValidate() {
-      if(!Yii::app()->isGuest) {
-         if($this->getIsNewRecord()) {
-            // get UnixTimeStamp
-            $this->created_on = DateTime::getTimestamp();
-            $this->created_by = Yii::app()->user->id;
-         }
-         $this->changed_on = DateTime::getTimestamp();
-         $this->changed_by = Yii::app()->user->id;
-         return true;
-      }
-      parent::beforeValidate();
-   }
-
-   /**
-    * @return string the associated database table name
-    */
-   public function tableName() {
-       preg_match("/dbname=([^;]+)/i", $this->dbConnection->connectionString, $matches);
-       return $matches[1].'.table_name';
-   }
+	/**
+	* @return string the associated database table name
+	*/
+	public function tableName() {
+		preg_match("/dbname=([^;]+)/i", $this->dbConnection->connectionString, $matches);
+		return $matches[1].'.table_name';
+	}
 }

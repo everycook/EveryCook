@@ -66,25 +66,25 @@ class ProductsController extends Controller
 		if (count($rows)>0){
 			$dup_rows = array();
 			foreach($rows as $row){
-				array_push($dup_rows, $row['PRO_ID'] . ': ' . $row['PRO_NAME_EN'] . ' / ' . $row['PRO_NAME_DE']);
+				array_push($dup_rows, $row['PRO_ID'] . ': ' . $row['PRO_NAME_EN_GB'] . ' / ' . $row['PRO_NAME_DE_CH']);
 			}
 			$duplicates = array_merge($duplicates, array ('ING_ID'=>$dup_rows));
 		}
 		
 		$command = Yii::app()->db->createCommand()
 				->from('products');
-		if ($model->PRO_NAME_EN != '' && $model->PRO_NAME_DE != ''){
-			$command->where('products.PRO_NAME_EN like :en or products.PRO_NAME_DE like :de', array(':en'=>'%' . $model->PRO_NAME_EN . '%', ':de'=>'%' . $model->PRO_NAME_DE . '%'));
-		} else if ($model->PRO_NAME_EN != ''){
-			$command->where('products.PRO_NAME_EN like :en', array(':en'=>'%' . $model->PRO_NAME_EN . '%'));
-		} else if ($model->PRO_NAME_DE != ''){
-			$command->where('products.PRO_NAME_DE like :de', array(':de'=>'%' . $model->PRO_NAME_DE . '%'));
+		if ($model->PRO_NAME_EN_GB != '' && $model->PRO_NAME_DE_CH != ''){
+			$command->where('products.PRO_NAME_EN_GB like :en or products.PRO_NAME_DE_CH like :de', array(':en'=>'%' . $model->PRO_NAME_EN_GB . '%', ':de'=>'%' . $model->PRO_NAME_DE_CH . '%'));
+		} else if ($model->PRO_NAME_EN_GB != ''){
+			$command->where('products.PRO_NAME_EN_GB like :en', array(':en'=>'%' . $model->PRO_NAME_EN_GB . '%'));
+		} else if ($model->PRO_NAME_DE_CH != ''){
+			$command->where('products.PRO_NAME_DE_CH like :de', array(':de'=>'%' . $model->PRO_NAME_DE_CH . '%'));
 		}
 		$rows = $command->queryAll();
 		if (count($rows)>0){
 			$dup_rows = array();
 			foreach($rows as $row){
-				array_push($dup_rows, $row['PRO_ID'] . ': ' . $row['PRO_NAME_EN'] . ' / ' . $row['PRO_NAME_DE']);
+				array_push($dup_rows, $row['PRO_ID'] . ': ' . $row['PRO_NAME_EN_GB'] . ' / ' . $row['PRO_NAME_DE_CH']);
 			}
 			$duplicates = array_merge($duplicates, array ('TITLE'=>$dup_rows));
 		}
@@ -95,16 +95,16 @@ class ProductsController extends Controller
 		$id = $_GET['id'];
 		
 		$Session_Product_Backup = Yii::app()->session['Product_Backup'];
-		if ($Session_Product_Backup){
+		if (isset($Session_Product_Backup)){
 			$oldmodel = $Session_Product_Backup;
 		}
-		if ($id){
-			if (!$oldmodel || $oldmodel->PRO_ID != $id){
+		if (isset($id)){
+			if (!isset($oldmodel) || $oldmodel->PRO_ID != $id){
 				$oldmodel = $this->loadModel($id, true);
 			}
 		}
 		
-		if ($oldmodel){
+		if (isset($oldmodel)){
 			$model = $oldmodel;
 		} else {
 			$model=new Products;
@@ -133,27 +133,28 @@ class ProductsController extends Controller
 		// $this->performAjaxValidation($model);
 		
 		$Session_Product_Backup = Yii::app()->session['Product_Backup'];
-		if ($Session_Product_Backup){
+		if (isset($Session_Product_Backup)){
 			$oldmodel = $Session_Product_Backup;
 		}
-		if ($id){
-			if (!$oldmodel || $oldmodel->PRO_ID != $id){
+		if (isset($id)){
+			if (!isset($oldmodel) || $oldmodel->PRO_ID != $id){
 				$oldmodel = $this->loadModel($id, true);
 			}
 		}
 		
-		if ($oldmodel){
+		if (isset($oldmodel)){
 			$model = $oldmodel;
 			$oldPicture = $oldmodel->PRO_IMG;
 		} else {
 			$model=new Products;
+			$oldPicture = null;
 		}
 		
 		$ing_id = null;
 		if(isset($_GET['ing_id'])){
 			$ing_id = $_GET['ing_id'];
 			
-			if (!$model->ING_ID && $ing_id){
+			if (!isset($model->ING_ID) && $ing_id){
 				$model->ING_ID = $ing_id;
 			}
 		}
@@ -190,6 +191,7 @@ class ProductsController extends Controller
 			
 			Yii::app()->session['Product_Backup'] = $model;
 			if ($model->validate()){
+				$duplicates = null;
 				if (!isset($model->PRO_ID)){
 					$duplicates = $this->checkDuplicate($model);
 				}
@@ -275,7 +277,7 @@ class ProductsController extends Controller
 				}
 			}
 		}
-		if ($model->ING_ID && (!$model->ingredient || !$model->ingredient->__get('ING_NAME_'.Yii::app()->session['lang']) || $model->ING_ID != $model->ingredient->ING_ID)){
+		if (isset($model->ING_ID) && (!$model->ingredient || !$model->ingredient->__get('ING_NAME_'.Yii::app()->session['lang']) || $model->ING_ID != $model->ingredient->ING_ID)){
 			$model->ingredient = Ingredients::model()->findByPk($model->ING_ID);
 		}
 		$ecology = Yii::app()->db->createCommand()->select('ECO_ID,ECO_DESC_'.Yii::app()->session['lang'])->from('ecology')->queryAll();
@@ -353,16 +355,16 @@ class ProductsController extends Controller
 		
 		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Products']) && !isset($_GET['ing_id']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session['Product']['time'])){
 			$Session_Product = Yii::app()->session['Product'];
-			if ($Session_Product){
-				if ($Session_Product['query']){
+			if (isset($Session_Product)){
+				if (isset($Session_Product['query'])){
 					$query = $Session_Product['query'];
 					//echo "query from session\n";
 				}
-				if ($Session_Product['ing_id']){
+				if (isset($Session_Product['ing_id'])){
 					$ing_id = $Session_Product['ing_id'];
 					//echo "ing_id from session\n";
 				}
-				if ($Session_Product['model']){
+				if (isset($Session_Product['model'])){
 					$model = $Session_Product['model'];
 					$modelAvailable = true;
 					//echo "model from session\n";
@@ -408,7 +410,8 @@ class ProductsController extends Controller
 		}
 		
 		$dataProvider=new CArrayDataProvider($rows, array(
-			'id'=>'REC_ID',
+			'id'=>'PRO_ID',
+			'keyField'=>'PRO_ID',
 			'pagination'=>array(
 				'pageSize'=>10,
 			),
@@ -481,9 +484,9 @@ class ProductsController extends Controller
     public function actionDisplaySavedImage($id, $ext)
     {
 		$model=$this->loadModel($id, true);
-		$modified = $model->CREATED_ON;
-		if (!$modified){
-			$modified = $model->CHANGED_ON;
+		$modified = $model->CHANGED_ON;
+		if (!isset($modified)){
+			$modified = $model->CREATED_ON;
 		}
 		return Functions::getImage($modified, $model->PRO_IMG_ETAG, $model->PRO_IMG, $id);
     }

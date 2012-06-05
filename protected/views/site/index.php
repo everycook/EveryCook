@@ -3,7 +3,7 @@
 <h1>Welcome to <i><?php echo CHtml::encode(Yii::app()->name); ?></i></h1>
 
 <p>Congratulations! You have successfully created your Yii application.</p>
-
+<p><?php echo CHtml::normalizeUrl(array('/site/login')).Yii::app()->request->hostInfo ?></p>
 <p>You may change the content of this page by modifying the following two files:</p>
 <ul>
 	<li>View file: <tt><?php echo __FILE__; ?></tt></li>
