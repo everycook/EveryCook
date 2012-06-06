@@ -156,14 +156,6 @@ class IngredientsController extends Controller
 			
 			Functions::updatePicture($model,'ING_IMG', $oldPicture);
 			
-			if ($model->isNewRecord){
-				$model->CREATED_BY = Yii::app()->user->id;
-				$model->CREATED_ON = time();
-			} else {
-				$model->CHANGED_BY = Yii::app()->user->id;
-				$model->CHANGED_ON = time();
-			}
-			
 			Yii::app()->session['Ingredient_Backup'] = $model;
 			if ($model->validate()){
 				$duplicates = null;

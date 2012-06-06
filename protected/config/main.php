@@ -42,18 +42,18 @@ return array(
 		// uncomment the following to enable URLs in path-format
 		'urlManager'=>array(
 			'urlFormat'=>'path',
-			//'showScriptName'=>false,
-			'caseSensitive'=>false,
+			'showScriptName'=>false,
+			//'caseSensitive'=>false,
 			'rules'=>array(
 				// call gii by /path/to/index.php/gii
-			        'gii'=>'gii',
-			        'gii/<controller:\w+>'=>'gii/<controller>',
-			        'gii/<controller:\w+>/<action:\w+>'=>'gii/<controller>/<action>',
+				'gii'=>'gii',
+				'gii/<controller:\w+>'=>'gii/<controller>',
+				'gii/<controller:\w+>/<action:\w+>'=>'gii/<controller>/<action>',
 
 				'<controller:\w+>'=>'<controller>/index',
 				'<controller:\w+>/<id:\d+>'=>'<controller>/view',
+				'<controller:\w+>/<action:\w+>/<id:\w+>.<ext:\w+>'=>'<controller>/<action>',
 				'<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
-				'<controller:\w+>/<action:\w+>/<id:\w+><ext:\.\w+>'=>'<controller>/<action>',
 				'<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
 			),
 		),
@@ -66,6 +66,7 @@ return array(
 		
 		'db'=>array(
 			'class'=>'CDbConnection',
+			'driverMap'=>array('mysql'=>'MysqlGeomSchema'),
 			'connectionString' => 'mysql:host=localhost;dbname=30608_everycook',
 			'emulatePrepare' => true,
 			'username' => 'root',
@@ -76,6 +77,7 @@ return array(
 		// for tables profiles, meals, meals_to_cou, shoplists
 		'dbp'=>array(
 			'class'=>'CDbConnection',
+			'driverMap'=>array('mysql'=>'MysqlGeomSchema'),
 			'connectionString' => 'mysql:host=localhost;dbname=30608_ecprivate',
 			'emulatePrepare' => true,
 			'username' => 'root',
@@ -85,8 +87,8 @@ return array(
 		
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors
-            		'errorAction'=>'site/error',
-        	),
+			'errorAction'=>'site/error',
+		),
 		'log'=>array(
 			'class'=>'CLogRouter',
 			'routes'=>array(

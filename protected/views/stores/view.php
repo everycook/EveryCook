@@ -31,7 +31,7 @@ $this->menu=array(
 		'STO_GPS_LNG',
 		'STO_GPS_POINT',
 		'STO_PHONE',
-		'STO_IMG',
+		//'STO_IMG',
 		'STO_IMG_AUTH',
 		'STO_IMG_ETAG',
 		'SUP_ID',

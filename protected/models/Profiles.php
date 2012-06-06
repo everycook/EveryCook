@@ -8,11 +8,15 @@
  * @property string $PRF_FIRSTNAME
  * @property string $PRF_LASTNAME
  * @property string $PRF_NICK
+ * @property integer $PRF_GENDER
+ * @property integer $PRF_BIRTHDAY
  * @property string $PRF_EMAIL
  * @property string $PRF_LANG
  * @property string $PRF_IMG
  * @property string $PRF_PW
- * @property string $PRF_LOC_GPS
+ * @property double $PRF_LOC_GPS_LAT
+ * @property double $PRF_LOC_GPS_LNG
+ * @property string $PRF_LOC_GPS_POINT
  * @property string $PRF_LIKES_I
  * @property string $PRF_LIKES_R
  * @property string $PRF_LIKES_P
@@ -21,18 +25,24 @@
  * @property string $PRF_NOTLIKES_R
  * @property string $PRF_NOTLIKES_P
  * @property string $PRF_SHOPLISTS
+ * @property integer $PRF_ACTIVE
+ * @property string $PRF_RND
  * @property integer $CREATED_BY
- * @property string $CREATED_ON
+ * @property integer $CREATED_ON
  * @property integer $CHANGED_BY
- * @property string $CHANGED_ON
+ * @property integer $CHANGED_ON
  */
 class Profiles extends ActiveRecordECPriv
 {
 	/**
 	* Private Attributes
 	*/
+	public $new_pw;
 	public $pw_repeat;
-   public $verifyCaptcha;
+	public $verifyCaptcha;
+	
+	public $filename;
+	public $imagechanged;
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -60,21 +70,27 @@ class Profiles extends ActiveRecordECPriv
 		// will receive user inputs.
 		return array(
 			array('PRF_NICK, PRF_EMAIL, PRF_PW, PRF_LANG', 'required'),
-			//array('CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
-			array('PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_LOC_GPS', 'length', 'max'=>100),
+			array('PRF_GENDER, PRF_BIRTHDAY, PRF_ACTIVE, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG', 'numerical'),
+			array('PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_RND', 'length', 'max'=>100),
+			array('PRF_LANG', 'length', 'max'=>10),
 			array('PRF_PW', 'length', 'max'=>256),
-			array('PRF_LANG, PRF_IMG, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, CHANGED_ON', 'safe'),
+			array('PRF_IMG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_LANG, PRF_IMG, PRF_PW, PRF_LOC_GPS, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS', 'safe', 'on'=>'search'),
+			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_GENDER, PRF_BIRTHDAY, PRF_EMAIL, PRF_LANG, PRF_IMG, PRF_PW, PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_ACTIVE, PRF_RND, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 			
 			// register
 			//array('pw_repeat','safe'),
-			array('pw_repeat','required', 'on'=>'register'),
+			array('pw_repeat, verifyCaptcha', 'required', 'on'=>'register'),
+			array('pw_repeat', 'compare', 'compareAttribute'=>'PRF_PW', 'on'=>'register'),
 			array('PRF_NICK, PRF_EMAIL','unique', 'on'=>'register'),
-			//array('pw_repeat','compare','compareAttribute'=>'PRF_PW', 'on'=>'register'),
-         //array('verifyCaptcha', 'captcha', 'allowEmpty'=>!CCaptcha::checkRequirements()),
-         //array('verifyCaptcha', 'CaptchaExtendedValidator', 'allowEmpty'=>!CCaptcha::checkRequirements()),
+			array('PRF_NICK, PRF_EMAIL','unique', 'on'=>'update'),
+			array('pw_repeat', 'required', 'on'=>'pw_change'),
+			array('pw_repeat', 'compare', 'compareAttribute'=>'PRF_PW', 'on'=>'pw_change'),
+			array('PRF_NICK, PRF_EMAIL','unique', 'on'=>'pw_change'),
+			//array('verifyCaptcha', 'captcha', 'allowEmpty'=>!CCaptcha::checkRequirements()),
+			//array('verifyCaptcha', 'CaptchaExtendedValidator', 'allowEmpty'=>!CCaptcha::checkRequirements()),
 		);
 	}
 
@@ -99,11 +115,16 @@ class Profiles extends ActiveRecordECPriv
 			'PRF_FIRSTNAME' => 'Prf Firstname',
 			'PRF_LASTNAME' => 'Prf Lastname',
 			'PRF_NICK' => 'Prf Nick',
+			'PRF_GENDER' => 'Prf Gender',
+			'PRF_BIRTHDAY' => 'Prf Birthday',
 			'PRF_EMAIL' => 'Prf Email',
-         'PRF_LANG' => 'Prf Lang',
+			'PRF_LANG' => 'Prf Lang',
 			'PRF_IMG' => 'Prf Img',
 			'PRF_PW' => 'Prf Pw',
-			'PRF_LOC_GPS' => 'Prf Loc Gps',
+			'pw_repeat' => 'pw repeat',
+			'PRF_LOC_GPS_LAT' => 'Prf Loc Gps Lat',
+			'PRF_LOC_GPS_LNG' => 'Prf Loc Gps Lng',
+			'PRF_LOC_GPS_POINT' => 'Prf Loc Gps Point',
 			'PRF_LIKES_I' => 'Prf Likes I',
 			'PRF_LIKES_R' => 'Prf Likes R',
 			'PRF_LIKES_P' => 'Prf Likes P',
@@ -112,11 +133,13 @@ class Profiles extends ActiveRecordECPriv
 			'PRF_NOTLIKES_R' => 'Prf Notlikes R',
 			'PRF_NOTLIKES_P' => 'Prf Notlikes P',
 			'PRF_SHOPLISTS' => 'Prf Shoplists',
+			//'PRF_ACTIVE' => 'Prf Active',
+			//'PRF_RND' => 'Prf Rnd',
 			//'CREATED_BY' => 'Created By',
 			//'CREATED_ON' => 'Created On',
 			//'CHANGED_BY' => 'Changed By',
 			//'CHANGED_ON' => 'Changed On',
-         'verifyCode'=>'Verification Code',
+			'verifyCode'=>'Verification Code',
 		);
 	}
 
@@ -135,11 +158,15 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare('PRF_FIRSTNAME',$this->PRF_FIRSTNAME,true);
 		$criteria->compare('PRF_LASTNAME',$this->PRF_LASTNAME,true);
 		$criteria->compare('PRF_NICK',$this->PRF_NICK,true);
+		$criteria->compare('PRF_GENDER',$this->PRF_GENDER);
+		$criteria->compare('PRF_BIRTHDAY',$this->PRF_BIRTHDAY);
 		$criteria->compare('PRF_EMAIL',$this->PRF_EMAIL,true);
 		$criteria->compare('PRF_LANG',$this->PRF_LANG,true);
 		$criteria->compare('PRF_IMG',$this->PRF_IMG,true);
 		$criteria->compare('PRF_PW',$this->PRF_PW,true);
-		$criteria->compare('PRF_LOC_GPS',$this->PRF_LOC_GPS,true);
+		$criteria->compare('PRF_LOC_GPS_LAT',$this->PRF_LOC_GPS_LAT);
+		$criteria->compare('PRF_LOC_GPS_LNG',$this->PRF_LOC_GPS_LNG);
+		$criteria->compare('PRF_LOC_GPS_POINT',$this->PRF_LOC_GPS_POINT,true);
 		$criteria->compare('PRF_LIKES_I',$this->PRF_LIKES_I,true);
 		$criteria->compare('PRF_LIKES_R',$this->PRF_LIKES_R,true);
 		$criteria->compare('PRF_LIKES_P',$this->PRF_LIKES_P,true);
@@ -148,10 +175,12 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare('PRF_NOTLIKES_R',$this->PRF_NOTLIKES_R,true);
 		$criteria->compare('PRF_NOTLIKES_P',$this->PRF_NOTLIKES_P,true);
 		$criteria->compare('PRF_SHOPLISTS',$this->PRF_SHOPLISTS,true);
+		//$criteria->compare('PRF_ACTIVE',$this->PRF_ACTIVE);
+		//$criteria->compare('PRF_RND',$this->PRF_RND,true);
 		//$criteria->compare('CREATED_BY',$this->CREATED_BY);
-		//$criteria->compare('CREATED_ON',$this->CREATED_ON,true);
+		//$criteria->compare('CREATED_ON',$this->CREATED_ON);
 		//$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
-		//$criteria->compare('CHANGED_ON',$this->CHANGED_ON,true);
+		//$criteria->compare('CHANGED_ON',$this->CHANGED_ON);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

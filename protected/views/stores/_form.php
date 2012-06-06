@@ -94,13 +94,13 @@
 		
 		<div class="row">
 			<?php echo $form->labelEx($model,'STO_GPS_LAT'); ?>
-			<?php echo $form->textField($model,'STO_GPS_LAT'); ?>
+			<?php echo $form->textField($model,'STO_GPS_LAT', array('class'=>'cord_lat')); ?>
 			<?php echo $form->error($model,'STO_GPS_LAT'); ?>
 		</div>
 
 		<div class="row">
 			<?php echo $form->labelEx($model,'STO_GPS_LNG'); ?>
-			<?php echo $form->textField($model,'STO_GPS_LNG'); ?>
+			<?php echo $form->textField($model,'STO_GPS_LNG', array('class'=>'cord_lng')); ?>
 			<?php echo $form->error($model,'STO_GPS_LNG'); ?>
 		</div>
 

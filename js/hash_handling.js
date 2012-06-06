@@ -1,9 +1,8 @@
 var glob = glob || {};
 
 glob.prefix = window.location.pathname.substr(0,window.location.pathname.indexOf('/',1)+1);
-
 glob.hashToUrl = function(url){
-	return glob.prefix + 'index.php/' + url;
+	return glob.prefix + url;
 };
 
 
@@ -43,8 +42,8 @@ glob.changeHash = function(newParamName, newParamValue, noSubmit){
 jQuery(function($){
 	//Initialize Links
 	function initLinks(){
-		$('a[href*="index.php/"]:not(.fancyChoose):not(.noAjax)').each(function(){
-			$(this).attr('href', "#" + $(this).attr('href').substr(glob.prefix.length+10));
+		$('a[href*="' + glob.prefix + '"]:not(.fancyChoose):not(.noAjax)').each(function(){
+			$(this).attr('href', "#" + $(this).attr('href').substr(glob.prefix.length));
 		});
 	}
 	

@@ -43,7 +43,7 @@
 	?>
 	
 	<?php
-		if (Yii::app()->session['Recipe_Backup'] && Yii::app()->session['Recipe_Backup']->REC_IMG_ETAG){
+		if (isset(Yii::app()->session['Recipe_Backup']) && isset(Yii::app()->session['Recipe_Backup']->REC_IMG_ETAG)){
 			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'recipe cropable', 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));
 		} else if ($model->REC_ID) {
 			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'png')), '', array('class'=>'recipe cropable', 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));

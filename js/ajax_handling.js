@@ -204,7 +204,15 @@ jQuery(function($){
 	});
 	
 	jQuery('body').undelegate('#Profiles_PRF_LANG','change').delegate('#Profiles_PRF_LANG','change',function(){
-		window.location = jQuery('#LanguageChangeLink').val() + '?lang=' + jQuery('#Profiles_PRF_LANG').val();
+		var destUrl = jQuery('#LanguageChangeLink').val();
+		if (destUrl.indexOf('?')>0){
+			destUrl = destUrl + '&';
+		} else {
+			destUrl = destUrl + '?';
+		}
+		destUrl = destUrl + 'lang=' + jQuery('#Profiles_PRF_LANG').val();
+
+		window.location = destUrl;
 	});
 });
 

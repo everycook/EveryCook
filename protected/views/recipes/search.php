@@ -14,7 +14,7 @@ $this->menu=array(
 	);
 //}
 
-if (Yii::app()->session['Recipe'] && Yii::app()->session['Recipe']['time']){
+if (isset(Yii::app()->session['Recipe']) && isset(Yii::app()->session['Recipe']['time'])){
 	$newRecSearch=array('newSearch'=>Yii::app()->session['Recipe']['time']);
 } else {
 	$newRecSearch=array();

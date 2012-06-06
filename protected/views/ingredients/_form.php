@@ -85,7 +85,7 @@
 	</div>
 	
 	<?php
-		if (Yii::app()->session['Ingredient_Backup'] && Yii::app()->session['Ingredient_Backup']->ING_IMG_ETAG){
+		if (isset(Yii::app()->session['Ingredient_Backup']) && isset(Yii::app()->session['Ingredient_Backup']->ING_IMG_ETAG)){
 			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
 		} else if ($model->ING_ID) {
 			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));

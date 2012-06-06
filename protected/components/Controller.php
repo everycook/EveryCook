@@ -142,9 +142,9 @@ class Controller extends CController
 	
 	public function createUrlHash($route,$params=array(),$ampersand='&') {
 		$url = parent::createUrl($route,$params,$ampersand);
-		$pos = strpos($url, 'index.php/');
+		$pos = strpos($url, '/', 1);
 		if ($pos !== false){
-			$url = substr($url, $pos+10);
+			$url = substr($url, $pos+1);
 		}
 		return $url;
 	}

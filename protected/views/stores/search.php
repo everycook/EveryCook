@@ -15,7 +15,7 @@ $this->menu=array(
 //}
 
 $ingSearch = array(($this->isFancyAjaxRequest)?'stores/advanceChooseStores':'stores/advanceSearch');
-if (Yii::app()->session['Stores'] && Yii::app()->session['Stores']['time']){
+if (isset(Yii::app()->session['Stores']) && isset(Yii::app()->session['Stores']['time'])){
 	$ingSearch=array_merge($ingSearch,array('newSearch'=>Yii::app()->session['Stores']['time']));
 }
 

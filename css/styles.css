@@ -468,6 +468,7 @@ body > .backpicfix {
 }
 
 div.form .row  input[type='text'],
+div.form .row  input[type='password'],
 div.form .row  select,
 div.form .row  textarea {
 	width: 17em;

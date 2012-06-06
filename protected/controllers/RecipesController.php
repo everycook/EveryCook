@@ -160,14 +160,6 @@ class RecipesController extends Controller
 			
 			Functions::updatePicture($model,'REC_IMG', $oldPicture);
 			
-			if ($model->isNewRecord){
-				$model->CREATED_BY = Yii::app()->user->id;
-				$model->CREATED_ON = time();
-			} else {
-				$model->CHANGED_BY = Yii::app()->user->id;
-				$model->CHANGED_ON = time();
-			}
-			
 			Yii::app()->session['Recipe_Backup'] = $model;
 			if ($stepsOK){
 				$transaction=$model->dbConnection->beginTransaction();

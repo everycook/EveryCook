@@ -24,7 +24,7 @@ $this->menu=array(
 		'ING_ID',
 		'ECO_ID',
 		'ETH_ID',
-		'PRO_IMG',
+		//'PRO_IMG',
 		'PRO_IMG_CR',
 	),
 )); ?>

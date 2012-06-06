@@ -31,7 +31,7 @@ $this->menu=array(
 		'ICO_ID',
 		'STB_ID',
 		'ING_DENSITY',
-		'ING_IMG',
+		//'ING_IMG',
 /*        array(
            'label'=>'Image',
            'type'=>'image',

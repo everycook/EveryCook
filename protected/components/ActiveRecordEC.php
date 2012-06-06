@@ -12,7 +12,7 @@ class ActiveRecordEC extends CActiveRecord {
 			$this->CHANGED_BY = Yii::app()->user->id;
 			return true;
 		}
-		parent::beforeValidate();
+		return parent::beforeValidate();
 	}
 
 	/**

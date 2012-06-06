@@ -79,11 +79,11 @@ function initialize() {
 			google.maps.event.addListenerOnce(map, 'idle', mapChanged);
 		});
 		google.maps.event.addListenerOnce(map, 'idle', mapChanged);
+		
+		locateUser(locateCallback);
 	}
 	
 	map.setCenter(locationBasel);
-	
-	locateUser(function(location){alert(location); locateCallback(location);});
 	
 	initializeGeocoder();
 }
@@ -97,7 +97,11 @@ function locateCallback(location){
 		initialLocation = locationBasel;
 	}
 	map.setCenter(initialLocation);
-	mapChanged();
+	//alert(location);
+	
+	if (doLoadStores){
+		mapChanged();
+	}
 }
 
 function locateUser(callback){
@@ -308,21 +312,21 @@ function updateMarkers(xml) {
 			if (typeof(markerList[i]) !== 'undefined'){
 				if (typeof(markerClustererList[i]) === 'undefined'){
 					groupStyles[i] = [{
-						url: '/EveryCook/pics/supplier_' + i + '_group1.png',
+						url: 'pics/supplier_' + i + '_group1.png',
 						height: 47,
 						width: 53,
 						anchor: [0, 0],
 						textColor: '#ff00ff',
 						textSize: 10
 					}, {
-						url: '/EveryCook/pics/supplier_' + i + '_group2.png',
+						url: 'pics/supplier_' + i + '_group2.png',
 						height: 47,
 						width: 53,
 						anchor: [0, 0],
 						textColor: '#ff0000',
 						textSize: 11
 					}, {
-						url: '/EveryCook/pics/supplier_' + i + '_group3.png',
+						url: 'pics/supplier_' + i + '_group3.png',
 						width: 47,
 						height: 53,
 						anchor: [0, 0],
@@ -354,7 +358,7 @@ infoWindowHtml = function(name, street, houseNr, zip, city, supplier, imageUrl) 
 
 function addMarker(latLng, name, html, storeId, supplierId, typeId) {
 	if (typeof(markerIcons[supplierId]) === 'undefined'){
-		markerIcons[supplierId] = new google.maps.MarkerImage('/EveryCook/pics/supplier_' + supplierId + '.png',
+		markerIcons[supplierId] = new google.maps.MarkerImage('pics/supplier_' + supplierId + '.png',
 			new google.maps.Size(79, 48),
 			new google.maps.Point(0,0),
 			new google.maps.Point(0, 48)
@@ -433,22 +437,24 @@ function initializeGeocoder() {
 	
 	if (doPlaceMarker){
 		google.maps.event.addListener(map, 'click', function(event) {
-			jQuery('#Stores_STO_GPS_LAT').val(event.latLng.lat());
-			jQuery('#Stores_STO_GPS_LNG').val(event.latLng.lng());
+			jQuery('.cord_lat').val(event.latLng.lat());
+			jQuery('.cord_lng').val(event.latLng.lng());
 			setGeocodeMarker(event.latLng);
 			
 			map.setCenter(event.latLng);
 		});
 		
 		google.maps.event.addListenerOnce(map, 'idle', function(event) {
-			var lat = jQuery('#Stores_STO_GPS_LAT').val();
-			var lng = jQuery('#Stores_STO_GPS_LNG').val();
+			var lat = jQuery('.cord_lat').val();
+			var lng = jQuery('.cord_lng').val();
 			if (lat != '' && lng != ''){
 				lat = parseFloat(lat);
 				lng = parseFloat(lng);
 				var latLng = new google.maps.LatLng(lat, lng);
 				map.setCenter(latLng);
 				setGeocodeMarker(latLng);
+			} else if (!doLoadStores){
+				locateUser(locateCallback);
 			}
 		});
 	}
@@ -469,10 +475,10 @@ function setGeocodeMarker(latLng, latField, lngField){
 		draggable: true
 	});
 	if (typeof(latField) === 'undefined' || latField == null){
-		var latField = jQuery('#Stores_STO_GPS_LAT');
+		var latField = jQuery('.cord_lat');
 	}
 	if (typeof(lngField) === 'undefined' || lngField == null){
-		var lngField = jQuery('#Stores_STO_GPS_LNG');
+		var lngField = jQuery('.cord_lng');
 	}
 	google.maps.event.addListener(lastGeocodeMarker, 'dragend', function(event) {
 		//map.setCenter(event.latLng);

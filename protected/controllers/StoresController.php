@@ -93,50 +93,6 @@ class StoresController extends Controller
 		return $duplicates;
 	}
 	
-	private function addressToGPS($model){
-	
-	}
-	
-	private function GPSToAddress($model){
-	
-	}
-	
-	private function saveModel($model){
-		if ($model->validate()){
-			$duplicates = null;
-			if (!isset($model->STO_ID)){
-				$duplicates = $this->checkDuplicate($model);
-			}
-			if ($duplicates != null && count($duplicates)>0 && !isset($_POST['ignoreDuplicates'])){
-				foreach($duplicates as $dup_type => $values){
-					if ($this->errorText != ''){
-						$this->errorText .= '<br />';
-					}
-					if ($dup_type == 'NAME'){
-						$this->errorText .='<p>There are already Stores with similar names:</p>';
-					} else {
-						$this->errorText .='<p>There are already Stores on same adsress:</p>';
-					}
-					foreach($values as $dup){
-						$this->errorText .= $dup . '<br />';
-					}
-				}
-				$this->errorText .= CHtml::label('Ignore possible duplicates','ignoreDuplicates') . CHtml::checkBox('ignoreDuplicates');
-			} else {
-				if($model->save()){
-					unset(Yii::app()->session['Stores_Backup']);
-					if($this->useAjaxLinks){
-						echo "{hash:'" . $this->createUrlHash('view', array('id'=>$model->STO_ID)) . "'}";
-						exit;
-					} else {
-						$this->redirect(array('view', 'id'=>$model->STO_ID));
-					}
-				}
-			}
-		}
-	}
-	
-	
 	private function prepareCreateOrUpdate($id, $view){
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
@@ -164,21 +120,43 @@ class StoresController extends Controller
 			
 			Functions::updatePicture($model,'STO_IMG', $oldPicture);
 			
-			if ($model->isNewRecord){
-				$model->CREATED_BY = Yii::app()->user->id;
-				$model->CREATED_ON = time();
-			} else {
-				$model->CHANGED_BY = Yii::app()->user->id;
-				$model->CHANGED_ON = time();
-			}
-			
 			Yii::app()->session['Stores_Backup'] = $model;
-			if (isset($_POST['save'])){
-				$this->saveModel($model);
-			} else if (isset($_POST['Address_to_GPS'])){
-				$this->addressToGPS($model);
-			} else if (isset($_POST['GPS_to_Address'])){
-				$this->GPSToAddress($model);
+			if ($model->validate()){
+				$duplicates = null;
+				if (!isset($model->STO_ID)){
+					$duplicates = $this->checkDuplicate($model);
+				}
+				if ($duplicates != null && count($duplicates)>0 && !isset($_POST['ignoreDuplicates'])){
+					foreach($duplicates as $dup_type => $values){
+						if ($this->errorText != ''){
+							$this->errorText .= '<br />';
+						}
+						if ($dup_type == 'NAME'){
+							$this->errorText .='<p>There are already Stores with similar names:</p>';
+						} else {
+							$this->errorText .='<p>There are already Stores on same address:</p>';
+						}
+						foreach($values as $dup){
+							$this->errorText .= $dup . '<br />';
+						}
+					}
+					$this->errorText .= CHtml::label('Ignore possible duplicates','ignoreDuplicates') . CHtml::checkBox('ignoreDuplicates');
+				} else {
+					if ($model->STO_GPS_LAT != '' && $model->STO_GPS_LNG != '' ){
+						$model->STO_GPS_POINT = 'POINT(' . $model->STO_GPS_LAT . ' ' . $model->STO_GPS_LNG . ')';
+					} else {
+						$model->STO_GPS_POINT = null;
+					}
+					if($model->save()){
+						unset(Yii::app()->session['Stores_Backup']);
+						if($this->useAjaxLinks){
+							echo "{hash:'" . $this->createUrlHash('view', array('id'=>$model->STO_ID)) . "'}";
+							exit;
+						} else {
+							$this->redirect(array('view', 'id'=>$model->STO_ID));
+						}
+					}
+				}
 			}
 		}
 		$supplier = Yii::app()->db->createCommand()->select('SUP_ID,SUP_NAME')->from('suppliers')->queryAll();
