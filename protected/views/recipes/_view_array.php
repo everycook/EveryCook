@@ -1,5 +1,5 @@
 <div class="resultArea">
-	<?php echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'png')), '', array('class'=>'recipe', 'alt'=>$data['REC_IMG_AUTH'], 'title'=>$data['REC_IMG_AUTH'])), array('view', 'id'=>$data['REC_ID'])); ?>
+	<?php echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$data['REC_IMG_AUTH'], 'title'=>$data['REC_IMG_AUTH'])), array('view', 'id'=>$data['REC_ID'])); ?>
 	
 	<div class="options">
 		<?php echo CHtml::link('+', array('user/addrecipes', 'id'=>$data['REC_ID']), array('class'=>'button backpic addRecipe', 'title'=>$this->trans->RECIPES_ADD)); ?><br>

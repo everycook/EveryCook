@@ -91,3 +91,11 @@ div.detailView div.options div.ingredients {
 	background:#FFDB00;
 	padding:1em !important;
 }
+
+div.nutrientDataGroup {
+	background-color:#FFFFFF;
+}
+
+div.form .hint {
+    color: black;
+}

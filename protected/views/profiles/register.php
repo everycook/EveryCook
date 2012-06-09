@@ -6,7 +6,7 @@
 </div>
 
 <?php else: ?>
-<input type="hidden" id="LanguageChangeLink" value="<?php echo CController::createUrl('Profiles/LanguageChanged'); ?>"/>
+<input type="hidden" id="LanguageChangeLink" value="<?php echo CController::createUrl('Profiles/LanguageChanged', array('action'=>$this->route)); ?>"/>
 
 <div class="form">
 
@@ -30,7 +30,7 @@
 			<?php /*echo $form->textField($model,'PRF_LANG'); */?>
 			<?php /*echo $form->dropDownList($model,'PRF_LANG', CHtml::listData(InterfaceMenu::model()->findAll(),'IME_LANG', 'IME_LANGNAME'), array('empty'=>'Choose...',*/
 			
-			 echo $form->dropDownList($model,'PRF_LANG', array('EN_GB'=>'English','DE_CH'=>'Deutsch','FR_FR'=>'Francais'), array('empty'=>$this->trans->GENERAL_CHOOSE,
+			 echo $form->dropDownList($model,'PRF_LANG', $this->allLanguages, array('empty'=>$this->trans->GENERAL_CHOOSE,
 			//'submit'=>CController::createUrl('Profiles/LanguageChanged')
 	//'ajax' => array(
 	//'type'=>'POST', //request type
@@ -87,9 +87,9 @@
 	-->
 		<?php
 			if (isset(Yii::app()->session['Profiles_Backup']) && isset(Yii::app()->session['Profiles_Backup']->PRF_IMG_ETAG)){
-				echo CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'profiles cropable'));
+				echo CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'profiles cropable'));
 			} else if ($model->PRF_UID) {
-				echo CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>$model->PRF_UID, 'ext'=>'png')), '', array('class'=>'profiles cropable'));
+				echo CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>$model->PRF_UID, 'ext'=>'.png')), '', array('class'=>'profiles cropable'));
 			}
 		?>
 		
@@ -136,7 +136,7 @@
 			<?php echo $form->textField($model,'verifyCaptcha'); ?><br>
 			<?php $this->widget('CCaptcha'); ?><br/>
 			</div>
-			<div class="hint">Please write the result from the given calulation in the corresponding field.</div>
+			<div class="hint"><?php echo $this->trans->PROFILES_CAPTCHA_HINT; ?></div>
 			<?php echo $form->error($model,'verifyCaptcha'); ?>
 		</div>
 		<?php endif; ?>
@@ -162,7 +162,7 @@
 			<?php echo CHtml::submitButton($this->trans->GENERAL_CREATE); ?>
 		</div>
 	</div>
-	<strong>Select your home Place:</strong>
+	<strong><?php echo $this->trans->PROFILES_SELECT_HOME; ?></strong>
 	<div id="map_canvas" style="height:300px; width:300px;"></div>
 	<div class="clearfix"></div>
 

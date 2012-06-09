@@ -37,6 +37,8 @@ class UserIdentity extends CUserIdentity
 				$this->setState('lang', $record->PRF_LANG);
 				$this->setState('nick', $record->PRF_NICK);
 				Yii::app()->session['lang'] = $record->PRF_LANG;
+				$home_gps = array($record->PRF_LOC_GPS_LAT, $record->PRF_LOC_GPS_LNG, $record->PRF_LOC_GPS_POINT);
+				$this->setState('home_gps', $home_gps);
 				$this->errorCode=self::ERROR_NONE;
 			}
 		}

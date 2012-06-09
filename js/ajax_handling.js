@@ -13,7 +13,11 @@ jQuery(function($){
 					eval('var data = ' + data + ';');
 				}
 				if (data.hash){
-					window.location.hash = data.hash;
+					if (glob.prefix && window.location.pathname != glob.prefix){
+						window.location.pathname = glob.prefix + '#' + data.hash;
+					} else {
+						window.location.hash = data.hash;
+					}
 				} else {
 					jQuery('#changable_content').html(data);
                     jQuery.event.trigger( "ajaxComplete", [null, null] );
@@ -52,7 +56,11 @@ jQuery(function($){
 				eval('var data = ' + data + ';');
 			}
 			if (data.hash){
-				window.location.hash = data.hash;
+				if (glob.prefix && window.location.pathname != glob.prefix){
+					window.location.pathname = glob.prefix + '#' + data.hash;
+				} else {
+					window.location.hash = data.hash;
+				}
 			} else {
 				jQuery('#changable_content').html(data);
 			}
@@ -204,15 +212,18 @@ jQuery(function($){
 	});
 	
 	jQuery('body').undelegate('#Profiles_PRF_LANG','change').delegate('#Profiles_PRF_LANG','change',function(){
-		var destUrl = jQuery('#LanguageChangeLink').val();
-		if (destUrl.indexOf('?')>0){
-			destUrl = destUrl + '&';
-		} else {
-			destUrl = destUrl + '?';
-		}
-		destUrl = destUrl + 'lang=' + jQuery('#Profiles_PRF_LANG').val();
+		var lang = jQuery('#Profiles_PRF_LANG').val();
+		if (lang != ''){
+			var destUrl = jQuery('#LanguageChangeLink').val();
+			if (destUrl.indexOf('?')>0){
+				destUrl = destUrl + '&';
+			} else {
+				destUrl = destUrl + '?';
+			}
+			destUrl = destUrl + 'lang=' + jQuery('#Profiles_PRF_LANG').val();
 
-		window.location = destUrl;
+			window.location = destUrl;
+		}
 	});
 });
 

@@ -56,8 +56,13 @@ class Controller extends CController
 		return $this->isFancyAjaxRequest || Yii::app()->request->isAjaxRequest || (isset($params['ajaxform']) && $params['ajaxform']);
 	}
 	
-	public $allLanguages = array("EN_GB", "DE_CH");
+	protected $allLanguages = array('EN_GB'=>'English','DE_CH'=>'Deutsch','FR_FR'=>'Francais');
 	
+	public function getAllLanguages(){
+		return $allLanguages;
+	}
+	
+	//TODO change this to shared memory, because it need to load this for each pagereload, also it it is static....
 	protected static $trans=null;
 	public function getTrans()
 	{
@@ -71,10 +76,27 @@ class Controller extends CController
 			if (Yii::app()->user->isGuest){
 				// if no language is defined, set default language
 				if (!isset(Yii::app()->session['lang'])){
-					Yii::app()->session['lang'] = 'EN_GB';
+					if (Yii::app()->request->preferredLanguage !== false){
+						//get best matching language
+						$langToUse = 'EN_GB';
+						$pref = strtoupper(Yii::app()->request->preferredLanguage);
+						$lang_part = substr($pref,0,2);
+						foreach ($this->allLanguages as $key=>$value){
+							if ($pref == $key){
+								$langToUse = $key;
+								break;
+							} else if ($lang_part == substr($key,0,2)){
+								$langToUse = $key;
+							}
+						}
+						Yii::app()->session['lang'] = $langToUse;
+					} else {
+						Yii::app()->session['lang'] = 'EN_GB';
+					}
 				}
 				//echo 'load text, guest';
 				self::$trans = new Translations(Yii::app()->session['lang']);
+				Yii::app()->setLanguage(Yii::app()->session['lang']);
 			}
 
 			// if user is registeredUser, load its saved language setting
@@ -82,8 +104,10 @@ class Controller extends CController
 				//echo 'load text, user';
 				self::$trans=new Translations(Yii::app()->user->lang);
 				Yii::app()->session['lang'] = Yii::app()->user->lang;
+				Yii::app()->setLanguage(Yii::app()->user->lang);
 			}
 		}
+		
 		if($this->trans===null)
 			throw new CHttpException(404,'Error loading translation texts.');
 		return parent::beforeAction($action);

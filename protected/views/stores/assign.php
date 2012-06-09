@@ -25,7 +25,7 @@
 		
 		<div class="row">
 			<?php echo CHtml::label($this->trans->STORES_ASSIGN_NEAR_YOU,'STO_MAP'); ?>
-			<?php echo CHtml::ListBox('STO_MAP','',$nearShops,array('size'=>4)); ?>
+			<?php echo CHtml::ListBox('STO_MAP','',array(),array('size'=>4)); ?>
 		</div>
 		
 		<div class="row" id="storeSearch">

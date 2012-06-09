@@ -129,13 +129,16 @@ class ProfilesController extends Controller
 		} else {
 			$model=new Profiles;
 		}
+			
 		if (isset($id) && $id != Yii::app()->user->id){
 			throw new CHttpException(403,'It\'s not allowed to change profile of other user.');
 		}
 		if(isset($_POST['Profiles'])) {
 			$model->attributes=$_POST['Profiles'];
 			
-			Functions::updatePicture($model,'PRF_IMG', $oldPicture);
+			if (isset($oldPicture)){
+				Functions::updatePicture($model,'PRF_IMG', $oldPicture);
+			}
 			
 			Yii::app()->session['Profiles_Backup'] = $model;
 			if (isset($model->new_pw) && $model->new_pw != ''){
@@ -154,6 +157,9 @@ class ProfilesController extends Controller
 				}
 				
 				if($model->save(false)){
+					$home_gps = array($model->PRF_LOC_GPS_LAT, $model->PRF_LOC_GPS_LNG, $model->PRF_LOC_GPS_POINT);
+					Yii::app()->user->home_gps = $home_gps;
+					
 					unset(Yii::app()->session['Profiles_Backup']);
 					if($this->useAjaxLinks){
 						echo "{hash:'" . $this->createUrlHash('view', array('id'=>$model->PRF_UID)) . "'}";
@@ -163,6 +169,8 @@ class ProfilesController extends Controller
 					}
 				}
 			}
+		} else {
+			Yii::app()->session['Profiles_Backup'] = $model;
 		}
 
 		$this->checkRenderAjax($view,array(
@@ -335,14 +343,31 @@ class ProfilesController extends Controller
     */
    public function actionLanguageChanged()
    {
-      Yii::app()->session['lang'] = $_GET['lang'];
-      self::$trans=new Translations(Yii::app()->session['lang']);
-      $model=new Profiles('register');;
-      $model->PRF_LANG = $_GET['lang'];
-	  
-	  Yii::app()->session['Profiles_Backup'] = $model;
+		$action = $_GET['action'];
+		Yii::app()->session['lang'] = $_GET['lang'];
+		if (!Yii::app()->user->isGuest){
+			Yii::app()->user->lang = $_GET['lang'];
+		}
+		self::$trans=new Translations($_GET['lang']);
+		
+		$Session_Profiles_Backup = Yii::app()->session['Profiles_Backup'];
+		if (isset($Session_Profiles_Backup)){
+			$model = $Session_Profiles_Backup;
+		} else {
+			if ($action == 'register'){
+				$model=new Profiles('register');
+			} else {
+				$model=new Profiles();
+			}
+		}
+		$model->PRF_LANG = $_GET['lang'];
 
-	  $this->redirect(array('register'));
+		Yii::app()->session['Profiles_Backup'] = $model;
+		if (isset($_GET['id'])){
+			$this->redirect(array($action, 'id'=>$_GET['id']));
+		} else {
+			$this->redirect(array($action));
+		}
    }
 
 	/**

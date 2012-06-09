@@ -8,7 +8,7 @@
  * @property integer $SUP_ID
  * @property integer $STY_ID
  */
-class ProToSto extends CActiveRecord
+class ProToSto extends ActiveRecordECSimple
 {
 	/**
 	 * Returns the static model of the specified AR class.

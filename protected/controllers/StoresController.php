@@ -29,7 +29,7 @@ class StoresController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','chooseStores','advanceChooseStores','displaySavedImage','getStoresInRange'),
+				'actions'=>array('index','view','search','advanceSearch','chooseStores','advanceChooseStores','displaySavedImage','getStoresInRange', 'currentGPSForStores'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -256,10 +256,10 @@ class StoresController extends Controller
 		$storeType = CHtml::listData($storeType,'STY_ID','STY_TYPE_'.Yii::app()->session['lang']);
 		
 		$productName = Yii::app()->db->createCommand()->select('PRO_NAME_'.Yii::app()->session['lang'])->from('products')->where('PRO_ID=:id', array(':id'=>$model->PRO_ID))->queryAll();
+		if (count($productName) == 0){
+			throw new CHttpException(404,'No Product with id ' . $model->PRO_ID . ' found.');
+		}
 		$productName = $productName[0]['PRO_NAME_'.Yii::app()->session['lang']];
-		
-		//TODO get shops form current location
-		$nearShops = array();
 		
 		$this->checkRenderAjax('assign',array(
 			'model'=>$model,
@@ -267,7 +267,6 @@ class StoresController extends Controller
 			'supplier'=>$supplier,
 			'storeType'=>$storeType,
 			'productName'=>$productName,
-			'nearShops'=>$nearShops,
 		));
 	}
 	
@@ -470,7 +469,6 @@ class StoresController extends Controller
 		return Functions::getImage($modified, $model->STO_IMG_ETAG, $model->STO_IMG, $id);
     }
 	
-	
 	public function actionGetStoresInRange(){
 		$southWestLat = $_POST["southWestLat"];
 		$southWestLng = $_POST["southWestLng"];
@@ -478,7 +476,15 @@ class StoresController extends Controller
 		$northEastLng = $_POST["northEastLng"];
 		$zoom = $_POST["zoom"];
 		
-		$stores = Yii::app()->db->createCommand()->select('stores.*, STY_TYPE_'.Yii::app()->session['lang']. ' as STY_TYPE, SUP_NAME')
+		//$profile=Profiles::model()->findByPk(Yii::app()->user->id);
+		//if($profile===null || $profile->PRF_LOC_GPS_POINT == null || $profile->PRF_LOC_GPS_POINT == ''){
+		if (Yii::app()->user->isGuest || !isset(Yii::app()->user->home_gps) || !isset(Yii::app()->user->home_gps[2])){
+			$distanceSql = "concat('No Home set...')";
+		} else {
+			$distanceSql = 'cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\'))';
+		}
+		
+		$stores = Yii::app()->db->createCommand()->select('stores.*, STY_TYPE_'.Yii::app()->session['lang']. ' as STY_TYPE, SUP_NAME, ' . $distanceSql . ' as distance')
 			->from('stores')			
 			->leftJoin('store_types', 'stores.STY_ID=store_types.STY_ID')
 			->leftJoin('suppliers', 'stores.SUP_ID=suppliers.SUP_ID')
@@ -487,5 +493,16 @@ class StoresController extends Controller
 			->queryAll();
 		
 		$this->renderPartial('store_xml',array('stores'=>$stores,'zoom'=>$zoom));
+	}
+	
+	public function actionCurrentGPSForStores(){
+		$lat = $_POST['lat'];
+		$lng = $_POST['lng'];
+		$time = $_POST['time'];
+		if ($lat != null && $lng != null){
+			$current_gps = array($lat, $lng, 'POINT(' . $lat . ' ' . $lng . ')');
+			Yii::app()->session['current_gps'] = $current_gps;
+			Yii::app()->session['current_gps_time'] = $time;
+		}
 	}
 }

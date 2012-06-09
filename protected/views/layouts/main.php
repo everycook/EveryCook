@@ -70,24 +70,16 @@
 							<span id="login"><?php if(Yii::app()->user->isGuest) echo $this->trans->LOGIN; else echo 'Logout'; ?></span>                  
 						</div>
 					</a>
-					<div class="index_div_login">
-						<form name="form_login">
-							<label for="user"><span id="loginUser"><?php echo $this->trans->LOGIN_USER; ?></span></label>
-							<input type="text" id="user" name="user"><br>
-							<label for="pass"><span id="loginPass"><?php echo $this->trans->LOGIN_PASS; ?></span></label>
-							<input type="password" id="pass" name="pass"><br><br>
-							<a href="#" id="loginButton" OnClick="Login()">
-								<div>
-									<span id="loginSent"></span>
-								</div>
-							</a>
-						</form>
-					</div>
-					<a href="#" OnClick="ShowSettings()">
+					<?php
+					if(!Yii::app()->user->isGuest) {
+						echo '<a href="' . Yii::app()->createUrl('profiles/update',array('id'=>Yii::app()->user->id)) . '">';
+					?>
 						<div class="nav_button">
 							<span id="settings"><?php echo $this->trans->SETTINGS; ?></span>
 						</div>
 					</a>
+					<?php } ?>
+					<?php /*
 					<div class="nav_button">
 						<span id="lang"><?php echo $this->trans->LANGSEL; ?></span>
 					</div>
@@ -96,12 +88,23 @@
 							//langlist();
 						?>
 					</div>
+					*/ ?>
 				</div>
 				<div id="designs">
-					<?php echo CHtml::link('Color1', Yii::app()->request->baseUrl . '/css/designs/color1.css'); ?><br>
-					<?php echo CHtml::link('Color2', Yii::app()->request->baseUrl . '/css/designs/color2.css'); ?><br>
+					<?php echo CHtml::link('Color1', Yii::app()->request->baseUrl . '/css/designs/color1.css', array('class'=>'noAjax')); ?><br>
+					<?php echo CHtml::link('Color2', Yii::app()->request->baseUrl . '/css/designs/color2.css', array('class'=>'noAjax')); ?><br>
 				</div>
 			</div>
+			<?php 
+			if (isset(Yii::app()->session['current_gps_time']) && Yii::app()->session['current_gps_time']<time()) {
+				unset(Yii::app()->session['current_gps']);
+				unset(Yii::app()->session['current_gps_time']);
+			}
+			?>
+			<input type="hidden" id="current_gps_lat" value="<?php if (isset(Yii::app()->session['current_gps'])) {echo Yii::app()->session['current_gps'][0];} ?>" />
+			<input type="hidden" id="current_gps_lng" value="<?php if (isset(Yii::app()->session['current_gps'])) {echo Yii::app()->session['current_gps'][1];} ?>" />
+			<input type="hidden" id="current_gps_time" value="<?php if (isset(Yii::app()->session['current_gps_time'])) {echo Yii::app()->session['current_gps_time'];} ?>" />
+			<input type="hidden" id="markCurrentGPS" value="<?php echo Yii::app()->createUrl('stores/currentGPSForStores'); ?>" />
 			<div id="changable_content">
 				<?php echo $content; ?>
 			</div>

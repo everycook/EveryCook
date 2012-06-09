@@ -7,7 +7,7 @@
  * @property integer $PRO_ID
  * @property integer $PRD_ID
  */
-class ProToPrd extends CActiveRecord
+class ProToPrd extends ActiveRecordECSimple
 {
 	/**
 	 * Returns the static model of the specified AR class.

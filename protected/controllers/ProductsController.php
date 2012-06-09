@@ -161,8 +161,9 @@ class ProductsController extends Controller
 		
 		if(isset($_POST['Products'])){
 			$model->attributes=$_POST['Products'];
-			
-			Functions::updatePicture($model,'PRO_IMG', $oldPicture);
+			if (isset($oldPicture)){
+				Functions::updatePicture($model,'PRO_IMG', $oldPicture);
+			}
 			
 			if ($model->isNewRecord){
 				$model->CREATED_BY = Yii::app()->user->id;
@@ -388,6 +389,7 @@ class ProductsController extends Controller
 				->leftJoin('ethical_criteria', 'products.ETH_ID=ethical_criteria.ETH_ID')
 				->where('products.ING_ID=:id', array(':id'=>$ing_id))
 				->queryAll();
+				//TODO: add distance calculating
 		} else {
 			$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'products.');
 			if ($criteriaString != ''){

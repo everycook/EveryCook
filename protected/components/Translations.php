@@ -20,9 +20,11 @@ class Translations
 	 * @see getAttribute
 	 */
 	public function __get($name) {
-		if(isset($this->_textes[$name]))
+		if(isset($this->_textes[$name])) {
 			return $this->_textes[$name];
-			
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -34,7 +36,10 @@ class Translations
 	 * @since 1.0.1
 	 */
 	public function __isset($name) {
-		if(isset($this->_textes[$name]))
+		if(isset($this->_textes[$name])){
 			return true;
+		} else {
+			return false;
+		}
 	}
 }

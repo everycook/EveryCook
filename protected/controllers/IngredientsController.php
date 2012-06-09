@@ -153,8 +153,9 @@ class IngredientsController extends Controller
 		
 		if(isset($_POST['Ingredients'])){
 			$model->attributes=$_POST['Ingredients'];
-			
-			Functions::updatePicture($model,'ING_IMG', $oldPicture);
+			if (isset($oldPicture)){
+				Functions::updatePicture($model,'ING_IMG', $oldPicture);
+			}
 			
 			Yii::app()->session['Ingredient_Backup'] = $model;
 			if ($model->validate()){
@@ -329,19 +330,10 @@ class IngredientsController extends Controller
 		
 		$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'ingredients.');
 		
-		if($modelAvailable) {
-			$Session_Ingredient = array();
-			if (isset($query)){
-				$Session_Ingredient['query'] = $query;
-			}
-			$Session_Ingredient['model'] = $model;
-			$Session_Ingredient['time'] = time();
-			Yii::app()->session['Ingredient'] = $Session_Ingredient;
-			
-			$criteria = $model->getCriteriaString();
-			//$command = $model->commandBuilder->createFindCommand($model->tableName(), $model->getCriteriaString())
+		if ($modelAvailable ||$criteriaString != ''){
+			/*
 			$command = Yii::app()->db->createCommand()
-				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, count(products.PRO_ID) as pro_count, count(pro_to_sto.SUP_ID) as sup_count')
+				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, (select count(products.PRO_ID) from products where products.ING_ID = ingredients.ING_ID) as pro_count, count(pro_to_sto.SUP_ID) as sup_count')
 				->from('ingredients')
 				->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
 				->leftJoin('group_names', 'ingredients.GRP_ID=group_names.GRP_ID')
@@ -352,71 +344,127 @@ class IngredientsController extends Controller
 				->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
 				->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
 				->group('ingredients.ING_ID')
-				//->order('actor.first_name, actor.last_name, film.title')
-				;
+			*/
+			$command = Yii::app()->db->createCommand()
+				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, count(products.PRO_ID) as pro_count')
+				->from('ingredients')
+				->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
+				->leftJoin('group_names', 'ingredients.GRP_ID=group_names.GRP_ID')
+				->leftJoin('subgroup_names', 'ingredients.SGR_ID=subgroup_names.SGR_ID')
+				->leftJoin('ingredient_conveniences', 'ingredients.ICO_ID=ingredient_conveniences.ICO_ID')
+				->leftJoin('storability', 'ingredients.STB_ID=storability.STB_ID')
+				->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID')
+				->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
+				->group('ingredients.ING_ID');
 				//echo $command->text;
-				/*
-			$supplierCommand = Yii::app()->db->createCommand()
-				->select('ingredients.id, count(products.PRO_ID) as pro_count, count(pro_to_sto.SUP_ID) as sup_count')
+			
+			
+			$suppliersCommand = Yii::app()->db->createCommand()
+				->select('ingredients.ING_ID, suppliers.SUP_NAME')
 				->from('ingredients')
 				->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
 				->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
 				->leftJoin('suppliers', 'suppliers.SUP_ID=pro_to_sto.SUP_ID')
-				->group('ingredients.ING_ID suppliers.SUP_ID')
+				->group('ingredients.ING_ID, suppliers.SUP_ID')
+				->order('ingredients.ING_ID, suppliers.SUP_ID');
+					
+			if($modelAvailable) {
+				$Session_Ingredient = array();
+				if (isset($query)){
+					$Session_Ingredient['query'] = $query;
+				}
+				$Session_Ingredient['model'] = $model;
+				$Session_Ingredient['time'] = time();
+				Yii::app()->session['Ingredient'] = $Session_Ingredient;
+				
+				$criteria = $model->getCriteriaString();
+				//$command = $model->commandBuilder->createFindCommand($model->tableName(), $model->getCriteriaString())
 				
 				
-				//TODO: where ingredients.id in command values
-			*/
-			
-			
-			if (isset($criteria->condition) && $criteria->condition != '') {
-				if ($criteriaString != ''){
-					$command->where($criteria->condition . ' AND ' . $criteriaString);
-				} else {
-					$command->where($criteria->condition);
+				if (isset($criteria->condition) && $criteria->condition != '') {
+					if ($criteriaString != ''){
+						$command->where($criteria->condition . ' AND ' . $criteriaString);
+						$suppliersCommand->where($criteria->condition . ' AND ' . $criteriaString);
+					} else {
+						$command->where($criteria->condition);
+						$suppliersCommand->where($criteria->condition);
+					}
+					/*
+					foreach($criteria->params as $key => $value){
+						$command = $command->bindParam($key, $value);
+						echo $key . " => " .$value . "\n";
+					}
+					*/
+					//TODO verify: bind params seams not to work on "IN" condition...
+					$command = Functions::preparedStatementToStatement($command, $criteria->params);
+					$suppliersCommand = Functions::preparedStatementToStatement($suppliersCommand, $criteria->params);
+					$this->validSearchPerformed = true;
+				} else if ($criteriaString != ''){
+					$command->where($criteriaString);
+					$suppliersCommand->where($criteriaString);
+					$this->validSearchPerformed = true;
 				}
-				/*
-				foreach($criteria->params as $key => $value){
-					$command = $command->bindParam($key, $value);
-					echo $key . " => " .$value . "\n";
-				}
-				*/
-				//TODO verify: bind params seams not to work on "IN" condition...
-				$command = Functions::preparedStatementToStatement($command, $criteria->params);
-				$this->validSearchPerformed = true;
+				
+				//print_r($rows);
 			} else if ($criteriaString != ''){
+				$Session_Ingredient = array();
+				$Session_Ingredient['query'] = $query;
+				$Session_Ingredient['time'] = time();
+				Yii::app()->session['Ingredient'] = $Session_Ingredient;
+				
+				//$rows = $model->commandBuilder->createFindCommand($model->tableName(),$model->commandBuilder->createCriteria($criteriaString))->queryAll();
+				//$rows = $model->commandBuilder->createFindCommand($model->tableName(), $model->getCriteria())->queryAll();
+				
 				$command->where($criteriaString);
+				$suppliersCommand->where($criteriaString);
 				$this->validSearchPerformed = true;
 			}
 			$rows = $command->queryAll();
+			$suppliers = $suppliersCommand->queryAll();
 			
-			//print_r($rows);
-		} else if ($criteriaString != ''){
-			$Session_Ingredient = array();
-			$Session_Ingredient['query'] = $query;
-			$Session_Ingredient['time'] = time();
-			Yii::app()->session['Ingredient'] = $Session_Ingredient;
+			$ingredient_id = 0;
+			$supplier_texts = array();
+			$supplier_text = '';
+			foreach($suppliers as $supplier){
+				if ($supplier['ING_ID'] != $ingredient_id){
+					$supplier_texts[$ingredient_id] = $supplier_text;
+					$supplier_text = '';
+					$ingredient_id = $supplier['ING_ID'];
+				}
+				if ($supplier_text != ''){
+					$supplier_text .= ', ';
+				}
+				$supplier_text .= $supplier['SUP_NAME'];
+			}
+			for($i = 0; $i < count($rows); $i++){
+				if (isset($supplier_texts[$rows[$i]['ING_ID']]) && $supplier_texts[$rows[$i]['ING_ID']] != null){
+					$rows[$i]['sup_names'] = $supplier_texts[$rows[$i]['ING_ID']];
+				} else {
+					$rows[$i]['sup_names'] = '';
+				}
+			}
 			
 			
-			//$rows = $model->commandBuilder->createFindCommand($model->tableName(),$model->commandBuilder->createCriteria($criteriaString))->queryAll();
-			//$rows = $model->commandBuilder->createFindCommand($model->tableName(), $model->getCriteria())->queryAll();
-			$rows = Yii::app()->db->createCommand()
-				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, count(products.PRO_ID) as pro_count, count(pro_to_sto.SUP_ID) as sup_count')
-				->from('ingredients')
-				->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
-				->leftJoin('group_names', 'ingredients.GRP_ID=group_names.GRP_ID')
-				->leftJoin('subgroup_names', 'ingredients.SGR_ID=subgroup_names.SGR_ID')
-				->leftJoin('ingredient_conveniences', 'ingredients.ICO_ID=ingredient_conveniences.ICO_ID')
-				->leftJoin('storability', 'ingredients.STB_ID=storability.STB_ID')
-				->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID')
-				->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
-				->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
-				->where($criteriaString)
-				->group('ingredients.ING_ID')
-				//->order('actor.first_name, actor.last_name, film.title')
-				->queryAll();
-			
-			$this->validSearchPerformed = true;
+			/* old variant
+			for($i = 0; $i < count($rows); $i++){
+				$suppliers = Yii::app()->db->createCommand()
+					->select('suppliers.SUP_NAME')
+					->from('products')
+					->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
+					->leftJoin('suppliers', 'suppliers.SUP_ID=pro_to_sto.SUP_ID')
+					->where('products.ING_ID = ' . $rows[$i]['ING_ID'])
+					->group('suppliers.SUP_ID')
+					->queryAll();
+				$supplierString = '';
+				foreach ($suppliers as $supplier){
+					if ($supplierString != ''){
+						$supplierString .= ', ';
+					}
+					$supplierString .= $supplier['SUP_NAME'];
+				}
+				$rows[$i]['sup_names'] = $supplierString;
+			}
+			*/
 		} else {
 			$rows = array();
 			unset(Yii::app()->session['Ingredient']);

@@ -1,5 +1,5 @@
 <?php
-class ActiveRecordEC extends CActiveRecord {
+class ActiveRecordEC extends ActiveRecordECSimple {
 	protected function beforeValidate() {
 		if(!Yii::app()->user->isGuest) {
 			$dateTime = new DateTime();

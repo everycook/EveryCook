@@ -54,7 +54,7 @@
  * @property double $NUT_CHOLEST
  * @property double $NUT_REFUSE
  */
-class NutrientData extends CActiveRecord
+class NutrientData extends ActiveRecordECSimple
 {
 	/**
 	 * Returns the static model of the specified AR class.

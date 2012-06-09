@@ -1,0 +1,83 @@
+#Stored Procedure for MySQL DB
+    DELIMITER $$
+     
+    DROP FUNCTION IF EXISTS `distance` $$
+    CREATE FUNCTION `distance`(a POINT, b POINT) RETURNS double
+    DETERMINISTIC
+    COMMENT 'distance function'
+    BEGIN
+	#ist eine Trigonometrie Funktion, siehe beweis:
+	#SQRT(POW(X(a)-X(b),2) + POW(Y(a)-Y(b),2))
+	RETURN glength(linestring(a, b));
+    END $$
+     
+    DELIMITER ;
+
+
+    DELIMITER $$
+     
+    DROP FUNCTION IF EXISTS `equirectangular_distance` $$
+    CREATE FUNCTION `equirectangular_distance`(a POINT, b POINT) RETURNS double
+    DETERMINISTIC
+#    COMMENT 'distance function with equirectangular projection, Pythagoras theorem'
+    COMMENT 'distance, equirectangular projection, Pythagoras theorem'
+    BEGIN
+	RETURN 6371.01 * SQRT(POW((X(a)-X(b)) * pi()/180,2) + POW((Y(a)-Y(b)) * pi()/180 * cos(((X(a)+X(b))* pi()/180)/2),2));
+    END $$
+     
+    DELIMITER ;
+
+
+
+    DELIMITER $$
+     
+    DROP FUNCTION IF EXISTS `cosines_distance` $$
+    CREATE FUNCTION `cosines_distance`(a POINT, b POINT) RETURNS double
+    DETERMINISTIC
+#    COMMENT 'Cosines distance for geo, formular by http://www.movable-type.co.uk/scripts/latlong.html'
+    COMMENT 'distance by http://www.movable-type.co.uk/scripts/latlong.html'
+    BEGIN
+	RETURN 6371.01 * acos(sin(X(a)* pi()/180)*sin(X(b)* pi()/180) + cos(X(a)* pi()/180)*cos(X(b)* pi()/180) * cos((Y(a)-Y(b))* pi()/180));
+    END $$
+     
+    DELIMITER ;
+
+
+
+    DELIMITER $$
+     
+    DROP FUNCTION IF EXISTS `haversine_distance` $$
+    CREATE FUNCTION `haversine_distance`(a POINT, b POINT) RETURNS double
+    DETERMINISTIC
+#    COMMENT 'haversine distance function for geocode data, formular by http://www.scribd.com/doc/2569355/Geo-Distance-Search-with-MySQL'
+    COMMENT 'by http://www.scribd.com/doc/2569355/'
+    BEGIN
+	RETURN 6371.01 * 2 * ASIN(SQRT( POWER(SIN((X(a) - abs(X(b))) * pi()/180 / 2),2) + COS(X(b) * pi()/180 ) * COS(abs(X(b)) *  pi()/180) * POWER(SIN((Y(a) - Y(b)) *  pi()/180 / 2), 2) ));
+    END $$
+     
+    DELIMITER ;
+
+
+    DELIMITER $$
+     
+    DROP FUNCTION IF EXISTS `haversine_distance2` $$
+    CREATE FUNCTION `haversine_distance2`(a POINT, b POINT) RETURNS double
+    DETERMINISTIC
+#    COMMENT 'haversine distance function for geocode data, formula by http://zcentric.com/2010/03/11/calculate-distance-in-mysql-with-latitude-and-longitude/'
+    COMMENT 'by http://zcentric.com/2010/03/11/calculate'
+    BEGIN
+	RETURN ((ACOS(SIN(X(a) * PI() / 180) * SIN(X(b) * PI() / 180) + COS(X(a) * PI() / 180) * COS(X(b) * PI() / 180) * COS((Y(a) - Y(b)) * PI() / 180)) * 180 / PI()) * 60 * 1.1515) * 1.609344;
+    END $$
+     
+    DELIMITER ;
+
+
+
+##usage example
+##distance von Waldenburg
+#SELECT distance(stores.STO_GPS_POINT, GeomFromText('POINT(47.38126987334478 7.746555265243501)')) as distance,
+#haversine_distance(stores.STO_GPS_POINT, GeomFromText('POINT(47.38126987334478 7.746555265243501)')) as haversine_distance,
+#haversine_distance2(stores.STO_GPS_POINT, GeomFromText('POINT(47.38126987334478 7.746555265243501)')) as haversine_distance2,
+#equirectangular_distance(stores.STO_GPS_POINT, GeomFromText('POINT(47.38126987334478 7.746555265243501)')) as equirectangular_distance,
+#cosines_distance(stores.STO_GPS_POINT, GeomFromText('POINT(47.38126987334478 7.746555265243501)')) as cosines_distance
+#FROM `stores` LIMIT 0,5000

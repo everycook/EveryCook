@@ -411,11 +411,11 @@ ul.search_choose li {
 }
 
 .f-right {
-	float:right;
+	float:right !important;
 }
 
 .f-left {
-	float:left;
+	float:left !important;
 }
 
 .addRowContainer .odd input,
@@ -483,10 +483,38 @@ div.mapDetails {
 	margin-right: 1em;
 }
 
+div.nutrientDataGroup {
+	border-radius:1.5em;
+	padding:0.8em;
+	margin-bottom:0.8em;
+	/*float: left;*/
+	margin-right: 0.8em;
+	width: 26em;
+}
+div.nutrientDataGroup div.nutrient_row {
+	width: 25em;
+	border-bottom: 1px solid black;
+}
 
+div.nutrientDataGroup div.nutrient_row.last{
+	border-bottom: none;
+}
 
-
-
+div.nutrientDataGroup div.nutrient_row span{
+	display: inline-block;
+}
+div.nutrientDataGroup div.nutrient_row span.name {
+	width: 14em;
+}
+div.nutrientDataGroup div.nutrient_row span.value {
+	width: 3em;
+}
+div.nutrientDataGroup div.nutrient_row span.unit {
+	width: 8em;
+}
+div.form .hint {
+    font-size: 0.8em;
+}
 
 
 

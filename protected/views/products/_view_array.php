@@ -1,5 +1,5 @@
 <div class="resultArea">
-	<?php echo CHtml::link(CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'png')), '', array('class'=>'product', 'alt'=>$data['PRO_IMG_CR'], 'title'=>$data['PRO_IMG_CR'])), array('view', 'id'=>$data['PRO_ID'])); ?>
+	<?php echo CHtml::link(CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'.png')), '', array('class'=>'product', 'alt'=>$data['PRO_IMG_CR'], 'title'=>$data['PRO_IMG_CR'])), array('view', 'id'=>$data['PRO_ID'])); ?>
 	
 	
 	<div class="options">

@@ -1,5 +1,5 @@
 <input type="hidden" id="uploadImageLink" value="<?php echo $this->createUrl('products/uploadImage',array('id'=>$model->PRO_ID)); ?>"/>
-<input type="hidden" id="imageLink" value="<?php echo $this->createUrl('products/displaySavedImage', array('id'=>'backup', 'ext'=>'png')); ?>"/>
+<input type="hidden" id="imageLink" value="<?php echo $this->createUrl('products/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
 
 <input type="hidden" id="newProducerText" value="<?php echo $this->trans->GENERAL_CHOOSE; ?>"/>
 <input type="hidden" id="removeText" value="<?php echo $this->trans->GENERAL_REMOVE; ?>"/>
@@ -23,7 +23,7 @@
 	?>
 	
 	<?php
-	if ($model->ingredient && $model->ingredient->__get('ING_NAME_'.Yii::app()->session['lang'])){
+	if (isset($model->ingredient) && isset($model->ingredient->__get('ING_NAME_'.Yii::app()->session['lang']))){
 		$IngredientDescription = $model->ingredient->__get('ING_NAME_'.Yii::app()->session['lang']);
 	} else {
 		$IngredientDescription = $this->trans->GENERAL_CHOOSE;
@@ -31,15 +31,15 @@
 	?>
 	
 	<div class="row" id="ingredient">
-		<?php echo $form->label($model,'ING_ID',array('label'=>$this->trans->PRODUCTS_INGREDIENT)); ?>
+		<?php echo $form->label($model,'ING_ID'); ?>
 		<?php echo $form->hiddenField($model,'ING_ID', array('id'=>'ING_ID', 'class'=>'fancyValue')); ?>
 		<?php echo CHtml::link($IngredientDescription, array('ingredients/chooseIngredient'), array('class'=>'fancyChoose IngredientSelect')) ?>
 	</div>
 
 	
-	<?php foreach($this->allLanguages as $lang){ ?>
+	<?php foreach($this->allLanguages as $lang=>$name){ ?>
 	<div class="row">
-		<?php echo $form->labelEx($model,'PRO_NAME_'.$lang, array('label'=>$this->trans->__get('PRODUCTS_DESCRIPTION') . ' ' . $lang)); ?>
+		<?php echo $form->labelEx($model,'PRO_NAME_'.$lang); ?>
 		<?php echo $form->textField($model,'PRO_NAME_'.$lang,array('size'=>60,'maxlength'=>60)); ?>
 		<?php echo $form->error($model,'PRO_NAME_'.$lang); ?>
 	</div>
@@ -76,13 +76,13 @@
 
 	
 	<div class="row">
-		<?php echo $form->labelEx($model,'PRO_BARCODE',array('label'=>$this->trans->PRODUCTS_BARCODE)); ?>
+		<?php echo $form->labelEx($model,'PRO_BARCODE'); ?>
 		<?php echo $form->textField($model,'PRO_BARCODE'); ?>
 		<?php echo $form->error($model,'PRO_BARCODE'); ?>
 	</div>
 	
 	<div class="row">
-		<?php echo $form->labelEx($model,'PRO_PACKAGE_GRAMMS',array('label'=>$this->trans->PRODUCTS_PACKAGE_GRAMMS)); ?>
+		<?php echo $form->labelEx($model,'PRO_PACKAGE_GRAMMS'); ?>
 		<?php echo $form->textField($model,'PRO_PACKAGE_GRAMMS'); ?>
 		<?php echo CHtml::dropdownList('PACKAGE_MULT', '1', array('1'=>'g','1000'=>'kg')); ?>
 		<?php echo $form->error($model,'PRO_PACKAGE_GRAMMS'); ?>
@@ -97,9 +97,9 @@
 	
 	<?php
 		if (isset(Yii::app()->session['Product_Backup']) && isset(Yii::app()->session['Product_Backup']->PRO_IMG_ETAG)){
-			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'product cropable', 'alt'=>$model->PRO_IMG_CR, 'title'=>$model->PRO_IMG_CR));
+			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'product cropable', 'alt'=>$model->PRO_IMG_CR, 'title'=>$model->PRO_IMG_CR));
 		} else if ($model->ING_ID) {
-			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$model->PRO_ID, 'ext'=>'png')), '', array('class'=>'product cropable', 'alt'=>$model->PRO_IMG_CR, 'title'=>$model->PRO_IMG_CR));
+			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$model->PRO_ID, 'ext'=>'.png')), '', array('class'=>'product cropable', 'alt'=>$model->PRO_IMG_CR, 'title'=>$model->PRO_IMG_CR));
 		}
 	?>
 	

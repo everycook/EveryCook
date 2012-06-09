@@ -1,5 +1,7 @@
 <div class="form">
 
+<input type="hidden" id="LanguageChangeLink" value="<?php echo CController::createUrl('Profiles/LanguageChanged', array_merge($this->getActionParams(), array('action'=>$this->route))); ?>"/>
+
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'profiles-form',
 	'enableAjaxValidation'=>false,
@@ -11,7 +13,7 @@
 
 		<div class="row">
 			<?php echo $form->labelEx($model,'PRF_LANG'); ?>
-			<?php echo $form->dropDownList($model,'PRF_LANG', array('EN_GB'=>'English','DE_CH'=>'Deutsch','FR_FR'=>'Francais'), array('empty'=>$this->trans->GENERAL_CHOOSE,)); ?>
+			<?php echo $form->dropDownList($model,'PRF_LANG', $this->allLanguages, array('empty'=>$this->trans->GENERAL_CHOOSE,)); ?>
 			<?php echo $form->error($model,'PRF_LANG'); ?>
 		</div>
 		
@@ -25,12 +27,6 @@
 			<?php echo $form->labelEx($model,'PRF_EMAIL'); ?>
 			<?php echo $form->textField($model,'PRF_EMAIL',array('size'=>60,'maxlength'=>100)); ?>
 			<?php echo $form->error($model,'PRF_EMAIL'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($model,'PRF_LANG'); ?>
-			<?php echo $form->textField($model,'PRF_LANG',array('size'=>10,'maxlength'=>10)); ?>
-			<?php echo $form->error($model,'PRF_LANG'); ?>
 		</div>
 
 		<div class="row">
@@ -59,9 +55,9 @@
 
 		<?php
 			if (isset(Yii::app()->session['Profiles_Backup']) && isset(Yii::app()->session['Profiles_Backup']->PRF_IMG_ETAG)){
-				echo CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'profiles cropable'));
+				echo CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'profiles cropable'));
 			} else if ($model->PRF_UID) {
-				echo CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>$model->PRF_UID, 'ext'=>'png')), '', array('class'=>'profiles cropable'));
+				echo CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>$model->PRF_UID, 'ext'=>'.png')), '', array('class'=>'profiles cropable'));
 			}
 		?>
 		
@@ -190,7 +186,7 @@
 			<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE); ?>
 		</div>
 	</div>
-	<strong>Select your home Place:</strong>
+	<strong><?php echo $this->trans->PROFILES_SELECT_HOME; ?></strong>
 	<div id="map_canvas" style="height:300px; width:300px;"></div>
 	<div class="clearfix"></div>
 

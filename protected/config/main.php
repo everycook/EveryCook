@@ -52,7 +52,7 @@ return array(
 
 				'<controller:\w+>'=>'<controller>/index',
 				'<controller:\w+>/<id:\d+>'=>'<controller>/view',
-				'<controller:\w+>/<action:\w+>/<id:\w+>.<ext:\w+>'=>'<controller>/<action>',
+				'<controller:\w+>/<action:\w+>/<id:\w+><ext:\.\w+>'=>'<controller>/<action>',
 				'<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
 				'<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
 			),
@@ -107,6 +107,9 @@ return array(
 		'clientScript'=>array(
 			'class'=>'CAjaxOptimizedClientScript',
 		),
+		'coreMessages'=>array(
+            'basePath'=>null,
+        ),
 		'Randomness'=>array('class'=>'Randomness',),
 	),
 

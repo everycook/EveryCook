@@ -106,9 +106,9 @@
 
 		<?php
 			if (Yii::app()->session['Stores_Backup'] && Yii::app()->session['Stores_Backup']->STO_IMG_ETAG){
-				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->STO_IMG_AUTH, 'title'=>$model->STO_IMG_AUTH));
+				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->STO_IMG_AUTH, 'title'=>$model->STO_IMG_AUTH));
 			} else if ($model->STO_ID) {
-				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>$model->STO_ID, 'ext'=>'png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->STO_IMG_AUTH, 'title'=>$model->STO_IMG_AUTH));
+				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>$model->STO_ID, 'ext'=>'.png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->STO_IMG_AUTH, 'title'=>$model->STO_IMG_AUTH));
 			}
 		?>
 		

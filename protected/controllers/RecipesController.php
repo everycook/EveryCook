@@ -157,8 +157,9 @@ class RecipesController extends Controller
 			}
 			
 			$model->steps = $steps;
-			
-			Functions::updatePicture($model,'REC_IMG', $oldPicture);
+			if (isset($oldPicture)){
+				Functions::updatePicture($model,'REC_IMG', $oldPicture);
+			}
 			
 			Yii::app()->session['Recipe_Backup'] = $model;
 			if ($stepsOK){
@@ -216,7 +217,7 @@ class RecipesController extends Controller
 		//$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
 		//$ingredients = CHtml::listData($ingredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
 		
-		if (isset($model->steps) && $model->steps[0] && !$model->steps[0]->ingredient){
+		if (isset($model->steps) && isset($model->steps[0]) && !isset($model->steps[0]->ingredient)){
 			/*
 			$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
 			$ingredients = CHtml::listData($ingredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);

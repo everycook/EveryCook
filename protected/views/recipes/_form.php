@@ -1,5 +1,5 @@
 <input type="hidden" id="uploadImageLink" value="<?php echo $this->createUrl('recipes/uploadImage',array('id'=>$model->REC_ID)); ?>"/>
-<input type="hidden" id="imageLink" value="<?php echo $this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'png')); ?>"/>
+<input type="hidden" id="imageLink" value="<?php echo $this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
 <div class="form">
 
 <div class="hidden" id="stepConfig">
@@ -29,7 +29,7 @@
 		}
 	?>
 	
-	<?php foreach($this->allLanguages as $lang){ ?>
+	<?php foreach($this->allLanguages as $lang=>$name){ ?>
 	<div class="row">
 		<?php echo $form->labelEx($model,'REC_NAME_'.strtoupper($lang)); ?>
 		<?php echo $form->textField($model,'REC_NAME_'.strtoupper($lang),array('size'=>60,'maxlength'=>100)); ?>
@@ -44,9 +44,9 @@
 	
 	<?php
 		if (isset(Yii::app()->session['Recipe_Backup']) && isset(Yii::app()->session['Recipe_Backup']->REC_IMG_ETAG)){
-			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'recipe cropable', 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));
+			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'recipe cropable', 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));
 		} else if ($model->REC_ID) {
-			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'png')), '', array('class'=>'recipe cropable', 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));
+			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), '', array('class'=>'recipe cropable', 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));
 		}
 	?><br />
 	<div class="row">

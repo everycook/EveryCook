@@ -42,9 +42,15 @@ glob.changeHash = function(newParamName, newParamValue, noSubmit){
 jQuery(function($){
 	//Initialize Links
 	function initLinks(){
-		$('a[href*="' + glob.prefix + '"]:not(.fancyChoose):not(.noAjax)').each(function(){
-			$(this).attr('href', "#" + $(this).attr('href').substr(glob.prefix.length));
-		});
+		if (glob.prefix && window.location.pathname != glob.prefix){
+			$('a[href*="' + glob.prefix + '"]:not(a[href*="#"]):not(.fancyChoose):not(.noAjax)').each(function(){
+				$(this).attr('href', glob.prefix + "#" + $(this).attr('href').substr(glob.prefix.length));
+			});
+		} else {
+			$('a[href*="' + glob.prefix + '"]:not(.fancyChoose):not(.noAjax)').each(function(){
+				$(this).attr('href', "#" + $(this).attr('href').substr(glob.prefix.length));
+			});
+		}
 	}
 	
 	$('#page').ajaxComplete(function(e, xhr, settings) {

@@ -1,6 +1,6 @@
 <div class="resultArea">
 	<!-- STL show image -->
-	<?php echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'png')), '', array('class'=>'ingredient', 'alt'=>$data['ING_IMG_AUTH'], 'title'=>$data['ING_IMG_AUTH'])), array('view', 'id'=>$data['ING_ID'])); ?>
+	<?php echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$data['ING_IMG_AUTH'], 'title'=>$data['ING_IMG_AUTH'])), array('view', 'id'=>$data['ING_ID'])); ?>
 	
 	<?php
 	if ($this->isFancyAjaxRequest){
@@ -42,8 +42,8 @@
 			}?>
 		</div>
 		<div class="shopInfo">
-			<?php if($data['pro_count'] != 0 || $data['sup_count'] != 0){ ?>
-			<span><?php printf(CHtml::encode($this->trans->INGREDIENTS_PRODUCTS_IN_SHOPS), $data['pro_count'], $data['sup_count']); ?></span>
+			<?php if($data['pro_count'] != 0 || $data['sup_names'] != ''){ ?>
+			<span><?php printf(CHtml::encode($this->trans->INGREDIENTS_PRODUCTS_IN_SHOPS), $data['pro_count'], $data['sup_names']); ?></span>
 			<?php } else {
 				echo '&nbsp;';
 			} ?>

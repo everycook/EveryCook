@@ -1,6 +1,6 @@
 <input type="hidden" id="SubGroupFormLink" value="<?php echo $this->createUrl('ingredients/getSubGroupForm'); ?>"/>
 <input type="hidden" id="uploadImageLink" value="<?php echo $this->createUrl('ingredients/uploadImage',array('id'=>$model->ING_ID)); ?>"/>
-<input type="hidden" id="imageLink" value="<?php echo $this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'png')); ?>"/>
+<input type="hidden" id="imageLink" value="<?php echo $this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
 <div class="form">
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'ingredients-form',
@@ -45,7 +45,7 @@
 	</div>
 	*/ ?>
 	
-	<?php foreach($this->allLanguages as $lang){ ?>
+	<?php foreach($this->allLanguages as $lang=>$name){ ?>
 	<div class="row">
 		<?php echo $form->labelEx($model,'ING_NAME_'.$lang); ?>
 		<?php echo $form->textField($model,'ING_NAME_'.$lang,array('size'=>60,'maxlength'=>100)); ?>
@@ -86,9 +86,9 @@
 	
 	<?php
 		if (isset(Yii::app()->session['Ingredient_Backup']) && isset(Yii::app()->session['Ingredient_Backup']->ING_IMG_ETAG)){
-			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
+			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
 		} else if ($model->ING_ID) {
-			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
+			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'.png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
 		}
 	?>
 	
