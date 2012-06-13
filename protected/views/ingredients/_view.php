@@ -4,8 +4,8 @@
 	
 	<div class="options">
 		<?php echo CHtml::link(CHtml::encode('Cook with'), array('recipes/search', 'ing_id'=>$data->ING_ID), array('class'=>'button')); ?>
-		<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data->ING_ID), array('class'=>'delicious', 'title'=>'delicious')); ?>
-		<?php echo CHtml::link('&nbsp;', array('disquesting', 'id'=>$data->ING_ID), array('class'=>'disquesting','title'=>'disquesting')); ?>
+		<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data->ING_ID), array('class'=>'delicious noAjax', 'title'=>'delicious')); ?>
+		<?php echo CHtml::link('&nbsp;', array('disquesting', 'id'=>$data->ING_ID), array('class'=>'disquesting noAjax','title'=>'disquesting')); ?>
 		<?php echo CHtml::link(CHtml::encode('view food'), array('view', 'id'=>$data->ING_ID), array('class'=>'button')); ?>
 	</div>
 	

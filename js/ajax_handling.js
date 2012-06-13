@@ -1,5 +1,43 @@
 ﻿var glob = glob || {};
 
+glob.removeUrlParam = function(url, key){
+	var paramStart = url.indexOf(key+'=');
+	var paramEnd = url.indexOf('&', paramStart);
+	if (paramStart != -1){
+		if (paramEnd != -1){
+			url = url.substr(0,paramStart) + url.substr(paramEnd);
+		} else {
+			url = url.substr(0,paramStart)
+		}
+	}
+	return url;
+}
+
+glob.urlAddParamStart = function(url){
+	if (url.indexOf('?')>0){
+		url = url + '&';
+	} else {
+		url = url + '?';
+	}
+	return url;
+};
+
+
+function ajaxResponceHandler(data){
+	if (data.indexOf('{')===0){
+		eval('var data = ' + data + ';');
+	}
+	if (data.hash){
+		if (glob.prefix && window.location.pathname != glob.prefix){
+			window.location.pathname = glob.prefix + '#' + data.hash;
+		} else {
+			window.location.hash = data.hash;
+		}
+	} else {
+		jQuery('#changable_content').html(data);
+	}
+}
+
 jQuery(function($){
 	function initAjaxUpload(){
 		$('form.ajaxupload:not([target='+$.fn.iframePostForm.defaults.iframeID+'])').iframePostForm({
@@ -51,29 +89,12 @@ jQuery(function($){
 			submitValue = "&" + encodeURI(pressedButton.name + "=" + pressedButton.value);
 		} catch(ex){
 		}
-		return submitForm(form, form.attr('action'), submitValue, function(data){
-			if (data.indexOf('{')===0){
-				eval('var data = ' + data + ';');
-			}
-			if (data.hash){
-				if (glob.prefix && window.location.pathname != glob.prefix){
-					window.location.pathname = glob.prefix + '#' + data.hash;
-				} else {
-					window.location.hash = data.hash;
-				}
-			} else {
-				jQuery('#changable_content').html(data);
-			}
-		});
+		return submitForm(form, form.attr('action'), submitValue, ajaxResponceHandler);
 	});
 	
 	function submitForm(form, destUrl, submitValue, successFunc){
-		if (form.attr('method').toLowerCase() == 'get'){		
-			if (destUrl.indexOf('?')>0){
-				destUrl = destUrl + '&';
-			} else {
-				destUrl = destUrl + '?';
-			}
+		if (form.attr('method').toLowerCase() == 'get'){
+			destUrl = glob.urlAddParamStart(destUrl);
 			jQuery.ajax({'type':'get', 'url':destUrl + form.serialize() + submitValue,'cache':false,'success':function(data){
 				successFunc(data);
 			}});
@@ -82,11 +103,7 @@ jQuery(function($){
 			if (queryInput.length && !queryInput.hasClass('notUrl')){
 				queryValue = queryInput.attr('value').trim();
 				if (queryValue.length > 0){
-					if (destUrl.indexOf('?')>0){
-						destUrl = destUrl + '&';
-					} else {
-						destUrl = destUrl + '?';
-					}
+					destUrl = glob.urlAddParamStart(destUrl);
 					destUrl = destUrl + 'query=' + queryValue;
 					
 					glob.changeHash('query', queryValue, true);
@@ -126,6 +143,19 @@ jQuery(function($){
 		return false;
 	});
 	
+	jQuery('body').undelegate('#Ingredients_ING_NAME_EN_GB','blur').delegate('#Ingredients_ING_NAME_EN_GB','blur', function(){
+		var value = jQuery('#Ingredients_ING_NAME_EN_GB').val();
+		var link = jQuery('.NutrientDataSelect');
+		var url = link.attr('href');
+		url = glob.removeUrlParam(url,'query');
+		url = glob.urlAddParamStart(url);
+		url = url + 'query=' + encodeURI(value);
+		link.attr('href', url);
+	});
+	
+	
+
+
 	//Product functions
 	jQuery('body').undelegate('#producer .add','click').delegate('#producer .add','click', function(){
 		var list = jQuery('#producerList');
@@ -137,6 +167,20 @@ jQuery(function($){
 	jQuery('body').undelegate('#producer .remove','click').delegate('#producer .remove','click', function(){
 		var elem = jQuery(this);
 		elem.parent().remove();
+	});
+	
+	jQuery('body').undelegate('#productsResult .showOnMap','click').delegate('#productsResult .showOnMap','click', function(){
+		jQuery('.selectedProduct').removeClass('selectedProduct');
+		var elem = jQuery(this);
+		elem.parents('.data:first').find('.productId').addClass('selectedProduct');
+		if (elem.hasClass('centerGPSYou')){
+			cord = jQuery('#centerGPSYou').val().split(',');
+			title = 'your Position';
+		} else {
+			cord = jQuery('#centerGPSHome').val().split(',');
+			title = 'your Home';
+		}
+		reinitialize(cord[0], cord[1], undefined, jQuery('#viewDistance').val(), loadDataProduct, title);
 	});
 	
 	//Store assing functions
@@ -211,6 +255,8 @@ jQuery(function($){
 		elem.removeClass('emptyOnEnter');
 	});
 	
+	
+	//Profiles
 	jQuery('body').undelegate('#Profiles_PRF_LANG','change').delegate('#Profiles_PRF_LANG','change',function(){
 		var lang = jQuery('#Profiles_PRF_LANG').val();
 		if (lang != ''){
@@ -225,5 +271,54 @@ jQuery(function($){
 			window.location = destUrl;
 		}
 	});
+	
+	
+	//JumpTo
+	var JumpToOverlayTimeout;
+	jQuery('body').undelegate('#JumpTo','mouseover').delegate('#JumpTo','mouseover',function(){
+		window.clearTimeout(JumpToOverlayTimeout);
+		jQuery('#JumpTos').show();
+	});
+	
+	jQuery('body').undelegate('#JumpTo','mouseout').delegate('#JumpTo','mouseout',function(){
+		JumpToOverlayTimeout = window.setTimeout('jQuery("#JumpTos").hide();', 1000);
+	});
+	
+	jQuery('body').undelegate('#JumpTos','mouseover').delegate('#JumpTos','mouseover',function(){
+		window.clearTimeout(JumpToOverlayTimeout);
+	});
+	
+	jQuery('body').undelegate('#JumpTos','mouseout').delegate('#JumpTos','mouseout',function(){
+		JumpToOverlayTimeout = window.setTimeout('jQuery("#JumpTos").hide();', 1000);
+	});
+	
+	
+	//delicious / disgusting
+	jQuery('body').undelegate('.delicious','click').delegate('.delicious','click',function(){
+		var url = jQuery(this).attr('href');
+		if (url.substr(0,1) == '#'){
+			url = glob.hashToUrl(url.substr(1));
+		}
+		
+		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
+			ajaxResponceHandler(data);
+		}});
+		
+		return false;
+	});
+
+	jQuery('body').undelegate('.disgusting','click').delegate('.disgusting','click',function(){
+		var url = jQuery(this).attr('href');
+		if (url.substr(0,1) == '#'){
+			url = glob.hashToUrl(url.substr(1));
+		}
+		
+		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
+			ajaxResponceHandler(data);
+		}});
+		
+		return false;
+	});
+
 });
 

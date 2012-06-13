@@ -65,16 +65,6 @@ a.cookwith {
 	background-size: contain;
 }
 
-a.nutrientDataOpen {
-	background: url('../../pics/list.png') no-repeat scroll 0 0 transparent;
-	background-size: contain;
-}
-
-a.productSearch {
-	background: url('../../pics/list.png') no-repeat scroll 0 0 transparent;
-	background-size: contain;
-}
-
 div.resultArea {
 	background-color:#FFFFFF;
 }
@@ -98,4 +88,8 @@ div.nutrientDataGroup {
 
 div.form .hint {
     color: black;
+}
+
+#JumpTos {
+	background-color:#FFFFFF;
 }

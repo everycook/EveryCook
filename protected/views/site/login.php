@@ -20,7 +20,7 @@ $this->breadcrumbs=array(
 	),*/
 )); ?>
 
-	<p class="note">Fields with <span class="required">*</span> are required.</p>
+	<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'username'); ?>

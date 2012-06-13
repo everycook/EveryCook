@@ -32,7 +32,7 @@ class IngredientsController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','uploadImage'),
+				'actions'=>array('create','update','uploadImage','delicious','disgusting'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -91,7 +91,9 @@ class IngredientsController extends Controller
 	}
 	
 	public function actionUploadImage(){
-		$id = $_GET['id'];
+		if (isset($_GET['id'])){
+			$id = $_GET['id'];
+		}
 		
 		$Session_Ingredient_Backup = Yii::app()->session['Ingredient_Backup'];
 		if (isset($Session_Ingredient_Backup)){
@@ -181,12 +183,8 @@ class IngredientsController extends Controller
 				} else {
 					if($model->save()){
 						unset(Yii::app()->session['Ingredient_Backup']);
-						if($this->useAjaxLinks){
-							echo "{hash:'" . $this->createUrlHash('view', array('id'=>$model->ING_ID)) . "'}";
-							exit;
-						} else {
-							$this->redirect(array('view', 'id'=>$model->ING_ID));
-						}
+						$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
+						return;
 					}
 				}
 			}
@@ -330,7 +328,7 @@ class IngredientsController extends Controller
 		
 		$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'ingredients.');
 		
-		if ($modelAvailable ||$criteriaString != ''){
+		if ($modelAvailable || $criteriaString != ''){
 			/*
 			$command = Yii::app()->db->createCommand()
 				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, (select count(products.PRO_ID) from products where products.ING_ID = ingredients.ING_ID) as pro_count, count(pro_to_sto.SUP_ID) as sup_count')
@@ -346,7 +344,7 @@ class IngredientsController extends Controller
 				->group('ingredients.ING_ID')
 			*/
 			$command = Yii::app()->db->createCommand()
-				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, count(products.PRO_ID) as pro_count')
+				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, count(DISTINCT products.PRO_ID) as pro_count')
 				->from('ingredients')
 				->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
 				->leftJoin('group_names', 'ingredients.GRP_ID=group_names.GRP_ID')
@@ -358,7 +356,6 @@ class IngredientsController extends Controller
 				->group('ingredients.ING_ID');
 				//echo $command->text;
 			
-			
 			$suppliersCommand = Yii::app()->db->createCommand()
 				->select('ingredients.ING_ID, suppliers.SUP_NAME')
 				->from('ingredients')
@@ -367,7 +364,34 @@ class IngredientsController extends Controller
 				->leftJoin('suppliers', 'suppliers.SUP_ID=pro_to_sto.SUP_ID')
 				->group('ingredients.ING_ID, suppliers.SUP_ID')
 				->order('ingredients.ING_ID, suppliers.SUP_ID');
-					
+			
+			
+			/*
+			//TODO: currently not working...
+			$supplierExtraCondition = '';
+			if (isset(Yii::app()->session['current_gps']) && isset(Yii::app()->session['current_gps'][2])) {
+				$command->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
+				->leftJoin('stores', 'pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID');
+				
+				if ($criteriaString != ''){
+					$criteriaString = $criteriaString  . ' AND ' . 'cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance;
+				} else {
+					$criteriaString = 'cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance;
+				}
+				$supplierExtraCondition = 'AND cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance;
+			} else if (!Yii::app()->user->isGuest && isset(Yii::app()->user->home_gps) && isset(Yii::app()->user->home_gps[2])){
+				$command->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID');
+				->leftJoin('stores', 'pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STT_ID=stores.STT_ID');
+				
+				if ($criteriaString != ''){
+					$criteriaString = $criteriaString  . ' AND ' . 'cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\')) <= '. Yii::app()->user->view_distance;
+				} else {
+					$criteriaString = 'cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\')) <= '. Yii::app()->user->view_distance;
+				}
+				$supplierExtraCondition = 'AND cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\')) <= '. Yii::app()->user->view_distance;
+			}
+			*/
+			
 			if($modelAvailable) {
 				$Session_Ingredient = array();
 				if (isset($query)){
@@ -419,6 +443,7 @@ class IngredientsController extends Controller
 				$suppliersCommand->where($criteriaString);
 				$this->validSearchPerformed = true;
 			}
+			
 			$rows = $command->queryAll();
 			$suppliers = $suppliersCommand->queryAll();
 			
@@ -625,6 +650,7 @@ class IngredientsController extends Controller
 	
     public function actionDisplaySavedImage($id, $ext)
     {
+		$this->saveLastAction = false;
 		$model=$this->loadModel($id, true);
 		$modified = $model->CHANGED_ON;
 		if (!$modified){
@@ -632,4 +658,16 @@ class IngredientsController extends Controller
 		}
 		return Functions::getImage($modified, $model->ING_IMG_ETAG, $model->ING_IMG, $id);
     }
+	
+	public function actionDelicious($id){
+		$this->saveLastAction = false;
+		Functions::addLikeInfo($id, 'I', true);
+		$this->showLastAction();
+	}
+	
+	public function actionDisgusting($id){
+		$this->saveLastAction = false;
+		Functions::addLikeInfo($id, 'I', false);
+		$this->showLastAction();
+	}
 }

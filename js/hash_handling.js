@@ -82,11 +82,19 @@ jQuery(function($){
 			
 			url = glob.hashToUrl(hash);
 			
+			jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
+				// Content loaded, hide "loading" content.
+				$( '.bbq-loading' ).hide();
+				glob.lastHash = hash;
+				ajaxResponceHandler(data);
+			}});
+			
+			/*
 			$('#changable_content').load( url, function(){
 				// Content loaded, hide "loading" content.
 				$( '.bbq-loading' ).hide();
 				glob.lastHash = hash;
-			});
+			});*/
 		}
 	});
 	

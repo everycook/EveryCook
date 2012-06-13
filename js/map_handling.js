@@ -1,6 +1,5 @@
 var initialLocation;
 var locationBasel;
-var locationWaldenburg;
 var browserSupportFlag =  new Boolean();
 var lastCords = null;
 var gettingCached = false;
@@ -9,6 +8,7 @@ var map;
 
 var doLoadStores = false;
 var doPlaceMarker = false;
+var doInitialize = false;
 
 var markerList = new Array();
 var markerIcons = new Array();
@@ -23,14 +23,17 @@ var infoBubbleStoreIdNext;
 var lastZoom=99;
 var lastBounds=null;
 
+var distanceMarker;
+var distanceText;
 
 var geocoder;
 var lastGeocodeMarker;
 
 //Initialize functions
-function loadScript(sensor, region, https, loadStores, placeMarker) {
+function loadScript(sensor, region, https, loadStores, placeMarker, runInitialize) {
 	doLoadStores = loadStores;
 	doPlaceMarker = placeMarker;
+	doInitialize = runInitialize;
 	
 	var url;
 	if (https){
@@ -60,70 +63,216 @@ function loadScript(sensor, region, https, loadStores, placeMarker) {
 	}
 }
 
+function addRelocateButton(){
+	var controlDiv = document.createElement('div');
+	controlDivJ = jQuery(controlDiv);
+	controlDivJ.css('margin','5px');
+	controlDivJ.css('box-shadow', '0 2px 4px rgba(0, 0, 0, 0.4)');
+	controlDivJ.css('border', '1px solid #717B87');
+	
+	var controlUI = document.createElement('img');
+	controlUI.src = glob.prefix + 'pics/locate.png';
+	controlUI.alt = 'find current Possition';
+	controlUI.title = 'find current Possition';
+	controlDiv.appendChild(controlUI);
+
+	google.maps.event.addDomListener(controlUI, 'click', function() {
+		locateUser(locateCallback, undefined, false);
+	});
+
+	map.controls[google.maps.ControlPosition.TOP_RIGHT].push(controlDiv);
+}
+
+function checkMapInitialized(){
+	if (typeof(map) === 'undefined' || jQuery(map.getDiv()).filter(':visible').length == 0 ){
+		var myOptions = {
+			zoom: 14,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		};
+		var container = jQuery('#map_canvas');
+		if (container.length > 0){
+			container.show();
+			map = new google.maps.Map(container.get(0), myOptions);
+		}
+		//map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+		
+		if (doLoadStores){
+			google.maps.event.addListener(map, 'dragend', mapChanged);
+			google.maps.event.addListener(map, 'bounds_changed', function(){
+				google.maps.event.addListenerOnce(map, 'idle', mapChanged);
+			});
+			google.maps.event.addListener(map, 'zoom_changed', function(){
+				google.maps.event.addListenerOnce(map, 'idle', mapChanged);
+			});
+			google.maps.event.addListenerOnce(map, 'idle', mapChanged);
+		}
+		
+		addRelocateButton();
+	}
+}
+
 function initialize() {
 	if (!locationBasel){
 		locationBasel = new google.maps.LatLng(47.557473,7.592926);
 	}
-	if (!locationWaldenburg){
-		locationWaldenburg = new google.maps.LatLng(47.37836,7.746305);
+	
+	if (doInitialize){
+		if (typeof(distanceMarker) !== 'undefined'){
+			distanceMarker.setMap(null);
+			distanceMarker = undefined;
+		}
+		
+		lastZoom=99;
+		lastBounds=null;
+		loadDataCallback = loadDataStores;
+		checkMapInitialized();
+		distanceText = 'distance to home:';
+		if (doLoadStores){
+			locateUser(locateCallback, doFallback, true);
+		} else if (!doPlaceMarker){
+			locateUser(locateCallback, doFallback, true);
+		}
+		
+		initializeGeocoder();
 	}
-	
-	var myOptions = {
-		zoom: 14,
-		mapTypeId: google.maps.MapTypeId.ROADMAP
-	};
-	map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-	
+}
+
+function destinationPoint(start, brng, dist) {
+  dist = dist/6371.01;  // convert dist to angular distance in radians
+  brng = brng.toRad();  // 
+  var lat1 = start.lat().toRad(), lng1 = start.lng().toRad();
+
+  var lat2 = Math.asin( Math.sin(lat1)*Math.cos(dist) + 
+                        Math.cos(lat1)*Math.sin(dist)*Math.cos(brng) );
+  var lng2 = lng1 + Math.atan2(Math.sin(brng)*Math.sin(dist)*Math.cos(lat1), 
+                               Math.cos(dist)-Math.sin(lat1)*Math.sin(lat2));
+  lng2 = (lng2+3*Math.PI) % (2*Math.PI) - Math.PI;  // normalise to -180..+180º
+
+  return new google.maps.LatLng(lat2.toDeg(), lng2.toDeg());
+}
+
+function reinitialize(lat, lng, zoom, radius, dataCallback, markerTitle){
 	lastZoom=99;
 	lastBounds=null;
-	if (doLoadStores){
-		google.maps.event.addListener(map, 'dragend', mapChanged);
-		google.maps.event.addListener(map, 'zoom_changed', function(){
-			google.maps.event.addListenerOnce(map, 'idle', mapChanged);
-		});
-		google.maps.event.addListenerOnce(map, 'idle', mapChanged);
-		locateUser(locateCallback);
-	} else if (!doPlaceMarker){
-		locateUser(locateCallback);
+	
+	if (typeof(lastGeocodeMarker) !== 'undefined'){
+		lastGeocodeMarker.setMap(null);
+		lastGeocodeMarker=undefined;
 	}
 	
-	initializeGeocoder();
+	if (typeof(distanceMarker) !== 'undefined'){
+		distanceMarker.setMap(null);
+		distanceMarker = undefined;
+	}
+	
+	loadDataCallback = dataCallback;
+	
+	if (dataCallback == loadDataProduct){
+		distanceText = 'distance to ' + markerTitle + ':';
+	} else {
+		distanceText = 'distance to home:';
+	}
+	
+	var center = new google.maps.LatLng(lat, lng);
+	checkMapInitialized();
+	map.setCenter(center);
+	
+	if (typeof(radius) !== 'undefined'){
+		var bounds = new google.maps.LatLngBounds();
+		bounds.extend(destinationPoint(center, 0, radius)); //top
+		bounds.extend(destinationPoint(center, 90, radius)); //right
+		bounds.extend(destinationPoint(center, 180, radius)); //bottom
+		bounds.extend(destinationPoint(center, 270, radius)); //left
+		
+		map.fitBounds(bounds);
+	} else if (typeof(zoom) !== 'undefined'){
+		map.setZoom(zoom);
+	}
+	
+	if (typeof(markerTitle) !== 'undefined'){
+		distanceMarker  = new google.maps.Marker({
+			position: center, 
+			map: map,
+			title: markerTitle,
+		});
+	}
+	google.maps.event.addListenerOnce(map, 'idle', mapChanged);
+}
+
+function UpdateSessionLocation(){
+	//if it's in a radius more than 500 meters, it seams to be a unexact location, save it in html/session so don't need to ask again and to show distances.
+	if (!lastCords || lastCords.accuracy > 500){
+		jQuery('#current_gps_lat').val(initialLocation.lat());
+		jQuery('#current_gps_lng').val(initialLocation.lng());
+		var time = (new Date().getTime())/1000 + 2*60*60;//this un accurate location is valid for 2 hours, no need to ask the same multiple times.
+		jQuery('#current_gps_time').val(time); 
+		var url = jQuery('#markCurrentGPS').val();
+		jQuery.post(url ,{
+			"lat": initialLocation.lat(), 
+			"lng": initialLocation.lng(),
+			"time": time,
+		}, null);
+	} else { // if (lastCords.accuracy <= 500)
+	//if it's a real location (less than 500 meters), ask again if older than 10min. Also save it in session to show distances.
+		jQuery('#current_gps_lat').val(initialLocation.lat());
+		jQuery('#current_gps_lng').val(initialLocation.lng());
+		//this one is valid for up to 10min, so you see your changed location.
+		var time = (new Date().getTime())/1000 + 10*60;
+		jQuery('#current_gps_time').val(time);
+		var url = jQuery('#markCurrentGPS').val();
+		jQuery.post(url ,{
+			"lat": initialLocation.lat(), 
+			"lng": initialLocation.lng(),
+			"time": time,
+		}, null);
+	}
+}
+
+function loadDataStores(southWest, northEast, zoom){
+	var url = $("#StoreLocationsLink").val();
+	jQuery.post(url ,{
+	   "southWestLat": southWest.lat(),
+	   "southWestLng": southWest.lng(),
+	   "northEastLat": northEast.lat(),
+	   "northEastLng": northEast.lng(),
+	   "zoom": zoom
+	 }, function(xml) {
+	   updateMarkers(xml);
+	});
+}
+
+function loadDataProduct(southWest, northEast, zoom){
+	if (typeof(distanceMarker) !== 'undefined'){
+		startLat = distanceMarker.getPosition().lat();
+		startLng = distanceMarker.getPosition().lng();
+	} else {
+		startLat = '';
+		startLng = '';
+	}
+	var url = $("#ProductStoreLocationsLink").val();
+	jQuery.post(url ,{
+	   "southWestLat": southWest.lat(),
+	   "southWestLng": southWest.lng(),
+	   "northEastLat": northEast.lat(),
+	   "northEastLng": northEast.lng(),
+	   "zoom": zoom,
+	   "product_id": jQuery('.selectedProduct').val(),
+	   "startLat": startLat,
+	   "startLng": startLng,
+	 }, function(xml) {
+	   updateMarkers(xml);
+	});
 }
 
 function locateCallback(status){
 	if (status === -1){
-		alert("Geolocation service failed.");
-		initialLocation = locationWaldenburg;
+		alert("Geolocation service failed. We've placed you in Basel, Schweiz.");
+		initialLocation = locationBasel;
 	} else if (status === -2){
 		alert("Your browser doesn't support geolocation. We've placed you in Basel, Schweiz.");
 		initialLocation = locationBasel;
 	} else if (status !== 0){
-		//if it's in a radius more than 500 meters, it seams to be a unexact location, save it in html/session so don't need to ask again and to show distances.
-		if (!lastCords || lastCords.accuracy > 500){
-			jQuery('#current_gps_lat').val(initialLocation.lat());
-			jQuery('#current_gps_lng').val(initialLocation.lng());
-			var time = (new Date().getTime())/1000 + 2*60*60;//this un accurate location is valid for 2 hours, no need to ask the same multiple times.
-			jQuery('#current_gps_time').val(time); 
-			var url = jQuery('#markCurrentGPS').val();
-			jQuery.post(url ,{
-			   "lat": initialLocation.lat(), 
-			   "lng": initialLocation.lng(),
-			   "time": time,
-			 }, null);
-		 } else { // if (lastCords.accuracy <= 500)
-			//if it's a real location (less than 500 meters), ask again if older than 10min. Also save it in session to show distances.
-			jQuery('#current_gps_lat').val(initialLocation.lat());
-			jQuery('#current_gps_lng').val(initialLocation.lng());
-			//this one is valid for up to 10min, so you see your changed location.
-			var time = (new Date().getTime())/1000 + 10*60;
-			jQuery('#current_gps_time').val(time);
-			var url = jQuery('#markCurrentGPS').val();
-			jQuery.post(url ,{
-			   "lat": initialLocation.lat(), 
-			   "lng": initialLocation.lng(),
-			   "time": time,
-			 }, null);
-		 }
+		UpdateSessionLocation();
 	}
 	map.setCenter(initialLocation);
 	if (doLoadStores){
@@ -141,13 +290,17 @@ function doFallback(){
 	}
 }
 
-function locateUser(callback){
-	fallbackDone = false;
-	if (jQuery('#current_gps_lat').val() != '' && jQuery('#current_gps_lng').val() != ''){
-		if(jQuery('#current_gps_time').val() > (new Date().getTime())/1000){
-			initialLocation = new google.maps.LatLng(jQuery('#current_gps_lat').val(), jQuery('#current_gps_lng').val());
-			callback(0);
-			return;
+function locateUser(callback, fallbackCallback, useCached){
+	if (typeof(fallbackCallback) !== 'undefined'){
+		fallbackDone = false;
+	}
+	if (useCached){
+		if (jQuery('#current_gps_lat').val() != '' && jQuery('#current_gps_lng').val() != ''){
+			if(jQuery('#current_gps_time').val() > (new Date().getTime())/1000){
+				initialLocation = new google.maps.LatLng(jQuery('#current_gps_lat').val(), jQuery('#current_gps_lng').val());
+				callback(0);
+				return;
+			}
 		}
 	}
 	
@@ -162,15 +315,17 @@ function locateUser(callback){
 			//alert('accuracy: ' + position.coords.accuracy + ', heading: ' + position.coords.heading + ', speed: ' + position.coords.speed);
 			callback(1);
 		};
-		var errorCallback = function() {
+		var errorCallback = function(error) {
 			window.clearTimeout(fallbackTimeout);
 			switch(error.code) {
 				case error.TIMEOUT:
-					alert('timeout');
+					//alert('timeout');
 					if (gettingCached){
-						doFallback();
+						if (typeof(fallbackCallback) !== 'undefined'){
+							fallbackCallback();
+						}
 						gettingCached = false;
-						navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {timeout:60000}); //, enableHighAccuracy:true
+						navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {timeout:10000}); //, enableHighAccuracy:true
 					} else {
 						callback(-1);
 					}
@@ -180,10 +335,17 @@ function locateUser(callback){
 			}
 		}
 		
-		var fallbackTimeout = window.setTimeout(doFallback, 5000);
-		gettingCached = true;
-		//get cached value if not older than 10 min
-		navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {maximumAge:600000, timeout:0});
+		if (typeof(fallbackCallback) !== 'undefined'){
+			var fallbackTimeout = window.setTimeout(fallbackCallback, 5000);
+		}
+		if (useCached){
+			gettingCached = true;
+			//get cached value if not older than 10 min
+			navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {maximumAge:600000, timeout:0});
+		} else {
+			gettingCached = false;
+			navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {timeout:10000}); //, enableHighAccuracy:true
+		}
 	// Try Google Gears Geolocation
 	} else if (google.gears) {
 		browserSupportFlag = true;
@@ -290,23 +452,14 @@ function mapChanged() {
 		
 		lastZoom = zoom;
 		
-		//always load a bit more then visible, so draging is possible
+		//always load a bit more then visible(20%), so draging is possible
 		var latDiff = (southWest.lat()-northEast.lat()) * 0.2;
 		var lngDiff = (southWest.lng()-northEast.lng()) * 0.2;
 		southWest = new google.maps.LatLng(southWest.lat()+latDiff,southWest.lng()+lngDiff);
 		northEast = new google.maps.LatLng(northEast.lat()-latDiff,northEast.lng()-lngDiff);
 		lastBounds = new google.maps.LatLngBounds(southWest,northEast);
 		
-		var url = $("#StoreLocationsLink").val();
-		jQuery.post(url ,{
-		   "southWestLat": southWest.lat(),
-		   "southWestLng": southWest.lng(),
-		   "northEastLat": northEast.lat(),
-		   "northEastLng": northEast.lng(),
-		   "zoom": zoom
-		 }, function(xml) {
-		   updateMarkers(xml);
-		});
+		loadDataCallback(southWest, northEast, zoom);
 	}
  	return false; 
 };
@@ -426,7 +579,7 @@ infoWindowHtml = function(name, street, houseNr, zip, city, supplier, imageUrl, 
 		   + supplier + ' ' + name + '<br>'
 		   + ((zip==0)?'':street + ' ' + houseNr + ', ' + zip + ' ' + city)
 		   + '</div><br>'
-		   + 'distance to home:' + distance
+		   + distanceText + distance
 		   + '</div>'
 };
 
@@ -458,13 +611,14 @@ function addMarker(latLng, name, html, storeId, supplierId, typeId) {
 				infoBubble.close();
 			}
 		});
-		
-		google.maps.event.addListener(marker, 'click', function() {
-			jQuery('#ProToSto_SUP_ID :selected').removeAttr('selected');
-			jQuery('#ProToSto_SUP_ID option[value=' + supplierId + ']').attr('selected','selected');
-			jQuery('#ProToSto_STY_ID :selected').removeAttr('selected');
-			jQuery('#ProToSto_STY_ID option[value=' + typeId + ']').attr('selected','selected');
-		});
+		if (jQuery('#ProToSto_SUP_ID').length > 0){
+			google.maps.event.addListener(marker, 'click', function() {
+				jQuery('#ProToSto_SUP_ID :selected').removeAttr('selected');
+				jQuery('#ProToSto_SUP_ID option[value=' + supplierId + ']').attr('selected','selected');
+				jQuery('#ProToSto_STY_ID :selected').removeAttr('selected');
+				jQuery('#ProToSto_STY_ID option[value=' + typeId + ']').attr('selected','selected');
+			});
+		}
 	}
 	return marker;
 };
@@ -533,7 +687,7 @@ function initializeGeocoder() {
 				map.setCenter(latLng);
 				setGeocodeMarker(latLng);
 			} else if (!doLoadStores){
-				locateUser(locateCallback);
+				locateUser(locateCallback, doFallback, true);
 			}
 		//});
 	}
@@ -555,6 +709,8 @@ function setGeocodeMarker(latLng, latField, lngField){
 	if (typeof(lngField) === 'undefined' || lngField == null){
 		var lngField = jQuery('.cord_lng');
 	}
+	latField.val(latLng.lat());
+	lngField.val(latLng.lng());
 	google.maps.event.addListener(lastGeocodeMarker, 'dragend', function(event) {
 		//map.setCenter(event.latLng);
 		latField.val(event.latLng.lat());
@@ -662,4 +818,56 @@ function decodeAddress(lat, lng, streetField, noField, zipField, cityField, stat
 			alert("Geocoder failed due to: " + status);
 		}
     });
+}
+
+function MarkerCurrentGPSCallback(status){
+	if (status === -1){
+		alert("Geolocation service failed.");
+	} else if (status === -2){
+		alert("Your browser doesn't support geolocation.");
+	} else if (status !== 0){
+		map.setCenter(initialLocation);
+		setGeocodeMarker(initialLocation);
+		
+		UpdateSessionLocation();
+	}
+}
+
+function UpdateCurrentGPSCallback(status){
+	if (status === -1){
+		alert("Geolocation service failed.");
+	} else if (status === -2){
+		alert("Your browser doesn't support geolocation.");
+	} else if (status !== 0){
+		UpdateSessionLocation();
+		alert('DEBUG: geolocation sucessfull (accuracy: ' + lastCords.accuracy + 'km)');
+		
+	}
+}
+
+jQuery(function($){
+	jQuery('body').undelegate('#setMarkerCurrentGPS','click').delegate('#setMarkerCurrentGPS','click',function(){
+		locateUser(MarkerCurrentGPSCallback, undefined, false);
+		return false;
+	});
+	
+	jQuery('body').undelegate('#updateCurrentGPS','click').delegate('#updateCurrentGPS','click',function(){
+		locateUser(UpdateCurrentGPSCallback, undefined, false);
+		return false;
+	});
+});
+
+
+/** Converts numeric degrees to radians */
+if (typeof(Number.prototype.toRad) === "undefined") {
+  Number.prototype.toRad = function() {
+    return this * Math.PI / 180;
+  }
+}
+
+/** Converts numeric radians to degrees */
+if (typeof(Number.prototype.toDeg) === "undefined") {
+  Number.prototype.toDeg = function() {
+    return this / Math.PI * 180;
+  }
 }

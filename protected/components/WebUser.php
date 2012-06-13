@@ -1,6 +1,14 @@
 <?php
 
 class WebUser extends CWebUser {
+	public function init() {
+		parent::init();
+		//Set default user values/states
+		if (!$this->hasState('view_distance') || $this->view_distance == ''){
+			$this->setState('view_distance',5);
+		}
+	}
+	
 	/**
 	 * Redirects the user browser to the login page.
 	 * Before the redirection, the current URL (ALSO if it's an AJAX url) will be

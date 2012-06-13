@@ -67,7 +67,7 @@
 					}
 					?>
 						<div class="nav_button">
-							<span id="login"><?php if(Yii::app()->user->isGuest) echo $this->trans->LOGIN; else echo 'Logout'; ?></span>                  
+							<span><?php if(Yii::app()->user->isGuest) echo $this->trans->GENERAL_LOGIN; else echo $this->trans->GENERAL_LOGOUT; ?></span>                  
 						</div>
 					</a>
 					<?php
@@ -75,20 +75,26 @@
 						echo '<a href="' . Yii::app()->createUrl('profiles/update',array('id'=>Yii::app()->user->id)) . '">';
 					?>
 						<div class="nav_button">
-							<span id="settings"><?php echo $this->trans->SETTINGS; ?></span>
+							<span><?php echo $this->trans->GENERAL_SETTINGS; ?></span>
 						</div>
 					</a>
 					<?php } ?>
-					<?php /*
-					<div class="nav_button">
-						<span id="lang"><?php echo $this->trans->LANGSEL; ?></span>
+					<div class="nav_button" id="JumpTo">
+						<span><?php echo $this->trans->GENERAL_JUMPTO; ?></span>
 					</div>
-					<div class="index_div_lang">
+					<div id="JumpTos" style="display: none;">
 						<?php
-							//langlist();
+						$first = true;
+						foreach($this->getJumpTos() as $title=>$link){
+							if ($first){
+								echo '<a class="button first" href="' . $link . '">' . $title . '</a><br>'."\n";
+								$first = false;
+							} else {
+								echo '<a class="button" href="' . $link . '">' . $title . '</a><br>'."\n";
+							}
+						}
 						?>
 					</div>
-					*/ ?>
 				</div>
 				<div id="designs">
 					<?php echo CHtml::link('Color1', Yii::app()->request->baseUrl . '/css/designs/color1.css', array('class'=>'noAjax')); ?><br>

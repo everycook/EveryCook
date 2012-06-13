@@ -8,15 +8,9 @@
 	} else {
 		?>
 		<div class="options">
-			<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data['ING_ID']), array('class'=>'delicious backpic', 'title'=>$this->trans->GENERAL_DELICIOUS)); ?>
+			<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data['ING_ID']), array('class'=>'delicious noAjax backpic', 'title'=>$this->trans->GENERAL_DELICIOUS)); ?>
 			<?php echo CHtml::link('&nbsp;', array('recipes/search', 'ing_id'=>$data['ING_ID']), array('class'=>'cookwith backpic', 'title'=>$this->trans->INGREDIENTS_COOK_WITH)); ?>
-			<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['ING_ID']), array('class'=>'disgusting backpic last','title'=>$this->trans->GENERAL_DISGUSTING)); ?>
-		</div>
-		<div class="details">
-			<div>
-				<?php echo CHtml::link('&nbsp;', array('nutrientData/view', 'id'=>$data['NUT_ID'], 'ing_id'=>$data['ING_ID']), array('class'=>'nutrientDataOpen backpic', 'title'=>$this->trans->INGREDIENTS_VIEW_FOOD)); ?>
-				<?php echo CHtml::link('&nbsp;', array('products/search', 'ing_id'=>$data['ING_ID']), array('class'=>'productSearch backpic','title'=>$this->trans->INGREDIENTS_VIEW_FOOD)); ?>
-			</div>
+			<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['ING_ID']), array('class'=>'disgusting noAjax backpic last','title'=>$this->trans->GENERAL_DISGUSTING)); ?>
 		</div>
 		<?php
 	}
@@ -24,40 +18,60 @@
 	
 	<div class="data">
 		<div class="name">
-			<?php echo CHtml::link(CHtml::encode($data['ING_NAME_'.Yii::app()->session['lang']]), array('view', 'id'=>$data['ING_ID'])); ?>
+			<?php echo CHtml::encode($data['ING_NAME_'.Yii::app()->session['lang']]); ?>
 		</div>
-		
-		<div class="nutrientInfo">
-			<?php if ($data['NUT_ID']){ ?>
-			<span><strong><?php echo CHtml::encode($this->trans->INGREDIENTS_LIPID); ?>:</strong>
-			<?php echo CHtml::encode($data['NUT_LIPID']); ?></span>
+		<?php if (!$this->isFancyAjaxRequest){
+			echo '<a href="' . Yii::app()->createUrl('nutrientData/view',array('id'=>$data['NUT_ID'], 'ing_id'=>$data['ING_ID'])) . '" class="button nutrientInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
+			}
+		?>
+			<div class="nutrientInfo">
+				<?php if ($data['NUT_ID']){ ?>
+					<span><strong><?php echo CHtml::encode($this->trans->FIELD_NUT_LIPID); ?>:</strong>
+					<?php echo CHtml::encode($data['NUT_LIPID']); ?> %</span>
+					
+					<span><strong><?php echo CHtml::encode($this->trans->FIELD_NUT_CARB); ?>:</strong>
+					<?php echo CHtml::encode($data['NUT_CARB']); ?> %</span>
+					
+					<span><strong><?php echo CHtml::encode($this->trans->FIELD_NUT_PROT); ?>:</strong>
+					<?php echo CHtml::encode($data['NUT_PROT']); ?> %</span>
+				<?php } else {
+					echo '&nbsp;';
+				} ?>
+			</div>
+		<?php if (!$this->isFancyAjaxRequest){
+			echo '</a>';
 			
-			<span><strong><?php echo CHtml::encode($this->trans->INGREDIENTS_ENERGY); ?>:</strong>
-			<?php echo CHtml::encode($data['NUT_ENERG']); ?></span>
-			
-			<span><strong><?php echo CHtml::encode($this->trans->INGREDIENTS_PROTEIN); ?>:</strong>
-			<?php echo CHtml::encode($data['NUT_PROT']); ?></span>
-			<?php } else {
-				echo '&nbsp;';
-			}?>
-		</div>
-		<div class="shopInfo">
-			<?php if($data['pro_count'] != 0 || $data['sup_names'] != ''){ ?>
-			<span><?php printf(CHtml::encode($this->trans->INGREDIENTS_PRODUCTS_IN_SHOPS), $data['pro_count'], $data['sup_names']); ?></span>
-			<?php } else {
-				echo '&nbsp;';
-			} ?>
-		</div>
+			if($data['pro_count'] != 0 || $data['sup_names'] != ''){
+				echo '<a href="' . Yii::app()->createUrl('products/search',array('ing_id'=>$data['ING_ID'])) . '" class="button shopInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
+				echo '<div class="shopInfo"><span>';
+				printf(CHtml::encode($this->trans->INGREDIENTS_PRODUCTS_IN_SHOPS), $data['pro_count'], $data['sup_names']);
+				echo '</span></div></a>';
+			} else {
+				echo '<a href="' . Yii::app()->createUrl('products/create',array('ing_id'=>$data['ING_ID'])) . '" class="button shopInfo" title="' . $this->trans->INGREDIENTS_CREATE_PRODUCTS . '">';
+				echo '<div class="shopInfo">' . $this->trans->INGREDIENTS_CREATE_PRODUCTS . '</div>';
+				echo '</a>';
+			}
+		} else {
+			if($data['pro_count'] != 0 || $data['sup_names'] != ''){
+				echo '<div class="shopInfo"><span>';
+				printf(CHtml::encode($this->trans->INGREDIENTS_PRODUCTS_IN_SHOPS), $data['pro_count'], $data['sup_names']);
+				echo '</span></div></a>';
+			} else {
+				echo '<div class="shopInfo">' . $this->trans->INGREDIENTS_CREATE_PRODUCTS . '</div>';
+			}
+		}
+		?>
 		<div class="prodInfo">
-<?php /*
-		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_NUTRIENT) .':</strong> ' . CHtml::link(CHtml::encode($data['NUT_DESC']), array('nutrientData/view', 'id'=>$data['NUT_ID'])) ."</span>\n";
-	*/ 
+		<?php
+		if (!$this->isFancyAjaxRequest){
+			echo '<a href="' . Yii::app()->createUrl('ingredients/update',array('id'=>$data['ING_ID'])) . '" class="button f-right">' . $this->trans->GENERAL_EDIT . '</a>';
+		}
 		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_GROUP) .':</strong> ' . CHtml::encode($data['GRP_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
 		if ($data['SGR_DESC_'.Yii::app()->session['lang']] != ''){
 			echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_SUBGROUP) .':</strong> ' . CHtml::encode($data['SGR_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
 		}
+		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_STORABILITY) .':</strong> ' . CHtml::encode($data['STB_DESC_'.Yii::app()->session['lang']]) ."</span><br>\n";
 		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_CONVENIENCE) .':</strong> ' . CHtml::encode($data['ICO_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
-		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_STORABILITY) .':</strong> ' . CHtml::encode($data['STB_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
 		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_STATE) .':</strong> ' . CHtml::encode($data['IST_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
 		?>
 		</div>

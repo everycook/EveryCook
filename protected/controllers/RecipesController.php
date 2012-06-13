@@ -33,7 +33,7 @@ class RecipesController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','uploadImage'),
+				'actions'=>array('create','update','uploadImage','delicious','disgusting'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -58,7 +58,9 @@ class RecipesController extends Controller
 	}
 
 	public function actionUploadImage(){
-		$id = $_GET['id'];
+		if (isset($_GET['id'])){
+			$id = $_GET['id'];
+		}
 		
 		$Session_Recipe_Backup = Yii::app()->session['Recipe_Backup'];
 		if (isset($Session_Recipe_Backup)){
@@ -183,12 +185,8 @@ class RecipesController extends Controller
 						if ($saveOK){
 							$transaction->commit();
 							unset(Yii::app()->session['Recipe_Backup']);
-							if($this->useAjaxLinks){
-								echo "{hash:'" . $this->createUrlHash('view', array('id'=>$model->REC_ID)) . "'}";
-								exit;
-							} else {
-								$this->redirect(array('view', 'id'=>$model->REC_ID));
-							}
+							$this->forwardAfterSave(array('view', 'id'=>$model->REC_ID));
+							return;
 						} else {
 							//echo 'any errors occured, rollback';
 							$transaction->rollBack();
@@ -476,6 +474,7 @@ class RecipesController extends Controller
 	
     public function actionDisplaySavedImage($id, $ext)
     {
+		$this->saveLastAction = false;
 		$model=$this->loadModel($id, true);
 		$modified = $model->CHANGED_ON;
 		if (!isset($modified)){
@@ -483,4 +482,16 @@ class RecipesController extends Controller
 		}
 		return Functions::getImage($modified, $model->REC_IMG_ETAG, $model->REC_IMG, $id);
     }
+	
+	public function actionDelicious($id){
+		$this->saveLastAction = false;
+		Functions::addLikeInfo($id, 'R', true);
+		$this->showLastAction();
+	}
+	
+	public function actionDisgusting($id){
+		$this->saveLastAction = false;
+		Functions::addLikeInfo($id, 'R', false);
+		$this->showLastAction();
+	}
 }

@@ -33,7 +33,7 @@ class ProductsController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','uploadImage'),
+				'actions'=>array('create','update','uploadImage','delicious','disgusting'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -92,7 +92,9 @@ class ProductsController extends Controller
 	}
 	
 	public function actionUploadImage(){
-		$id = $_GET['id'];
+		if (isset($_GET['id'])){
+			$id = $_GET['id'];
+		}
 		
 		$Session_Product_Backup = Yii::app()->session['Product_Backup'];
 		if (isset($Session_Product_Backup)){
@@ -260,16 +262,12 @@ class ProductsController extends Controller
 							
 							unset(Yii::app()->session['Product_Backup']);
 							if (isset($_POST['saveAddAssing'])){
-								$dest = array('stores/assign',array('pro_id'=>$model->PRO_ID));
+								$dest = array('stores/assign', 'pro_id'=>$model->PRO_ID);
 							} else {
-								$dest = array('view', array('id'=>$model->PRO_ID));
+								$dest = array('view', 'id'=>$model->PRO_ID);
 							}
-							if($this->useAjaxLinks){
-								echo "{hash:'" . $this->createUrlHash($dest[0],$dest[1]) . "'}";
-								exit;
-							} else {
-								$this->redirect($dest);
-							}
+							$this->forwardAfterSave($dest);
+							return;
 						}
 					} catch(Exception $e) {
 						$this->errorText .= 'Exception occured -&gt; rollback. Exception was: ' . $e . '<br />';
@@ -382,34 +380,51 @@ class ProductsController extends Controller
 			$Session_Product['time'] = time();
 			Yii::app()->session['Product'] = $Session_Product;
 			
-			$rows = Yii::app()->db->createCommand()
-				->from('products')
-				->leftJoin('ingredients', 'products.ING_ID=ingredients.ING_ID')
-				->leftJoin('ecology', 'products.ECO_ID=ecology.ECO_ID')
-				->leftJoin('ethical_criteria', 'products.ETH_ID=ethical_criteria.ETH_ID')
-				->where('products.ING_ID=:id', array(':id'=>$ing_id))
-				->queryAll();
-				//TODO: add distance calculating
+			$criteria = array('products.ING_ID=:id', array(':id'=>$ing_id));
 		} else {
-			$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'products.');
-			if ($criteriaString != ''){
+			$criteria = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'products.');
+			if ($criteria != ''){
 				$Session_Product = array();
 				$Session_Product['query'] = $query;
 				$Session_Product['time'] = time();
 				Yii::app()->session['Product'] = $Session_Product;
-				
-				$rows = Yii::app()->db->createCommand()
-					->from('products')
-					->leftJoin('ingredients', 'products.ING_ID=ingredients.ING_ID')
-					->leftJoin('ecology', 'products.ECO_ID=ecology.ECO_ID')
-					->leftJoin('ethical_criteria', 'products.ETH_ID=ethical_criteria.ETH_ID')
-					->where($criteriaString)
-					->queryAll();
 			} else {
-				$rows = array();
 				unset(Yii::app()->session['Product']);
 			}
 		}
+		if ($criteria != ''){
+			$distanceFields = '';
+			if (isset(Yii::app()->session['current_gps']) && isset(Yii::app()->session['current_gps'][2])) {
+				$distanceFields = ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as distance_to_you';
+			} else {
+				$distanceFields = ', min(-1) as distance_to_you';
+			}
+			
+			if (!Yii::app()->user->isGuest && isset(Yii::app()->user->home_gps) && isset(Yii::app()->user->home_gps[2])){
+				$distanceFields .= ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as distance_to_home';
+			} else {
+				$distanceFields .= ', Min(-1) as distance_to_home';
+			}
+			
+			$command = Yii::app()->db->createCommand()
+				->select('products.*, ecology.*, ethical_criteria.*' . $distanceFields)
+				->from('products')
+				->leftJoin('ingredients', 'products.ING_ID=ingredients.ING_ID')
+				->leftJoin('ecology', 'products.ECO_ID=ecology.ECO_ID')
+				->leftJoin('ethical_criteria', 'products.ETH_ID=ethical_criteria.ETH_ID')
+				->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
+				->leftJoin('stores', 'pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID')
+				->group('products.PRO_ID');
+			if (is_array($criteria)){
+				$command->where($criteria[0],$criteria[1]);
+			} else {
+				$command->where($criteria);
+			}
+			$rows = $command->queryAll();
+		} else {
+			$rows = array();
+		}
+		
 		
 		$dataProvider=new CArrayDataProvider($rows, array(
 			'id'=>'PRO_ID',
@@ -485,6 +500,7 @@ class ProductsController extends Controller
 	
     public function actionDisplaySavedImage($id, $ext)
     {
+		$this->saveLastAction = false;
 		$model=$this->loadModel($id, true);
 		$modified = $model->CHANGED_ON;
 		if (!isset($modified)){
@@ -492,4 +508,16 @@ class ProductsController extends Controller
 		}
 		return Functions::getImage($modified, $model->PRO_IMG_ETAG, $model->PRO_IMG, $id);
     }
+	
+	public function actionDelicious($id){
+		$this->saveLastAction = false;
+		Functions::addLikeInfo($id, 'P', true);
+		$this->showLastAction();
+	}
+	
+	public function actionDisgusting($id){
+		$this->saveLastAction = false;
+		Functions::addLikeInfo($id, 'P', false);
+		$this->showLastAction();
+	}
 }

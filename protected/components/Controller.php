@@ -25,6 +25,8 @@ class Controller extends CController
 	
 	public $useAjaxLinks = true;
 	
+	public $saveLastAction = true;
+	
 	public function useDefaultMainButtons(){
 		if (Yii::app()->session['Ingredient'] && Yii::app()->session['Ingredient']['time']){
 			$newIngSearch=array('newSearch'=>Yii::app()->session['Ingredient']['time']);
@@ -56,13 +58,23 @@ class Controller extends CController
 		return $this->isFancyAjaxRequest || Yii::app()->request->isAjaxRequest || (isset($params['ajaxform']) && $params['ajaxform']);
 	}
 	
-	protected $allLanguages = array('EN_GB'=>'English','DE_CH'=>'Deutsch','FR_FR'=>'Francais');
+	//protected $allLanguages = array('EN_GB'=>'English','DE_CH'=>'Deutsch','FR_FR'=>'Francais');
+	protected $allLanguages = array('EN_GB'=>'English','DE_CH'=>'Deutsch');
 	
 	public function getAllLanguages(){
 		return $allLanguages;
 	}
 	
-	//TODO change this to shared memory, because it need to load this for each pagereload, also it it is static....
+	public function getJumpTos(){
+		return array(
+			$this->trans->JUMPTO_SHOP_CREATOR => Yii::app()->createUrl('stores/create',array()),
+			$this->trans->JUMPTO_SHOP_FINDER => Yii::app()->createUrl('stores/storeFinder',array()),
+			$this->trans->JUMPTO_FAVORITE_FOOD => Yii::app()->createUrl('profiles/favoriteFood',array()),
+			$this->trans->JUMPTO_FAVORITE_RECIPES => Yii::app()->createUrl('profiles/favoriteRecipes',array()),
+		);
+	}
+	
+	//TODO change this to shared memory, because it need to load this for each pagereload, also if it's static....
 	protected static $trans=null;
 	public function getTrans()
 	{
@@ -110,7 +122,80 @@ class Controller extends CController
 		
 		if($this->trans===null)
 			throw new CHttpException(404,'Error loading translation texts.');
+		$params = $this->getActionParams();
+		if (isset($params) && isset($params['afterSave'])){
+			Yii::app()->session['AFTER_SAVE_ACTION'] = urldecode($params['afterSave']);
+			Yii::app()->session['AFTER_SAVE_FOR'] = $this->route;
+		}
 		return parent::beforeAction($action);
+	}
+	
+	protected function afterAction($action){
+		if ($this->saveLastAction){
+			if (count($_POST) == 0 && $this->route != '' && substr($this->route, 0, 5) != 'site/'){
+				Yii::app()->session['LAST_ACTION'] = $this->route;
+				$params = $this->getActionParams();
+				Yii::app()->session['LAST_ACTION_PARAMS'] = $params;
+			}
+			if (isset(Yii::app()->session['AFTER_SAVE_FOR']) && Yii::app()->session['AFTER_SAVE_FOR'] != $this->route){
+				unset(Yii::app()->session['AFTER_SAVE_ACTION']);
+				unset(Yii::app()->session['AFTER_SAVE_FOR']);
+			}
+		}
+	}
+	
+	public function getActionParams(){
+		$params = parent::getActionParams();
+		if (isset($params['_'])){ // remove "noCache"-param
+			unset($params['_']);
+		}
+		return $params;
+	}
+	
+	/**
+	 * url = array(route, param=>value, param=>value);
+	 */
+	public function forwardAfterSave($url){
+		if (isset(Yii::app()->session['AFTER_SAVE_FOR']) && Yii::app()->session['AFTER_SAVE_FOR'] == $this->route){
+			$url = Yii::app()->session['AFTER_SAVE_ACTION'];
+			unset(Yii::app()->session['AFTER_SAVE_ACTION']);
+			unset(Yii::app()->session['AFTER_SAVE_FOR']);
+			
+			if($this->useAjaxLinks && $this->getIsAjaxRequest()){
+				echo "{hash:'" . $this->urlToHash($url). "'}";
+			} else {
+				$this->redirect($url);
+			}
+			return;
+		}
+		
+		if($this->useAjaxLinks && $this->getIsAjaxRequest()){
+			echo "{hash:'" . $this->createUrlHash($url[0], array_splice($url,1)) . "'}";
+		} else {
+			$this->redirect($url);
+		}
+	}
+	
+	public function showLastAction(){
+		if (isset(Yii::app()->session['LAST_ACTION']) && isset(Yii::app()->session['LAST_ACTION_PARAMS'])){
+			if($this->useAjaxLinks && $this->getIsAjaxRequest()){
+				echo "{hash:'" . $this->createUrlHash(Yii::app()->session['LAST_ACTION'], Yii::app()->session['LAST_ACTION_PARAMS']). "'}";
+			} else {
+				$this->redirect(array(Yii::app()->session['LAST_ACTION'], Yii::app()->session['LAST_ACTION_PARAMS']));
+			}
+		} else if (isset(Yii::app()->session['LAST_ACTION']) && isset(Yii::app()->session['LAST_ACTION_PARAMS'])){
+			if($this->useAjaxLinks && $this->getIsAjaxRequest()){
+				echo "{hash:'" . $this->createUrlHash(Yii::app()->session['LAST_ACTION']). "'}";
+			} else {
+				$this->redirect(array(Yii::app()->session['LAST_ACTION']));
+			}
+		} else {
+			if($this->useAjaxLinks && $this->getIsAjaxRequest()){
+				echo "{hash:'" . $this->createUrlHash('site/index') . "'}";
+			} else {
+				$this->redirect(array('site/index'));
+			}
+		}
 	}
 	
 	public function renderAjax($view, $data=null, $ajaxLayout=null)
@@ -166,6 +251,10 @@ class Controller extends CController
 	
 	public function createUrlHash($route,$params=array(),$ampersand='&') {
 		$url = parent::createUrl($route,$params,$ampersand);
+		return $this->urlToHash($url);
+	}
+	
+	public function urlToHash($url) {
 		$pos = strpos($url, '/', 1);
 		if ($pos !== false){
 			$url = substr($url, $pos+1);
@@ -180,11 +269,11 @@ class Controller extends CController
 		}
 		return $url;
 	}
-   public function init(){
-        // register class paths for extension captcha extended
-        Yii::$classMap = array_merge( Yii::$classMap, array(
-            'CaptchaExtendedAction' => Yii::getPathOfAlias('ext.captchaExtended').DIRECTORY_SEPARATOR.'CaptchaExtendedAction.php',
-            'CaptchaExtendedValidator' => Yii::getPathOfAlias('ext.captchaExtended').DIRECTORY_SEPARATOR.'CaptchaExtendedValidator.php'
-        ));
-    }
+	public function init(){
+		// register class paths for extension captcha extended
+		Yii::$classMap = array_merge( Yii::$classMap, array(
+			'CaptchaExtendedAction' => Yii::getPathOfAlias('ext.captchaExtended').DIRECTORY_SEPARATOR.'CaptchaExtendedAction.php',
+			'CaptchaExtendedValidator' => Yii::getPathOfAlias('ext.captchaExtended').DIRECTORY_SEPARATOR.'CaptchaExtendedValidator.php'
+		));
+	}
 }

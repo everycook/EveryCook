@@ -123,6 +123,18 @@
 			<?php echo $form->textField($model,'PRF_LOC_GPS_LNG', array('class'=>'cord_lng')); ?>
 			<?php echo $form->error($model,'PRF_LOC_GPS_LNG'); ?>
 		</div>
+		
+		<div class="row">
+			<img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/locate.png" id="setMarkerCurrentGPS"/>
+			<span><?php echo $this->trans->PROFILES_SEARCH_CURRENT_POSITION; ?></span>
+		</div>
+		
+		<div class="row">
+			<?php echo $form->labelEx($model,'PRF_VIEW_DISTANCE'); ?>
+			<?php echo $form->textField($model,'PRF_VIEW_DISTANCE'); ?>
+			<?php echo $form->error($model,'PRF_VIEW_DISTANCE'); ?>
+		</div>
+		
 	<!--
 		<div class="row">
 			<?php echo var_dump(function_exists('openssl_random_pseudo_bytes')); ?>
@@ -169,7 +181,7 @@
 <?php $this->endWidget(); ?>
 
 <script type="text/javascript">
-	loadScript(false, "CH", false, false, true);
+	loadScript(false, "CH", false, false, true, true);
 </script>
 
 </div><!-- form -->

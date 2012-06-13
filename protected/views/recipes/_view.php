@@ -3,8 +3,8 @@
 	
 	<div class="options">
 		<?php echo CHtml::link('+', array('user/addrecipes', 'id'=>$data->REC_ID), array('class'=>'button addRecipe', 'title'=>'add')); ?><br>
-		<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data->REC_ID), array('class'=>'delicious', 'title'=>'delicious')); ?>
-		<?php echo CHtml::link('&nbsp;', array('disquesting', 'id'=>$data->REC_ID), array('class'=>'disquesting','title'=>'disquesting')); ?>
+		<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data->REC_ID), array('class'=>'delicious noAjax', 'title'=>'delicious')); ?>
+		<?php echo CHtml::link('&nbsp;', array('disquesting', 'id'=>$data->REC_ID), array('class'=>'disquesting noAjax','title'=>'disquesting')); ?>
 		<?php echo CHtml::link(CHtml::encode('view food'), array('view', 'id'=>$data->REC_ID), array('class'=>'button')); ?>
 	</div>
 	

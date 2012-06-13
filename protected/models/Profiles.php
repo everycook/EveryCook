@@ -13,6 +13,7 @@
  * @property string $PRF_EMAIL
  * @property string $PRF_LANG
  * @property string $PRF_IMG
+ * @property string $PRF_IMG_ETAG
  * @property string $PRF_PW
  * @property double $PRF_LOC_GPS_LAT
  * @property double $PRF_LOC_GPS_LNG
@@ -25,6 +26,7 @@
  * @property string $PRF_NOTLIKES_R
  * @property string $PRF_NOTLIKES_P
  * @property string $PRF_SHOPLISTS
+ * @property integer $PRF_VIEW_DISTANCE
  * @property integer $PRF_ACTIVE
  * @property string $PRF_RND
  * @property integer $CREATED_BY
@@ -70,15 +72,16 @@ class Profiles extends ActiveRecordECPriv
 		// will receive user inputs.
 		return array(
 			array('PRF_NICK, PRF_EMAIL, PRF_PW, PRF_LANG', 'required'),
-			array('PRF_GENDER, PRF_BIRTHDAY, PRF_ACTIVE, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('PRF_GENDER, PRF_BIRTHDAY, PRF_VIEW_DISTANCE, PRF_ACTIVE, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG', 'numerical'),
 			array('PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_RND', 'length', 'max'=>100),
 			array('PRF_LANG', 'length', 'max'=>10),
+			array('PRF_IMG_ETAG', 'length', 'max'=>40),
 			array('PRF_PW', 'length', 'max'=>256),
 			array('PRF_IMG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_GENDER, PRF_BIRTHDAY, PRF_EMAIL, PRF_LANG, PRF_IMG, PRF_PW, PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_ACTIVE, PRF_RND, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_GENDER, PRF_BIRTHDAY, PRF_EMAIL, PRF_LANG, PRF_IMG, PRF_IMG_ETAG, PRF_PW, PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_VIEW_DISTANCE, PRF_ACTIVE, PRF_RND, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 			
 			// register
 			//array('pw_repeat','safe'),
@@ -120,6 +123,7 @@ class Profiles extends ActiveRecordECPriv
 			'PRF_EMAIL' => 'Prf Email',
 			'PRF_LANG' => 'Prf Lang',
 			'PRF_IMG' => 'Prf Img',
+			'PRF_IMG_ETAG' => 'Prf Img Etag',
 			'PRF_PW' => 'Prf Pw',
 			'pw_repeat' => 'pw repeat',
 			'PRF_LOC_GPS_LAT' => 'Prf Loc Gps Lat',
@@ -133,6 +137,7 @@ class Profiles extends ActiveRecordECPriv
 			'PRF_NOTLIKES_R' => 'Prf Notlikes R',
 			'PRF_NOTLIKES_P' => 'Prf Notlikes P',
 			'PRF_SHOPLISTS' => 'Prf Shoplists',
+			'PRF_VIEW_DISTANCE' => 'Prf View Distance',
 			//'PRF_ACTIVE' => 'Prf Active',
 			//'PRF_RND' => 'Prf Rnd',
 			//'CREATED_BY' => 'Created By',
@@ -163,6 +168,7 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare('PRF_EMAIL',$this->PRF_EMAIL,true);
 		$criteria->compare('PRF_LANG',$this->PRF_LANG,true);
 		$criteria->compare('PRF_IMG',$this->PRF_IMG,true);
+		$criteria->compare('PRF_IMG_ETAG',$this->PRF_IMG_ETAG,true);
 		$criteria->compare('PRF_PW',$this->PRF_PW,true);
 		$criteria->compare('PRF_LOC_GPS_LAT',$this->PRF_LOC_GPS_LAT);
 		$criteria->compare('PRF_LOC_GPS_LNG',$this->PRF_LOC_GPS_LNG);
@@ -175,6 +181,7 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare('PRF_NOTLIKES_R',$this->PRF_NOTLIKES_R,true);
 		$criteria->compare('PRF_NOTLIKES_P',$this->PRF_NOTLIKES_P,true);
 		$criteria->compare('PRF_SHOPLISTS',$this->PRF_SHOPLISTS,true);
+		$criteria->compare('PRF_VIEW_DISTANCE',$this->PRF_VIEW_DISTANCE);
 		//$criteria->compare('PRF_ACTIVE',$this->PRF_ACTIVE);
 		//$criteria->compare('PRF_RND',$this->PRF_RND,true);
 		//$criteria->compare('CREATED_BY',$this->CREATED_BY);

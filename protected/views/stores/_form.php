@@ -161,7 +161,7 @@
 <?php $this->endWidget(); ?>
 
 <script type="text/javascript">
-	loadScript(false, "CH", false, false, true);
+	loadScript(false, "CH", false, false, true, true);
 </script>
 
 </div><!-- form -->

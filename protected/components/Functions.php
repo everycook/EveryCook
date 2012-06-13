@@ -336,5 +336,43 @@ class Functions extends CHtml{
 		}
 		return self::activeInputField($type,$model,$attribute,$htmlOptions);
 	}
+	
+	
+	public static function addLikeInfo($id, $type, $like){
+		$model=Profiles::model()->findByPk(Yii::app()->user->id);
+		if($model===null)
+			throw new CHttpException(404,'The requested page does not exist.');
+		
+		$fieldname = 'PRF_' . ((!$like)?'NOT':'') . 'LIKES_' . $type;
+		$fieldnameRemove = 'PRF_' . (($like)?'NOT':'') . 'LIKES_' . $type;
+		$value = $model->$fieldname;
+		if ($value == ''){
+			$model->$fieldname = $id;
+		} else {
+			$values = explode(',', $value);
+			$values[] = $id;
+			$values = array_unique($values);
+			sort($values, SORT_NUMERIC);
+			$value = implode(',', $values);
+			$model->$fieldname = $value;
+		}
+		if (isset($model->$fieldnameRemove)){
+			$value = $model->$fieldnameRemove;
+			if ($value == '' || $value == $id){
+				$model->$fieldnameRemove = '';
+			} else {
+				$values = explode(',', $value);
+				for($i=0; $i<count($values); $i++){
+					if ($values[$i] == $id){
+						unset($values[$i]);
+						break;
+					}
+				}
+				$value = implode(',', $values);
+				$model->$fieldnameRemove = $value;
+			}
+		}
+		return $model->save();
+	}
 }
 ?>

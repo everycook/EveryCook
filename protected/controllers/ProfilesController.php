@@ -31,7 +31,7 @@ class ProfilesController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow',  // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('index','view','create','update','admin','delete'),
+				'actions'=>array('index','view','create','update','admin','delete', 'favoriteFood', 'favoriteRecipes'),
 				'users'=>array('@'),
 			),
 			array('deny',  // deny all users
@@ -72,7 +72,9 @@ class ProfilesController extends Controller
 	
 	
 	public function actionUploadImage(){
-		$id = $_GET['id'];
+		if (isset($_GET['id'])){
+			$id = $_GET['id'];
+		}
 		
 		$Session_Profiles_Backup = Yii::app()->session['Profiles_Backup'];
 		if (isset($Session_Profiles_Backup)){
@@ -155,18 +157,19 @@ class ProfilesController extends Controller
 				} else {
 					$model->PRF_LOC_GPS_POINT = null;
 				}
+				if ($model->PRF_VIEW_DISTANCE == '' || $model->PRF_VIEW_DISTANCE < 1){
+					$model->PRF_VIEW_DISTANCE = 1;
+				}
 				
 				if($model->save(false)){
 					$home_gps = array($model->PRF_LOC_GPS_LAT, $model->PRF_LOC_GPS_LNG, $model->PRF_LOC_GPS_POINT);
 					Yii::app()->user->home_gps = $home_gps;
+					Yii::app()->user->view_distance = $model->PRF_VIEW_DISTANCE;
 					
 					unset(Yii::app()->session['Profiles_Backup']);
-					if($this->useAjaxLinks){
-						echo "{hash:'" . $this->createUrlHash('view', array('id'=>$model->PRF_UID)) . "'}";
-						exit;
-					} else {
-						$this->redirect(array('view', 'id'=>$model->PRF_UID));
-					}
+					
+					$this->forwardAfterSave(array('view', 'id'=>$model->PRF_UID));
+					return;
 				}
 			}
 		} else {
@@ -222,10 +225,13 @@ class ProfilesController extends Controller
 	 */
 	public function actionIndex()
 	{
+		$this->actionView(Yii::app()->user->id);
+		/*
 		$dataProvider=new CActiveDataProvider('Profiles');
 		$this->checkRenderAjax('index',array(
 			'dataProvider'=>$dataProvider,
 		));
+		*/
 	}
 
 	/**
@@ -341,8 +347,7 @@ class ProfilesController extends Controller
    /*
     * Changes to the selected language
     */
-   public function actionLanguageChanged()
-   {
+	public function actionLanguageChanged() {
 		$action = $_GET['action'];
 		Yii::app()->session['lang'] = $_GET['lang'];
 		if (!Yii::app()->user->isGuest){
@@ -368,14 +373,25 @@ class ProfilesController extends Controller
 		} else {
 			$this->redirect(array($action));
 		}
-   }
+	}
+   
+	public function actionFavoriteFood(){
+		//TODO
+		echo "TODO";
+	}
+   
+	public function actionFavoriteRecipes(){
+		//TODO
+		echo "TODO";
+	}
+   
 
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer the ID of the model to be loaded
 	 */
-	public function loadModel($id)
+	public static function loadModel($id)
 	{
 		if ($id != Yii::app()->user->id){
 			throw new CHttpException(403,'It\'s not allowed to open profile of other user.');
@@ -401,6 +417,7 @@ class ProfilesController extends Controller
 	
     public function actionDisplaySavedImage($id, $ext)
     {
+		$this->saveLastAction = false;
 		$model=$this->loadModel($id, true);
 		$modified = $model->CHANGED_ON;
 		if (!$modified){
@@ -408,9 +425,4 @@ class ProfilesController extends Controller
 		}
 		return Functions::getImage($modified, $model->PRF_IMG_ETAG, $model->PRF_IMG, $id);
     }
-	
-	/**
-	 * Sends a verification mail to the newly created user.
-	 * @param integer the ID o
-	 */
 }

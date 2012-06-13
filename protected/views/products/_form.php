@@ -12,7 +12,7 @@
     'htmlOptions'=>array('enctype' => 'multipart/form-data', 'class'=>'ajaxupload'),
 )); ?>
 
-	<p class="note">Fields with <span class="required">*</span> are required.</p>
+	<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
 
 	<?php echo $form->errorSummary($model); 
 	if ($this->errorText){
@@ -23,7 +23,7 @@
 	?>
 	
 	<?php
-	if (isset($model->ingredient) && isset($model->ingredient->__get('ING_NAME_'.Yii::app()->session['lang']))){
+	if (isset($model->ingredient) && $model->ingredient->__isset('ING_NAME_'.Yii::app()->session['lang'])){
 		$IngredientDescription = $model->ingredient->__get('ING_NAME_'.Yii::app()->session['lang']);
 	} else {
 		$IngredientDescription = $this->trans->GENERAL_CHOOSE;

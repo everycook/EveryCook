@@ -31,6 +31,7 @@ input, select {
 	float:right;
 	margin-top:3em;
 	margin-right:3em;
+	position: relative;
 }
 
 .nav_button {
@@ -284,21 +285,22 @@ div.resultArea div.options {
 	margin-right: 0;
 }
 
-#ingredientsResult div.resultArea div.details {
-	height:0;
-}
-#ingredientsResult div.resultArea div.details  div{
-	margin-left:auto;
-	padding-top:3.5em;
-	width:3em;
-}
-
-#ingredientsResult div.nutrientInfo {
-	line-height:3em;
-}
-
+#ingredientsResult div.nutrientInfo,
 #ingredientsResult div.shopInfo {
 	line-height:3em;
+}
+
+#ingredientsResult a.nutrientInfo,
+#ingredientsResult a.shopInfo {
+	display: block;
+}
+#ingredientsResult a.nutrientInfo {
+	margin-bottom: 0.8em;
+}
+
+#ingredientsResult a.nutrientInfo  div.nutrientInfo, 
+#ingredientsResult a.shopInfo div.shopInfo {
+	line-height:inherit;
 }
 
 #ingredientsResult div.prodInfo  {
@@ -515,6 +517,47 @@ div.nutrientDataGroup div.nutrient_row span.unit {
 div.form .hint {
     font-size: 0.8em;
 }
+
+#JumpTos {
+	position: absolute;
+	right: 0;
+	top: 25px;
+	border-radius:1.5em;
+	padding: 0.8em;
+}
+#JumpTos a {
+	width: 12em;
+	margin-top: 0.8em;
+}
+
+#JumpTos a.first {
+	margin-top: 0;
+}
+
+#setMarkerCurrentGPS {
+	vertical-align: middle;
+	cursor: pointer;
+	font-size: 0.9em;
+	padding-left: 14em;
+}
+
+
+#updateCurrentGPS{
+	cursor: pointer;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

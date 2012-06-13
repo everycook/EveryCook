@@ -29,7 +29,7 @@ class StoresController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','chooseStores','advanceChooseStores','displaySavedImage','getStoresInRange', 'currentGPSForStores'),
+				'actions'=>array('index','view','search','advanceSearch','chooseStores','advanceChooseStores','displaySavedImage','getStoresInRange', 'getStoresInRangeWithProduct', 'currentGPSForStores', 'storeFinder'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -149,12 +149,8 @@ class StoresController extends Controller
 					}
 					if($model->save()){
 						unset(Yii::app()->session['Stores_Backup']);
-						if($this->useAjaxLinks){
-							echo "{hash:'" . $this->createUrlHash('view', array('id'=>$model->STO_ID)) . "'}";
-							exit;
-						} else {
-							$this->redirect(array('view', 'id'=>$model->STO_ID));
-						}
+						$this->forwardAfterSave(array('view', 'id'=>$model->STO_ID));
+						return;
 					}
 				}
 			}
@@ -270,6 +266,45 @@ class StoresController extends Controller
 		));
 	}
 	
+	public function actionStoreFinder(){
+		$model = new ProToSto;
+		$model2 = new SimpleSearchForm();
+		$model2->query = $this->trans->STORES_ASSIGN_ADDRESS_OR_NAME;
+		
+		if(isset($_POST['ProToSto'])){
+			$model->attributes = $_POST['ProToSto'];
+		}
+		
+		$pro_id = null;
+		if(isset($_GET['pro_id'])){
+			$pro_id = $_GET['pro_id'];
+			
+			if (!$model->PRO_ID && $pro_id){
+				$model->PRO_ID = $pro_id;
+			}
+		}
+		
+		$supplier = Yii::app()->db->createCommand()->select('SUP_ID,SUP_NAME')->from('suppliers')->queryAll();
+		$supplier = CHtml::listData($supplier,'SUP_ID','SUP_NAME');
+		$storeType = Yii::app()->db->createCommand()->select('STY_ID,STY_TYPE_'.Yii::app()->session['lang'])->from('store_types')->queryAll();
+		$storeType = CHtml::listData($storeType,'STY_ID','STY_TYPE_'.Yii::app()->session['lang']);
+		
+		$productName = Yii::app()->db->createCommand()->select('PRO_NAME_'.Yii::app()->session['lang'])->from('products')->where('PRO_ID=:id', array(':id'=>$model->PRO_ID))->queryAll();
+		if (count($productName) == 0){
+			$productName = '';
+		} else {
+			$productName = $productName[0]['PRO_NAME_'.Yii::app()->session['lang']];
+		}
+		
+		$this->checkRenderAjax('storeFinder',array(
+			'model'=>$model,
+			'model2'=>$model2,
+			'supplier'=>$supplier,
+			'storeType'=>$storeType,
+			'productName'=>$productName,
+		));
+	}
+	
 	/**
 	 * Deletes a particular model.
 	 * If deletion is successful, the browser will be redirected to the 'admin' page.
@@ -325,6 +360,10 @@ class StoresController extends Controller
 			$query = $_GET['query'];
 		} else {
 			$query = $model2->query;
+		}
+		
+		if ($query != $model2->query){
+			$model2->query = $query;
 		}
 		
 		$modelAvailable = false;
@@ -461,6 +500,7 @@ class StoresController extends Controller
 	
     public function actionDisplaySavedImage($id, $ext)
     {
+		$this->saveLastAction = false;
 		$model=$this->loadModel($id, true);
 		$modified = $model->CREATED_ON;
 		if (!$modified){
@@ -479,6 +519,7 @@ class StoresController extends Controller
 		//$profile=Profiles::model()->findByPk(Yii::app()->user->id);
 		//if($profile===null || $profile->PRF_LOC_GPS_POINT == null || $profile->PRF_LOC_GPS_POINT == ''){
 		if (Yii::app()->user->isGuest || !isset(Yii::app()->user->home_gps) || !isset(Yii::app()->user->home_gps[2])){
+			//TODO: change text
 			$distanceSql = "concat('No Home set...')";
 		} else {
 			$distanceSql = 'cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\'))';
@@ -489,6 +530,34 @@ class StoresController extends Controller
 			->leftJoin('store_types', 'stores.STY_ID=store_types.STY_ID')
 			->leftJoin('suppliers', 'stores.SUP_ID=suppliers.SUP_ID')
 			->where("MBRContains(GeomFromText('POLYGON(($northEastLat $northEastLng, $southWestLat $northEastLng,$southWestLat $southWestLng,$northEastLat $southWestLng,$northEastLat $northEastLng))'), stores.STO_GPS_POINT) = 1")
+			//->limit(100)
+			->queryAll();
+		
+		$this->renderPartial('store_xml',array('stores'=>$stores,'zoom'=>$zoom));
+	}
+	
+	public function actionGetStoresInRangeWithProduct(){
+		$southWestLat = $_POST["southWestLat"];
+		$southWestLng = $_POST["southWestLng"];
+		$northEastLat = $_POST["northEastLat"];
+		$northEastLng = $_POST["northEastLng"];
+		$zoom = $_POST["zoom"];
+		$pro_id = $_POST["product_id"];
+		$startLat = $_POST["startLat"];
+		$startLng = $_POST["startLng"];
+		if ($startLat == '' || $startLng == ''){
+			//TODO: change text
+			$distanceSql = "concat('No center for Distance set.')";
+		} else {
+			$distanceSql = 'cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'POINT(' . $startLat . ' ' . $startLng . ')\'))';
+		}
+		
+		$stores = Yii::app()->db->createCommand()->select('stores.*, STY_TYPE_'.Yii::app()->session['lang']. ' as STY_TYPE, SUP_NAME, ' . $distanceSql . ' as distance')
+			->from('stores')
+			->leftJoin('store_types', 'stores.STY_ID=store_types.STY_ID')
+			->leftJoin('suppliers', 'stores.SUP_ID=suppliers.SUP_ID')
+			->leftJoin('pro_to_sto', 'pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID')
+			->where("pro_to_sto.PRO_ID = " . $pro_id . " AND MBRContains(GeomFromText('POLYGON(($northEastLat $northEastLng, $southWestLat $northEastLng,$southWestLat $southWestLng,$northEastLat $southWestLng,$northEastLat $northEastLng))'), stores.STO_GPS_POINT) = 1")
 			//->limit(100)
 			->queryAll();
 		

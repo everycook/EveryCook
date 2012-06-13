@@ -177,7 +177,12 @@ class NutrientDataController extends Controller
 		} else {
 			$query = $model2->query;
 		}
-		$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$model2->query, '');
+		
+		if ($query != $model2->query){
+			$model2->query = $query;
+		}
+		
+		$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, '');
 		
 		$criteria=$model->getCriteria();
 		if (isset($criteriaString) && $criteriaString != ''){

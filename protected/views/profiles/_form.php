@@ -7,7 +7,7 @@
 	'enableAjaxValidation'=>false,
 )); ?>
 	<div class="mapDetails">
-		<p class="note">Fields with <span class="required">*</span> are required.</p>
+		<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
 
 		<?php echo $form->errorSummary($model); ?>
 
@@ -89,6 +89,17 @@
 			<?php echo $form->labelEx($model,'PRF_LOC_GPS_LNG'); ?>
 			<?php echo $form->textField($model,'PRF_LOC_GPS_LNG', array('class'=>'cord_lng')); ?>
 			<?php echo $form->error($model,'PRF_LOC_GPS_LNG'); ?>
+		</div>
+		
+		<div class="row">
+			<img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/locate.png" id="setMarkerCurrentGPS"/>
+			<span><?php echo $this->trans->PROFILES_SEARCH_CURRENT_POSITION; ?></span>
+		</div>
+		
+		<div class="row">
+			<?php echo $form->labelEx($model,'PRF_VIEW_DISTANCE'); ?>
+			<?php echo $form->textField($model,'PRF_VIEW_DISTANCE'); ?>
+			<?php echo $form->error($model,'PRF_VIEW_DISTANCE'); ?>
 		</div>
 		
 	<?php /*
@@ -193,7 +204,7 @@
 <?php $this->endWidget(); ?>
 
 <script type="text/javascript">
-	loadScript(false, "CH", false, false, true);
+	loadScript(false, "CH", false, false, true, true);
 </script>
 
 </div><!-- form -->

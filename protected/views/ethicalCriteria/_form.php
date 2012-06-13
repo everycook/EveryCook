@@ -5,7 +5,7 @@
 	'enableAjaxValidation'=>false,
 )); ?>
 
-	<p class="note">Fields with <span class="required">*</span> are required.</p>
+	<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
 
 	<?php echo $form->errorSummary($model); ?>
 
