@@ -51,5 +51,9 @@ if ($this->isFancyAjaxRequest){ ?>
 	'id'=>'ingredientsResult',
 )); ?>
 
+<script type="text/javascript">
+	loadScript(false, "CH", false, true, false, false);
+</script>
 <?php $this->endWidget(); ?>
+
 </div>

@@ -42,9 +42,37 @@
 			echo '</a>';
 			
 			if($data['pro_count'] != 0 || $data['sup_names'] != ''){
-				echo '<a href="' . Yii::app()->createUrl('products/search',array('ing_id'=>$data['ING_ID'])) . '" class="button shopInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
-				echo '<div class="shopInfo"><span>';
-				printf(CHtml::encode($this->trans->INGREDIENTS_PRODUCTS_IN_SHOPS), $data['pro_count'], $data['sup_names']);
+				if ($data['distance_to_you_prod'] > 0){				
+					echo '<a href="' . Yii::app()->createUrl('products/search',array('ing_id'=>$data['ING_ID'])) . '" class="button shopInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
+					echo '<div class="shopInfo"><span>';
+					printf(CHtml::encode($this->trans->INGREDIENTS_PRODUCTS_IN_SHOPS_FROM_YOU), $data['distance_to_you_prod'], $data['distance_to_you'], Yii::app()->user->view_distance);
+				} else if ($data['distance_to_home_prod'] > 0){				
+					echo '<a href="' . Yii::app()->createUrl('products/search',array('ing_id'=>$data['ING_ID'])) . '" class="button shopInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
+					echo '<div class="shopInfo"><span>';
+					printf(CHtml::encode($this->trans->INGREDIENTS_PRODUCTS_IN_SHOPS_FROM_YOUR_HOME), $data['distance_to_home_prod'], $data['distance_to_home'], Yii::app()->user->view_distance);
+				} else {
+					if ($data['distance_to_you'] == -1){
+						echo '<a href="#" class="button shopInfo" id="updateCurrentGPS">';
+						echo '<div class="shopInfo"><span>';
+						echo $this->trans->PRODUCTS_LOCATE_FOR_STORES;
+					} else if ($data['distance_to_home'] == -1){
+						if (Yii::app()->user->isGuest){
+							echo '<a href="' . Yii::app()->createUrl('site/login') . '" class="button shopInfo">';
+							echo '<div class="shopInfo"><span>';
+							echo $this->trans->PRODUCTS_LOGIN_FOR_STORES;
+						} else {
+							echo '<a href="' . Yii::app()->createUrl('profiles/update', array('id'=>Yii::app()->user->id, 'afterSave'=>urlencode($this->createUrl($this->route, $this->getActionParams())))) . '" class="button shopInfo">';
+							echo '<div class="shopInfo"><span>';
+							echo $this->trans->PRODUCTS_SET_HOME_FOR_STORES;
+						}
+					} else {					
+						echo '<a href="' . Yii::app()->createUrl('products/search',array('ing_id'=>$data['ING_ID'])) . '" class="button shopInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
+						echo '<div class="shopInfo"><span>';
+						printf(CHtml::encode($this->trans->INGREDIENTS_PRODUCTS_NO_SHOPS_IN_RANGE), Yii::app()->user->view_distance);
+					}
+				}
+				//printf(CHtml::encode($this->trans->INGREDIENTS_PRODUCTS_IN_SHOPS), $data['pro_count'], $data['sup_names']);
+				
 				echo '</span></div></a>';
 			} else {
 				echo '<a href="' . Yii::app()->createUrl('products/create',array('ing_id'=>$data['ING_ID'])) . '" class="button shopInfo" title="' . $this->trans->INGREDIENTS_CREATE_PRODUCTS . '">';

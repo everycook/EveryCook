@@ -7,6 +7,7 @@ class Functions extends CHtml{
 	const DROP_DOWN_LIST = 0;
 	const CHECK_BOX_LIST = 1;
 	
+	/*
 	public static function preparedStatementToStatement($command, $params){
 		$sql = $command->getText();
 		foreach($params as $key => $value){
@@ -14,6 +15,7 @@ class Functions extends CHtml{
 		}
 		return Yii::app()->db->createCommand($sql);
 	}
+	*/
 
 	public static function searchCriteriaInput($label, $model, $fieldName, $dataList, $type, $id, $htmlOptions) {
 		$html = '<div class="row" id="'.$id.'">';

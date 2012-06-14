@@ -180,7 +180,11 @@ jQuery(function($){
 			cord = jQuery('#centerGPSHome').val().split(',');
 			title = 'your Home';
 		}
-		reinitialize(cord[0], cord[1], undefined, jQuery('#viewDistance').val(), loadDataProduct, title);
+		var distInput = elem.prev('input.viewDistance');
+		if (distInput.length == 0){
+			distInput = jQuery('#viewDistance');
+		}
+		reinitialize(cord[0], cord[1], undefined, distInput.val(), loadDataProduct, title);
 	});
 	
 	//Store assing functions

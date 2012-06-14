@@ -573,13 +573,14 @@ function updateMarkers(xml) {
 };
 
 infoWindowHtml = function(name, street, houseNr, zip, city, supplier, imageUrl, distance) {
+	distance = Math.round(distance*10) / 10; //round to 1 decimal digit
 	return '<div class="store-popup">'
 		   + ((imageUrl.trim().length>0)?'<img src="' + imageUrl + '">':'')
 		   + '<div class="store-popup-adresse">'
 		   + supplier + ' ' + name + '<br>'
 		   + ((zip==0)?'':street + ' ' + houseNr + ', ' + zip + ' ' + city)
 		   + '</div><br>'
-		   + distanceText + distance
+		   + distanceText + distance + ' km'
 		   + '</div>'
 };
 
@@ -840,8 +841,8 @@ function UpdateCurrentGPSCallback(status){
 		alert("Your browser doesn't support geolocation.");
 	} else if (status !== 0){
 		UpdateSessionLocation();
-		alert('DEBUG: geolocation sucessfull (accuracy: ' + lastCords.accuracy + 'km)');
-		
+		alert('DEBUG: geolocation sucessfull (accuracy: ' + lastCords.accuracy + 'km), press F5 to reload data (will be done automatically in future...)');
+		//TODO: reload page
 	}
 }
 

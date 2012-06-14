@@ -393,17 +393,72 @@ class ProductsController extends Controller
 			}
 		}
 		if ($criteria != ''){
+			$distanceForGroupSQL = 'SELECT
+				theView.PRO_ID,
+				MAX(dist) as dist,
+				SUM(amount) as amount
+				FROM (
+					(SELECT
+						@count := 0,
+						@oldId := 0 AS PRO_ID,
+						0 AS dist,
+						0 AS amount)
+					UNION
+					(SELECT
+						@count := if(@oldId = id, @count+1, 0),
+						@oldId := id,
+						if(@count < :count, value, 0),
+						if(@count < :count, 1, 0)
+					FROM
+						(SELECT products.PRO_ID as id, cosines_distance(stores.STO_GPS_POINT, GeomFromText(\':point\')) as value
+						FROM products
+						LEFT JOIN pro_to_sto ON pro_to_sto.PRO_ID=products.PRO_ID 
+						LEFT JOIN stores ON pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID
+						WHERE stores.STO_GPS_POINT is not NULL
+						ORDER BY products.PRO_ID, value ASC) AS theTable
+					)
+				) AS theView
+				WHERE theView.PRO_ID != 0 AND dist != 0
+				GROUP BY theView.PRO_ID;';
+			
 			$distanceFields = '';
 			if (isset(Yii::app()->session['current_gps']) && isset(Yii::app()->session['current_gps'][2])) {
-				$distanceFields = ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as distance_to_you';
+				$distanceFields = ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as stores_near_you';
+				
+				$point = Yii::app()->session['current_gps'][2];
+				$count = 5;
+				$youDistanceForGroupSQL = str_replace(':point', $point, $distanceForGroupSQL);
+				$youDistanceForGroupSQL = str_replace(':count', $count, $youDistanceForGroupSQL);
+				$youDistCommand = Yii::app()->db->createCommand($youDistanceForGroupSQL);
+				/*
+				$youDistCommand = Yii::app()->db->createCommand($distanceForGroupSQL);
+				$youDistCommand->bindParam(':point',$point);
+				$youDistCommand->bindParam(':count1',$count);
+				$youDistCommand->bindParam(':count2',$count);
+				*/
+				$hasYouDist = true;
 			} else {
-				$distanceFields = ', min(-1) as distance_to_you';
+				$distanceFields = ', min(-1) as stores_near_you';
+				$hasYouDist = false;
 			}
 			
 			if (!Yii::app()->user->isGuest && isset(Yii::app()->user->home_gps) && isset(Yii::app()->user->home_gps[2])){
-				$distanceFields .= ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as distance_to_home';
+				$distanceFields .= ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as stores_near_home';
+				
+				$point = Yii::app()->user->home_gps[2];
+				$count = 5;
+				$homeDistanceForGroupSQL = str_replace(':point', $point, $distanceForGroupSQL);
+				$homeDistanceForGroupSQL = str_replace(':count', $count, $homeDistanceForGroupSQL);
+				$HomeDistCommand = Yii::app()->db->createCommand($homeDistanceForGroupSQL);
+				/*
+				$HomeDistCommand = Yii::app()->db->createCommand($distanceForGroupSQL);
+				$HomeDistCommand->bindParam(':point',$point);
+				$HomeDistCommand->bindParam(':count',$count);
+				*/
+				$hasHomeDist = true;
 			} else {
-				$distanceFields .= ', Min(-1) as distance_to_home';
+				$distanceFields .= ', Min(-1) as stores_near_home';
+				$hasHomeDist = false;
 			}
 			
 			$command = Yii::app()->db->createCommand()
@@ -415,16 +470,62 @@ class ProductsController extends Controller
 				->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
 				->leftJoin('stores', 'pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID')
 				->group('products.PRO_ID');
+			
 			if (is_array($criteria)){
 				$command->where($criteria[0],$criteria[1]);
+				if ($hasYouDist){
+					$youDistCommand->where($criteria[0],$criteria[1]);
+				}
+				if ($hasHomeDist){
+					$HomeDistCommand->where($criteria[0],$criteria[1]);
+				}
 			} else {
 				$command->where($criteria);
+				if ($hasYouDist){
+					$youDistCommand->where($criteria);
+				}
+				if ($hasHomeDist){
+					$HomeDistCommand->where($criteria);
+				}
 			}
 			$rows = $command->queryAll();
+			if ($hasYouDist){
+				$youDistRows = $youDistCommand->queryAll();
+				$youDistArray = array();
+				foreach ($youDistRows as $row){
+					$youDistArray[$row['PRO_ID']] = array($row['dist'], $row['amount']);
+				}
+			}
+			if ($hasHomeDist){
+				$homeDistRows = $HomeDistCommand->queryAll();
+				$homeDistArray = array();
+				foreach ($homeDistRows as $row){
+					$homeDistArray[$row['PRO_ID']] = array($row['dist'], $row['amount']);
+				}
+			}
+			for ($i=0; $i<count($rows); $i++){
+				if ($hasYouDist){
+					if (isset($youDistArray[$rows[$i]['PRO_ID']])){
+						$rows[$i]['distance_to_you'] = $youDistArray[$rows[$i]['PRO_ID']];
+					} else  {
+						$rows[$i]['distance_to_you'] = -2;
+					}
+				} else {
+					$rows[$i]['distance_to_you'] = -1;
+				}
+				if ($hasHomeDist){
+					if (isset($homeDistArray[$rows[$i]['PRO_ID']])){
+						$rows[$i]['distance_to_home'] = $homeDistArray[$rows[$i]['PRO_ID']];
+					} else  {
+						$rows[$i]['distance_to_home'] = -2;
+					}
+				} else {
+					$rows[$i]['distance_to_home'] = -1;
+				}
+			}
 		} else {
 			$rows = array();
 		}
-		
 		
 		$dataProvider=new CArrayDataProvider($rows, array(
 			'id'=>'PRO_ID',

@@ -403,12 +403,10 @@ class StoresController extends Controller
 			
 			if (isset($criteria->condition) && $criteria->condition != '') {
 				if ($criteriaString != ''){
-					$command = Yii::app()->db->createCommand()->from($model->tableName())->where($criteria->condition . ' AND ' . $criteriaString);
+					$command = Yii::app()->db->createCommand()->from($model->tableName())->where($criteria->condition . ' AND ' . $criteriaString, $criteria->params);
 				} else {
-					$command = Yii::app()->db->createCommand()->from($model->tableName())->where($criteria->condition);
+					$command = Yii::app()->db->createCommand()->from($model->tableName())->where($criteria->condition, $criteria->params);
 				}
-				//TODO verify: bind params seams not to work on "IN" condition...
-				$command = Functions::preparedStatementToStatement($command, $criteria->params);
 				$this->validSearchPerformed = true;
 			} else if (isset($criteriaString) && $criteriaString != ''){
 				$command->where($criteriaString);
