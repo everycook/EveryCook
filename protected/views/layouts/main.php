@@ -15,7 +15,7 @@
 		<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/form.css" />
 		
 		<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/styles.css"/>
-		<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/designs/color1.css" media="screen, projection" id="design"/>
+		<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/designs/<?php echo Yii::app()->user->design; ?>.css" media="screen, projection" id="design"/>
 		
 		<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/jquery.Jcrop.css"/>
 		<title><?php echo CHtml::encode($this->pageTitle); ?></title>
@@ -23,42 +23,9 @@
 	<body class="backpic">
 		<?php /*<img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/bg.png" alt="Background" id="index_pic_bg">*/ ?>
 		<div id="page">
-			<?php /*
-			<div id="mainmenu">
-				<?php $this->widget('zii.widgets.CMenu',array(
-					'items'=>array(
-						array('label'=>'Home', 'url'=>array('/site/index')),
-						array('label'=>'About', 'url'=>array('/site/page', 'view'=>'about')),
-						array('label'=>'Contact', 'url'=>array('/site/contact')),
-						array('label'=>'Admin', 'url'=>array('/site/admin'), 'visible'=>!Yii::app()->user->isGuest),
-						array('label'=>'Login', 'url'=>array('/site/login'), 'visible'=>Yii::app()->user->isGuest),
-						array('label'=>'Logout ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest)
-					),
-				)); ?>
-			</div><!-- mainmenu -->
-			
-			<?php if(isset($this->breadcrumbs)):?>
-				<?php $this->widget('zii.widgets.CBreadcrumbs', array(
-					'links'=>$this->breadcrumbs,
-				)); ?><!-- breadcrumbs -->
-			<?php endif?>
-			*/ ?>
-                        <?/*Yii::app()->user->isGuest */?>
 			<div id="metaNav">
 				<a href="<?php echo Yii::app()->createUrl('site/index',array()); ?>"><div id="logo" class="backpic" alt="EveryCook Logo"></div></a>
-				<div style="float: left;">
-					<?php 
-					if(Yii::app()->user->isGuest) {
-						echo 'session: ' . Yii::app()->session['lang'];
-					} else {
-						echo 'user: ' . Yii::app()->user->lang;
-						echo "<br>Welcome User: ".Yii::app()->user->nick;
-					}
-					?>
-				</div>
-
 				<div id="metaNavButtons">
-					<!-- <a href="#site/login" OnClick="ShowLogin()"> -->
 					<?php
 					if(Yii::app()->user->isGuest) {
 						echo '<a href="'. Yii::app()->createUrl('site/login',array()) . '">';
@@ -67,38 +34,85 @@
 					}
 					?>
 						<div class="nav_button">
-							<span><?php if(Yii::app()->user->isGuest) echo $this->trans->GENERAL_LOGIN; else echo $this->trans->GENERAL_LOGOUT; ?></span>                  
+							<span><?php if(Yii::app()->user->isGuest) {echo $this->trans->GENERAL_LOGIN;} else {printf($this->trans->GENERAL_LOGOUT, Yii::app()->user->nick);} ?></span>
 						</div>
 					</a>
 					<?php
 					if(!Yii::app()->user->isGuest) {
-						echo '<a href="' . Yii::app()->createUrl('profiles/update',array('id'=>Yii::app()->user->id)) . '">';
 					?>
-						<div class="nav_button">
-							<span><?php echo $this->trans->GENERAL_SETTINGS; ?></span>
+					<div class="nav_button navMenu" id="settings">
+						<span><?php echo $this->trans->GENERAL_SETTINGS; ?></span>
+					</div>
+					<div id="settings_List" class="navMenuList" style="display: none;">
+						<?php echo '<a href="' . Yii::app()->createUrl('profiles/update',array('id'=>Yii::app()->user->id)) . '" class="button navMenuListEntry first">'; ?>
+							<?php echo $this->trans->SETTINGS_PROFILE; ?>
+						</a><br>
+						<div class="button navMenuL2 navMenuListEntry" id="designs">
+							<span><?php echo $this->trans->SETTINGS_DESIGNS; ?></span>
+						</div><br>
+						<div id="designs_List" class="navMenuListL2" style="display: none;">
+							<input type="hidden" id="changeDesignLink" value="<?php echo $this->createUrl('profiles/changeDesignMenu'); ?>"/>
+								<?php
+								$designs = array();
+								if ($handle = opendir('./css/designs')) {
+									while (false !== ($file = readdir($handle))) {
+										if (substr($file,strlen($file)-4) == '.css') {
+											$designs[] = substr($file,0,strlen($file)-4);
+										}
+									}
+									closedir($handle);
+								}
+								$first = true;
+								foreach($designs as $name){
+									$addClass = '';
+									if ($name == Yii::app()->user->design){
+										$addClass .= ' active';
+									}
+									if ($first){
+										$addClass .= ' first';
+										$first = false;
+									}
+									echo CHtml::link($name, Yii::app()->request->baseUrl . '/css/designs/' . $name . '.css', array('class'=>'button navMenuListEntry noAjax' . $addClass)) . '<br>';
+								}
+							?>
 						</div>
-					</a>
+						<div class="button navMenuL2 navMenuListEntry" id="languages">
+							<span><?php echo $this->trans->SETTINGS_LANGUAGES; ?></span>
+						</div><br>
+						<div id="languages_List" class="navMenuListL2" style="display: none;">
+							<?php
+								$first = true;
+								foreach($this->allLanguages as $id=>$name) {
+									$addClass = '';
+									if ($id == Yii::app()->session['lang']){
+										$addClass .= ' active';
+									}
+									if ($first){
+										$addClass .= ' first';
+										$first = false;
+									}
+									echo CHtml::link($name, array('profiles/changeLanguageMenu','lang'=>$id), array('class'=>'button navMenuListEntry noAjax' . $addClass, 'id'=>'lang_'.$id)) . '<br>';
+								}
+							?>
+						</div>
+					</div>
 					<?php } ?>
-					<div class="nav_button" id="JumpTo">
+					<div class="nav_button navMenu" id="JumpTo">
 						<span><?php echo $this->trans->GENERAL_JUMPTO; ?></span>
 					</div>
-					<div id="JumpTos" style="display: none;">
+					<div id="JumpTo_List" class="navMenuList" style="display: none;">
 						<?php
 						$first = true;
 						foreach($this->getJumpTos() as $title=>$link){
 							if ($first){
-								echo '<a class="button first" href="' . $link . '">' . $title . '</a><br>'."\n";
+								echo '<a class="button navMenuListEntry first" href="' . $link . '">' . $title . '</a><br>'."\n";
 								$first = false;
 							} else {
-								echo '<a class="button" href="' . $link . '">' . $title . '</a><br>'."\n";
+								echo '<a class="button navMenuListEntry" href="' . $link . '">' . $title . '</a><br>'."\n";
 							}
 						}
 						?>
 					</div>
-				</div>
-				<div id="designs">
-					<?php echo CHtml::link('Color1', Yii::app()->request->baseUrl . '/css/designs/color1.css', array('class'=>'noAjax')); ?><br>
-					<?php echo CHtml::link('Color2', Yii::app()->request->baseUrl . '/css/designs/color2.css', array('class'=>'noAjax')); ?><br>
 				</div>
 			</div>
 			<?php 
@@ -116,9 +130,7 @@
 			</div>
 		</div>
 		<div id="footer">
-			Copyright &copy; <?php echo date('Y'); ?> by EveryCook.<br/>
-			All Rights Reserved.<br/>
-			<?php echo Yii::powered(); ?>
+				Copyright &copy; <?php echo date('Y'); ?> by EveryCook. <a href="http://creativecommons.org/licenses/by-sa/3.0/"><img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/by-sa.png"></a> <?php echo Yii::powered(); ?>
 		</div><!-- footer -->
 	</body>
 </html>

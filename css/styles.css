@@ -53,11 +53,6 @@ input, select {
 	width:6.2em;
 }
 
-#designs {
-	float:right;
-	margin:1em 0;
-}
-
 #container {
 	border-radius:1.5em;
 }
@@ -471,6 +466,9 @@ body > .backpicfix {
 
 div.form .row  input[type='text'],
 div.form .row  input[type='password'],
+div.form .row  input[type='date'],
+div.form .row  input[type='email'],
+div.form .row  input[type='number'],
 div.form .row  select,
 div.form .row  textarea {
 	width: 17em;
@@ -518,19 +516,30 @@ div.form .hint {
     font-size: 0.8em;
 }
 
-#JumpTos {
+.navMenuList {
 	position: absolute;
 	right: 0;
 	top: 25px;
 	border-radius:1.5em;
 	padding: 0.8em;
 }
-#JumpTos a {
+
+.navMenuListL2 {
+	position: absolute;
+	right: 16.2em;
+	top: 0px;
+	border-radius:1.5em;
+	padding: 0.8em;
+}
+
+.navMenuList .navMenuListEntry,
+.navMenuListL2 .navMenuListEntry {
 	width: 12em;
 	margin-top: 0.8em;
 }
 
-#JumpTos a.first {
+.navMenuList .navMenuListEntry.first,
+.navMenuListL2 .navMenuListEntry.first {
 	margin-top: 0;
 }
 
@@ -541,13 +550,21 @@ div.form .hint {
 	padding-left: 14em;
 }
 
-
 #updateCurrentGPS{
 	cursor: pointer;
 }
 
+.ProductsStoreInfo {
+	padding-bottom: 0.8em;
+}
 
+.ProductsStoreInfo .button {
+	float: right;
+}
 
+.ProductsStoreInfo span {
+	line-height: 3.1em;
+}
 
 
 

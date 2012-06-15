@@ -31,7 +31,7 @@ class ProfilesController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow',  // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('index','view','create','update','admin','delete', 'favoriteFood', 'favoriteRecipes'),
+				'actions'=>array('index','view','create','update','uploadImage','admin','delete', 'favoriteFood', 'favoriteRecipes','ChangeLanguageMenu', 'changeDesignMenu'),
 				'users'=>array('@'),
 			),
 			array('deny',  // deny all users
@@ -70,12 +70,7 @@ class ProfilesController extends Controller
 		));
 	}
 	
-	
-	public function actionUploadImage(){
-		if (isset($_GET['id'])){
-			$id = $_GET['id'];
-		}
-		
+	private function getModelAndOldPic($id){
 		$Session_Profiles_Backup = Yii::app()->session['Profiles_Backup'];
 		if (isset($Session_Profiles_Backup)){
 			$oldmodel = $Session_Profiles_Backup;
@@ -93,53 +88,38 @@ class ProfilesController extends Controller
 			$model=new Profiles;
 			$oldPicture = null;
 		}
-		
-		if(isset($_POST['Profiles'])){
-			$model->attributes=$_POST['Profiles'];
-			$sucessfull = Functions::uploadPicture($model,'PRF_IMG');
-			Yii::app()->session['Profiles_Backup'] = $model;
-			
-			if ($sucessfull){
-				echo "{imageId:'backup'}";
-				exit;
-			} else {
-				echo "{error:'nofile'}";
-				exit;
-			}
-		} else {
-			echo "{error:'nodata'}";
-			exit;
+		return array($model, $oldPicture);
+	}
+	
+	public function actionUploadImage(){
+		if (isset($_GET['id'])){
+			$id = $_GET['id'];
 		}
+		
+		list($model, $oldPicture) = $this->getModelAndOldPic($id);
+		
+		Functions::uploadImage('Profiles', $model, 'Profiles_Backup', 'PRF_IMG');
 	}
 	
 	private function prepareCreateOrUpdate($id, $view){
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 		
-		$Session_Profiles_Backup = Yii::app()->session['Profiles_Backup'];
-		if (isset($Session_Profiles_Backup)){
-			$oldmodel = $Session_Profiles_Backup;
-		}
-		if (isset($id)){
-			if (!isset($oldmodel) || $oldmodel->PRF_UID != $id){
-				$oldmodel = $this->loadModel($id, true);
-			}
-		}
+		list($model, $oldPicture) = $this->getModelAndOldPic($id);
 		
-		if (isset($oldmodel)){
-			$model = $oldmodel;
-		} else {
-			$model=new Profiles;
-		}
-			
 		if (isset($id) && $id != Yii::app()->user->id){
 			throw new CHttpException(403,'It\'s not allowed to change profile of other user.');
 		}
 		if(isset($_POST['Profiles'])) {
 			$model->attributes=$_POST['Profiles'];
-			
 			if (isset($oldPicture)){
 				Functions::updatePicture($model,'PRF_IMG', $oldPicture);
+			}
+			
+			if (isset($model->birthday) && $model->birthday != ''){
+				$model->PRF_BIRTHDAY = date_create_from_format('Y-m-d', $model->birthday)->getTimestamp();
+			} else {
+				$model->PRF_BIRTHDAY = null;
 			}
 			
 			Yii::app()->session['Profiles_Backup'] = $model;
@@ -270,6 +250,12 @@ class ProfilesController extends Controller
 		if(isset($_POST['Profiles'])) 
 		{
 			$model->attributes=$_POST['Profiles'];
+			if (isset($model->birthday) && $model->birthday != ''){
+				$model->PRF_BIRTHDAY = date_create_from_format('Y-m-d', $model->birthday)->getTimestamp();
+			} else {
+				$model->PRF_BIRTHDAY = null;
+			}
+			
 			Yii::app()->session['Profiles_Backup'] = $model;
 			if($model->validate()) {
 				// all entered values are valid and no constraint has been violated
@@ -374,6 +360,29 @@ class ProfilesController extends Controller
 			$this->redirect(array($action));
 		}
 	}
+	
+	public function actionChangeLanguageMenu() {
+		$this->saveLastAction = false;
+		Yii::app()->session['lang'] = $_GET['lang'];
+		if (!Yii::app()->user->isGuest){
+			Yii::app()->user->lang = $_GET['lang'];
+		}
+		self::$trans=new Translations($_GET['lang']);
+		
+		$model = $this->loadModel(Yii::app()->user->id);
+		$model->PRF_LANG = $_GET['lang'];
+		$model->save();
+		
+		$this->showLastAction();
+	}
+	
+	public function actionChangeDesignMenu() {
+		$this->saveLastAction = false;
+		Yii::app()->user->design = $_GET['design'];
+		$model = $this->loadModel(Yii::app()->user->id);
+		$model->PRF_DESIGN = $_GET['design'];
+		$model->save();
+	}
    
 	public function actionFavoriteFood(){
 		//TODO
@@ -393,10 +402,14 @@ class ProfilesController extends Controller
 	 */
 	public static function loadModel($id)
 	{
-		if ($id != Yii::app()->user->id){
-			throw new CHttpException(403,'It\'s not allowed to open profile of other user.');
+		if ($id == 'backup'){
+			$model=Yii::app()->session['Profiles_Backup'];
+		} else {
+			if ($id != Yii::app()->user->id){
+				throw new CHttpException(403,'It\'s not allowed to open profile of other user.');
+			}
+			$model=Profiles::model()->findByPk($id);
 		}
-		$model=Profiles::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;

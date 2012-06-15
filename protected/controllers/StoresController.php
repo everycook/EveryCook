@@ -190,7 +190,21 @@ class StoresController extends Controller
 	}
 	
 	private function checkDuplicateAssing($model){
-		return null;
+		$duplicates = array();
+		$command = Yii::app()->db->createCommand()
+			->from('pro_to_sto')
+			->leftJoin('suppliers', 'suppliers.SUP_ID=pro_to_sto.SUP_ID')
+			->leftJoin('store_types', 'store_types.STY_ID=pro_to_sto.STY_ID')
+			->where('pro_to_sto.PRO_ID = :pro_id AND pro_to_sto.SUP_ID = :sup_id AND pro_to_sto.STY_ID = :sty_id', array(':pro_id'=>$model->PRO_ID, ':sup_id'=>$model->SUP_ID, ':sty_id'=>$model->STY_ID));
+		$rows = $command->queryAll();
+		if (count($rows)>0){
+			$dup_rows = array();
+			foreach($rows as $row){
+				array_push($dup_rows, $row['PRO_ID'] . ': ' . $row['SUP_NAME'] . ', ' . $row['STY_TYPE_'.Yii::app()->session['lang']]);
+			}
+			$duplicates = array_merge($duplicates, array ('ID'=>$dup_rows));
+		}
+		return $duplicates;
 	}
 	
 	public function actionAssign(){
@@ -212,31 +226,24 @@ class StoresController extends Controller
 		}
 		if(isset($_POST['ProToSto'])){
 			if ($model->validate()){
-				$duplicates = null;
-				if (!isset($model->PRO_ID)){
-					$duplicates = $this->checkDuplicateAssing($model);
-					}
-				if ($duplicates != null && count($duplicates)>0 && !isset($_POST['ignoreDuplicates'])){
+				$duplicates = $this->checkDuplicateAssing($model);
+				if ($duplicates != null && count($duplicates)>0){
 					foreach($duplicates as $dup_type => $values){
 						if ($this->errorText != ''){
 							$this->errorText .= '<br />';
 						}
-						$this->errorText .='<p>There are already Product to Shop assign for the defined product/shop, entry are:</p>';
+						$this->errorText .='<p>There are already a Product to Shop assign for the defined product / shop(supplier, store type) combination.</p>';
+						/*
 						foreach($values as $dup){
 							$this->errorText .= $dup . '<br />';
-						}
+						}*/
 					}
-					$this->errorText .= CHtml::label('Ignore possible duplicates','ignoreDuplicates') . CHtml::checkBox('ignoreDuplicates');
 				} else {
 					try {
 						if($model->save()){
 							if(!isset($_POST['saveAddNext'])){
-								if($this->useAjaxLinks){
-									echo "{hash:'" . $this->createUrlHash('products/view', array('id'=>$model->PRO_ID)) . "'}";
-									exit;
-								} else {
-									$this->redirect(array('products/view', 'id'=>$model->PRO_ID));
-								}
+								$this->forwardAfterSave(array('products/search'));
+								return;
 							}
 						}
 					} catch (Exception $e) {

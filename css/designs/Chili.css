@@ -1,17 +1,11 @@
 body {
-	background: url('../../pics/bg.png') repeat fixed 0 0 transparent;
-	background-size: 100% auto;
+	background-color:#6D0000;
 }
-
 
 a:link, a:visited, a:hover, a:active, a:focus  {
 	text-decoration:none;
 	color:black;
 }
-
-
-a.actionlink {text-decoration: underline;}
-a.actionlink:hover {text-decoration: underline; color:blue;}
 
 span.error {
 	font-size: 0.9em;
@@ -19,32 +13,32 @@ span.error {
 }
 
 .nav_button {
-	background-color:#997F7F;
+	background-color:#FF4D02;
 }
 
 #logo {
-	background: url('../../pics/logo_small_1.png') no-repeat scroll 0 0 transparent;
+	background: url('../../pics/logo_small_2.png') no-repeat scroll 0 0 transparent;
 	background-size: 100% auto;
 }
 
 #container {
-	background-color:#99B299;
+	background-color:#FFDB00;
 }
 
 .index_button {
-	background-color:#997F7F;
+	background-color:#FF4D02;
 }
 
 #footer {
-	border-top: 1px solid #C9E0ED;
+	border-top: 1px solid #BC0000;
 }
 
 div.index_div_login{
-	background-color:#997F7F;
+	background-color:#FF4D02;
 }
 
 .button, .buttonSmall, input[type='submit'], input[type='button'] {
-	background-color:#997F7F;
+	background-color:#FF4D02;
 }
 
 a.delicious {
@@ -76,18 +70,17 @@ div.resultArea {
 }
 
 div.detailView {
-	background-color:#FFFFFF;
+	background-color:#FFDB00;
 }
 
 div.detailView div.options div.ingredients {
-	background-color:#997F7F;
+	background-color:#FF4D02;
 }
 
 #fancybox-content{
-	background:#99B299;
+	background:#FFDB00;
 	padding:1em !important;
 }
-
 
 div.nutrientDataGroup {
 	background-color:#FFFFFF;
@@ -97,6 +90,7 @@ div.form .hint {
     color: black;
 }
 
-#JumpTos {
+.navMenuList,
+.navMenuListL2 {
 	background-color:#FFFFFF;
 }

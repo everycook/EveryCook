@@ -112,23 +112,7 @@ class IngredientsController extends Controller
 			$model=new Ingredients;
 			$oldPicture = null;
 		}
-		
-		if(isset($_POST['Ingredients'])){
-			$model->attributes=$_POST['Ingredients'];
-			$sucessfull = Functions::uploadPicture($model,'ING_IMG');
-			Yii::app()->session['Ingredient_Backup'] = $model;
-			
-			if ($sucessfull){
-				echo "{imageId:'backup'}";
-				exit;
-			} else {
-				echo "{error:'nofile'}";
-				exit;
-			}
-		} else {
-			echo "{error:'nodata'}";
-			exit;
-		}
+		Functions::uploadImage('Ingredients', $model, 'Ingredient_Backup', 'ING_IMG');
 	}
 		
 	private function prepareCreateOrUpdate($id, $view){

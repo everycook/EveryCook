@@ -132,7 +132,7 @@ class Controller extends CController
 	
 	protected function afterAction($action){
 		if ($this->saveLastAction){
-			if (count($_POST) == 0 && $this->route != '' && substr($this->route, 0, 5) != 'site/'){
+			if (count($_POST) == 0 && $this->route != '' && (substr($this->route, 0, 5) != 'site/')){
 				Yii::app()->session['LAST_ACTION'] = $this->route;
 				$params = $this->getActionParams();
 				Yii::app()->session['LAST_ACTION_PARAMS'] = $params;
@@ -181,7 +181,7 @@ class Controller extends CController
 			if($this->useAjaxLinks && $this->getIsAjaxRequest()){
 				echo "{hash:'" . $this->createUrlHash(Yii::app()->session['LAST_ACTION'], Yii::app()->session['LAST_ACTION_PARAMS']). "'}";
 			} else {
-				$this->redirect(array(Yii::app()->session['LAST_ACTION'], Yii::app()->session['LAST_ACTION_PARAMS']));
+				$this->redirect(array_merge(array(Yii::app()->session['LAST_ACTION']), Yii::app()->session['LAST_ACTION_PARAMS']));
 			}
 		} else if (isset(Yii::app()->session['LAST_ACTION']) && isset(Yii::app()->session['LAST_ACTION_PARAMS'])){
 			if($this->useAjaxLinks && $this->getIsAjaxRequest()){
@@ -228,6 +228,11 @@ class Controller extends CController
 		{
 			if($this->useAjaxLinks){
 				Yii::app()->clientscript->registerCoreScript('bbq');
+				Yii::app()->clientscript->registerCoreScript('jquery.ui');
+				$baseurl = Yii::app()->clientscript->getPackageBaseUrl('jquery.ui');
+				Yii::app()->clientscript->registerCssFile($baseurl . '/jui/css/base/jquery.ui.core.css');
+				Yii::app()->clientscript->registerCssFile($baseurl . '/jui/css/base/jquery.ui.theme.css');
+				Yii::app()->clientscript->registerCssFile($baseurl . '/jui/css/base/jquery.ui.datepicker.css');
 				Yii::app()->clientscript->registerCoreScript('yii');
 				$fancyBox = new EFancyBox();
 				$fancyBox->publishAssets();

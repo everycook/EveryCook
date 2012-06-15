@@ -15,41 +15,44 @@
 		
 		<?php
 		$noShopsAssigned = false;
+		echo '<div class="ProductsStoreInfo">';
 		if ($data['stores_near_you'] == -1){
-			echo '<span>' . CHtml::link($this->trans->PRODUCTS_LOCATE_FOR_STORES, '#', array('class'=>'actionlink', 'id'=>'updateCurrentGPS')) . '</span><br/>'."\n";
+			echo '<span>' . CHtml::link($this->trans->PRODUCTS_LOCATE_FOR_STORES, '#', array('class'=>'actionlink', 'id'=>'updateCurrentGPS')) . '</span>'."\n";
 		} else {
 			if ($data['stores_near_you'] == 0){
 				if (is_array($data['distance_to_you'])){
-					echo '<span>'; printf($this->trans->PRODUCTS_DISTANCE_TO_YOU, $data['distance_to_you'][1], $data['distance_to_you'][0]); echo '</span> <input type="hidden" class="viewDistance" value="' . $data['distance_to_you'][0] . '" /> <span class="button showOnMap centerGPSYou">' . $this->trans->PRODUCTS_SHOW_ON_MAP . '</span><br/>'."\n";
+					echo '<span>'; printf($this->trans->PRODUCTS_DISTANCE_TO_YOU, $data['distance_to_you'][1], $data['distance_to_you'][0]); echo '</span> <input type="hidden" class="viewDistance" value="' . $data['distance_to_you'][0] . '" /> <div class="button showOnMap centerGPSYou">' . $this->trans->PRODUCTS_SHOW_ON_MAP . '</div>'."\n";
 				} else {
-					echo '<span>'; echo $this->trans->PRODUCTS_NO_SHOPS_ASSIGNED; echo '</span><br/>'."\n";
+					echo '<span>'; echo $this->trans->PRODUCTS_NO_SHOPS_ASSIGNED; echo '</span>'."\n";
 					$noShopsAssigned = true;
 				}
 			} else {
-				echo '<span>'; printf($this->trans->PRODUCTS_DISTANCE_TO_YOU, $data['stores_near_you'], Yii::app()->user->view_distance); echo '</span> <span class="button showOnMap centerGPSYou">' . $this->trans->PRODUCTS_SHOW_ON_MAP . '</span><br/>'."\n";
+				echo '<span>'; printf($this->trans->PRODUCTS_DISTANCE_TO_YOU, $data['stores_near_you'], Yii::app()->user->view_distance); echo '</span> <div class="button showOnMap centerGPSYou">' . $this->trans->PRODUCTS_SHOW_ON_MAP . '</div>'."\n";
 			}
 		}
+		echo '</div>';
 		
 		if (!$noShopsAssigned) {
+			echo '<div class="ProductsStoreInfo">';
 			if ($data['stores_near_home'] == -1){
 				if (Yii::app()->user->isGuest){
-					echo '<span>' . CHtml::link($this->trans->PRODUCTS_LOGIN_FOR_STORES, array('site/login'), array('class'=>'actionlink')) . '</span><br/>'."\n";
+					echo '<span>' . CHtml::link($this->trans->PRODUCTS_LOGIN_FOR_STORES, array('site/login'), array('class'=>'actionlink')) . '</span>'."\n";
 				} else {
-					echo '<span>' . CHtml::link($this->trans->PRODUCTS_SET_HOME_FOR_STORES, array('profiles/update', 'id'=>Yii::app()->user->id, 'afterSave'=>urlencode($this->createUrl($this->route, $this->getActionParams()))), array('class'=>'actionlink')) . '</span><br/>'."\n";
+					echo '<span>' . CHtml::link($this->trans->PRODUCTS_SET_HOME_FOR_STORES, array('profiles/update', 'id'=>Yii::app()->user->id, 'afterSave'=>urlencode($this->createUrl($this->route, $this->getActionParams()))), array('class'=>'actionlink')) . '</span>'."\n";
 				}
 			} else {
 				if ($data['stores_near_home'] == 0){
 					if (is_array($data['distance_to_home'])){
-						echo '<span>'; printf($this->trans->PRODUCTS_DISTANCE_TO_HOME, $data['distance_to_home'][1], $data['distance_to_home'][0]); echo '</span> <input type="hidden" class="viewDistance" value="' . $data['distance_to_home'][0] . '" /> <span class="button showOnMap centerGPSHome">' . $this->trans->PRODUCTS_SHOW_ON_MAP . '</span><br/>'."\n";
+						echo '<span>'; printf($this->trans->PRODUCTS_DISTANCE_TO_HOME, $data['distance_to_home'][1], $data['distance_to_home'][0]); echo '</span> <input type="hidden" class="viewDistance" value="' . $data['distance_to_home'][0] . '" /> <div class="button showOnMap centerGPSHome">' . $this->trans->PRODUCTS_SHOW_ON_MAP . '</div>'."\n";
 					} else {
-						echo '<span>'; echo $this->trans->PRODUCTS_NO_SHOPS_ASSIGNED; echo '</span><br/>'."\n";
+						echo '<span>'; echo $this->trans->PRODUCTS_NO_SHOPS_ASSIGNED; echo '</span>'."\n";
 					}
 				} else {
-					echo '<span>'; printf($this->trans->PRODUCTS_DISTANCE_TO_HOME, $data['stores_near_home'], Yii::app()->user->view_distance); echo '</span> <span class="button showOnMap centerGPSHome">' . $this->trans->PRODUCTS_SHOW_ON_MAP . '</span><br/>'."\n";
+					echo '<span>'; printf($this->trans->PRODUCTS_DISTANCE_TO_HOME, $data['stores_near_home'], Yii::app()->user->view_distance); echo '</span> <div class="button showOnMap centerGPSHome">' . $this->trans->PRODUCTS_SHOW_ON_MAP . '</div>'."\n";
 				}
 			}
+			echo '</div>';
 		}
-		echo '<br>';
 		echo '<span><strong>' . CHtml::encode($this->trans->PRODUCTS_SUSTAINABILITY) .':</strong> ' . CHtml::encode($data['ECO_DESC_'.Yii::app()->session['lang']]) ."</span><br/>\n";
 		echo CHtml::link(CHtml::encode($this->trans->PRODUCTS_ASSIGN_SHOP), array('stores/assign', 'pro_id'=>$data['PRO_ID']), array('class'=>'button f-right'));
 		echo '<span><strong>' . CHtml::encode($this->trans->PRODUCTS_ETHICAL) .':</strong> ' . CHtml::encode($data['ETH_DESC_'.Yii::app()->session['lang']]) ."</span><br/>\n";

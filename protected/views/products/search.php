@@ -27,7 +27,7 @@ $this->menu=array(
 		'id'=>'products_form',
 		'method'=>'post',
 	)); ?>
-	<?php  if(!isset($_GET['ing_id'])){ ?>
+	<?php  if($ing_id == null){ ?>
 	<div class="f-left search">
 		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
 		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>

@@ -7,6 +7,9 @@ class WebUser extends CWebUser {
 		if (!$this->hasState('view_distance') || $this->view_distance == ''){
 			$this->setState('view_distance',5);
 		}
+		if (!$this->hasState('design') || $this->design == ''){
+			$this->setState('design','Aubergine');
+		}
 	}
 	
 	/**

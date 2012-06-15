@@ -7,16 +7,16 @@
 	'action'=>Yii::app()->createUrl($this->route, array_merge($this->getActionParams(), array('ajaxform'=>true))),
     
 )); ?>
+	<?php echo $form->errorSummary($model); 
+		if ($this->errorText){
+			echo '<div class="errorSummary">';
+			echo $this->errorText;
+			echo '</div>';
+		}
+	?>
 	<div class="mapDetails">
 		<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
-		<?php echo $form->errorSummary($model); 
-			if ($this->errorText){
-				echo '<div class="errorSummary">';
-				echo $this->errorText;
-				echo '</div>';
-			}
-		?>
-
+		
 		<div class="row" id="product">
 			<?php echo $form->label($model,'PRO_ID',array('label'=>$this->trans->STORES_ASSIGN_PRODUCT)); ?>
 			<?php echo $form->hiddenField($model,'PRO_ID',array('id'=>'PRO_ID', 'class'=>'fancyValue')); ?>
@@ -49,6 +49,7 @@
 		</div>
 	</div>
 	<div id="map_canvas" style="height:300px; width:300px; float:left;"></div>
+	<div class="clearfix"></div>
 
 <?php $this->endWidget(); ?>
 

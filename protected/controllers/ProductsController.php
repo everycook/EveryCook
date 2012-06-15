@@ -91,49 +91,7 @@ class ProductsController extends Controller
 		return $duplicates;
 	}
 	
-	public function actionUploadImage(){
-		if (isset($_GET['id'])){
-			$id = $_GET['id'];
-		}
-		
-		$Session_Product_Backup = Yii::app()->session['Product_Backup'];
-		if (isset($Session_Product_Backup)){
-			$oldmodel = $Session_Product_Backup;
-		}
-		if (isset($id)){
-			if (!isset($oldmodel) || $oldmodel->PRO_ID != $id){
-				$oldmodel = $this->loadModel($id, true);
-			}
-		}
-		
-		if (isset($oldmodel)){
-			$model = $oldmodel;
-		} else {
-			$model=new Products;
-		}
-		
-		if(isset($_POST['Products'])){
-			$model->attributes=$_POST['Products'];
-			$sucessfull = Functions::uploadPicture($model,'PRO_IMG');
-			Yii::app()->session['Product_Backup'] = $model;
-			
-			if ($sucessfull){
-				echo "{imageId:'backup'}";
-				exit;
-			} else {
-				echo "{error:'nofile'}";
-				exit;
-			}
-		} else {
-			echo "{error:'nodata'}";
-			exit;
-		}
-	}
-	
-	private function prepareCreateOrUpdate($id, $view){
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-		
+	private function getModelAndOldPic($id){
 		$Session_Product_Backup = Yii::app()->session['Product_Backup'];
 		if (isset($Session_Product_Backup)){
 			$oldmodel = $Session_Product_Backup;
@@ -151,6 +109,23 @@ class ProductsController extends Controller
 			$model=new Products;
 			$oldPicture = null;
 		}
+		return array($model, $oldPicture);
+	}
+	
+	public function actionUploadImage(){
+		if (isset($_GET['id'])){
+			$id = $_GET['id'];
+		}
+		list($model, $oldPicture) = $this->getModelAndOldPic($id);
+		
+		Functions::uploadImage('Products', $model, 'Product_Backup', 'PRO_IMG');
+	}
+	
+	private function prepareCreateOrUpdate($id, $view){
+		// Uncomment the following line if AJAX validation is needed
+		// $this->performAjaxValidation($model);
+		
+		list($model, $oldPicture) = $this->getModelAndOldPic($id);
 		
 		$ing_id = null;
 		if(isset($_GET['ing_id'])){
@@ -165,14 +140,6 @@ class ProductsController extends Controller
 			$model->attributes=$_POST['Products'];
 			if (isset($oldPicture)){
 				Functions::updatePicture($model,'PRO_IMG', $oldPicture);
-			}
-			
-			if ($model->isNewRecord){
-				$model->CREATED_BY = Yii::app()->user->id;
-				$model->CREATED_ON = time();
-			} else {
-				$model->CHANGED_BY = Yii::app()->user->id;
-				$model->CHANGED_ON = time();
 			}
 			
 			if(isset($_POST['PRD_ID'])){

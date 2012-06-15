@@ -1,23 +1,27 @@
 jQuery(function($){
 	function initCrop(){
 		var cropable = $('.cropable');
+		if (jQuery('#imagecrop_x').length == 0){
+			cropable.each(function(){
+				var parent = jQuery(this).parent();
+				parent.append(jQuery('<input type="hidden" id="imagecrop_x" name="imagecrop_x" />'));
+				parent.append(jQuery('<input type="hidden" id="imagecrop_y" name="imagecrop_y" />'));
+				parent.append(jQuery('<input type="hidden" id="imagecrop_w" name="imagecrop_w" />'));
+				parent.append(jQuery('<input type="hidden" id="imagecrop_h" name="imagecrop_h" />'));
+			});
+		}
 		cropable.Jcrop({
-			onRelease: releaseCheck,
 			aspectRatio: 1,
-			onSelect: updateCoords,
 			bgOpacity: .6,
+			//minSize: [400, 400],
+			onSelect: updateCoords,
+			onChange: updateCoords,
+			onRelease: releaseCheck,
 		},function(){
 			jcrop_api = this;
 			jcrop_api.animateTo([0,0,400,400]);
 		});
 		cropable.removeClass('cropable');
-		cropable.each(function(){
-			var parent = jQuery(this).parent();
-			parent.append(jQuery('<input type="hidden" id="imagecrop_x" name="imagecrop_x" />'));
-			parent.append(jQuery('<input type="hidden" id="imagecrop_y" name="imagecrop_y" />'));
-			parent.append(jQuery('<input type="hidden" id="imagecrop_w" name="imagecrop_w" />'));
-			parent.append(jQuery('<input type="hidden" id="imagecrop_h" name="imagecrop_h" />'));
-		});
 	}
 	
 	$('#page').ajaxComplete(function(e, xhr, settings) {
@@ -61,13 +65,22 @@ jQuery(function($){
 						jcrop_api.destroy();
 					}
 					elem.parent().parent().find('img').remove();
+					elem.parent().parent().find('#img_error').remove();
 					var rand = Math.floor(Math.random()*1000000000);
 					var image = jQuery('<img src="' + jQuery('#imageLink').attr('value') + '?rand=' + rand+ '" class="cropable"/>');
 					image.insertBefore(elem.parent());
 					initCrop();
 					elem.attr('value','');
 				} else {
-					//No image uploaded...
+					//No image/unknown type uploaded...
+					if (typeof(jcrop_api) !== 'undefined' && jcrop_api != null){
+						jcrop_api.destroy();
+					}
+					elem.parent().parent().find('img').remove();
+					elem.parent().parent().find('#img_error').remove();
+					var error = jQuery('<span id="img_error" class="error">' + data.error + '</span>');
+					error.insertBefore(elem.parent());
+					elem.attr('value','');
 				}
 			}
 		});

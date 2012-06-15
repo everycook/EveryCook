@@ -1,8 +1,5 @@
 <?php
 class Functions extends CHtml{
-	const IMG_TYPE_GIF = 1;
-	const IMG_TYPE_JPG = 2;
-	const IMG_TYPE_PNG = 3;
 	
 	const DROP_DOWN_LIST = 0;
 	const CHECK_BOX_LIST = 1;
@@ -170,12 +167,12 @@ class Functions extends CHtml{
 		if(!file_exists($file))
 			return false;
 		$info = getimagesize($file);
-
-		if($info[2] == 1){
+		
+		if($info[2] == IMAGETYPE_GIF){
 			$image = imagecreatefromgif($file);
-		} elseif($info[2] == 2) {
+		} elseif($info[2] == IMAGETYPE_JPEG) {
 			$image = imagecreatefromjpeg($file);
-		} elseif($info[2] == 3) {
+		} elseif($info[2] == IMAGETYPE_PNG) {
 			$image = imagecreatefrompng($file);
 		} else  {
 				return false;
@@ -192,18 +189,20 @@ class Functions extends CHtml{
 		}*/
 		if ($width > $src_w && $src_w != -1){
 			$width = $src_w;
-		} else if ($height > $src_h && $src_h != -1){
+		}
+		if ($height > $src_h && $src_h != -1){
 			$height = $src_h;
 		}
-		if ($width && ($info[0] < $info[1])){
-			$width = ($height / $info[1]) * $info[0];
+		
+		if ($src_w==-1){$src_w=$info[0];}
+		if ($src_h==-1){$src_h=$info[1];}
+		if ($width && ($src_w < $src_h)){
+			$width = ($height / $src_h) * $src_w;
 		} else { 
-			$height = ($width / $info[0]) * $info[1]; 
+			$height = ($width / $src_w) * $src_h; 
 		}
 		$imagetc = imagecreatetruecolor($width, $height);
-		if (($info[0] > $width) or ($info[1] > $height) or ($width != $src_w) or ($height != src_h) or ($src_x != 0) or ($src_y != 0)){
-			if ($src_w==-1){$src_w=$info[0];}
-			if ($src_h==-1){$src_h=$info[1];}
+		if (($info[0] > $width) or ($info[1] > $height) or ($width != $src_w) or ($height != $src_h) or ($src_x != 0) or ($src_y != 0)){
 			imagecopyresampled($imagetc, $image, 0, 0, $src_x, $src_y, $width, $height, $src_w, $src_h);
 		} else {
 			if ($info[2] == $destType){
@@ -217,15 +216,59 @@ class Functions extends CHtml{
 		$transparent=imagecolortransparent($image);
 		imagecolortransparent($imagetc,$transparent);
 		
-		if($destType == 1){
+		if($destType == IMAGETYPE_GIF){
 			imagegif($imagetc, $file_new);  
 			//imagejpeg($imagetc, $file_new, $qualitaet);  
-		} elseif($destType == 2) {
+		} elseif($destType == IMAGETYPE_JPEG) {
 			imagejpeg($imagetc, $file_new, $qualitaet);  
-		} elseif($destType == 3) {
+		} elseif($destType == IMAGETYPE_PNG) {
 			imagepng($imagetc, $file_new);  
 		} else  {
 			imagejpeg($imagetc, $file_new, $qualitaet);  
+		}
+	}
+	
+	
+	public static function changePictureType($file, $file_new, $destType)
+	{
+		if(!file_exists($file))
+			return false;
+		
+		$info = getimagesize($file);
+
+		if ($destType == -1 || $destType == $info[2]){
+			return true;
+		}
+		
+		if($info[2] == IMAGETYPE_GIF){
+			$image = imagecreatefromgif($file);
+		} elseif($info[2] == IMAGETYPE_JPEG) {
+			$image = imagecreatefromjpeg($file);
+		} elseif($info[2] == IMAGETYPE_PNG) {
+			$image = imagecreatefrompng($file);
+		} else  {
+			return false;
+		}
+		
+		$width = $info[0];
+		$height = $info[1];
+		$qualitaet = 0.8;
+		
+		//$imagetc = imagecreatetruecolor($width, $height
+		//imagecopyresampled($imagetc, $image, 0, 0, $src_x, $src_y, $width, $height, $src_w, $src_h);
+		//$transparent=imagecolortransparent($image);
+		//imagecolortransparent($imagetc,$transparent);
+		
+		$imagetc = $image;
+		
+		if($destType == IMAGETYPE_GIF){
+			imagegif($imagetc, $file_new); 
+		} elseif($destType == IMAGETYPE_JPEG) {
+			imagejpeg($imagetc, $file_new, $qualitaet);
+		} elseif($destType == IMAGETYPE_PNG) {
+			imagepng($imagetc, $file_new);
+		} else  {
+			imagejpeg($imagetc, $file_new, $qualitaet);
 		}
 	}
 	
@@ -280,7 +323,7 @@ class Functions extends CHtml{
 	public static function updatePicture($model, $picFieldName, $oldPicture){
 		$file = CUploadedFile::getInstance($model,'filename');
 		if ($file){
-			self::resizePicture($file->getTempName(), $file->getTempName(), 400, 400, 0.8, self::IMG_TYPE_PNG);
+			self::resizePicture($file->getTempName(), $file->getTempName(), 400, 400, 0.8, IMAGETYPE_PNG);
 			$model->__set($picFieldName, file_get_contents($file->getTempName()));
 			$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
 			$model->setScenario('withPic');
@@ -295,9 +338,9 @@ class Functions extends CHtml{
 					$tempfile = tempnam(sys_get_temp_dir(), 'img');
 					file_put_contents($tempfile,$model->__get($picFieldName));
 					if ($cropInfosAvailable){
-						self::resizePicturePart($tempfile, $tempfile, 400, 400, 0.8, self::IMG_TYPE_PNG, $_POST['imagecrop_x'], $_POST['imagecrop_y'], $_POST['imagecrop_w'], $_POST['imagecrop_h']);
+						self::resizePicturePart($tempfile, $tempfile, 400, 400, 0.8, IMAGETYPE_PNG, $_POST['imagecrop_x'], $_POST['imagecrop_y'], $_POST['imagecrop_w'], $_POST['imagecrop_h']);
 					} else {
-						self::resizePicture($tempfile, $tempfile, 400, 400, 0.8, self::IMG_TYPE_PNG);
+						self::resizePicture($tempfile, $tempfile, 400, 400, 0.8, IMAGETYPE_PNG);
 					}
 					$model->__set($picFieldName, file_get_contents($tempfile));
 					$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
@@ -307,18 +350,46 @@ class Functions extends CHtml{
 		}
 	}
 	
-	public static function uploadPicture($model, $picFieldName){
+	private static function uploadPicture($model, $picFieldName){
 		$file = CUploadedFile::getInstance($model,'filename');
 		if ($file){
-			$model->__set($picFieldName, file_get_contents($file->getTempName()));
-			$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
-			$model->imagechanged = true;
-			$model->setScenario('withPic');
-			return true;
+			if (self::changePictureType($file->getTempName(),$file->getTempName(), IMAGETYPE_PNG)){
+				$model->__set($picFieldName, file_get_contents($file->getTempName()));
+				$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
+				$model->imagechanged = true;
+				$model->setScenario('withPic');
+				return true;
+			} else {
+				return -2;
+			}
 		} else {
-			return false;
+			return -1;
 		}
 	}
+	
+	public static function uploadImage($modelName, $model, $sessionBackupName, $pictureFieldName){
+		if(isset($_POST[$modelName])){
+			$model->attributes=$_POST[$modelName];
+			$sucessfull = Functions::uploadPicture($model, $pictureFieldName);
+			Yii::app()->session[$sessionBackupName] = $model;
+			
+			if ($sucessfull === true){
+				echo '{imageId:"backup"}';
+				exit;
+			} else if ($sucessfull == -1){
+				//TODO: Yii::app()->controller->trans->
+				echo '{error:"Uploaded File not accessible."}';
+				exit;
+			} else if ($sucessfull == -2){
+				echo '{error:"Unknown Filetype, you can only use GIF, JPG and PNG."}';
+				exit;
+			}
+		} else {
+			echo '{error:"invalide Request, no file information submitted"}';
+			exit;
+		}
+	}
+	
 	/**
 	 * Generates a special (HTML5 types) field input for a model attribute.
 	 * If the attribute has input error, the input field's CSS class will
@@ -335,6 +406,11 @@ class Functions extends CHtml{
 		self::resolveNameID($model,$attribute,$htmlOptions);
 		if ($type != 'hidden'){
 			self::clientChange('change',$htmlOptions);
+		}
+		if(isset($htmlOptions['class'])){
+			$htmlOptions['class'] = $htmlOptions['class'] . ' input_' . $type;
+		} else {
+			$htmlOptions['class'] = 'input_' . $type;
 		}
 		return self::activeInputField($type,$model,$attribute,$htmlOptions);
 	}

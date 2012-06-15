@@ -7,6 +7,8 @@
 
 <?php else: ?>
 <input type="hidden" id="LanguageChangeLink" value="<?php echo CController::createUrl('Profiles/LanguageChanged', array('action'=>$this->route)); ?>"/>
+<input type="hidden" id="uploadImageLink" value="<?php echo $this->createUrl('profiles/uploadImage',array('id'=>$model->PRF_UID)); ?>"/>
+<input type="hidden" id="imageLink" value="<?php echo $this->createUrl('profiles/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
 
 <div class="form">
 
@@ -18,6 +20,8 @@
 	'clientOptions'=>array(
 		'validateOnSubmit'=>true,
 	),
+	'action'=>Yii::app()->createUrl($this->route, array_merge($this->getActionParams(), array('ajaxform'=>true))),
+    'htmlOptions'=>array('enctype' => 'multipart/form-data', 'class'=>'ajaxupload'),
 )); ?>
 
 	<div class="mapDetails">
@@ -57,16 +61,16 @@
 
 		<div class="row">
 			<?php echo $form->labelEx($model,'PRF_EMAIL'); ?>
-			<?php echo $form->textField($model,'PRF_EMAIL',array('size'=>60,'maxlength'=>100)); ?>
+			<?php echo Functions::activeSpecialField($model, 'PRF_EMAIL', 'email',array('size'=>60,'maxlength'=>100)); ?>
 			<?php echo $form->error($model,'PRF_EMAIL'); ?>
 		</div>
-	<!--
+		
 		<div class="row">
 			<?php echo $form->labelEx($model,'PRF_GENDER'); ?>
-			<?php echo $form->textField($model,'PRF_GENDER'); ?>
+			<?php echo $form->dropDownList($model,'PRF_GENDER', array('F'=>$this->trans->PROFILES_GENDER_F, 'M'=>$this->trans->PROFILES_GENDER_M), array('empty'=>$this->trans->GENERAL_CHOOSE,)); ?>
 			<?php echo $form->error($model,'PRF_GENDER'); ?>
 		</div>
-	-->
+		
 		<div class="row">
 			<?php echo $form->labelEx($model,'PRF_FIRSTNAME'); ?>
 			<?php echo $form->textField($model,'PRF_FIRSTNAME',array('size'=>60,'maxlength'=>100)); ?>
@@ -78,13 +82,13 @@
 			<?php echo $form->textField($model,'PRF_LASTNAME',array('size'=>60,'maxlength'=>100)); ?>
 			<?php echo $form->error($model,'PRF_LASTNAME'); ?>
 		</div>
-	<!--
+		
 		<div class="row">
-			<?php echo $form->labelEx($model,'PRF_BIRTHDAY'); ?>
-			<?php echo $form->textField($model,'PRF_BIRTHDAY'); ?>
-			<?php echo $form->error($model,'PRF_BIRTHDAY'); ?>
+			<?php echo $form->labelEx($model,'birthday'); ?>
+			<?php echo Functions::activeSpecialField($model, 'birthday', 'date'); ?>
+			<?php echo $form->error($model,'birthday'); ?>
 		</div>
-	-->
+		
 		<?php
 			if (isset(Yii::app()->session['Profiles_Backup']) && isset(Yii::app()->session['Profiles_Backup']->PRF_IMG_ETAG)){
 				echo CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'profiles cropable'));
@@ -114,13 +118,13 @@
 
 		<div class="row">
 			<?php echo $form->labelEx($model,'PRF_LOC_GPS_LAT'); ?>
-			<?php echo $form->textField($model,'PRF_LOC_GPS_LAT', array('class'=>'cord_lat')); ?>
+			<?php echo Functions::activeSpecialField($model, 'PRF_LOC_GPS_LAT', 'number',array('class'=>'cord_lat')); ?>
 			<?php echo $form->error($model,'PRF_LOC_GPS_LAT'); ?>
 		</div>
 
 		<div class="row">
 			<?php echo $form->labelEx($model,'PRF_LOC_GPS_LNG'); ?>
-			<?php echo $form->textField($model,'PRF_LOC_GPS_LNG', array('class'=>'cord_lng')); ?>
+			<?php echo Functions::activeSpecialField($model, 'PRF_LOC_GPS_LNG', 'number',array('class'=>'cord_lng')); ?>
 			<?php echo $form->error($model,'PRF_LOC_GPS_LNG'); ?>
 		</div>
 		
@@ -131,7 +135,7 @@
 		
 		<div class="row">
 			<?php echo $form->labelEx($model,'PRF_VIEW_DISTANCE'); ?>
-			<?php echo $form->textField($model,'PRF_VIEW_DISTANCE'); ?>
+			<?php echo Functions::activeSpecialField($model, 'PRF_VIEW_DISTANCE', 'number'); ?>
 			<?php echo $form->error($model,'PRF_VIEW_DISTANCE'); ?>
 		</div>
 		

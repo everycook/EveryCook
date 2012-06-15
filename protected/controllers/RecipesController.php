@@ -78,22 +78,7 @@ class RecipesController extends Controller
 			$model=new Recipes;
 		}
 		
-		if(isset($_POST['Recipes'])){
-			$model->attributes=$_POST['Recipes'];
-			$sucessfull = Functions::uploadPicture($model,'REC_IMG');
-			Yii::app()->session['Recipe_Backup'] = $model;
-			
-			if ($sucessfull){
-				echo "{imageId:'backup'}";
-				exit;
-			} else {
-				echo "{error:'nofile'}";
-				exit;
-			}
-		} else {
-			echo "{error:'nodata'}";
-			exit;
-		}
+		Functions::uploadImage('Recipes', $model, 'Recipe_Backup', 'REC_IMG');
 	}
 	
 	private function prepareCreateOrUpdate($id, $view){

@@ -493,10 +493,11 @@ function updateMarkers(xml) {
 				var type = $("type", store).text();
 				var typeId = $("typeId", store).text();
 				var imageUrl = $("imageUrl", store).text();
-				
+				/*
 				if (typeId == 0){
 					typeId = '';
 				}
+				*/
 			}
 			
 			var cords = new google.maps.LatLng(lat,lng);

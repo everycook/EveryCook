@@ -22,7 +22,6 @@ glob.urlAddParamStart = function(url){
 	return url;
 };
 
-
 function ajaxResponceHandler(data){
 	if (data.indexOf('{')===0){
 		eval('var data = ' + data + ';');
@@ -73,12 +72,32 @@ jQuery(function($){
 		jQuery('a.fancyChoose').fancybox({'autoScale':true,'autoDimensions':true,'centerOnScroll':true});
 	}
 	
+	function initDatePicker(){
+		if ($('.input_date').length > 0){
+			if ($('.input_date').get(0).type == 'text'){
+				//browser don't know 'date' input type, do jQuery-UI fallback.
+				$('.input_date').datepicker({
+				   dateFormat: 'yy-mm-dd'
+				});
+			}
+		}
+	}
+	function initAutoFocus(){
+		var focusElement = jQuery('input[autofocus]');
+		if (focusElement.length > 0) {
+			focusElement.get(0).focus();
+		}
+	}
+	
 	$('#page').ajaxComplete(function(e, xhr, settings) {
 		initAjaxUpload();
 		initFancyCoose();
+		initDatePicker();
+		initAutoFocus();
 	});
 	initAjaxUpload();
 	initFancyCoose();
+	initDatePicker();
 	
 	
 	jQuery('body').undelegate('form:not(.ajaxupload):not(.fancyForm):not(.noAjax)','submit').delegate('form:not(.ajaxupload):not(.fancyForm):not(.noAjax)','submit',function(){
@@ -197,16 +216,16 @@ jQuery(function($){
 		return false;
 	});
 	jQuery('body').undelegate('#STO_SEARCH','change').delegate('#STO_SEARCH','change', function(){
-		//TODO: this (hidde field) is not trigered...
+		//TODO: this (hidden field) is not trigered...
 		var input = jQuery(this);
 		var value = input.attr('value');
 		var values = value.split('_');
 		if (values[1]>0){
 			jQuery('#ProToSto_SUP_ID').attr('value',values[1]);
 		}
-		if (values[2]>0){
+		//if (values[2]>0){
 			jQuery('#ProToSto_STY_ID').attr('value',values[2]);
-		}
+		//}
 		return false;
 	});
 	
@@ -277,23 +296,88 @@ jQuery(function($){
 	});
 	
 	
-	//JumpTo
-	var JumpToOverlayTimeout;
-	jQuery('body').undelegate('#JumpTo','mouseover').delegate('#JumpTo','mouseover',function(){
-		window.clearTimeout(JumpToOverlayTimeout);
-		jQuery('#JumpTos').show();
+	//NavMenu L1
+	navMenuTiemout = new Array();
+	jQuery('body').undelegate('.navMenu','mouseover').delegate('.navMenu','mouseover',function(){
+		var listId = jQuery(this).attr('id') + '_List';
+		window.clearTimeout(navMenuTiemout[listId]);
+		jQuery(".navMenuList").hide();
+		jQuery('#'+listId).show();
 	});
 	
-	jQuery('body').undelegate('#JumpTo','mouseout').delegate('#JumpTo','mouseout',function(){
-		JumpToOverlayTimeout = window.setTimeout('jQuery("#JumpTos").hide();', 1000);
+	jQuery('body').undelegate('.navMenu','mouseout').delegate('.navMenu','mouseout',function(){
+		var listId = jQuery(this).attr('id') + '_List';
+		window.clearTimeout(navMenuTiemout[listId]);
+		navMenuTiemout[listId] = window.setTimeout('jQuery("#' + listId + '").hide();', 1000);
 	});
 	
-	jQuery('body').undelegate('#JumpTos','mouseover').delegate('#JumpTos','mouseover',function(){
-		window.clearTimeout(JumpToOverlayTimeout);
+	jQuery('body').undelegate('.navMenuList','mouseover').delegate('.navMenuList','mouseover',function(){
+		var listId = jQuery(this).attr('id');
+		window.clearTimeout(navMenuTiemout[listId]);
 	});
 	
-	jQuery('body').undelegate('#JumpTos','mouseout').delegate('#JumpTos','mouseout',function(){
-		JumpToOverlayTimeout = window.setTimeout('jQuery("#JumpTos").hide();', 1000);
+	jQuery('body').undelegate('.navMenuList','mouseout').delegate('.navMenuList','mouseout',function(){
+		var listId = jQuery(this).attr('id');
+		window.clearTimeout(navMenuTiemout[listId]);
+		navMenuTiemout[listId] = window.setTimeout('jQuery("#' + listId + '").hide();', 1000);
+	});
+	
+	//NavMenu L2
+	jQuery('body').undelegate('.navMenuL2','mouseover').delegate('.navMenuL2','mouseover',function(){
+		var listId = jQuery(this).attr('id') + '_List';
+		window.clearTimeout(navMenuTiemout[listId]);
+		jQuery(".navMenuListL2").hide();
+		jQuery('#'+listId).show();
+		
+		var parent = jQuery(this).parent();
+		if (parent.hasClass('navMenuList')){
+			var parentListId = parent.attr('id');
+			window.clearTimeout(navMenuTiemout[parentListId]);
+		}
+	});
+	
+	jQuery('body').undelegate('.navMenuL2','mouseout').delegate('.navMenuL2','mouseout',function(){
+		var listId = jQuery(this).attr('id') + '_List';
+		window.clearTimeout(navMenuTiemout[listId]);
+		navMenuTiemout[listId] = window.setTimeout('jQuery("#' + listId + '").hide();', 1000);
+	});
+	
+	jQuery('body').undelegate('.navMenuListL2','mouseover').delegate('.navMenuListL2','mouseover',function(){
+		var listId = jQuery(this).attr('id');
+		window.clearTimeout(navMenuTiemout[listId]);
+		
+		var parent = jQuery(this).parent();
+		if (parent.hasClass('navMenuList')){
+			var parentListId = parent.attr('id');
+			window.clearTimeout(navMenuTiemout[parentListId]);
+		}
+	});
+	
+	jQuery('body').undelegate('.navMenuListL2','mouseout').delegate('.navMenuListL2','mouseout',function(){
+		var listId = jQuery(this).attr('id');
+		window.clearTimeout(navMenuTiemout[listId]);
+		navMenuTiemout[listId] = window.setTimeout('jQuery("#' + listId + '").hide();', 1000);
+		
+		var parent = jQuery(this).parent();
+		if (parent.hasClass('navMenuList')){
+			var parentListId = parent.attr('id');
+			window.clearTimeout(navMenuTiemout[parentListId]);
+			navMenuTiemout[parentListId] = window.setTimeout('jQuery("#' + parentListId + '").hide();', 1000);
+		}
+	});
+	
+	//NavMenu Entry
+	jQuery('body').undelegate('.navMenuListEntry','mouseover').delegate('.navMenuListEntry','mouseover',function(){
+		var parent = jQuery(this).parent();
+		if (parent.hasClass('navMenuList') || parent.hasClass('navMenuListL2')){
+			var parentListId = parent.attr('id');
+			window.clearTimeout(navMenuTiemout[parentListId]);
+		}
+		parent = parent.parent();
+		if (parent.hasClass('navMenuList') || parent.hasClass('navMenuListL2')){
+			var parentListId = parent.attr('id');
+			window.clearTimeout(navMenuTiemout[parentListId]);
+		}
 	});
 	
 	

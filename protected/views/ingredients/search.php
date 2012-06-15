@@ -34,7 +34,11 @@ if ($this->isFancyAjaxRequest){ ?>
 		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 	)); ?>
 	<div class="f-left search">
-		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
+		<?php if ($model2->query == ''){
+			echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query', 'autofocus'=>'autofocus'));
+		} else {
+			echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query'));
+		} ?>
 		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
 	</div>
 	

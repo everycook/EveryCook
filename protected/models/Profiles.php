@@ -8,7 +8,7 @@
  * @property string $PRF_FIRSTNAME
  * @property string $PRF_LASTNAME
  * @property string $PRF_NICK
- * @property integer $PRF_GENDER
+ * @property string $PRF_GENDER
  * @property integer $PRF_BIRTHDAY
  * @property string $PRF_EMAIL
  * @property string $PRF_LANG
@@ -45,6 +45,12 @@ class Profiles extends ActiveRecordECPriv
 	
 	public $filename;
 	public $imagechanged;
+	public $birthday;
+	
+	public function attributeNames(){
+		$names = parent::attributeNames();
+		return array_merge($names, array('new_pw','pw_repeat','birthday'));
+	}
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -62,7 +68,18 @@ class Profiles extends ActiveRecordECPriv
 	{
 		return 'profiles';
 	}
-
+	
+	public function afterFind(){
+		if (isset($this->PRF_BIRTHDAY) && $this->PRF_BIRTHDAY != ''){
+			echo 'PRF_BIRTHDAY set<br>';
+			$this->birthday = date('Y-m-d', $this->PRF_BIRTHDAY);
+		} else {
+			echo 'PRF_BIRTHDAY not set<br>';
+			$this->birthday = '';
+		}
+		parent::afterFind();
+	}
+	
 	/**
 	 * @return array validation rules for model attributes.
 	 */
@@ -72,13 +89,14 @@ class Profiles extends ActiveRecordECPriv
 		// will receive user inputs.
 		return array(
 			array('PRF_NICK, PRF_EMAIL, PRF_PW, PRF_LANG', 'required'),
-			array('PRF_GENDER, PRF_BIRTHDAY, PRF_VIEW_DISTANCE, PRF_ACTIVE, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('PRF_BIRTHDAY, PRF_VIEW_DISTANCE, PRF_ACTIVE, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG', 'numerical'),
 			array('PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_RND', 'length', 'max'=>100),
+			array('PRF_GENDER', 'length', 'max'=>1),
 			array('PRF_LANG', 'length', 'max'=>10),
 			array('PRF_IMG_ETAG', 'length', 'max'=>40),
 			array('PRF_PW', 'length', 'max'=>256),
-			array('PRF_IMG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS', 'safe'),
+			array('new_pw, pw_repeat, birthday, PRF_IMG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_GENDER, PRF_BIRTHDAY, PRF_EMAIL, PRF_LANG, PRF_IMG, PRF_IMG_ETAG, PRF_PW, PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_VIEW_DISTANCE, PRF_ACTIVE, PRF_RND, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
@@ -163,7 +181,7 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare('PRF_FIRSTNAME',$this->PRF_FIRSTNAME,true);
 		$criteria->compare('PRF_LASTNAME',$this->PRF_LASTNAME,true);
 		$criteria->compare('PRF_NICK',$this->PRF_NICK,true);
-		$criteria->compare('PRF_GENDER',$this->PRF_GENDER);
+		$criteria->compare('PRF_GENDER',$this->PRF_GENDER,true);
 		$criteria->compare('PRF_BIRTHDAY',$this->PRF_BIRTHDAY);
 		$criteria->compare('PRF_EMAIL',$this->PRF_EMAIL,true);
 		$criteria->compare('PRF_LANG',$this->PRF_LANG,true);
