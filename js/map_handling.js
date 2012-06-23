@@ -74,6 +74,8 @@ function addRelocateButton(){
 	controlUI.src = glob.prefix + 'pics/locate.png';
 	controlUI.alt = 'find current Possition';
 	controlUI.title = 'find current Possition';
+	controlUI.width = 24;
+	controlUI.height = 24;
 	controlDiv.appendChild(controlUI);
 
 	google.maps.event.addDomListener(controlUI, 'click', function() {

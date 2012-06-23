@@ -53,9 +53,9 @@ if ($this->isFancyAjaxRequest){
 	?>
 	
 	<div class="row" id="nutrientData">
-		<?php echo $form->label($model,'NUT_ID',array('label'=>$this->trans->INGREDIENTS_NUTRIENT)); ?>
+		<?php echo $form->label($model,'NUT_ID',array('label'=>$this->trans->INGREDIENTS_NUTRIENT, 'style'=>'vertical-align: middle;')); ?>
 		<?php echo $form->hiddenField($model,'NUT_ID', array('id'=>'NUT_ID', 'class'=>'fancyValue')); ?>
-		<?php echo CHtml::link($this->trans->GENERAL_CHOOSE, array('nutrientData/chooseNutrientData'), array('class'=>'fancyChoose NutrientDataSelect')) ?>
+		<?php echo CHtml::link($this->trans->GENERAL_CHOOSE, array('nutrientData/chooseNutrientData'), array('class'=>'fancyChoose NutrientDataSelect buttonSmall')) ?>
 	</div>
 	
 <?php /*
@@ -111,7 +111,7 @@ if ($this->isFancyAjaxRequest){
 
 <br />
 
-<?php $this->widget('zii.widgets.CListView', array(
+<?php $this->widget('AjaxPagingListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'ajaxUpdate'=>false,

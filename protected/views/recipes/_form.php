@@ -44,9 +44,9 @@
 	
 	<?php
 		if (isset(Yii::app()->session['Recipe_Backup']) && isset(Yii::app()->session['Recipe_Backup']->REC_IMG_ETAG)){
-			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'recipe cropable', 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));
+			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'recipe' .(($model->imagechanged)?' cropable':''), 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));
 		} else if ($model->REC_ID) {
-			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), '', array('class'=>'recipe cropable', 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));
+			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));
 		}
 	?><br />
 	<div class="row">
@@ -64,8 +64,8 @@
 	<div class="steps">
 	<?php
 		$fieldOptions = array(
-			array('REC_ID', null, null, null),
-			array('STE_STEP_NO', null, null, null),
+			array('REC_ID', null, null, array('hidden'=>true)),
+			array('STE_STEP_NO', null, null, array('hidden'=>true)),
 			array('STT_ID', $this->trans->RECIPES_STEP_TYPE, $stepTypes, null),
 			array('ACT_ID', $this->trans->RECIPES_ACTION, $actions, array('empty'=>$this->trans->GENERAL_CHOOSE)),
 			//array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('empty'=>$this->trans->GENERAL_CHOOSE)),

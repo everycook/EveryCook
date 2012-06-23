@@ -53,7 +53,7 @@ $this->menu=array(
 <?php $this->endWidget(); ?>
 <div id="map_canvas" style="height:300px; width:300px; display:none;"></div>
 	
-<?php $this->widget('zii.widgets.CListView', array(
+<?php $this->widget('AjaxPagingListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'ajaxUpdate'=>false,

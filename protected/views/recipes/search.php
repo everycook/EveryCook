@@ -19,12 +19,17 @@ if (isset(Yii::app()->session['Recipe']) && isset(Yii::app()->session['Recipe'][
 } else {
 	$newRecSearch=array();
 }
+if ($this->isFancyAjaxRequest){ ?>
+	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('recipes/chooseRecipe'); ?>"/>
+	<?php
+}
 ?>
 
 <div>
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl($this->route),
 	'method'=>'post',
+	'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 )); ?>
 	<div class="f-left search">
 		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
@@ -35,8 +40,7 @@ if (isset(Yii::app()->session['Recipe']) && isset(Yii::app()->session['Recipe'][
 		<?php echo CHtml::link($this->trans->GENERAL_ADVANCE_SEARCH, array('recipes/advanceSearch', $newRecSearch), array('class'=>'button')); ?><br>
 	</div>
 	
-	<div class="clearfix"></div>	
-<?php $this->endWidget(); ?>
+	<div class="clearfix"></div>
 
 <?php /*$form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl($this->route),
@@ -89,9 +93,11 @@ if (isset(Yii::app()->session['Recipe']) && isset(Yii::app()->session['Recipe'][
 
 <?php $this->endWidget(); */?>
 
-<?php $this->widget('zii.widgets.CListView', array(
+<?php $this->widget('AjaxPagingListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'id'=>'recipesResult',
 )); ?>
+
+<?php $this->endWidget(); ?>
 </div>

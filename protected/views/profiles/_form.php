@@ -51,16 +51,33 @@
 		</div>
 
 		<div class="row">
-			<?php echo $form->labelEx($model,'birthday'); ?>
-			<?php echo Functions::activeSpecialField($model, 'birthday', 'date'); ?>
-			<?php echo $form->error($model,'birthday'); ?>
+			<?php echo $form->labelEx($model,'PRF_BIRTHDAY'); ?>
+			<?php
+				$years = array();
+				for ($i=date('Y'); $i>=1900; $i--){
+					$years[$i] = $i;
+				}
+				$months_temp = explode(',',$this->trans->GENERAL_MONTH_NAMES);
+				$months = array();
+				foreach($months_temp as $index=>$month){
+					$months[substr('0'.($index+1),-2)] = $month;
+				}
+				$days = array();
+				for ($i=1; $i<=31; $i++){
+					$days[substr('0'.$i,-2)] = $i;
+				}
+				echo $form->dropDownList($model,'birthday_year', $years, array('empty'=>$this->trans->GENERAL_CHOOSE,'class'=>'year'));
+				echo $form->dropDownList($model,'birthday_month', $months, array('empty'=>$this->trans->GENERAL_CHOOSE,'class'=>'month'));
+				echo $form->dropDownList($model,'birthday_day', $days, array('empty'=>$this->trans->GENERAL_CHOOSE,'class'=>'day'));
+			?>
+			<?php echo $form->error($model,'PRF_BIRTHDAY'); ?>
 		</div>
 
 		<?php
 			if (isset(Yii::app()->session['Profiles_Backup']) && isset(Yii::app()->session['Profiles_Backup']->PRF_IMG_ETAG)){
-				echo CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'profiles cropable'));
+				echo CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'profiles' .(($model->imagechanged)?' cropable':'')));
 			} else if ($model->PRF_UID) {
-				echo CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>$model->PRF_UID, 'ext'=>'.png')), '', array('class'=>'profiles cropable'));
+				echo CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>$model->PRF_UID, 'ext'=>'.png')), '', array('class'=>'profiles'));
 			}
 		?>
 		
@@ -81,22 +98,22 @@
 			<?php echo $form->textField($model,'pw_repeat',array('size'=>60,'maxlength'=>256)); ?>
 			<?php echo $form->error($model,'pw_repeat'); ?>
 		</div>
-
+		
+		<div class="row">
+			<img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/locate.png" id="setMarkerCurrentGPS"/>
+			<span><?php echo $this->trans->PROFILES_SEARCH_CURRENT_POSITION; ?></span>
+		</div>
+		
 		<div class="row">
 			<?php echo $form->labelEx($model,'PRF_LOC_GPS_LAT'); ?>
-			<?php echo Functions::activeSpecialField($model, 'PRF_LOC_GPS_LAT', 'number',array('class'=>'cord_lat')); ?>
+			<?php echo $form->textField($model,'PRF_LOC_GPS_LAT',array('pattern'=>'-?\d{1,3}\.\d+','class'=>'cord_lat')); ?>
 			<?php echo $form->error($model,'PRF_LOC_GPS_LAT'); ?>
 		</div>
 
 		<div class="row">
 			<?php echo $form->labelEx($model,'PRF_LOC_GPS_LNG'); ?>
-			<?php echo Functions::activeSpecialField($model, 'PRF_LOC_GPS_LNG', 'number',array('class'=>'cord_lng')); ?>
+			<?php echo $form->textField($model,'PRF_LOC_GPS_LNG',array('pattern'=>'-?\d{1,3}\.\d+','class'=>'cord_lng')); ?>
 			<?php echo $form->error($model,'PRF_LOC_GPS_LNG'); ?>
-		</div>
-		
-		<div class="row">
-			<img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/locate.png" id="setMarkerCurrentGPS"/>
-			<span><?php echo $this->trans->PROFILES_SEARCH_CURRENT_POSITION; ?></span>
 		</div>
 		
 		<div class="row">

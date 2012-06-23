@@ -13,12 +13,17 @@ $this->menu=array(
 		array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('recipes/create',array())),
 	);
 //}
+if ($this->isFancyAjaxRequest){ ?>
+	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('recipes/advanceChooseRecipe'); ?>"/>
+	<?php
+}
 ?>
 
 <div>
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl($this->route),
 	'method'=>'post',
+	'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 )); ?>
 	<div class="f-left search">
 		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
@@ -51,11 +56,11 @@ $this->menu=array(
 		<?php echo CHtml::submitButton('Search'); ?>
 	</div>
 
-<?php $this->endWidget(); ?>
-
-<?php $this->widget('zii.widgets.CListView', array(
+<?php $this->widget('AjaxPagingListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'id'=>'recipesResult',
 )); ?>
+
+<?php $this->endWidget(); ?>
 </div>

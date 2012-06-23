@@ -3,14 +3,6 @@
 class ProductsController extends Controller
 {
 	/**
-	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
-	 * using two-column layout. See 'protected/views/layouts/column2.php'.
-	 */
-	public $layout='//layouts/column2';
-	
-	public $errorText = '';
-	
-	/**
 	 * @return array action filters
 	 */
 	public function filters()
@@ -185,7 +177,6 @@ class ProductsController extends Controller
 					try {
 						if($model->save()){
 							//Check Producer to add / to remove
-							//TODO
 							$producersExist = array();
 							if (isset($model->oldProducers) && $model->oldProducers != null && count($model->oldProducers)>0){
 								$toRemove = array_merge(array(),$model->oldProducers);

@@ -3,7 +3,7 @@
 <input type="hidden" id="imageLink" value="<?php echo $this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
 <div class="form">
 <?php $form=$this->beginWidget('CActiveForm', array(
-	'id'=>'ingredients-form',
+	'id'=>'ingredients_form',
 	'enableAjaxValidation'=>false,
 	'action'=>Yii::app()->createUrl($this->route, array_merge($this->getActionParams(), array('ajaxform'=>true))),
     'htmlOptions'=>array('enctype' => 'multipart/form-data', 'class'=>'ajaxupload'),
@@ -73,9 +73,9 @@
 	?>
 	
 	<div class="row" id="nutrientData">
-		<?php echo $form->labelEx($model,'NUT_ID',array('label'=>$this->trans->INGREDIENTS_NUTRIENT)); ?>
+		<?php echo $form->labelEx($model,'NUT_ID',array('label'=>$this->trans->INGREDIENTS_NUTRIENT, 'style'=>'vertical-align: middle;')); ?>
 		<?php echo $form->hiddenField($model,'NUT_ID', array('id'=>'NUT_ID', 'class'=>'fancyValue')); ?>
-		<?php echo CHtml::link($NutrientDescription, array('nutrientData/chooseNutrientData'), array('class'=>'fancyChoose NutrientDataSelect')) ?>
+		<?php echo CHtml::link($NutrientDescription, array('nutrientData/chooseNutrientData'), array('class'=>'fancyChoose NutrientDataSelect buttonSmall')) ?>
 	</div>
 
 	<div class="row">
@@ -86,9 +86,9 @@
 	
 	<?php
 		if (isset(Yii::app()->session['Ingredient_Backup']) && isset(Yii::app()->session['Ingredient_Backup']->ING_IMG_ETAG)){
-			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
+			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'ingredient' .(($model->imagechanged)?' cropable':''), 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
 		} else if ($model->ING_ID) {
-			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'.png')), '', array('class'=>'ingredient cropable', 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
+			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
 		}
 	?>
 	

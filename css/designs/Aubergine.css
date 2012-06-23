@@ -84,7 +84,7 @@ div.detailView div.options div.ingredients {
 }
 
 #fancybox-content{
-	background:#99B299;
+	background-color:#99B299;
 	padding:1em !important;
 }
 
@@ -100,4 +100,12 @@ div.form .hint {
 .navMenuList,
 .navMenuListL2 {
 	background-color:#FFFFFF;
+}
+
+
+div.mealOverview {
+	background-color:#99B299;
+}
+.meal_course {
+	background-color:#99B299;
 }

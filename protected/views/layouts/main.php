@@ -43,7 +43,7 @@
 					<div class="nav_button navMenu" id="settings">
 						<span><?php echo $this->trans->GENERAL_SETTINGS; ?></span>
 					</div>
-					<div id="settings_List" class="navMenuList" style="display: none;">
+					<div id="settings_List" class="navMenuList" style="right: 10em; display: none;">
 						<?php echo '<a href="' . Yii::app()->createUrl('profiles/update',array('id'=>Yii::app()->user->id)) . '" class="button navMenuListEntry first">'; ?>
 							<?php echo $this->trans->SETTINGS_PROFILE; ?>
 						</a><br>
@@ -130,7 +130,7 @@
 			</div>
 		</div>
 		<div id="footer">
-				Copyright &copy; <?php echo date('Y'); ?> by EveryCook. <a href="http://creativecommons.org/licenses/by-sa/3.0/"><img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/by-sa.png"></a> <?php echo Yii::powered(); ?>
+				Copyright &copy; <?php echo date('Y'); ?> by EveryCook. <a href="http://creativecommons.org/licenses/by-sa/3.0/"><img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/by-sa.png" width="57" height="20"></a> <?php echo Yii::powered(); ?>
 		</div><!-- footer -->
 	</body>
 </html>

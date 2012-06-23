@@ -1,4 +1,4 @@
-<div class="view nutrientData">
+<div class="resultArea">
 	<?php echo CHtml::link($this->trans->GENERAL_SELECT, $data['NUT_ID'], array('class'=>'f-right button NutrientDataSelect')); ?>
 	
 	<b><?php echo CHtml::encode($this->trans->NUTRIENT_DATA_DESCRIPTION); ?>:</b>

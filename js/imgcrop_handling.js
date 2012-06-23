@@ -13,7 +13,7 @@ jQuery(function($){
 		cropable.Jcrop({
 			aspectRatio: 1,
 			bgOpacity: .6,
-			//minSize: [400, 400],
+			minSize: [400, 400],
 			onSelect: updateCoords,
 			onChange: updateCoords,
 			onRelease: releaseCheck,

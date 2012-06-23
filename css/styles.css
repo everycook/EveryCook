@@ -400,9 +400,6 @@ ul.search_choose li {
 	overflow: auto;
 }
 
-.view.nutrientData {
-}
-
 .clearfix {
 	clear: both;
 }
@@ -492,7 +489,7 @@ div.nutrientDataGroup {
 	width: 26em;
 }
 div.nutrientDataGroup div.nutrient_row {
-	width: 25em;
+	width: 26em;
 	border-bottom: 1px solid black;
 }
 
@@ -507,7 +504,9 @@ div.nutrientDataGroup div.nutrient_row span.name {
 	width: 14em;
 }
 div.nutrientDataGroup div.nutrient_row span.value {
-	width: 3em;
+    padding-right: 0.5em;
+    text-align: right;
+    width: 3.5em;
 }
 div.nutrientDataGroup div.nutrient_row span.unit {
 	width: 8em;
@@ -566,9 +565,75 @@ div.form .hint {
 	line-height: 3.1em;
 }
 
+div.form select.year {
+	width: 5em
+}
+div.form select.month {
+	width: 8em
+}
+
+div.form select.day {
+	width: 4em
+}
+
+.scrollArea {
+	overflow:auto;
+}
+
+.people .addRowContainer {
+	width: auto;
+}
+
+
+div.mealOverview {
+	display: table-cell;
+	border-radius:1.5em;
+	padding:0.8em;
+	min-width:8em;
+}
+
+.meal_courses {
+	display: table-cell;
+	padding-left: 0.8em;
+	width: 90%;
+}
+.meal_course {
+	margin-bottom: 2em;
+	border-radius:1.5em;
+    padding: 0.8em;
+}
+
+.cou_recipes {
+}
+
+div.cou_recipe {
+	display: table-cell;
+	vertical-align: bottom;
+	padding-right: 2em;
+}
+
+div.cou_recipe img.cou_recipe {
+	border-radius: 0.8em 0.8em 0.8em 0.8em;
+	width:8em;
+	height:8em;
+}
+
+div.mealView input.input_range {
+	margin-right: 0.5em;
+}
+div.mealView span.value {
+	display: inline-block;
+	text-align: right;
+	width: 2em;
+}
 
 
 
+
+.jslider_plastic .jslider-bg i,
+.jslider_plastic .jslider-pointer {
+	background-image: url('../pics/jslider.plastic.png');
+} 
 
 
 

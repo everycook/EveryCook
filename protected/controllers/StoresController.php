@@ -3,14 +3,6 @@
 class StoresController extends Controller
 {
 	/**
-	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
-	 * using two-column layout. See 'protected/views/layouts/column2.php'.
-	 */
-	public $layout='//layouts/column2';
-	
-	public $errorText='';
-
-	/**
 	 * @return array action filters
 	 */
 	public function filters()
@@ -420,6 +412,7 @@ class StoresController extends Controller
 				$this->validSearchPerformed = true;
 			}
 			$rows = $command->queryAll();
+			//TODO: return SUP_NAME
 			
 			//print_r($rows);
 		} else if ($criteriaString != ''){

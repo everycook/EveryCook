@@ -1,12 +1,18 @@
 <div class="resultArea">
 	<?php echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$data['REC_IMG_AUTH'], 'title'=>$data['REC_IMG_AUTH'])), array('view', 'id'=>$data['REC_ID'])); ?>
 	
-	<div class="options">
-		<?php echo CHtml::link('+', array('user/addrecipes', 'id'=>$data['REC_ID']), array('class'=>'button backpic addRecipe', 'title'=>$this->trans->RECIPES_ADD)); ?><br>
-		<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data['REC_ID']), array('class'=>'delicious noAjax backpic', 'title'=>$this->trans->GENERAL_DELICIOUS)); ?>
-		<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['REC_ID']), array('class'=>'disgusting noAjax backpic','title'=>$this->trans->GENERAL_DISGUSTING)); ?><br>
-		<?php echo CHtml::link(CHtml::encode($this->trans->RECIPES_VIEW_RECIPE), array('view', 'id'=>$data['REC_ID']), array('class'=>'button last')); ?>
-	</div>
+	<?php 
+	if ($this->isFancyAjaxRequest){
+		echo CHtml::link($this->trans->GENERAL_SELECT, $data['REC_ID'], array('class'=>'f-right button RecipeSelect'));
+	} else {
+		echo '<div class="options">';
+			echo CHtml::link('+', array('user/addrecipes', 'id'=>$data['REC_ID']), array('class'=>'button backpic addRecipe', 'title'=>$this->trans->RECIPES_ADD)) . '<br>';
+			echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data['REC_ID']), array('class'=>'delicious noAjax backpic', 'title'=>$this->trans->GENERAL_DELICIOUS));
+			echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['REC_ID']), array('class'=>'disgusting noAjax backpic','title'=>$this->trans->GENERAL_DISGUSTING)) . '<br>';
+			echo CHtml::link(CHtml::encode($this->trans->RECIPES_VIEW_RECIPE), array('view', 'id'=>$data['REC_ID']), array('class'=>'button last'));
+		echo '</div>';
+	}
+	?>
 	
 	<div class="data">
 		<div class="name">

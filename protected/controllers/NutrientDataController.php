@@ -3,12 +3,6 @@
 class NutrientDataController extends Controller
 {
 	/**
-	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
-	 * using two-column layout. See 'protected/views/layouts/column2.php'.
-	 */
-	public $layout='//layouts/column2';
-
-	/**
 	 * @return array action filters
 	 */
 	public function filters()
@@ -165,12 +159,12 @@ class NutrientDataController extends Controller
 	private function prepareSearch($view, $ajaxLayout){
 		$model=new NutrientData('search');
 		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['NutrientData']))
-			$model->attributes=$_GET['NutrientData'];
+		if(isset($_POST['NutrientData']))
+			$model->attributes=$_POST['NutrientData'];
 		
 		$model2 = new SimpleSearchForm();
-		if(isset($_GET['SimpleSearchForm']))
-			$model2->attributes=$_GET['SimpleSearchForm'];
+		if(isset($_POST['SimpleSearchForm']))
+			$model2->attributes=$_POST['SimpleSearchForm'];
 		
 		if(isset($_GET['query'])){
 			$query = $_GET['query'];
@@ -182,10 +176,30 @@ class NutrientDataController extends Controller
 			$model2->query = $query;
 		}
 		
+		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['NutrientData']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session['NutrientData']['time'])){
+			$Session_NutrientData = Yii::app()->session['NutrientData'];
+			if (isset($Session_NutrientData)){
+				if (isset($Session_NutrientData['query'])){
+					$query = $Session_NutrientData['query'];
+					//echo "query from session\n";
+				}
+				if (isset($Session_NutrientData['model'])){
+					$model = $Session_NutrientData['model'];
+					$modelAvailable = true;
+					//echo "model from session\n";
+				}
+			}
+		}
+		
 		$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, '');
 		
 		$criteria=$model->getCriteria();
 		if (isset($criteriaString) && $criteriaString != ''){
+			$Session_NutrientData = array();
+			$Session_NutrientData['query'] = $query;
+			$Session_NutrientData['time'] = time();
+			Yii::app()->session['NutrientData'] = $Session_NutrientData;
+			
 			$criteria->addCondition($criteriaString);
 		}
 		

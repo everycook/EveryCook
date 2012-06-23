@@ -4,6 +4,9 @@ class Functions extends CHtml{
 	const DROP_DOWN_LIST = 0;
 	const CHECK_BOX_LIST = 1;
 	
+	const IMG_HEIGHT = 400;
+	const IMG_WIDTH = 400;
+	
 	/*
 	public static function preparedStatementToStatement($command, $params){
 		$sql = $command->getText();
@@ -74,55 +77,116 @@ class Functions extends CHtml{
 		return get_class($model).'['.$index.']'.'['.$attribute.']';
 	}
 	
+	public static function resolveMultiArrayName($model,$attributeArray){
+		$name = get_class($model);
+		
+		foreach($attributeArray as $attribute){
+			$name .= '['.$attribute.']';
+		}
+		return $name;
+	}
+	
 	public static function createInputTable($valueArray, $fieldOptions, $options, $form, $texts) {
 		if (isset($options['new'])){
 			$new = $options['new'];
 			$new->unsetAttributes(); // clear any default values
 			unset($options['new']);
 		}
+		$showTitles = true;
+		if (isset($options['noTitle'])){
+			$showTitles = !$options['noTitle'];
+			unset($options['noTitle']);
+		}
+			
 		
 		$html = '<table class="addRowContainer">';
-		$html .= '<thead><tr>';
-		
-		$visibleFields = 0;
-		foreach($fieldOptions as $field){
-			if($field[1]){
-				$html .='<th>'.$field[1].'</th>';
-				$visibleFields++;
+		if ($showTitles){
+			$html .= '<thead><tr>';
+			
+			$visibleFields = 0;
+			foreach($fieldOptions as $field){
+				if (!isset($field[3]['hidden']) || !$field[3]['hidden']){
+					$html .='<th>'.$field[1].'</th>';
+					$visibleFields++;
+				}
+			}
+			$html .='<th>'.$texts['options'].'</th>';
+			$html .= '</tr></thead>';
+		} else {
+			$visibleFields = 0;
+			foreach($fieldOptions as $field){
+				if (!isset($field[3]['hidden']) || !$field[3]['hidden']){
+					$visibleFields++;
+				}
 			}
 		}
-		$html .='<th>'.$texts['options'].'</th>';
-		$html .= '</tr></thead>';
+		
 		$html .= '<tbody>';
 		$i = 1;
 		foreach($valueArray as $value){
 			$html .= '<tr class="'.(($i % 2 == 1)?'odd':'even').'">';
 			foreach($fieldOptions as $field){
-				if($field[1]){
-					$options = $field[3];
-					if ($options['fancy']){
-						$text = $options['empty'];
-						$val = $value->__get($field[0]);
-						if ($val != '' && is_array($field[2])){
-							foreach($field[2] as $row_key=>$row_val){
-								if($row_key == $val){
-									$text = $row_val;
-									break;
-								}
+				$options = $field[3];
+				if (isset($options['hidden']) && $options['hidden'] != ''){
+					$html .= self::hiddenField(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0]));
+				} else if (isset($options['fancy']) && $options['fancy']){
+					$text = $options['empty'];
+					$val = $value->__get($field[0]);
+					if ($val != '' && is_array($field[2])){
+						foreach($field[2] as $row_key=>$row_val){
+							if($row_key == $val){
+								$text = $row_val;
+								break;
 							}
 						}
-						$htmlOptions = array_merge(array('id'=>self::getIdByName(self::resolveArrayName($value,$field[0].'_DESC','%index%'))),$options['htmlOptions']);
-						$html .= '<td>' . self::hiddenField(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0])) . self::link($text, $options['url'], $htmlOptions) . '</td>';
-					} else if (is_array($field[2])){
-						$html .= '<td>'.self::dropDownList(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0]), $field[2], $field[3]).'</td>';
-					} else {
-						$html .= '<td>'.self::textField(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0])).'</td>';
 					}
+					$htmlOptions = array_merge(array('id'=>self::getIdByName(self::resolveArrayName($value,$field[0].'_DESC','%index%'))),$options['htmlOptions']);
+					$html .= '<td>' . self::hiddenField(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0])) . self::link($text, $options['url'], $htmlOptions) . '</td>';
+				} else if (isset($options['multiple_selects']) && $options['multiple_selects']){
+					$html .= '<td>';
+					$first = true;
+					foreach($field[2] as $id=>$values){
+						$field_name = self::resolveArrayName($new,$field[0],$i);
+						$field_id = self::getIdByName($field_name).'_'.$id;
+						$htmlparams = array_merge($field[3],array('id'=>$field_id));
+						if (!$first){
+							$htmlparams = array_merge($htmlparams,array('style'=>'display: none;'));
+						}
+						$html .= self::dropDownList($field_name, $new->__get($field[0]), $values, $htmlparams);
+						$first = false;
+					}
+					$html .= '</td>';
+				} else if (is_array($field[2])){
+					$html .= '<td>'.self::dropDownList(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0]), $field[2], $field[3]).'</td>';
+				} else if (isset($options['field_type']) && $options['field_type'] != ''){
+					$html .= '<td>'.self::specialField(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0]), $options['field_type'], $field[3]).'</td>';
+				} else if (isset($options['htmlTag']) && $options['htmlTag'] != ''){
+					$html .= '<td><' . $options['htmlTag'];
+					if (isset($field[0]) && $field[0] != ''){
+						$html .= ' id="' . self::getIdByName(self::resolveArrayName($new,$field[0],'%index%')) . '"';
+					}
+					$html .= '>';
+					if (isset($options['htmlContent']) && $options['htmlContent'] != ''){
+						$html .= $options['htmlContent'];
+					}
+					$html .= '</' . $options['htmlTag'] .  '></td>';
 				} else {
-					$html .= self::hiddenField(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0]));
+					$html .= '<td>'.self::textField(self::resolveArrayName($value,$field[0],$i), $value->__get($field[0]), $field[3]).'</td>';
 				}
 			}
-			$html .= '<td><div class="buttonSmall remove">' . $texts['remove'] . '</div><div class="buttonSmall up">' . $texts['move up'] . '</div><div class="buttonSmall down">' . $texts['move down'] . '</div></td>';
+			if (isset($texts['options'])){
+				$html .= '<td>';
+				if (isset($texts['remove'])){
+					$html .= '<div class="buttonSmall remove">' . $texts['remove'] . '</div>';
+				}
+				if (isset($texts['move up'])){
+					$html .= '<div class="buttonSmall up">' . $texts['move up'] . '</div>';
+				}
+				if (isset($texts['move down'])){
+					$html .= '<div class="buttonSmall down">' . $texts['move down'] . '</div>';
+				}
+				$html .= '</td>';
+			}
 			$html .= '</tr>';
 			$i++;
 		}
@@ -130,26 +194,62 @@ class Functions extends CHtml{
 		if ($new){
 			$newhtml = '<tr class="%class%">';
 			foreach($fieldOptions as $field){
-				if($field[1]){
-					$options = $field[3];
-					if (isset($options['fancy']) && $options['fancy']){
-						$text = $options['empty'];
-						$htmlOptions = array_merge(array('id'=>self::getIdByName(self::resolveArrayName($new,$field[0].'_DESC','%index%'))),$options['htmlOptions']);
-						$newhtml .= '<td>' . self::hiddenField(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0]), array('class'=>'fancyValue')) . self::link($text, $options['url'], $htmlOptions) . '</td>';
-					} else if (is_array($field[2])){
-						$newhtml .= '<td>'.self::dropDownList(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0]), $field[2], $field[3]).'</td>';
-					} else {
-						$newhtml .= '<td>'.self::textField(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0])).'</td>';
-					}
-				} else {
+				$options = $field[3];
+				if (isset($options['hidden']) && $options['hidden'] != ''){
 					$newhtml .= self::hiddenField(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0]));
+				} else if (isset($options['fancy']) && $options['fancy']){
+					$text = $options['empty'];
+					$htmlOptions = array_merge(array('id'=>self::getIdByName(self::resolveArrayName($new,$field[0].'_DESC','%index%'))),$options['htmlOptions']);
+					$newhtml .= '<td>' . self::hiddenField(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0]), array('class'=>'fancyValue')) . self::link($text, $options['url'], $htmlOptions) . '</td>';
+				} else if (isset($options['multiple_selects']) && $options['multiple_selects']){
+					$newhtml .= '<td>';
+					$first = true;
+					foreach($field[2] as $id=>$values){
+						$field_name = self::resolveArrayName($new,$field[0],'%index%');
+						$field_id = self::getIdByName($field_name).'_'.$id;
+						$htmlparams = array_merge($field[3],array('id'=>$field_id));
+						if (!$first){
+							$htmlparams = array_merge($htmlparams,array('style'=>'display: none;'));
+						}
+						//$newhtml .= self::dropDownList(self::resolveArrayName($new,$field[0],'%index%').'_'.$id, $new->__get($field[0]), $values, $htmlparams);
+						$newhtml .= self::dropDownList($field_name, $new->__get($field[0]), $values, $htmlparams);
+						$first = false;
+					}
+					$newhtml .= '</td>';
+				} else if (is_array($field[2])){
+					$newhtml .= '<td>'.self::dropDownList(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0]), $field[2], $field[3]).'</td>';
+				} else if (isset($options['field_type']) && $options['field_type'] != ''){
+					$newhtml .= '<td>'.self::specialField(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0]), $options['field_type'], $field[3]).'</td>';
+				} else if (isset($options['htmlTag']) && $options['htmlTag'] != ''){
+					$newhtml .= '<td><' . $options['htmlTag'];
+					if (isset($field[0]) && $field[0] != ''){
+						$newhtml .= ' id="' . self::getIdByName(self::resolveArrayName($new,$field[0],'%index%')) . '"';
+					}
+					$newhtml .= '>';
+					if (isset($options['htmlContent']) && $options['htmlContent'] != ''){
+						$newhtml .= $options['htmlContent'];
+					}
+					$newhtml .= '</' . $options['htmlTag'] .  '></td>';
+				} else {
+					$newhtml .= '<td>'.self::textField(self::resolveArrayName($new,$field[0],'%index%'), $new->__get($field[0]), $field[3]).'</td>';
 				}
 			}
-			$newhtml .= '<td><div class="buttonSmall remove">' . $texts['remove'] . '</div><div class="buttonSmall up">' . $texts['move up'] . '</div><div class="buttonSmall down">' . $texts['move down'] . '</div></td>';
-			$newhtml .= '</tr>';
+			if (isset($texts['options'])){
+				$newhtml .= '<td>';
+				if (isset($texts['remove'])){
+					$newhtml .= '<div class="buttonSmall remove">' . $texts['remove'] . '</div>';
+				}
+				if (isset($texts['move up'])){
+					$newhtml .= '<div class="buttonSmall up">' . $texts['move up'] . '</div>';
+				}
+				if (isset($texts['move down'])){
+					$newhtml .= '<div class="buttonSmall down">' . $texts['move down'] . '</div>';
+				}
+				$newhtml .= '</td>';
+			}
 			
 			$html .= '<tr id="newLine">';
-			$html .= '<td colspan="'.$visibleFields.'"><div class="buttonSmall add">' . $texts['add'] . '</div>'. self::hiddenField('addContent', $newhtml).self::hiddenField('lastIndex', $i).'</td>';
+			$html .= '<td colspan="'.$visibleFields.'"><div class="buttonSmall add">' . $texts['add'] . '</div>'. self::hiddenField('addContent', $newhtml, array('disabled'=>'disabled')).self::hiddenField('lastIndex', $i, array('disabled'=>'disabled')).'</td>';
 			$html .= '</tr>';
 		}
 		
@@ -235,9 +335,8 @@ class Functions extends CHtml{
 			return false;
 		
 		$info = getimagesize($file);
-
 		if ($destType == -1 || $destType == $info[2]){
-			return true;
+			return $info;
 		}
 		
 		if($info[2] == IMAGETYPE_GIF){
@@ -270,6 +369,7 @@ class Functions extends CHtml{
 		} else  {
 			imagejpeg($imagetc, $file_new, $qualitaet);
 		}
+		return $info;
 	}
 	
 	public static function getImage($modified, $etag, $picture, $id){
@@ -323,7 +423,7 @@ class Functions extends CHtml{
 	public static function updatePicture($model, $picFieldName, $oldPicture){
 		$file = CUploadedFile::getInstance($model,'filename');
 		if ($file){
-			self::resizePicture($file->getTempName(), $file->getTempName(), 400, 400, 0.8, IMAGETYPE_PNG);
+			self::resizePicture($file->getTempName(), $file->getTempName(), self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG);
 			$model->__set($picFieldName, file_get_contents($file->getTempName()));
 			$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
 			$model->setScenario('withPic');
@@ -338,9 +438,9 @@ class Functions extends CHtml{
 					$tempfile = tempnam(sys_get_temp_dir(), 'img');
 					file_put_contents($tempfile,$model->__get($picFieldName));
 					if ($cropInfosAvailable){
-						self::resizePicturePart($tempfile, $tempfile, 400, 400, 0.8, IMAGETYPE_PNG, $_POST['imagecrop_x'], $_POST['imagecrop_y'], $_POST['imagecrop_w'], $_POST['imagecrop_h']);
+						self::resizePicturePart($tempfile, $tempfile, self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG, $_POST['imagecrop_x'], $_POST['imagecrop_y'], $_POST['imagecrop_w'], $_POST['imagecrop_h']);
 					} else {
-						self::resizePicture($tempfile, $tempfile, 400, 400, 0.8, IMAGETYPE_PNG);
+						self::resizePicture($tempfile, $tempfile, self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG);
 					}
 					$model->__set($picFieldName, file_get_contents($tempfile));
 					$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
@@ -353,12 +453,17 @@ class Functions extends CHtml{
 	private static function uploadPicture($model, $picFieldName){
 		$file = CUploadedFile::getInstance($model,'filename');
 		if ($file){
-			if (self::changePictureType($file->getTempName(),$file->getTempName(), IMAGETYPE_PNG)){
-				$model->__set($picFieldName, file_get_contents($file->getTempName()));
-				$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
-				$model->imagechanged = true;
-				$model->setScenario('withPic');
-				return true;
+			$imginfo = self::changePictureType($file->getTempName(),$file->getTempName(), IMAGETYPE_PNG);
+			if ($imginfo !== false){
+				if ($imginfo[0]>=self::IMG_WIDTH && $imginfo[1]>=self::IMG_HEIGHT){
+					$model->__set($picFieldName, file_get_contents($file->getTempName()));
+					$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
+					$model->imagechanged = true;
+					$model->setScenario('withPic');
+					return true;
+				} else {
+					return -3;
+				}
 			} else {
 				return -2;
 			}
@@ -382,6 +487,9 @@ class Functions extends CHtml{
 				exit;
 			} else if ($sucessfull == -2){
 				echo '{error:"Unknown Filetype, you can only use GIF, JPG and PNG."}';
+				exit;
+			} else if ($sucessfull == -3){
+				echo '{error:"Image must have a minimal size of ' . self::IMG_WIDTH . 'x' . self::IMG_HEIGHT . '."}';
 				exit;
 			}
 		} else {
@@ -407,12 +515,28 @@ class Functions extends CHtml{
 		if ($type != 'hidden'){
 			self::clientChange('change',$htmlOptions);
 		}
-		if(isset($htmlOptions['class'])){
-			$htmlOptions['class'] = $htmlOptions['class'] . ' input_' . $type;
-		} else {
-			$htmlOptions['class'] = 'input_' . $type;
-		}
+		//if ($type != 'hidden' && $type != 'text' && $type != 'password'){
+			if(isset($htmlOptions['class'])){
+				$htmlOptions['class'] = $htmlOptions['class'] . ' input_' . $type;
+			} else {
+				$htmlOptions['class'] = 'input_' . $type;
+			}
+		//}
 		return self::activeInputField($type,$model,$attribute,$htmlOptions);
+	}
+	
+	public static function specialField($name,$value,$type,$htmlOptions=array()){
+		if ($type != 'hidden'){
+			self::clientChange('change',$htmlOptions);
+		}
+		//if ($type != 'hidden' && $type != 'text' && $type != 'password'){
+			if(isset($htmlOptions['class'])){
+				$htmlOptions['class'] = $htmlOptions['class'] . ' input_' . $type;
+			} else {
+				$htmlOptions['class'] = 'input_' . $type;
+			}
+		//}
+		return self::inputField($type,$name,$value,$htmlOptions);
 	}
 	
 	
@@ -452,5 +576,44 @@ class Functions extends CHtml{
 		}
 		return $model->save();
 	}
+	
+	
+	public static function arrayToRelatedObjects($model, $data){
+		$relations = $model->getMetaData()->relations;
+		foreach($relations as $relation){
+			if(isset($data[$relation->name])){
+				$relationName = $relation->name;
+				if (($relation instanceof CBelongsToRelation) || ($relation instanceof CHasOneRelation)){
+					if (isset($model->$relationName)){
+						$newModel = $model->$relationName;
+					} else {
+						$newModel = new $relation->className;
+					}
+					$newModel->attributes = $data[$relation->name];
+					$model->$relationName = self::arrayToRelatedObjects($newModel, $data[$relation->name]);
+				} else if( ($relation instanceof CManyManyRelation) || ($relation instanceof CHasManyRelation)){
+					if (isset($model->$relationName)){
+						$newArray = $model->$relationName;
+					} else {
+						$newArray = array();
+					}
+					$dataArray = $data[$relation->name];
+					for($i=0; $i<count($dataArray); ++$i){
+						$entry = $dataArray[$i];
+						if (isset($newArray[$i])){
+							$newModel = $newArray[$i];
+						} else {
+							$newModel = new $relation->className;
+						}
+						$newModel->attributes = $entry;
+						$newArray[$i] = self::arrayToRelatedObjects($newModel, $entry);
+					}
+					$model->$relationName = $newArray;
+				}
+			}
+		}
+		return $model;
+	}
+
 }
 ?>

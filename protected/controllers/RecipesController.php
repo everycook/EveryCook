@@ -2,15 +2,6 @@
 class RecipesController extends Controller
 {
 	/**
-	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
-	 * using two-column layout. See 'protected/views/layouts/column2.php'.
-	 */
-	public $layout='//layouts/column2';
-	
-	public $errorText = '';
-	public $errorFields = array();
-
-	/**
 	 * @return array action filters
 	 */
 	public function filters()
@@ -29,7 +20,7 @@ class RecipesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','displaySavedImage'),
+				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','chooseRecipe','advanceChooseRecipe'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -45,6 +36,48 @@ class RecipesController extends Controller
 			),
 		);
 	}
+	
+	public function calculateNutrientData($id){
+		$command = Yii::app()->db->createCommand()
+			->select('steps.STE_STEP_NO, steps.STE_GRAMS, ingredients.ING_NAME_'.Yii::app()->session['lang'] .', ingredients.ING_ID, nutrient_data.*')
+			->from('steps')
+			->leftJoin('ingredients', 'ingredients.ING_ID = steps.ING_ID')
+			->leftJoin('nutrient_data', 'nutrient_data.NUT_ID = ingredients.NUT_ID')
+			//->where('steps.REC_ID = :id AND nutrient_data.NUT_ID IS NOT NULL', array(':id'=>$id));
+			->where('steps.REC_ID = :id AND ingredients.ING_ID IS NOT NULL', array(':id'=>$id));
+			
+		$rows = $command->queryAll();
+		$modelNutrientData = new NutrientData();
+		$fullWeight = 0;
+		if ($this->debug) echo '<strong>NutrientData calculating:</strong><br>';
+		foreach($rows as $row){
+			$stepIngredientWeight = $row['STE_GRAMS'];
+			if ($row['NUT_ID'] == null){
+				if ($this->debug) echo 'No NutrientData,......... step: ' . $row['STE_STEP_NO'] . ': ' . $row['STE_GRAMS'] . 'g, ' . $row['ING_ID'] . ': ' . $row['ING_NAME_'.Yii::app()->session['lang']] . ' nutid:' . $row['NUT_ID'] . '<br>';
+			} else if ($stepIngredientWeight <= 0){
+				if ($this->debug) echo 'Weight is 0,......... step: ' . $row['STE_STEP_NO'] . ': ' . $row['STE_GRAMS'] . 'g, ' . $row['ING_ID'] . ': ' . $row['ING_NAME_'.Yii::app()->session['lang']] . ' nutid:' . $row['NUT_ID'] . '<br>';
+			} else {
+				$fullWeight += $stepIngredientWeight;
+				
+				if ($this->debug) echo 'OK use it,......... step: ' . $row['STE_STEP_NO'] . ': ' . $row['STE_GRAMS'] . 'g, ' . $row['ING_ID'] . ': ' . $row['ING_NAME_'.Yii::app()->session['lang']] . ' nutid:' . $row['NUT_ID'] . '<br>';
+				foreach($modelNutrientData->attributeNames() as $field){
+					$modelNutrientData->$field += ($row[$field] / 100) * $stepIngredientWeight;
+				}
+			}
+		}
+		if ($this->debug) echo 'total weight: ' . $fullWeight . '<br>';
+		if ($fullWeight>0){
+			/*
+			//calc values for 100g
+			foreach($modelNutrientData->attributeNames() as $field){
+				$modelNutrientData->$field = round(($modelNutrientData->$field / $fullWeight) * 100, 2);
+			}
+			*/
+			return $modelNutrientData;
+		} else {
+			return null;
+		}
+	}
 
 	/**
 	 * Displays a particular model.
@@ -54,6 +87,7 @@ class RecipesController extends Controller
 	{
 		$this->checkRenderAjax('view',array(
 			'model'=>$this->loadModel($id),
+			'nutrientData'=>$this->calculateNutrientData($id),
 		));
 	}
 
@@ -181,7 +215,7 @@ class RecipesController extends Controller
 						$transaction->rollBack();
 					}
 				} catch(Exception $e) {
-					echo 'Eception occured -&gt; rollback. Exeption was: ' . $e;
+					echo 'Exception occured -&gt; rollback. Exeption was: ' . $e;
 					$transaction->rollBack();
 				}
 			} else {
@@ -313,7 +347,7 @@ class RecipesController extends Controller
 		));
 	}
 	
-	private function prepareSearch($view)
+	private function prepareSearch($view, $ajaxLayout)
 	{
 		$model=new Recipes('search');
 		$model->unsetAttributes();  // clear any default values
@@ -414,17 +448,27 @@ class RecipesController extends Controller
 			'model'=>$model,
 			'model2'=>$model2,
 			'dataProvider'=>$dataProvider,
-		));
+		), $ajaxLayout);
 	}
 	
 	public function actionAdvanceSearch()
 	{
-		$this->prepareSearch('advanceSearch');
+		$this->prepareSearch('advanceSearch', null);
 	}
 	
 	public function actionSearch()
 	{
-		$this->prepareSearch('search');
+		$this->prepareSearch('search', null);
+	}
+	
+	public function actionChooseRecipe(){
+		$this->isFancyAjaxRequest = true;
+		$this->prepareSearch('search', 'none');
+	}
+	
+	public function actionAdvanceChooseRecipe(){
+		$this->isFancyAjaxRequest = true;
+		$this->prepareSearch('advanceSearch', 'none');
 	}
 	
 	/**

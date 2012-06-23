@@ -38,6 +38,21 @@ function ajaxResponceHandler(data){
 }
 
 jQuery(function($){
+	var navMenuTiemout = new Array();
+	
+	var skipAjaxCompleteFunction = false;
+	
+	//AjaxPaging
+	var ajaxpaging = {};
+	ajaxpaging.next = {};
+	ajaxpaging.next.dom = {};
+	ajaxpaging.next.top = 0;
+	ajaxpaging.next.parent = {};
+	ajaxpaging.prev = {};
+	ajaxpaging.prev.dom = {};
+	ajaxpaging.prev.bottom = 0;
+	ajaxpaging.prev.parent = {};
+	
 	function initAjaxUpload(){
 		$('form.ajaxupload:not([target='+$.fn.iframePostForm.defaults.iframeID+'])').iframePostForm({
 			'json' : false, /*JSON.parse sems do not work correct...*/
@@ -67,7 +82,7 @@ jQuery(function($){
 	function initFancyCoose(){
 		jQuery('a.fancyChoose').bind('click.multiFancyCoose', function(){
 			jQuery('.activeFancyField').removeClass('activeFancyField');
-			jQuery(this).siblings('input:first').addClass('activeFancyField');
+			jQuery(this).siblings('input.fancyValue:first').addClass('activeFancyField');
 		});
 		jQuery('a.fancyChoose').fancybox({'autoScale':true,'autoDimensions':true,'centerOnScroll':true});
 	}
@@ -89,15 +104,24 @@ jQuery(function($){
 		}
 	}
 	
-	$('#page').ajaxComplete(function(e, xhr, settings) {
+	function ajaxCompleteFunction(isInitial){
+		if (skipAjaxCompleteFunction) {
+			skipAjaxCompleteFunction = false;
+			return;
+		}
 		initAjaxUpload();
 		initFancyCoose();
 		initDatePicker();
-		initAutoFocus();
+		if (!isInitial){
+			initAutoFocus();
+		}
+		initAjaxPaging();
+	}
+	
+	$('#page').ajaxComplete(function(e, xhr, settings) {
+		ajaxCompleteFunction();
 	});
-	initAjaxUpload();
-	initFancyCoose();
-	initDatePicker();
+	ajaxCompleteFunction(true);
 	
 	
 	jQuery('body').undelegate('form:not(.ajaxupload):not(.fancyForm):not(.noAjax)','submit').delegate('form:not(.ajaxupload):not(.fancyForm):not(.noAjax)','submit',function(){
@@ -158,7 +182,7 @@ jQuery(function($){
 		if (url.indexOf('#')===0){
 			url = glob.hashToUrl(url.substr(1));
 		}
-		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(html){jQuery.fancybox({'content':html});}});
+		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(html){skipAjaxCompleteFunction = true; jQuery.fancybox({'content':html,'onComplete': ajaxCompleteFunction});}});
 		return false;
 	});
 	
@@ -238,7 +262,7 @@ jQuery(function($){
 			submitValue = "&" + encodeURI(pressedButton.name + "=" + pressedButton.value);
 		} catch(ex){
 		}
-		jQuery.ajax({'type':'post', 'url':jQuery('#FancyChooseSubmitLink').attr('value'),'data':form.serialize() + submitValue,'cache':false,'success':function(html){jQuery.fancybox({'content':html});}});
+		jQuery.ajax({'type':'post', 'url':jQuery('#FancyChooseSubmitLink').attr('value'),'data':form.serialize() + submitValue,'cache':false,'success':function(html){skipAjaxCompleteFunction = true; jQuery.fancybox({'content':html,'onComplete': ajaxCompleteFunction});}});
 		return false;
 	});
 	
@@ -269,7 +293,7 @@ jQuery(function($){
 		elem = jQuery(this);
 		form = elem.parents('form:first');
 		url = jQuery('#OpenFancyLink').attr('value');
-		submitForm(form, url, '', function(data){jQuery.fancybox({'content':data})});
+		submitForm(form, url, '', function(data){skipAjaxCompleteFunction = true; jQuery.fancybox({'content':data,'onComplete': ajaxCompleteFunction})});
 	});
 	
 	jQuery('body').undelegate('.emptyOnEnter','click').delegate('.emptyOnEnter','click', function(){
@@ -297,7 +321,6 @@ jQuery(function($){
 	
 	
 	//NavMenu L1
-	navMenuTiemout = new Array();
 	jQuery('body').undelegate('.navMenu','mouseover').delegate('.navMenu','mouseover',function(){
 		var listId = jQuery(this).attr('id') + '_List';
 		window.clearTimeout(navMenuTiemout[listId]);
@@ -407,6 +430,87 @@ jQuery(function($){
 		
 		return false;
 	});
-
+	
+	
+	//AjaxPaging
+	function initAjaxPaging(){
+		var pagingParent = null;
+		ajaxpaging.next.dom = jQuery('#ajaxPaging');
+		if (typeof(ajaxpaging.next.dom)==='object' && ajaxpaging.next.dom != null && ajaxpaging.next.dom.length > 0) {
+			ajaxpaging.next.dom.click(doAjaxPaging);
+			usePaging = ajaxpaging.next.dom.is('.ajaxPagingAutoLoad');
+			pagingParent = ajaxpaging.next.dom.parents('.scrollArea:first');
+			if (pagingParent.length == 0){
+				pagingParent = jQuery(window);
+				ajaxpaging.next.top = ajaxpaging.next.dom.offset().top;
+			} else {
+				ajaxpaging.next.top = ajaxpaging.next.dom.position().top + pagingParent.scrollTop();
+			}
+			ajaxpaging.next.parent = pagingParent;
+		} else {
+			ajaxpaging.next.dom = undefined;
+		}
+		
+		ajaxpaging.prev.dom = jQuery('#ajaxPagingPrev');
+		if (typeof(ajaxpaging.prev.dom)==='object' && ajaxpaging.prev.dom != null && ajaxpaging.prev.dom.length > 0) {
+			ajaxpaging.prev.dom.click(doAjaxPaging);
+			usePaging = usePaging ||ajaxpaging.prev.dom.is('.ajaxPagingAutoLoad');
+			pagingParent = ajaxpaging.prev.dom.parents('.scrollArea:first');
+			if (pagingParent.length == 0){
+				pagingParent = jQuery(window);
+				ajaxpaging.prev.bottom = ajaxpaging.prev.dom.offset().top + ajaxpaging.prev.height();
+			} else {
+				ajaxpaging.prev.bottom = ajaxpaging.prev.dom.position().top + ajaxpaging.prev.height() + pagingParent.scrollTop();
+			}
+			ajaxpaging.prev.parent = pagingParent;
+		}else {
+			ajaxpaging.prev.dom = undefined;
+		}
+	
+		if (pagingParent != null) {
+			pagingParent.bind('scroll.ajaxpaging resize.ajaxpaging', checkStartAjaxPaging);
+			//check if it should already load
+			checkStartAjaxPaging();
+		}
+	}
+	
+	function doAjaxPaging(){
+		var elem = jQuery(this);
+		elem.unbind('click');
+		elem.css('cursor','auto');
+		
+		elem.find('.pagingText').hide();
+		elem.find('.pagingLoading').show();
+		
+		var url = elem.find('.pagingUrl').val();
+		
+		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
+			if(data.indexOf('<html>') !== -1 ) {
+				elem.replaceWith('');
+			} else {
+				elem.replaceWith(data);
+			}
+		}});
+	}
+	
+	function checkStartAjaxPaging(){
+		if (typeof(ajaxpaging.next.dom)==='object') {
+			if (ajaxpaging.next.parent.scrollTop() + ajaxpaging.next.parent.height() > ajaxpaging.next.top ) {
+				ajaxpaging.next.parent.unbind('.ajaxpaging');
+				ajaxpaging.next.dom.click();
+				return;
+			}
+		}
+		if (typeof(ajaxpaging.prev.dom)==='object') {
+			if (ajaxpaging.prev.parent.scrollTop() + ajaxpaging.prev.parent.height() < ajaxpaging.prev.bottom ) {
+				ajaxpaging.next.parent.unbind('.ajaxpaging');
+				ajaxpaging.prev.dom.click();
+				return;
+			}
+		//} else {
+			//jQuery(window).unbind('.ajaxpaging');
+		}
+	}
+	
 });
 

@@ -3,12 +3,6 @@
 class ProfilesController extends Controller
 {
 	/**
-	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
-	 * using two-column layout. See 'protected/views/layouts/column2.php'.
-	 */
-	public $layout='//layouts/column2';
-
-	/**
 	 * @return array action filters
 	 */
 	public function filters()
@@ -116,8 +110,15 @@ class ProfilesController extends Controller
 				Functions::updatePicture($model,'PRF_IMG', $oldPicture);
 			}
 			
-			if (isset($model->birthday) && $model->birthday != ''){
-				$model->PRF_BIRTHDAY = date_create_from_format('Y-m-d', $model->birthday)->getTimestamp();
+			if (isset($model->birthday_year) && $model->birthday_year != ''){
+				if ($model->birthday_month == ''){
+					$model->birthday_month = '01';
+					
+				}
+				if ($model->birthday_day == ''){
+					$model->birthday_day = '01';
+				}
+				$model->PRF_BIRTHDAY = date_create_from_format('Y-m-d', $model->birthday_year . '-' . $model->birthday_month . '-' . $model->birthday_day)->getTimestamp();
 			} else {
 				$model->PRF_BIRTHDAY = null;
 			}
@@ -250,8 +251,15 @@ class ProfilesController extends Controller
 		if(isset($_POST['Profiles'])) 
 		{
 			$model->attributes=$_POST['Profiles'];
-			if (isset($model->birthday) && $model->birthday != ''){
-				$model->PRF_BIRTHDAY = date_create_from_format('Y-m-d', $model->birthday)->getTimestamp();
+			if (isset($model->birthday_year) && $model->birthday_year != ''){
+				if ($model->birthday_month == ''){
+					$model->birthday_month = '01';
+					
+				}
+				if ($model->birthday_day == ''){
+					$model->birthday_day = '01';
+				}
+				$model->PRF_BIRTHDAY = date_create_from_format('Y-m-d', $model->birthday_year . '-' . $model->birthday_month . '-' . $model->birthday_day)->getTimestamp();
 			} else {
 				$model->PRF_BIRTHDAY = null;
 			}
@@ -288,7 +296,7 @@ class ProfilesController extends Controller
 					unset(Yii::app()->session['Profiles_Backup']);
 					// no errors occured during save, send verification mail & and post message
 					$subject = 'EveryCook Verification Mail';
-					$body = "Tank you for your registration. Please follow the following link for registration verification.\n".CController::createUrl("Profiles/VerifyRegistration/", array("hash"=>$model->PRF_RND));
+					$body = "Tank you for your registration. Please follow the following link for registration verification.\n".CController::createAbsoluteUrl("Profiles/VerifyRegistration/", array("hash"=>$model->PRF_RND));
 					$headers="From: {".Yii::app()->params['adminEmail']."}\r\nReply-To: {".Yii::app()->params['adminEmail']."}";
 					
 					mail($model->PRF_EMAIL,$subject,$body,$headers);//Yii::app()->params['adminEmail']

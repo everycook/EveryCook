@@ -658,7 +658,7 @@ class CJoinElement
 			$params=array();
 			foreach($fks as $i=>$fk)
 			{
-				if($this->relation instanceof CBelongsToRelation)
+				if($this->relation instanceof CBelongsToRelation || $this->relation instanceof CHasOneRelation)
 				{
 					if(isset($parent->_table->foreignKeys[$fk]))  // FK defined
 						$pk=$parent->_table->foreignKeys[$fk][1];

@@ -97,9 +97,9 @@
 	
 	<?php
 		if (isset(Yii::app()->session['Product_Backup']) && isset(Yii::app()->session['Product_Backup']->PRO_IMG_ETAG)){
-			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'product cropable', 'alt'=>$model->PRO_IMG_CR, 'title'=>$model->PRO_IMG_CR));
+			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'product' .(($model->imagechanged)?' cropable':''), 'alt'=>$model->PRO_IMG_CR, 'title'=>$model->PRO_IMG_CR));
 		} else if ($model->ING_ID) {
-			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$model->PRO_ID, 'ext'=>'.png')), '', array('class'=>'product cropable', 'alt'=>$model->PRO_IMG_CR, 'title'=>$model->PRO_IMG_CR));
+			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$model->PRO_ID, 'ext'=>'.png')), '', array('class'=>'product', 'alt'=>$model->PRO_IMG_CR, 'title'=>$model->PRO_IMG_CR));
 		}
 	?>
 	

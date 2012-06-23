@@ -53,7 +53,7 @@ class Recipes extends ActiveRecordEC
 			array('REC_IMG_AUTH', 'length', 'max'=>30),
 			array('REC_IMG_ETAG', 'length', 'max'=>40),
 			array('REC_NAME_EN_GB, REC_NAME_DE_CH', 'length', 'max'=>100),
-			array('REC_IMG, CHANGED_ON, steps', 'safe'),
+			array('RET_ID, REC_IMG, CHANGED_ON, steps', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('REC_ID, PRF_UID, REC_IMG, REC_IMG_AUTH, REC_IMG_ETAG, RET_ID, REC_NAME_EN_GB, REC_NAME_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),

@@ -10,6 +10,10 @@ class Controller extends CController
 	 * meaning using a single column layout. See 'protected/views/layouts/column1.php'.
 	 */
 	public $layout='//layouts/column1';
+	
+	public $errorText = '';
+	public $errorFields = array();
+	
 	/**
 	 * @var array context menu items. This property will be assigned to {@link CMenu::items}.
 	 */
@@ -26,6 +30,8 @@ class Controller extends CController
 	public $useAjaxLinks = true;
 	
 	public $saveLastAction = true;
+	
+	public $debug = false;
 	
 	public function useDefaultMainButtons(){
 		if (Yii::app()->session['Ingredient'] && Yii::app()->session['Ingredient']['time']){
@@ -135,6 +141,9 @@ class Controller extends CController
 			if (count($_POST) == 0 && $this->route != '' && (substr($this->route, 0, 5) != 'site/')){
 				Yii::app()->session['LAST_ACTION'] = $this->route;
 				$params = $this->getActionParams();
+				if (isset($params['ajaxPaging'])){ // remove "ajaxPaging"-param
+					unset($params['ajaxPaging']);
+				}
 				Yii::app()->session['LAST_ACTION_PARAMS'] = $params;
 			}
 			if (isset(Yii::app()->session['AFTER_SAVE_FOR']) && Yii::app()->session['AFTER_SAVE_FOR'] != $this->route){
@@ -203,18 +212,28 @@ class Controller extends CController
 		if (!isset(Yii::app()->session['ajaxSession'])){
 			Yii::app()->session['ajaxSession'] = true;
 		}
-		if ($ajaxLayout==null){
-			$ajaxLayout = $this->layout.'_ajax';
-		}
-		if($this->beforeRender($view)) {
-			$output=$this->renderPartial($view,$data,true);
-			if(($layoutFile=$this->getLayoutFile($ajaxLayout))!==false)
-					$output=$this->renderFile($layoutFile,array('content'=>$output),true);
+		if (isset($_GET['ajaxPaging']) && $_GET['ajaxPaging']){
+			if($this->beforeRender($view)) {
+				$output=$this->renderPartial('paging',$data,true);
+				$this->afterRender($view,$output);
+				
+				$output=$this->processOutput($output);
+				echo $output;
+			}
+		} else {
+			if ($ajaxLayout==null){
+				$ajaxLayout = $this->layout.'_ajax';
+			}
+			if($this->beforeRender($view)) {
+				$output=$this->renderPartial($view,$data,true);
+				if(($layoutFile=$this->getLayoutFile($ajaxLayout))!==false)
+						$output=$this->renderFile($layoutFile,array('content'=>$output),true);
 
-			$this->afterRender($view,$output);
-			
-			$output=$this->processOutput($output);
-			echo $output;
+				$this->afterRender($view,$output);
+				
+				$output=$this->processOutput($output);
+				echo $output;
+			}
 		}
 	}
 
@@ -236,15 +255,19 @@ class Controller extends CController
 				Yii::app()->clientscript->registerCoreScript('yii');
 				$fancyBox = new EFancyBox();
 				$fancyBox->publishAssets();
-				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery.iframe-post-form.js', CClientScript::POS_HEAD);
-				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/ajax_handling.js', CClientScript::POS_HEAD);
-				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/hash_handling.js', CClientScript::POS_HEAD);
-				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/rowcontainer_handling.js', CClientScript::POS_HEAD);
-				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/design_handling.js', CClientScript::POS_HEAD);
-				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/iefix_handling.js', CClientScript::POS_HEAD);
-				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery.Jcrop.min.js', CClientScript::POS_HEAD);
-				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/imgcrop_handling.js', CClientScript::POS_HEAD);
-				Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/js/map_handling.js', CClientScript::POS_HEAD);
+				$request_baseurl = Yii::app()->request->baseUrl ;
+				Yii::app()->clientscript->registerScriptFile($request_baseurl. '/js/jquery.iframe-post-form.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/ajax_handling.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/hash_handling.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/rowcontainer_handling.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/design_handling.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/iefix_handling.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/jquery.Jcrop.min.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/imgcrop_handling.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/map_handling.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/mealplaner.js', CClientScript::POS_HEAD);
+				//Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/jquery.slider.min.js', CClientScript::POS_HEAD);
+				//Yii::app()->clientscript->registerCssFile($request_baseurl . '/css/jquery.slider.min.css');
 				Yii::app()->clientscript->registerCoreScript('yiiactiveform');
 				
 				$ziiBaseScriptUrl=Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('zii.widgets.assets'));

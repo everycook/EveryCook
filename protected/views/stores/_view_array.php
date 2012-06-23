@@ -1,7 +1,7 @@
 <div class="resultArea">
 	<?php
 	if ($this->isFancyAjaxRequest){
-		echo CHtml::link($this->trans->GENERAL_SELECT, $data['STO_ID'] . '_' .$data['SUP_ID'] . '_' .$data['STY_ID'], array('class'=>'f-right button StoresSelect'));
+		echo CHtml::link($this->trans->GENERAL_SELECT, $data['STO_ID'] . '_' .$data['SUP_ID'] . '_' .$data['STY_ID'] . '_' .$data['STO_GPS_LAT'] . '_' .$data['STO_GPS_LNG'], array('class'=>'f-right button StoresSelect'));
 	} else {
 		?>
 		<div class="options">
@@ -13,7 +13,10 @@
 	
 	<div class="data">
 		<div class="name">
-			<?php echo CHtml::link(CHtml::encode($data['STO_NAME']), array('view', 'id'=>$data['STO_ID'])); ?>
+			<?php
+			//TODO echo CHtml::link(CHtml::encode($data['SUP_NAME'] . ' ' . $data['STO_NAME']), array('view', 'id'=>$data['STO_ID']));
+			echo CHtml::link($data['STO_NAME']), array('view', 'id'=>$data['STO_ID']));
+			?>
 		</div>
 		
 		<div class="adress">

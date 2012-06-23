@@ -48,7 +48,7 @@ if ($this->isFancyAjaxRequest){ ?>
 	
 	<div class="clearfix"></div>
 
-<?php $this->widget('zii.widgets.CListView', array(
+<?php $this->widget('AjaxPagingListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'ajaxUpdate'=>false,

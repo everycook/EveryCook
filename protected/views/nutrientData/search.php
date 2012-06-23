@@ -21,11 +21,15 @@ if ($this->isFancyAjaxRequest){
 	/*Yii::app()->clientScript->registerScript('ajaxSearch', "*/
 	/*jQuery.ajax({'type':'post', 'url':'<?php echo $link; ?>','data':jQuery('#nutrientData_form').serialize(),'cache':false,'success':function(html){jQuery.fancybox({'content':html});}});*/
 	?>
+	
+	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $link; ?>"/>
 	<script type="text/javascript">
+	<?php /*
 	jQuery('#nutrientData_form').bind('submit', function(){
 		jQuery.ajax({'type':'get', 'url':'<?php echo $link; ?>?' + jQuery('#nutrientData_form').serialize(),'cache':false,'success':function(html){jQuery.fancybox({'content':html});}});
 		return false;
 	});
+	*/ ?>
 	jQuery('.button.NutrientDataSelect').bind('click', function(){
 		jQuery('#NUT_ID').attr('value', jQuery(this).attr('href'));
 		jQuery('.fancyChoose.NutrientDataSelect').html(jQuery(this).parent().children('a:not(.button):first').html());
@@ -38,11 +42,12 @@ if ($this->isFancyAjaxRequest){
 }
 ?>
 
-<div id="nutrientDataSearch">
+<div id="nutrientDataSearch" class="scrollArea">
 <?php $form=$this->beginWidget('CActiveForm', array(
 		'action'=>Yii::app()->createUrl($this->route),
 		'id'=>'nutrientData_form',
-		'method'=>'get',
+		'method'=>'post',
+		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 	)); ?>
 	<div class="f-left search">
 		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
@@ -56,10 +61,9 @@ if ($this->isFancyAjaxRequest){
 	<?php } ?>
 	
 	<div class="clearfix"></div>
-	
 <?php $this->endWidget(); ?>
 
-<?php $this->widget('zii.widgets.CListView', array(
+<?php $this->widget('AjaxPagingListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
