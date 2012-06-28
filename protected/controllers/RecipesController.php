@@ -79,6 +79,16 @@ class RecipesController extends Controller
 		}
 	}
 
+	private function updateKCal($id){
+		$nutrientData = $this->calculateNutrientData($id);
+		if ($nutrientData != null){
+			$kcal = $nutrientData->NUT_ENERG;
+		} else {
+			$kcal = 0;
+		}
+		Yii::app()->db->createCommand()->update(Recipes::model()->tableName(), array('REC_KCAL'=>$kcal), 'REC_ID = :id', array(':id'=>$id));
+	}
+	
 	/**
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
@@ -96,9 +106,9 @@ class RecipesController extends Controller
 			$id = $_GET['id'];
 		}
 		
-		$Session_Recipe_Backup = Yii::app()->session['Recipe_Backup'];
-		if (isset($Session_Recipe_Backup)){
-			$oldmodel = $Session_Recipe_Backup;
+		$Session_Recipes_Backup = Yii::app()->session['Recipes_Backup'];
+		if (isset($Session_Recipes_Backup)){
+			$oldmodel = $Session_Recipes_Backup;
 		}
 		if (isset($id)){
 			if (!isset($oldmodel) || $oldmodel->REC_ID != $id){
@@ -112,16 +122,28 @@ class RecipesController extends Controller
 			$model=new Recipes;
 		}
 		
-		Functions::uploadImage('Recipes', $model, 'Recipe_Backup', 'REC_IMG');
+		Functions::uploadImage('Recipes', $model, 'Recipes_Backup', 'REC_IMG');
+	}
+	
+	public function actionCancel(){
+		$Session_Recipes_Backup = Yii::app()->session['Recipes_Backup'];
+		if (isset($Session_Recipes_Backup) && isset($Session_Recipes_Backup->REC_ID)){
+			unset(Yii::app()->session['Recipes_Backup']);
+			$this->forwardAfterSave(array('view', 'id'=>$Session_Recipes_Backup->REC_ID));
+		} else {
+			unset(Yii::app()->session['Recipes_Backup']);
+			$this->forwardAfterSave(array('search'));
+			//$this->showLastAction();
+		}
 	}
 	
 	private function prepareCreateOrUpdate($id, $view){
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 		
-		$Session_Recipe_Backup = Yii::app()->session['Recipe_Backup'];
-		if (isset($Session_Recipe_Backup)){
-			$oldmodel = $Session_Recipe_Backup;
+		$Session_Recipes_Backup = Yii::app()->session['Recipes_Backup'];
+		if (isset($Session_Recipes_Backup)){
+			$oldmodel = $Session_Recipes_Backup;
 		}
 		if (isset($id)){
 			if (!isset($oldmodel) || $oldmodel->REC_ID != $id){
@@ -141,11 +163,13 @@ class RecipesController extends Controller
 		
 		if(isset($_POST['Recipes'])){
 			$model->attributes=$_POST['Recipes'];
-			$steps = array();
+			//$steps = array();
 			$stepsOK = true;
 			if (isset($_POST['Steps'])){
+				$model = Functions::arrayToRelatedObjects($model, array('steps'=> $_POST['Steps']));
+				/*
 				foreach($_POST['Steps'] as $index => $values){
-					if ($index <= $oldAmount){
+					if ($index <= $oldAmount && $index-1>=0){
 						$newStep = $oldmodel->steps[$index-1];
 					} else {
 						$newStep = new Steps;
@@ -162,11 +186,12 @@ class RecipesController extends Controller
 					//$steps[$index] = $newStep;
 					array_push($steps, $newStep);
 				}
+				*/
 			} else {
 				$this->errorText .= '<li>No Steps defined!</li>';
 				$stepsOK = false;
 			}
-			
+			/*
 			$stepsToDelete = array();
 			if (isset($oldmodel)){
 				$newAmount = count($steps);
@@ -178,44 +203,54 @@ class RecipesController extends Controller
 			}
 			
 			$model->steps = $steps;
+			*/
 			if (isset($oldPicture)){
 				Functions::updatePicture($model,'REC_IMG', $oldPicture);
 			}
 			
-			Yii::app()->session['Recipe_Backup'] = $model;
+			Yii::app()->session['Recipes_Backup'] = $model;
 			if ($stepsOK){
 				$transaction=$model->dbConnection->beginTransaction();
 				try {
 					if($model->save()){
 						$saveOK = true;
-						foreach($steps as $step){
+						Yii::app()->db->createCommand()->delete(Steps::model()->tableName(), 'REC_ID = :id', array(':id'=>$model->REC_ID));
+						$stepNo = 0;
+						//foreach($steps as $step){
+						foreach($model->steps as $step){
 							$step->REC_ID = $model->REC_ID;
+							$step->STE_STEP_NO = $stepNo;
+							$step->setIsNewRecord(true);
 							if(!$step->save()){
 								$saveOK = false;
-								//echo 'error on save Step: errors:' . $step->getErrors(); /* print_r($step);*/
+								if ($this->debug) echo 'error on save Step: errors:'; print_r($step->getErrors());
 							}
+							++$stepNo;
 						}
+						/*
 						foreach($stepsToDelete as $step){
 							if(!$step->delete()){
 								$saveOK = false;
-								//echo 'error on delete Step: ' . $step->getErrors(); /* print_r($step);*/
+								if ($this->debug) echo 'error on delete Step: '; print_r($step->getErrors());
 							}
 						}
+						*/
 						if ($saveOK){
+							$this->updateKCal($model->REC_ID);
 							$transaction->commit();
-							unset(Yii::app()->session['Recipe_Backup']);
+							unset(Yii::app()->session['Recipes_Backup']);
 							$this->forwardAfterSave(array('view', 'id'=>$model->REC_ID));
 							return;
 						} else {
-							//echo 'any errors occured, rollback';
+							if ($this->debug) echo 'any errors occured, rollback';
 							$transaction->rollBack();
 						}
 					} else {
-						//echo 'error on save: ' . $model->getErrors();
+						if ($this->debug) echo 'error on save: ';  print_r($model->getErrors());
 						$transaction->rollBack();
 					}
 				} catch(Exception $e) {
-					echo 'Exception occured -&gt; rollback. Exeption was: ' . $e;
+					if ($this->debug) echo 'Exception occured -&gt; rollback. Exeption was: ' . $e;
 					$transaction->rollBack();
 				}
 			} else {
@@ -479,7 +514,7 @@ class RecipesController extends Controller
 	public function loadModel($id, $withPicture = false)
 	{
 		if ($id == 'backup'){
-			$model=Yii::app()->session['Recipe_Backup'];
+			$model=Yii::app()->session['Recipes_Backup'];
 		} else {
 			$model=Recipes::model()->findByPk($id);
 		}

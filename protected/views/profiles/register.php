@@ -139,13 +139,15 @@
 		
 		<div class="row">
 			<?php echo $form->labelEx($model,'PRF_LOC_GPS_LAT'); ?>
-			<?php echo $form->textField($model,'PRF_LOC_GPS_LAT',array('pattern'=>'-?\d{1,3}\.\d+','class'=>'cord_lat')); ?>
+			<?php echo $form->hiddenField($model,'PRF_LOC_GPS_LAT',array('pattern'=>'-?\d{1,3}\.\d+','class'=>'cord_lat')); ?>
+			<?php echo '<span class="value">' . $model->PRF_LOC_GPS_LAT . '</span>'; ?>
 			<?php echo $form->error($model,'PRF_LOC_GPS_LAT'); ?>
 		</div>
 
 		<div class="row">
 			<?php echo $form->labelEx($model,'PRF_LOC_GPS_LNG'); ?>
-			<?php echo $form->textField($model,'PRF_LOC_GPS_LNG',array('pattern'=>'-?\d{1,3}\.\d+','class'=>'cord_lng')); ?>
+			<?php echo $form->hiddenField($model,'PRF_LOC_GPS_LNG',array('pattern'=>'-?\d{1,3}\.\d+','class'=>'cord_lng')); ?>
+			<?php echo '<span class="value">' . $model->PRF_LOC_GPS_LNG . '</span>'; ?>
 			<?php echo $form->error($model,'PRF_LOC_GPS_LNG'); ?>
 		</div>
 		

@@ -15,12 +15,22 @@ glob.removeUrlParam = function(url, key){
 
 glob.urlAddParamStart = function(url){
 	if (url.indexOf('?')>0){
-		url = url + '&';
+		if (url.substr(url.length-1,1) != '&'){
+			url = url + '&';
+		}
 	} else {
 		url = url + '?';
 	}
 	return url;
 };
+
+glob.changeLinkUrlParam = function(elem, param, newValue){
+	var url = elem.attr('href');
+	url = glob.removeUrlParam(url,param);
+	url = glob.urlAddParamStart(url);
+	url = url + param + '=' + encodeURI(newValue);
+	elem.attr('href', url);
+}
 
 function ajaxResponceHandler(data){
 	if (data.indexOf('{')===0){
@@ -187,23 +197,20 @@ jQuery(function($){
 	});
 	
 	jQuery('body').undelegate('#Ingredients_ING_NAME_EN_GB','blur').delegate('#Ingredients_ING_NAME_EN_GB','blur', function(){
-		var value = jQuery('#Ingredients_ING_NAME_EN_GB').val();
+		var value = jQuery(this).val();
 		var link = jQuery('.NutrientDataSelect');
-		var url = link.attr('href');
-		url = glob.removeUrlParam(url,'query');
-		url = glob.urlAddParamStart(url);
-		url = url + 'query=' + encodeURI(value);
-		link.attr('href', url);
+		glob.changeLinkUrlParam(link, 'query', value);
+		
+		link = jQuery('#lookOnFlickr');
+		glob.changeLinkUrlParam(link, 'q', value);
 	});
 	
 	
-
-
 	//Product functions
 	jQuery('body').undelegate('#producer .add','click').delegate('#producer .add','click', function(){
 		var list = jQuery('#producerList');
 		var rows = list.find('li').length + 1;
-		var newelem = jQuery('<li><input type="hidden" id="PRD_ID'+rows+'" value="0" name="PRD_ID['+rows+']"><a class="fancyChoose ProducerSelect" href="/EveryCook/index.php/producers/chooseProducer">' + jQuery('#newProducerText').attr('value') + '</a><span class="buttonSmall remove">' + jQuery('#removeText').attr('value') + '<span></li>');
+		var newelem = jQuery('<li><input type="hidden" id="PRD_ID'+rows+'" value="0" class="fancyValue" name="PRD_ID['+rows+']"><a class="fancyChoose ProducerSelect" href="' + glob.prefix + 'producers/chooseProducer">' + jQuery('#newProducerText').attr('value') + '</a><span class="buttonSmall remove">' + jQuery('#removeText').attr('value') + '<span></li>');
 		list.append(newelem);
 		initFancyCoose();
 	});
@@ -230,6 +237,20 @@ jQuery(function($){
 		reinitialize(cord[0], cord[1], undefined, distInput.val(), loadDataProduct, title);
 	});
 	
+	jQuery('body').undelegate('#Products_PRO_NAME_EN_GB','blur').delegate('#Products_PRO_NAME_EN_GB','blur', function(){
+		var value = jQuery(this).val();
+		var link = jQuery('#lookOnFlickr');
+		glob.changeLinkUrlParam(link, 'q', value);
+	});
+	
+	//Recipe functions
+	
+	jQuery('body').undelegate('#Recipes_REC_NAME_EN_GB','blur').delegate('#Recipes_REC_NAME_EN_GB','blur', function(){
+		var value = jQuery(this).val();
+		var link = jQuery('#lookOnFlickr');
+		glob.changeLinkUrlParam(link, 'q', value);
+	});
+	
 	//Store assing functions
 	jQuery('body').undelegate('#STO_MAP','change').delegate('#STO_MAP','change', function(){
 		var input = jQuery(this);
@@ -252,6 +273,7 @@ jQuery(function($){
 		//}
 		return false;
 	});
+	
 	
 	//FancyForm functions
 	jQuery('body').undelegate('.fancyForm','submit').delegate('.fancyForm','submit', function(){
@@ -316,6 +338,20 @@ jQuery(function($){
 			destUrl = destUrl + 'lang=' + jQuery('#Profiles_PRF_LANG').val();
 
 			window.location = destUrl;
+		}
+	});
+	
+	jQuery('body').undelegate('.cord_lat','change').delegate('.cord_lat','change',function(){
+		var elem = jQuery(this);
+		if (elem.attr('type') == 'hidden'){
+			elem.siblings('.value').text(elem.val());
+		}
+	});
+	
+	jQuery('body').undelegate('.cord_lng','change').delegate('.cord_lng','change',function(){
+		var elem = jQuery(this);
+		if (elem.attr('type') == 'hidden'){
+			elem.siblings('.value').text(elem.val());
 		}
 	});
 	

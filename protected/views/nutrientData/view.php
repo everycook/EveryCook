@@ -158,7 +158,7 @@ $this->menu=array(
 				$nut_field = $fields[$group][$field];
 				echo '<div class="nutrient_row' . (($field == count($fields[$group])-1)?' last':'') . '">';
 				echo '<span class="name">' . CHtml::encode($this->trans->__get('FIELD_'.$nut_field)) . '</span>';
-				echo '<span class="value">'; printf('%1.2f',$nutrientData->$nut_field); echo '</span>';
+				echo '<span class="value">'; printf('%1.2f',$model->$nut_field); echo '</span>';
 				echo '<span class="unit">' . $units[$group][$field] . '</span>';
 				echo '</div>';
 			}

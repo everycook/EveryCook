@@ -121,7 +121,9 @@ if ($this->isFancyAjaxRequest){
 
 <?php $this->endWidget(); ?>
 
+<?php if (!$this->isFancyAjaxRequest){ ?>
 <script type="text/javascript">
 	loadScript(false, "CH", false, true, false, false);
 </script>
+<?php } ?>
 </div>

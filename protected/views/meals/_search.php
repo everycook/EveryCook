@@ -16,8 +16,8 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'MEA_TYPE'); ?>
-		<?php echo $form->textField($model,'MEA_TYPE',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->label($model,'MTY_ID'); ?>
+		<?php echo $form->textField($model,'MTY_ID',array('size'=>60,'maxlength'=>100)); ?>
 	</div>
 
 	<div class="row">

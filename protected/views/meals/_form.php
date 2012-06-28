@@ -16,9 +16,9 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'MEA_TYPE'); ?>
-		<?php echo $form->textField($model,'MEA_TYPE',array('size'=>60,'maxlength'=>100)); ?>
-		<?php echo $form->error($model,'MEA_TYPE'); ?>
+		<?php echo $form->labelEx($model,'MTY_ID'); ?>
+		<?php echo $form->textField($model,'MTY_ID',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->error($model,'MTY_ID'); ?>
 	</div>
 
 	<div class="row">

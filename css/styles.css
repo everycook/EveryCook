@@ -7,6 +7,7 @@ htm, body {
 
 input, select {
 	font-size:1em;
+	font-family: Arial,sans-serif;
 }
 
 #index_pic_bg {
@@ -175,7 +176,7 @@ div.index_div_login{
 .buttonSmall {
 	padding: 0.4em;
 }
-div.form input.button {
+div.form .button {
 	margin-right: 1em;
 }
 
@@ -217,6 +218,12 @@ a.cookwith {
 	display: inline-block;
 	width:3em;
 	height:3em;
+}
+
+a.cookwith_big {
+	display: inline-block;
+	width:5em;
+	height:5em;
 }
 
 a.nutrientDataOpen {
@@ -289,8 +296,8 @@ div.resultArea div.options {
 #ingredientsResult a.shopInfo {
 	display: block;
 }
-#ingredientsResult a.nutrientInfo {
-	margin-bottom: 0.8em;
+#ingredientsResult a.shopInfo {
+	margin-top: 0.8em;
 }
 
 #ingredientsResult a.nutrientInfo  div.nutrientInfo, 
@@ -306,6 +313,10 @@ div.resultArea div.options {
 
 
 #recipesResult div.resultArea div.options a.disgusting {
+	float:right;
+}
+
+#recipesResult div.resultArea div.options a.cookwith  {
 	float:right;
 }
 
@@ -355,6 +366,10 @@ div.detailView div.details {
 
 div.detailView div.options a.disgusting_big {
 	float:right;
+}
+
+div.detailView div.options a.cookwith_big {
+    float: right;
 }
 
 div.detailView img.recipe {
@@ -627,6 +642,29 @@ div.mealView span.value {
 	width: 2em;
 }
 
+.mealOverview .button {
+    bottom: 0.8em;
+    position: absolute;
+    width: 6.4em;
+}
+
+#peopleDetailsContent {
+	min-width: 42em;
+}
+
+.cou_recipes .button {
+	margin-bottom: 1em;
+	display: block;
+}
+
+.imageTip {
+	display: inline-block;
+}
+
+.addRowContainer select.unit {
+	width:4em;
+	margin-left: 0.25em;
+}
 
 
 

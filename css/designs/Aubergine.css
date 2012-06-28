@@ -3,12 +3,10 @@ body {
 	background-size: 100% auto;
 }
 
-
 a:link, a:visited, a:hover, a:active, a:focus  {
 	text-decoration:none;
 	color:black;
 }
-
 
 a.actionlink {text-decoration: underline;}
 a.actionlink:hover {text-decoration: underline; color:blue;}
@@ -47,26 +45,17 @@ div.index_div_login{
 	background-color:#997F7F;
 }
 
-a.delicious {
+a.delicious, a.delicious_big {
 	background: url('../../pics/delicious.png') no-repeat scroll 0 0 transparent;
 	background-size: contain;
 }
 
-a.disgusting {
-	background: url('../../pics/disgusting.png') no-repeat scroll 0 0 transparent;
-	background-size: contain;
-}
-a.delicious_big {
-	background: url('../../pics/delicious.png') no-repeat scroll 0 0 transparent;
-	background-size: contain;
-}
-
-a.disgusting_big {
+a.disgusting, a.disgusting_big  {
 	background: url('../../pics/disgusting.png') no-repeat scroll 0 0 transparent;
 	background-size: contain;
 }
 
-a.cookwith {
+a.cookwith , a.cookwith_big {
 	background: url('../../pics/cook.png') no-repeat scroll 0 0 transparent;
 	background-size: contain;
 }

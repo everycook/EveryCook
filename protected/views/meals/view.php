@@ -20,7 +20,7 @@ $this->menu=array(
 	'attributes'=>array(
 		'MEA_ID',
 		'MEA_DATE',
-		'MEA_TYPE',
+		'MTY_ID',
 		'PRF_UID',
 		'CREATED_ON',
 		'CREATED_BY',

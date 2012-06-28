@@ -54,10 +54,11 @@ if ($this->isFancyAjaxRequest){ ?>
 	'ajaxUpdate'=>false,
 	'id'=>'ingredientsResult',
 )); ?>
-
+<?php if (!$this->isFancyAjaxRequest){ ?>
 <script type="text/javascript">
 	loadScript(false, "CH", false, true, false, false);
 </script>
+<?php } ?>
 <?php $this->endWidget(); ?>
 
 </div>

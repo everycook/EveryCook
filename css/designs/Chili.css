@@ -7,6 +7,9 @@ a:link, a:visited, a:hover, a:active, a:focus  {
 	color:black;
 }
 
+a.actionlink {text-decoration: underline;}
+a.actionlink:hover {text-decoration: underline; color:blue;}
+
 span.error {
 	font-size: 0.9em;
 	color:red;
@@ -41,26 +44,17 @@ div.index_div_login{
 	background-color:#FF4D02;
 }
 
-a.delicious {
+a.delicious, a.delicious_big  {
 	background: url('../../pics/delicious.png') no-repeat scroll 0 0 transparent;
 	background-size: contain;
 }
 
-a.disgusting {
-	background: url('../../pics/disgusting.png') no-repeat scroll 0 0 transparent;
-	background-size: contain;
-}
-a.delicious_big {
-	background: url('../../pics/delicious.png') no-repeat scroll 0 0 transparent;
-	background-size: contain;
-}
-
-a.disgusting_big {
+a.disgusting, a.disgusting_big {
 	background: url('../../pics/disgusting.png') no-repeat scroll 0 0 transparent;
 	background-size: contain;
 }
 
-a.cookwith {
+a.cookwith, a.cookwith_big {
 	background: url('../../pics/cook.png') no-repeat scroll 0 0 transparent;
 	background-size: contain;
 }

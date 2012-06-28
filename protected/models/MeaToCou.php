@@ -7,9 +7,12 @@
  * @property integer $MEA_ID
  * @property integer $MTC_ORDER
  * @property integer $COU_ID
- * @property double $MTC_PERC_GDA
+ * @property double $MTC_PERC_MEAL
  * @property string $MTC_EAT_PERS
  * @property integer $MTC_KCAL_DAY_TOTAL
+ * @property integer $MTC_EAT_ADULTS
+ * @property integer $MTC_EAT_CHILDREN
+ 
  */
 class MeaToCou extends ActiveRecordECSimple
 {
@@ -45,13 +48,12 @@ class MeaToCou extends ActiveRecordECSimple
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('MEA_ID, MTC_ORDER, COU_ID, MTC_PERC_MEAL, MTC_EAT_PERS, MTC_KCAL_DAY_TOTAL', 'required'),
-			array('MEA_ID, MTC_ORDER, COU_ID, MTC_KCAL_DAY_TOTAL', 'numerical', 'integerOnly'=>true),
-			array('MTC_PERC_MEAL', 'numerical'),
-			array('MEA_ID, MTC_ORDER, COU_ID, MTC_PERC_MEAL, MTC_EAT_PERS, MTC_KCAL_DAY_TOTAL', 'safe'),
+			array('MEA_ID, MTC_ORDER, COU_ID, MTC_PERC_MEAL, MTC_EAT_PERS, MTC_KCAL_DAY_TOTAL, MTC_EAT_ADULTS, MTC_EAT_CHILDREN', 'required'),
+			array('MEA_ID, MTC_ORDER, COU_ID, MTC_PERC_MEAL, MTC_KCAL_DAY_TOTAL, MTC_EAT_ADULTS, MTC_EAT_CHILDREN', 'numerical', 'integerOnly'=>true),
+			array('MEA_ID, MTC_ORDER, COU_ID, MTC_PERC_MEAL, MTC_EAT_PERS, MTC_KCAL_DAY_TOTAL, MTC_EAT_ADULTS, MTC_EAT_CHILDREN', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('MEA_ID, MTC_ORDER, COU_ID, MTC_PERC_MEAL, MTC_EAT_PERS, MTC_KCAL_DAY_TOTAL', 'safe', 'on'=>'search'),
+			array('MEA_ID, MTC_ORDER, COU_ID, MTC_PERC_MEAL, MTC_EAT_PERS, MTC_KCAL_DAY_TOTAL, MTC_EAT_ADULTS, MTC_EAT_CHILDREN', 'safe', 'on'=>'search'),
 		);
 	}
 

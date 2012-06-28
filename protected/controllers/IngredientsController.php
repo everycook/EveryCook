@@ -305,53 +305,44 @@ class IngredientsController extends Controller
 		$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'ingredients.');
 		
 		if ($modelAvailable || $criteriaString != ''){
-			/*
-			$command = Yii::app()->db->createCommand()
-				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, (select count(products.PRO_ID) from products where products.ING_ID = ingredients.ING_ID) as pro_count, count(pro_to_sto.SUP_ID) as sup_count')
-				->from('ingredients')
-				->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
-				->leftJoin('group_names', 'ingredients.GRP_ID=group_names.GRP_ID')
-				->leftJoin('subgroup_names', 'ingredients.SGR_ID=subgroup_names.SGR_ID')
-				->leftJoin('ingredient_conveniences', 'ingredients.ICO_ID=ingredient_conveniences.ICO_ID')
-				->leftJoin('storability', 'ingredients.STB_ID=storability.STB_ID')
-				->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID')
-				->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
-				->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
-				->group('ingredients.ING_ID')
-			*/
-			
 			$distanceFields = '';
-			if (isset(Yii::app()->session['current_gps']) && isset(Yii::app()->session['current_gps'][2])) {
-				$distanceFields = ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as distance_to_you';
-				$distanceFields .= ', count(DISTINCT IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance . ', products.PRO_ID, NULL)) as distance_to_you_prod';
-			} else {
-				$distanceFields = ', MIN(-1) as distance_to_you';
-				$distanceFields .= ', MIN(-1) as distance_to_you_prod';
-			}
-			
-			if (!Yii::app()->user->isGuest && isset(Yii::app()->user->home_gps) && isset(Yii::app()->user->home_gps[2])){
-				$distanceFields .= ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as distance_to_home';
-				$distanceFields .= ', count(DISTINCT IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\')) <= '. Yii::app()->user->view_distance . ', products.PRO_ID, NULL)) as distance_to_home_prod';
-			} else {
-				$distanceFields .= ', MIN(-1) as distance_to_home';
-				$distanceFields .= ', MIN(-1) as distance_to_home_prod';
+			if (!$this->isFancyAjaxRequest){
+				$distanceFields = ', count(DISTINCT products.PRO_ID) as pro_count';
+				if (isset(Yii::app()->session['current_gps']) && isset(Yii::app()->session['current_gps'][2])) {
+					$distanceFields = ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as distance_to_you';
+					$distanceFields .= ', count(DISTINCT IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance . ', products.PRO_ID, NULL)) as distance_to_you_prod';
+				} else {
+					$distanceFields = ', MIN(-1) as distance_to_you';
+					$distanceFields .= ', MIN(-1) as distance_to_you_prod';
+				}
+				
+				if (!Yii::app()->user->isGuest && isset(Yii::app()->user->home_gps) && isset(Yii::app()->user->home_gps[2])){
+					$distanceFields .= ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as distance_to_home';
+					$distanceFields .= ', count(DISTINCT IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\')) <= '. Yii::app()->user->view_distance . ', products.PRO_ID, NULL)) as distance_to_home_prod';
+				} else {
+					$distanceFields .= ', MIN(-1) as distance_to_home';
+					$distanceFields .= ', MIN(-1) as distance_to_home_prod';
+				}
 			}
 			
 			$command = Yii::app()->db->createCommand()
-				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, count(DISTINCT products.PRO_ID) as pro_count' . $distanceFields)
+				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*' . $distanceFields)
 				->from('ingredients')
 				->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
 				->leftJoin('group_names', 'ingredients.GRP_ID=group_names.GRP_ID')
 				->leftJoin('subgroup_names', 'ingredients.SGR_ID=subgroup_names.SGR_ID')
 				->leftJoin('ingredient_conveniences', 'ingredients.ICO_ID=ingredient_conveniences.ICO_ID')
 				->leftJoin('storability', 'ingredients.STB_ID=storability.STB_ID')
-				->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID')
-				->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
-				->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
-				->leftJoin('stores', 'pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID')
-				->group('ingredients.ING_ID');
+				->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID');
+				if (!$this->isFancyAjaxRequest){
+					$command->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
+					->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
+					->leftJoin('stores', 'pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID');
+				}
+				$command->group('ingredients.ING_ID');
 				//echo $command->text;
 			
+			/*
 			$suppliersCommand = Yii::app()->db->createCommand()
 				->select('ingredients.ING_ID, suppliers.SUP_NAME')
 				->from('ingredients')
@@ -360,7 +351,7 @@ class IngredientsController extends Controller
 				->leftJoin('suppliers', 'suppliers.SUP_ID=pro_to_sto.SUP_ID')
 				->group('ingredients.ING_ID, suppliers.SUP_ID')
 				->order('ingredients.ING_ID, suppliers.SUP_ID');
-			
+			*/
 			if($modelAvailable) {
 				$Session_Ingredient = array();
 				if (isset($query)){
@@ -377,15 +368,15 @@ class IngredientsController extends Controller
 				if (isset($criteria->condition) && $criteria->condition != '') {
 					if ($criteriaString != ''){
 						$command->where($criteria->condition . ' AND ' . $criteriaString, $criteria->params);
-						$suppliersCommand->where($criteria->condition . ' AND ' . $criteriaString, $criteria->params);
+						//$suppliersCommand->where($criteria->condition . ' AND ' . $criteriaString, $criteria->params);
 					} else {
 						$command->where($criteria->condition, $criteria->params);
-						$suppliersCommand->where($criteria->condition, $criteria->params);
+						//$suppliersCommand->where($criteria->condition, $criteria->params);
 					}
 					$this->validSearchPerformed = true;
 				} else if ($criteriaString != ''){
 					$command->where($criteriaString);
-					$suppliersCommand->where($criteriaString);
+					//$suppliersCommand->where($criteriaString);
 					$this->validSearchPerformed = true;
 				}
 				
@@ -400,11 +391,12 @@ class IngredientsController extends Controller
 				//$rows = $model->commandBuilder->createFindCommand($model->tableName(), $model->getCriteria())->queryAll();
 				
 				$command->where($criteriaString);
-				$suppliersCommand->where($criteriaString);
+				//$suppliersCommand->where($criteriaString);
 				$this->validSearchPerformed = true;
 			}
 			
 			$rows = $command->queryAll();
+			/*
 			$suppliers = $suppliersCommand->queryAll();
 			
 			$ingredient_id = 0;
@@ -427,27 +419,6 @@ class IngredientsController extends Controller
 				} else {
 					$rows[$i]['sup_names'] = '';
 				}
-			}
-			
-			
-			/* old variant
-			for($i = 0; $i < count($rows); $i++){
-				$suppliers = Yii::app()->db->createCommand()
-					->select('suppliers.SUP_NAME')
-					->from('products')
-					->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
-					->leftJoin('suppliers', 'suppliers.SUP_ID=pro_to_sto.SUP_ID')
-					->where('products.ING_ID = ' . $rows[$i]['ING_ID'])
-					->group('suppliers.SUP_ID')
-					->queryAll();
-				$supplierString = '';
-				foreach ($suppliers as $supplier){
-					if ($supplierString != ''){
-						$supplierString .= ', ';
-					}
-					$supplierString .= $supplier['SUP_NAME'];
-				}
-				$rows[$i]['sup_names'] = $supplierString;
 			}
 			*/
 		} else {

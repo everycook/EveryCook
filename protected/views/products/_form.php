@@ -98,14 +98,22 @@
 	<?php
 		if (isset(Yii::app()->session['Product_Backup']) && isset(Yii::app()->session['Product_Backup']->PRO_IMG_ETAG)){
 			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'product' .(($model->imagechanged)?' cropable':''), 'alt'=>$model->PRO_IMG_CR, 'title'=>$model->PRO_IMG_CR));
-		} else if ($model->ING_ID) {
+		} else if ($model->PRO_ID && isset($model->PRO_IMG_ETAG)) {
 			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$model->PRO_ID, 'ext'=>'.png')), '', array('class'=>'product', 'alt'=>$model->PRO_IMG_CR, 'title'=>$model->PRO_IMG_CR));
 		}
 	?>
 	
 	<div class="row">
 		<?php echo $form->labelEx($model,'filename'); ?>
-		<?php echo $form->FileField($model,'filename'); ?>
+		<div class="imageTip">
+		<?php
+		echo $this->trans->TIP_OWN_IMAGE . '<br>';
+		echo $this->trans->TIP_FLICKR_IMAGE . '<br>';
+		printf($this->trans->TIP_LOOK_ON_FLICKR, $model->__get('PRO_NAME_EN_GB')); //.Yii::app()->session['lang']
+		echo '<br>';
+		echo $form->FileField($model,'filename');
+		?>
+		</div>
 		<?php echo $form->error($model,'filename'); ?>
 	</div>
 

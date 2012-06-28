@@ -8,7 +8,11 @@ class MenuWidget extends CWidget {
 		$handlers = '';
 		foreach($this->items as $item) {
 			$pos++;
-			$link = $this->getController()->createUrl($item['url'][0],$item['url'][1]);
+			if (is_array($item['url'])){
+				$link = $this->getController()->createUrl($item['url'][0],$item['url'][1]);
+			} else {
+				$link = $item['url'];
+			}
 			echo CHtml::openTag('a',array('href'=>$link, 'id'=>$item['link_id']))."\n";
 				echo CHtml::openTag('div',array('id'=>'item_' . $pos, 'class'=>'index_button'))."\n";
 					echo CHtml::openTag('span',array('id'=>'text_' . $pos))."\n";

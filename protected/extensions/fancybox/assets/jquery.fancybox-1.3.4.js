@@ -14,7 +14,7 @@
  *   http://www.opensource.org/licenses/mit-license.php
  *   http://www.gnu.org/licenses/gpl.html
  */
-
+//line 186: replace "$(this).replaceWith(content.children());" with "$(this).replaceWith(content.children('div').children());".
 ;(function($) {
 	var tmp, loading, overlay, wrap, outer, content, close, title, nav_left, nav_right,
 
@@ -164,7 +164,7 @@
 			tmp.css('padding', (selectedOpts.padding + selectedOpts.margin));
 
 			$('.fancybox-inline-tmp').unbind('fancybox-cancel').bind('fancybox-change', function() {
-				$(this).replaceWith(content.children());				
+				$(this).replaceWith(content.children());
 			});
 
 			switch (type) {
@@ -183,7 +183,7 @@
 						.hide()
 						.insertBefore( $(obj) )
 						.bind('fancybox-cleanup', function() {
-							$(this).replaceWith(content.children());
+							$(this).replaceWith(content.children('div').children());
 						}).bind('fancybox-cancel', function() {
 							$(this).replaceWith(tmp.children());
 						});

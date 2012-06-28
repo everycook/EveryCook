@@ -72,6 +72,8 @@ return array(
 			'username' => 'root',
 			'password' => '',
 			'charset' => 'utf8',
+//			'enableParamLogging'=>true,
+//			'enableProfiling'=>true,
 		),
 
 		// for tables profiles, meals, meals_to_cou, shoplists
@@ -83,6 +85,8 @@ return array(
 			'username' => 'root',
 			'password' => '',
 			'charset' => 'utf8',
+//			'enableParamLogging'=>true,
+//			'enableProfiling'=>true,
 		),
 		
 		'errorHandler'=>array(
@@ -96,6 +100,13 @@ return array(
 					'class'=>'CFileLogRoute',
 					'levels'=>'error, warning',
 				),
+				//uncomment to see executed querys
+				/*
+				array( 
+					'class'=>'CProfileLogRoute', 
+					'report'=>'callstack',  /" summary or callstack
+				),
+				*/				
 				// uncomment the following to show log messages on web pages
 				/*
 				array(
@@ -104,6 +115,7 @@ return array(
 				*/
 			),
 		),
+		
 		'clientScript'=>array(
 			'class'=>'CAjaxOptimizedClientScript',
 		),

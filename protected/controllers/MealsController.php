@@ -25,7 +25,7 @@ class MealsController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','mealPlaner','mealList'),
+				'actions'=>array('create','update','mealPlanner','mealList','changePeople','shoppingList'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -142,17 +142,15 @@ class MealsController extends Controller
 		));
 	}
 	
-	public function actionMealPlaner()
+	public function actionMealPlanner()
 	{
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 		
-		/*
 		$Session_Meals_Backup = Yii::app()->session['Meals_Backup'];
 		if (isset($Session_Meals_Backup)){
 			$oldmodel = $Session_Meals_Backup;
 		}
-		*/
 		if (isset($_GET['id'])){
 			if (!isset($oldmodel) || $oldmodel->MEA_ID != $_GET['id']){
 				$oldmodel = $this->loadModel($_GET['id'], true);
@@ -215,22 +213,29 @@ class MealsController extends Controller
 			return;
 			*/
 			
-			$transaction=$model->dbConnection->beginTransaction();
+			$transaction2=Yii::app()->db->beginTransaction();
+			$transaction=Yii::app()->dbp->beginTransaction();
 			try {
 				if($model->save()){
 					$saveOK = true;
 					$meaToCouIndex = 0;
-					foreach($model->meaToCous as $meaToCou){
+					$meaToCous = $model->meaToCous;
+					Yii::app()->dbp->createCommand()->delete(MeaToCou::model()->tableName(), 'MEA_ID = :id', array(':id'=>$model->MEA_ID));
+					foreach($meaToCous as $meaToCou){
 						$meaToCou->MEA_ID = $model->MEA_ID;
+						$meaToCou->setIsNewRecord(true);
 						if($meaToCou->course->save()){
 							$meaToCou->COU_ID = $meaToCou->course->COU_ID;
 							$meaToCou->MTC_ORDER = $meaToCouIndex;
 							++$meaToCouIndex;
 							if($meaToCou->save()){
 								$CouToRecIndex = 0;
-								foreach($meaToCou->course->couToRecs as $couToRec){
+								$couToRecs = $meaToCou->course->couToRecs;
+								Yii::app()->db->createCommand()->delete(CouToRec::model()->tableName(), 'COU_ID = :id', array(':id'=>$meaToCou->course->COU_ID));
+								foreach($couToRecs as $couToRec){
 									$couToRec->COU_ID = $meaToCou->course->COU_ID;
 									$couToRec->CTR_ORDER = $CouToRecIndex;
+									$couToRec->setIsNewRecord(true);
 									++$CouToRecIndex;
 									if(!$couToRec->save()){
 										$saveOK = false;
@@ -249,31 +254,31 @@ class MealsController extends Controller
 							break 1;
 						}
 					}
-					/*
-					foreach($stepsToDelete as $step){
-						if(!$step->delete()){
-							$saveOK = false;
-							//echo 'error on delete Step: ' . $step->getErrors();
-						}
-					}
-					*/
 					if ($saveOK){
+						$transaction2->commit();
 						$transaction->commit();
 						unset(Yii::app()->session['Meals_Backup']);
-						$this->forwardAfterSave(array('mealList', 'id'=>$model->MEA_ID));
+						if (isset($_POST['saveToShoppingList'])){
+							$this->forwardAfterSave(array('shoppingList', 'id'=>$model->MEA_ID));
+						} else {
+							$this->forwardAfterSave(array('mealList', 'id'=>$model->MEA_ID));
+						}
 						return;
 					} else {
-						//TODO: Remove ID's...
+						//TODO: Remove ID's...?
 						echo 'rollback because of previous errors.';
 						//echo 'any errors occured, rollback';
+						$transaction2->rollBack();
 						$transaction->rollBack();
 					}
 				} else {
 					echo 'error on save meal: errors:<pre>'; print_r($model->getErrors()); echo '</pre>';
+					$transaction2->rollBack();
 					$transaction->rollBack();
 				}
 			} catch(Exception $e) {
 				echo 'Exception occured -&gt; rollback. Exeption was: ' . $e;
+				$transaction2->rollBack();
 				$transaction->rollBack();
 			}
 		}
@@ -343,7 +348,7 @@ class MealsController extends Controller
 			
 		Yii::app()->session['Meals_Backup'] = $model;
 		
-		$this->checkRenderAjax('mealplaner',array(
+		$this->checkRenderAjax('mealplanner',array(
 			'model'=>$model,
 			'mealType'=>$mealType,
 			'hours'=>$hours,
@@ -354,13 +359,193 @@ class MealsController extends Controller
 		));
 	}
 	
+	public function actionChangePeople(){
+		$this->checkRenderAjax('changePeople',array(
+		));
+	}
+	
 	public function actionMealList(){
+		$selectDate = mktime(0,0,0, date("n"), date("j"), date("Y"));
 		$dataProvider=new CActiveDataProvider('Meals', array(
 			'criteria'=>array(
 				'condition'=>'PRF_UID = ' . Yii::app()->user->id,
+				'order'=>'MEA_DATE',
+				//'condition'=>'MEA_DATE > ' . $selectDate, //TODO: only show planed meals in future
 			),
 		));
 		$this->checkRenderAjax('index',array(
+			'dataProvider'=>$dataProvider,
+		));
+	}
+	
+	
+	
+	public function actionShoppingList($id){
+		$command = Yii::app()->dbp->createCommand()
+			->select('meals.*, mea_to_cou.*')
+			->from('meals')
+			->leftJoin('mea_to_cou', 'mea_to_cou.MEA_ID=meals.MEA_ID')
+			->where('meals.MEA_ID = :id',array(':id'=>$id));
+		$meal_Course = $command->queryAll();
+		
+		$paramName = '';
+		$paramArray = array();
+		$meaToCous = array();
+		for($i=0;$i<count($meal_Course);++$i){
+			if ($paramName != ''){
+				$paramName .= ', ';
+			}
+			$paramName .= ':id'.$i;
+			$paramArray[':id'.$i] = $meal_Course[$i]['COU_ID'];
+			$meaToCous[$meal_Course[$i]['COU_ID']] = $meal_Course[$i];
+		}
+		unset($meal_Course);
+		
+		$command = Yii::app()->db->createCommand()
+			->select('courses.*, cou_to_rec.*, recipes.*, steps.STE_STEP_NO, steps.STE_GRAMS, ingredients.ING_IMG_AUTH, ingredients.ING_ID, ING_NAME_'.Yii::app()->session['lang'])
+			->from('courses')
+			->leftJoin('cou_to_rec', 'cou_to_rec.COU_ID=courses.COU_ID')
+			->leftJoin('recipes', 'recipes.REC_ID=cou_to_rec.REC_ID')
+			->leftJoin('steps', 'steps.REC_ID=recipes.REC_ID')
+			->leftJoin('ingredients', 'ingredients.ING_ID=steps.ING_ID')
+			->where('courses.COU_ID IN (' . $paramName . ') AND ingredients.ING_ID IS NOT NULL',$paramArray)
+			->order('courses.COU_ID, recipes.REC_ID, steps.STE_STEP_NO');
+			
+			/*
+			->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
+			->leftJoin('group_names', 'ingredients.GRP_ID=group_names.GRP_ID')
+			->leftJoin('subgroup_names', 'ingredients.SGR_ID=subgroup_names.SGR_ID')
+			->leftJoin('ingredient_conveniences', 'ingredients.ICO_ID=ingredient_conveniences.ICO_ID')
+			->leftJoin('storability', 'ingredients.STB_ID=storability.STB_ID')
+			->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID')
+			->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
+			->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
+			->leftJoin('stores', 'pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID')
+			->group('ingredients.ING_ID');
+			//echo $command->text;
+			*/
+		
+		$rows = $command->queryAll();
+		
+		$ingredients = array();
+		$rec_id = -1;
+		for($i=0; $i<count($rows); ++$i){
+			$row = $rows[$i];
+			if ($rec_id != $row['REC_ID']){
+				$meaToCou = $meaToCous[$row['COU_ID']];
+				$meal_gda = $meaToCou['MTC_KCAL_DAY_TOTAL'] * $meaToCou['MEA_PERC_GDA'] / 100;
+				$cou_gda = $meal_gda * $meaToCou['MTC_PERC_MEAL'] / 100;
+				$rec_gda = $cou_gda * $row['CTR_REC_PROC'] / 100;
+				$rec_kcal = $row['REC_KCAL'];
+				if ($rec_kcal != 0){
+					$rec_proz = $rec_gda / $rec_kcal;
+				} else {
+					//TODO: this is a data error!, or a recipe without ingredients .... ?
+					$rec_proz = 1;
+				}
+			}
+			$ing_amount = round($row['STE_GRAMS'] * $rec_proz, 2);
+			$ing = array('ING_ID'=>$row['ING_ID'],'ING_NAME_'.Yii::app()->session['lang']=>$row['ING_NAME_'.Yii::app()->session['lang']],'ing_amount'=>$ing_amount);
+			$ingredients[] = $ing;
+			
+			$rows[$i]['ing_amount'] = $ing_amount;
+			$rows[$i]['meal_gda'] = $meal_gda;
+			$rows[$i]['cou_gda'] = $cou_gda;
+			$rows[$i]['rec_gda'] = $rec_gda;
+			$rows[$i]['rec_kcal'] = $rec_kcal;
+			$rows[$i]['rec_proz'] = $rec_proz;
+		}
+		
+		
+		$dataProvider=new CArrayDataProvider($rows, array(
+			'id'=>'ING_ID',
+			'keyField'=>'ING_ID',
+			'pagination'=>array(
+				'pageSize'=>40,
+			),
+		));
+		
+		$this->checkRenderAjax('shoppingList',array(
+			'dataProvider'=>$dataProvider,
+		));
+	}
+	
+	public function actionShoppingList2($id){
+		$distanceFields = '';
+		if (isset(Yii::app()->session['current_gps']) && isset(Yii::app()->session['current_gps'][2])) {
+			$distanceFields = ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as distance_to_you';
+			$distanceFields .= ', count(DISTINCT IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance . ', products.PRO_ID, NULL)) as distance_to_you_prod';
+		} else {
+			$distanceFields = ', MIN(-1) as distance_to_you';
+			$distanceFields .= ', MIN(-1) as distance_to_you_prod';
+		}
+		
+		if (!Yii::app()->user->isGuest && isset(Yii::app()->user->home_gps) && isset(Yii::app()->user->home_gps[2])){
+			$distanceFields .= ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as distance_to_home';
+			$distanceFields .= ', count(DISTINCT IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\')) <= '. Yii::app()->user->view_distance . ', products.PRO_ID, NULL)) as distance_to_home_prod';
+		} else {
+			$distanceFields .= ', MIN(-1) as distance_to_home';
+			$distanceFields .= ', MIN(-1) as distance_to_home_prod';
+		}
+		
+		$command = Yii::app()->db->createCommand()
+			->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, count(DISTINCT products.PRO_ID) as pro_count' . $distanceFields)
+			->from('ingredients')
+			->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
+			->leftJoin('group_names', 'ingredients.GRP_ID=group_names.GRP_ID')
+			->leftJoin('subgroup_names', 'ingredients.SGR_ID=subgroup_names.SGR_ID')
+			->leftJoin('ingredient_conveniences', 'ingredients.ICO_ID=ingredient_conveniences.ICO_ID')
+			->leftJoin('storability', 'ingredients.STB_ID=storability.STB_ID')
+			->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID')
+			->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
+			->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
+			->leftJoin('stores', 'pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID')
+			->group('ingredients.ING_ID');
+			//echo $command->text;
+		
+		$suppliersCommand = Yii::app()->db->createCommand()
+			->select('ingredients.ING_ID, suppliers.SUP_NAME')
+			->from('ingredients')
+			->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
+			->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
+			->leftJoin('suppliers', 'suppliers.SUP_ID=pro_to_sto.SUP_ID')
+			->group('ingredients.ING_ID, suppliers.SUP_ID')
+			->order('ingredients.ING_ID, suppliers.SUP_ID');
+		
+		$rows = $command->queryAll();
+		$suppliers = $suppliersCommand->queryAll();
+		
+		$ingredient_id = 0;
+		$supplier_texts = array();
+		$supplier_text = '';
+		foreach($suppliers as $supplier){
+			if ($supplier['ING_ID'] != $ingredient_id){
+				$supplier_texts[$ingredient_id] = $supplier_text;
+				$supplier_text = '';
+				$ingredient_id = $supplier['ING_ID'];
+			}
+			if ($supplier_text != ''){
+				$supplier_text .= ', ';
+			}
+			$supplier_text .= $supplier['SUP_NAME'];
+		}
+		for($i = 0; $i < count($rows); $i++){
+			if (isset($supplier_texts[$rows[$i]['ING_ID']]) && $supplier_texts[$rows[$i]['ING_ID']] != null){
+				$rows[$i]['sup_names'] = $supplier_texts[$rows[$i]['ING_ID']];
+			} else {
+				$rows[$i]['sup_names'] = '';
+			}
+		}
+		
+		$dataProvider=new CArrayDataProvider($rows, array(
+			'id'=>'ING_ID',
+			'keyField'=>'ING_ID',
+			'pagination'=>array(
+				'pageSize'=>10,
+			),
+		));
+		
+		$this->checkRenderAjax('shoppingList',array(
 			'dataProvider'=>$dataProvider,
 		));
 	}

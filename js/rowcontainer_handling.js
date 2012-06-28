@@ -1,3 +1,7 @@
+var glob = glob || {};
+
+glob.rowContainer = {};
+
 jQuery(function($){
 	/*TODO use the one in ajax_handling.js*/
 	function initMultiFancyCoose(){
@@ -11,13 +15,6 @@ jQuery(function($){
 	var rows;
 	var lastIndex = 0;
 	var newLineContent;
-	
-	$('#page').ajaxComplete(function(e, xhr, settings) {
-		initRecipeStepsRowContainer();
-		initMealplanerPeopleRowContainer();
-	});
-	initRecipeStepsRowContainer();
-	initMealplanerPeopleRowContainer();
 	
 	function getIndexFromFieldName(name){
 		var currentIndex = name.match(/\[([^\]]+)\]/);
@@ -55,6 +52,10 @@ jQuery(function($){
 			elem = jQuery(this);
 			elem.attr('name', elem.attr('name').replace(currentIndexStr,newIndexIntStr));
 			elem.attr('id', elem.attr('id').replace(currentIndexStr2,newIndexIntStr2));
+			prev = elem.prev();
+			if (prev.is('label')){
+				prev.attr('for', prev.attr('for').replace(currentIndexStr2,newIndexIntStr2));	
+			}
 		});
 	}
 	
@@ -69,16 +70,22 @@ jQuery(function($){
 		return currentNewLineContent;
 	}
 	
+	/*
 	jQuery('body').undelegate('.addRowContainer .add','click').delegate('.addRowContainer .add','click',function(){
 		addEmptyRow(jQuery(this).parents('tr:first'));
 	});
+	*/
 	
 	jQuery('body').undelegate('.addRowContainer .remove','click').delegate('.addRowContainer .remove','click',function(){
 		var row = jQuery(this).parents('tr:first');
-		var followedRows = row.nextAll();
+		var followedRows = row.nextAll().not('.addFields');
 		
 		lastIndex = lastIndex-1;
 		
+		var next = row.next();
+		if (next.attr('class') === 'addFields'){
+			next.remove();
+		}
 		row.remove();
 		
 		followedRows = followedRows.not(followedRows.last());
@@ -136,6 +143,71 @@ jQuery(function($){
 		}
 	});
 	
+	/*
+	jQuery('body').undelegate('.addRowContainer .unit','change').delegate('.addRowContainer .unit','change',function(){
+		var elem = jQuery(this)
+		var multiplier = elem.val();
+		var inputField = elem.prev();
+		var multiField = elem.next();
+		var value = inputField.val();
+		value = value / multiplier;
+		inputField.val(value);
+		elem.find('option').each(function(){
+			var option = jQuery(this);
+			option.val(option.val() / multiplier);
+		});
+		multiField.val(multiField.val() * multiplier);
+	});
+	*/
+	
+	jQuery('body').undelegate('.addRowContainer .viewWithUnit','change').delegate('.addRowContainer .viewWithUnit','change',function(){
+		var inputField = jQuery(this)
+		var unitField = inputField.next();
+		var multiplier = unitField.val();
+		var dataField = unitField.next();
+		var value = inputField.val();
+		dataField.val(value * multiplier);
+	});
+	
+	jQuery('body').undelegate('.addRowContainer .unit','change').delegate('.addRowContainer .unit','change',function(){
+		var unitField = jQuery(this)
+		var multiplier = unitField.val();
+		var inputField = unitField.prev();
+		var dataField = unitField.next();
+		var value = inputField.val();
+		dataField.val(value * multiplier);
+	});
+	
+	jQuery('body').undelegate('.addRowContainer .withUnit','change').delegate('.addRowContainer .withUnit','change',function(){
+		var dataField = jQuery(this)
+		var unitField = dataField.prev();
+		var multiplier = unitField.val();
+		var inputField = unitField.prev();
+		var value = dataField.val();
+		inputField.val(value / multiplier);
+	});
+	
+	var fieldTypes = {'STE_CELSIUS':'number','STE_KPA':'number','STE_RPM':'number','STE_CLOCKWISE':'boolean','STE_STIR_RUN':'time','STE_STIR_PAUSE':'time','STE_STEP_DURATION':'time'};
+	
+	var weightSelectType = '<select id="%id%" name="%name%" class="unit">' + 
+		'<option value="1">g</option>' + 
+		'<option value="1000">kg</option>' + 
+		'<option value="453.59237">lb</option>' + 
+		'<option value="28.349523125">oz</option>' + 
+		'</select>';
+	/*
+	var timeSelectType = '<select id="%id%" name="%name%" class="unit">' + 
+		'<option value="1">m</option>' + 
+		'<option value="60">h</option>' + 
+		'<option value="0.016666666666666666">s</option>' + 
+		'</select>';
+	*/
+	var timeSelectType = '<select id="%id%" name="%name%" class="unit">' + 
+		'<option value="60">m</option>' + 
+		'<option value="3600">h</option>' + 
+		'<option value="1">s</option>' + 
+		'</select>';
+		
 	function addInputTableField(valueName, value, patternElem, insertElem, type){
 		var name = patternElem.attr('name');
 		var pos = name.lastIndexOf('[');
@@ -149,9 +221,32 @@ jQuery(function($){
 		if (type == 'hidden'){
 			newInput = jQuery('<input type="hidden" name="'+name+'" id="'+id+'" value="'+value+'" />');
 		} else {
-			newInput = jQuery('<label for="'+id+'">'+valueName+'<span class="required">*</span></label><input type="'+type+'" name="'+name+'" id="'+id+'" value="'+value+'" />');
+			var newFieldText = '<label for="'+id+'">'+valueName+'<span class="required">*</span></label>';
+			var data_type ='';
+			if (typeof(fieldTypes[valueName]) !== 'undefined'){
+				data_type = fieldTypes[valueName];
+			}
+			if (data_type == 'number'){
+				newFieldText += '<input type="number" name="'+name+'" id="'+id+'" value="'+value+'" />';
+			} else if (data_type == 'boolean'){
+				newFieldText += '<input type="number" pattern="[01]" name="'+name+'" id="'+id+'" value="'+value+'" />';
+			} else if (data_type == 'time'){
+				name = name.substr(0,name.length-1);
+				newFieldText += '<input type="number" name="'+name+'_VIEW]" id="'+id+'_VIEW" value="'+value+'" class="viewWithUnit" />';
+				newFieldText += timeSelectType.replace('%name%', name+'_UNIT]').replace('%id%',id+'_UNIT');
+				newFieldText += '<input type="hidden" name="'+name+']" id="'+id+'" value="'+value+'" class="withUnit" />';
+			} else if (data_type == 'weight'){
+				name = name.substr(0,name.length-1);
+				newFieldText += '<input type="number" name="'+name+'_VIEW]" id="'+id+'_VIEW" value="'+value+'" class="viewWithUnit" />';
+				newFieldText += weightSelectType.replace('%name%', name+'_UNIT]').replace('%id%',id+'_UNIT');
+				newFieldText += '<input type="hidden" name="'+name+']" id="'+id+'" value="'+value+'" class="withUnit" />';
+			} else {
+				newFieldText += '<input type="'+type+'" name="'+name+'" id="'+id+'" value="'+value+'" />';
+			}
+			newInput = jQuery(newFieldText);
 		}
 		insertElem.append(newInput);
+		return newInput;
 	}
 	
 	function setFieldValue(field, value){
@@ -161,13 +256,12 @@ jQuery(function($){
 		} else {
 			field.attr('value',value);
 		}
+		field.change();
 	}
 	
 	
-	function initRowContainer(excludingFieldQuery, bevoreRowCallback, eachRowBeginCallback, eachRowEndCallback){
-		var container = jQuery('.addRowContainer');
+	function initRowContainer(container, data, errors, excludingFieldQuery, bevoreRowCallback, eachRowBeginCallback, eachRowEndCallback){
 		var emptyLineContainer = container.find('#newLine');
-		var data = jQuery('#rowsJSON').attr('value');
 		if (emptyLineContainer.length !== 0 && data.length !== 0){
 			var lastIndexElem = emptyLineContainer.find('input[name=lastIndex]')
 			lastIndex = new Number(lastIndexElem.attr('value')).valueOf();
@@ -195,7 +289,10 @@ jQuery(function($){
 					fieldParents = newLine;
 				}
 				
-				var fields = fieldParents.find('[name][type!=hidden]'+excludingFieldQuery); //All non hidden input fields
+				var fields = fieldParents.find('[name]'+excludingFieldQuery); //All non hidden input fields
+				var withUnit = fields.filter('.withUnit');
+				fields = fields.filter('[type!=hidden]');
+				fields = fields.add(withUnit);
 				for(var fieldId=0; fieldId<fields.length; fieldId++){
 					var field = jQuery(fields[fieldId]);
 					
@@ -203,7 +300,9 @@ jQuery(function($){
 					var pos = name.lastIndexOf('[');
 					name = name.substr(pos+1,name.length-pos-2);
 					var value = data_row[name];
-					setFieldValue(field,value);
+					if (typeof(value) !== 'undefined'){
+						setFieldValue(field,value);
+					}
 				}
 				
 				if (typeof(eachRowEndCallback) !== 'undefined'){
@@ -211,7 +310,6 @@ jQuery(function($){
 				}
 			}
 			
-			var errors = jQuery('#errorJSON').attr('value');
 			var fields = JSON.parse(errors);
 			for (var i = 0; i<fields.length; i++){
 				field = fields[i];
@@ -221,16 +319,35 @@ jQuery(function($){
 		} else {
 			rows = [];
 		}
+		container.append(jQuery('<span class="rowContainerInitialized" style="display:none;"></span>'));
+	}
+	glob.rowContainer.init = initRowContainer;
+	
+	function clearRowContainer(container){
+		var rows = container.find('tbody tr:not(#newLine)');
+		rows.remove();
+		container.find('.rowContainerInitialized').remove();
 	}
 	
+	glob.rowContainer.clear = clearRowContainer;
 	
 	//##################################################################################
-	//Mealplaner people functions
-	function initMealplanerPeopleRowContainer(){
-		if (jQuery('.people .addRowContainer').length == 0){
+	//Mealplanner people functions
+	function initMealplannerPeopleRowContainer(){
+		var container = jQuery('.people .addRowContainer');
+		var data = jQuery('#rowsJSON').attr('value');
+		var errors = jQuery('#errorJSON').attr('value');
+		initMealplannerPeopleRowContainerDoIt(container, data, errors);
+	}
+	
+	function initMealplannerPeopleRowContainerDoIt(container, data, errors){
+		if (!container.is('.people .addRowContainer')){
 			return;
 		}
-		initRowContainer('',undefined,undefined,function(fieldParents,data_row){
+		if (container.find('.rowContainerInitialized').length > 0){
+			return;
+		}
+		initRowContainer(container, data, errors, '', undefined, undefined, function(fieldParents,data_row){
 			fieldParents.find('[id*=gda_id_kcal_GDA_]').hide();
 			var gender = fieldParents.find('[id$=gender]').val();
 			var field = fieldParents.find('[id$=gda_id_kcal_GDA_' + gender + ']');
@@ -238,6 +355,12 @@ jQuery(function($){
 			updatePeopleText(fieldParents);
 		});
 	}
+	glob.rowContainer.MealplannerPeopleInit = initMealplannerPeopleRowContainerDoIt;
+	
+	
+	jQuery('body').undelegate('.people .addRowContainer .add','click').delegate('.people .addRowContainer .add','click',function(){
+		addEmptyRow(jQuery(this).parents('tr:first'));
+	});
 	
 	jQuery('body').undelegate('.people .addRowContainer [id$=gender]','change').delegate('.people .addRowContainer [id$=gender]','change',function(){
 		updateFieldsPeople(jQuery(this));
@@ -285,6 +408,9 @@ jQuery(function($){
 		if (jQuery('.steps .addRowContainer').length == 0){
 			return;
 		}
+		if (jQuery('.steps .addRowContainer .rowContainerInitialized').length > 0){
+			return;
+		}
 		
 		stepConfig = jQuery('#stepConfigValues').attr('value');
 		if (stepConfig && stepConfig.length > 0){
@@ -297,12 +423,15 @@ jQuery(function($){
 		ingredients = jQuery('#ingredientsJSON').attr('value');
 		ingredients = JSON.parse(ingredients);
 		
-		initRowContainer(':not([id$=STT_ID]):not([id$=ACT_ID])', function(newLine){
+		var container = jQuery('.steps .addRowContainer');
+		var data = jQuery('#rowsJSON').attr('value');
+		var errors = jQuery('#errorJSON').attr('value');
+		initRowContainer(container, data, errors, ':not([id$=STT_ID]):not([id$=ACT_ID])', function(newLine){
 			var ingredientSelectContentElem = newLine.find('[id$=ING_ID]');
 			ingredientSelectContent = ingredientSelectContentElem.parents(':first').html();
 			//ingredientSelectContentElem.remove();
 			ingredientSelectContentElem.parents(':first').html('');
-			var weightContentElem = newLine.find('[id$=STE_GRAMS]');
+			var weightContentElem = newLine.find('[id*=STE_GRAMS]');
 			weightContent = weightContentElem.parents(':first').html();
 			weightContentElem.remove();
 			newLineContent = '<tr class="%class%">' + newLine.html() + '</tr>';
@@ -325,6 +454,15 @@ jQuery(function($){
 		
 		initMultiFancyCoose();
 	}
+	
+	
+	jQuery('body').undelegate('.steps .addRowContainer .add','click').delegate('.steps .addRowContainer .add','click',function(){
+		var insertBefore = jQuery(this).parents('tr:first');
+		var newRow = addEmptyRow(insertBefore);
+		updateFields(newRow.find('[id$=STT_ID]'));
+		updateIngredientVisible(newRow.find('[id$=ACT_ID]'));
+		initMultiFancyCoose();
+	});
 	
 	function getStepConfig(id){
 		for(var i=0; i<stepConfig.length; i++){
@@ -350,11 +488,12 @@ jQuery(function($){
 			var required = [];
 		}
 		
+		row.find('[id$=ACT_ID]').removeAttr('disabled');
+		next.find('[id$=ACT_ID_backup]').remove();
 		if ((defaults.length === 0 || (defaults.length == 1 && defaults[0] == "")) && (required.length === 0 || (required.length == 1 && required[0] == ""))){
 			if (next.attr('class') == 'addFields'){
 				next.remove();
 			}
-			row.find('[id$=ACT_ID]').removeAttr('disabled');
 		} else {
 			if (next.attr('class') != 'addFields'){
 				next = jQuery('<tr class="addFields"><td colspan="'+row.children('td').length+'"></td></tr>');
@@ -378,33 +517,47 @@ jQuery(function($){
 			}
 			*/
 			
-			for(var requiredId=0; requiredId<required.length; requiredId++){
-				if (required[requiredId] == ''){
+			for(var requiredIndex=0; requiredIndex<required.length; requiredIndex++){
+				if (required[requiredIndex] == ''){
 					continue;
 				}
-				var field = fieldParents.find('[id$='+required[requiredId]+']');
+				var field = fieldParents.find('[id$='+required[requiredIndex]+']');
 				if (field.length){
 					oldFields = oldFields.not(field);
-					if (field.attr('type') == 'hidden'){
-						field.remove();
-						addInputTableField(required[requiredId], '', elem, insertElem, 'number');
+					if (field.hasClass('withUnit')){
+						oldFields = oldFields.not(field.prev());
+						oldFields = oldFields.not(field.prev().prev());
+					} else {
+						if (field.attr('type') == 'hidden'){
+							field.remove();
+							addInputTableField(required[requiredIndex], '', elem, insertElem, 'number');
+						}
 					}
 				} else {
-					addInputTableField(required[requiredId], '', elem, insertElem, 'number');
+					addInputTableField(required[requiredIndex], '', elem, insertElem, 'number');
 				}
 			}
-			for(var defaultId=0; defaultId<defaults.length; defaultId++){
-				if (defaults[defaultId] == ''){
+			for(var defaultIndex=0; defaultIndex<defaults.length; defaultIndex++){
+				if (defaults[defaultIndex] == ''){
 					continue;
 				}
-				var fieldOpt=defaults[defaultId].split('=');
+				var fieldOpt=defaults[defaultIndex].split('=');
 				var field = fieldParents.find('[id$='+fieldOpt[0]+']');
 				if (field.length){
 					oldFields = oldFields.not(field);
-					setFieldValue(field,fieldOpt[1]);
+					if (field.hasClass('withUnit')){
+						oldFields = oldFields.not(field.prev());
+						oldFields = oldFields.not(field.prev().prev());
+					}
+					if (field.val().length == 0 || fieldOpt[1] != 0){
+						setFieldValue(field,fieldOpt[1]);
+					}
 					if (required.indexOf(fieldOpt[0]) == -1){
 						if (field.parents('tr:first').not(row).length == 0){
 							field.attr('disabled','disabled');
+							setFieldValue(field,fieldOpt[1]);
+							var newInput = addInputTableField(fieldOpt[0], fieldOpt[1], elem, insertElem, 'hidden');
+							newInput.attr('id',newInput.attr('id') + '_backup');
 						} else {
 							if (field.attr('type') != 'hidden'){
 								next.find('[for='+field.attr('id')+']').remove();
@@ -417,8 +570,8 @@ jQuery(function($){
 					addInputTableField(fieldOpt[0], fieldOpt[1], elem, insertElem, 'hidden');
 				}
 			}
-			for(var oldFieldId=0; oldFieldId<oldFields.length; oldFieldId++){
-				var field = jQuery(oldFields[oldFieldId]);
+			for(var oldFieldIndex=0; oldFieldIndex<oldFields.length; oldFieldIndex++){
+				var field = jQuery(oldFields[oldFieldIndex]);
 				next.find('[for='+field.attr('id')+']').remove();
 				field.remove();
 			}
@@ -435,8 +588,8 @@ jQuery(function($){
 		var value = elem.attr('value');
 		var text = elem.find(':selected').get(0).text;
 		var row = elem.parents('tr:first');
-		var ingredientElem = row.find('[id$=ING_ID]');
-		var weightElem = row.find('[id$=STE_GRAMS]');
+		var ingredientElem = row.find('[id*=ING_ID]');
+		var weightElem = row.find('[id*=STE_GRAMS]');
 		if (text.indexOf('#objectofaction#') == -1){
 			ingredientElem.remove();
 			weightElem.remove();
@@ -459,4 +612,14 @@ jQuery(function($){
 		updateIngredientVisible(jQuery(this));
 		initMultiFancyCoose();
 	});
+	
+	
+	//----------------------------------------------
+	
+	$('#page').ajaxComplete(function(e, xhr, settings) {
+		initRecipeStepsRowContainer();
+		initMealplannerPeopleRowContainer();
+	});
+	initRecipeStepsRowContainer();
+	initMealplannerPeopleRowContainer();
 });

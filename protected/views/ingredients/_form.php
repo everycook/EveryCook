@@ -73,9 +73,14 @@
 	?>
 	
 	<div class="row" id="nutrientData">
-		<?php echo $form->labelEx($model,'NUT_ID',array('label'=>$this->trans->INGREDIENTS_NUTRIENT, 'style'=>'vertical-align: middle;')); ?>
-		<?php echo $form->hiddenField($model,'NUT_ID', array('id'=>'NUT_ID', 'class'=>'fancyValue')); ?>
-		<?php echo CHtml::link($NutrientDescription, array('nutrientData/chooseNutrientData'), array('class'=>'fancyChoose NutrientDataSelect buttonSmall')) ?>
+		<?php echo $form->labelEx($model,'NUT_ID',array('label'=>$this->trans->INGREDIENTS_NUTRIENT/*, 'style'=>'vertical-align: middle;'*/)); ?>
+		<div>
+		<?php
+		echo $this->trans->TIP_NUT_ID . '<br>';
+		echo $form->hiddenField($model,'NUT_ID', array('id'=>'NUT_ID', 'class'=>'fancyValue'));
+		echo CHtml::link($NutrientDescription, array('nutrientData/chooseNutrientData'), array('class'=>'fancyChoose NutrientDataSelect buttonSmall'));
+		?>
+		</div>
 	</div>
 
 	<div class="row">
@@ -87,14 +92,22 @@
 	<?php
 		if (isset(Yii::app()->session['Ingredient_Backup']) && isset(Yii::app()->session['Ingredient_Backup']->ING_IMG_ETAG)){
 			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'ingredient' .(($model->imagechanged)?' cropable':''), 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
-		} else if ($model->ING_ID) {
+		} else if ($model->ING_ID && isset($model->ING_IMG_ETAG)) {
 			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
 		}
 	?>
 	
 	<div class="row">
 		<?php echo $form->labelEx($model,'filename'); ?>
-		<?php echo $form->FileField($model,'filename'); ?>
+		<div class="imageTip">
+		<?php
+		echo $this->trans->TIP_OWN_IMAGE . '<br>';
+		echo $this->trans->TIP_FLICKR_IMAGE . '<br>';
+		printf($this->trans->TIP_LOOK_ON_FLICKR, $model->__get('ING_NAME_EN_GB')); //.Yii::app()->session['lang']
+		echo '<br>';
+		echo $form->FileField($model,'filename');
+		?>
+		</div>
 		<?php echo $form->error($model,'filename'); ?>
 	</div>
 

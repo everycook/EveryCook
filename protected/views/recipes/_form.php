@@ -43,15 +43,23 @@
 	?>
 	
 	<?php
-		if (isset(Yii::app()->session['Recipe_Backup']) && isset(Yii::app()->session['Recipe_Backup']->REC_IMG_ETAG)){
+		if (isset(Yii::app()->session['Recipes_Backup']) && isset(Yii::app()->session['Recipes_Backup']->REC_IMG_ETAG)){
 			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'recipe' .(($model->imagechanged)?' cropable':''), 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));
-		} else if ($model->REC_ID) {
+		} else if ($model->REC_ID && isset($model->REC_IMG_ETAG)) {
 			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));
 		}
 	?><br />
 	<div class="row">
 		<?php echo $form->labelEx($model,'filename'); ?>
-		<?php echo $form->FileField($model,'filename'); ?>
+		<div class="imageTip">
+		<?php
+		echo $this->trans->TIP_OWN_IMAGE . '<br>';
+		echo $this->trans->TIP_FLICKR_IMAGE . '<br>';
+		printf($this->trans->TIP_LOOK_ON_FLICKR, $model->__get('REC_NAME_EN_GB')); //.Yii::app()->session['lang']
+		echo '<br>';
+		echo $form->FileField($model,'filename');
+		?>
+		</div>
 		<?php echo $form->error($model,'filename'); ?>
 	</div>
 
@@ -71,7 +79,7 @@
 			//array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('empty'=>$this->trans->GENERAL_CHOOSE)),
 			//array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('fancy'=>true, 'empty'=>$this->trans->GENERAL_CHOOSE, 'url'=>'#'.$this->createUrlHash('ingredients/chooseIngredient',array()), 'htmlOptions'=>array('class'=>'fancyChoose IngredientSelect'))),
 			array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('fancy'=>true, 'empty'=>$this->trans->GENERAL_CHOOSE, 'url'=>array('ingredients/chooseIngredient'), 'htmlOptions'=>array('class'=>'fancyChoose IngredientSelect'))),
-			array('STE_GRAMS', $this->trans->RECIPES_INGREDIENT_AMOUNT, null, null),
+			array('STE_GRAMS', $this->trans->RECIPES_INGREDIENT_AMOUNT, null, array('type_weight'=>'g')),
 		);
 		$text = array('add'=>$this->trans->GENERAL_ADD, 'remove'=>$this->trans->GENERAL_REMOVE, 'move up'=>'-up-', 'move down'=>'-down-', 'options'=>'Options');
 		

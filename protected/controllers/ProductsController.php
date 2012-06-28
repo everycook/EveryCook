@@ -88,7 +88,7 @@ class ProductsController extends Controller
 		if (isset($Session_Product_Backup)){
 			$oldmodel = $Session_Product_Backup;
 		}
-		if (isset($id)){
+		if (isset($id) && $id != null){
 			if (!isset($oldmodel) || $oldmodel->PRO_ID != $id){
 				$oldmodel = $this->loadModel($id, true);
 			}
@@ -107,6 +107,8 @@ class ProductsController extends Controller
 	public function actionUploadImage(){
 		if (isset($_GET['id'])){
 			$id = $_GET['id'];
+		} else {
+			$id=null;
 		}
 		list($model, $oldPicture) = $this->getModelAndOldPic($id);
 		

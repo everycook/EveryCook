@@ -10,6 +10,7 @@
  * @property string $REC_IMG_AUTH
  * @property string $REC_IMG_ETAG
  * @property integer $RET_ID
+ * @property integer $REC_KCAL
  * @property string $REC_NAME_EN_GB
  * @property string $REC_NAME_DE_CH
  * @property integer $CREATED_BY
@@ -49,7 +50,7 @@ class Recipes extends ActiveRecordEC
 		return array(
 			array('RET_ID, REC_NAME_EN_GB, CREATED_BY, CREATED_ON', 'required'),
 			array('REC_IMG_AUTH', 'required', 'on'=>'withPic'),
-			array('PRF_UID, RET_ID, CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
+			array('PRF_UID, RET_ID, REC_KCAL, CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
 			array('REC_IMG_AUTH', 'length', 'max'=>30),
 			array('REC_IMG_ETAG', 'length', 'max'=>40),
 			array('REC_NAME_EN_GB, REC_NAME_DE_CH', 'length', 'max'=>100),
@@ -85,6 +86,7 @@ class Recipes extends ActiveRecordEC
 			'REC_IMG_AUTH' => 'Rec Img Auth',
 			'REC_IMG_ETAG' => 'Rec Img Etag',
 			'RET_ID' => 'Ret',
+			'REC_KCAL' => 'Rec Kcal',
 			'REC_NAME_EN_GB' => 'Rec Name En Gb',
 			'REC_NAME_DE_CH' => 'Rec Name De Ch',
 			'CREATED_BY' => 'Created By',
@@ -106,6 +108,7 @@ class Recipes extends ActiveRecordEC
 		$criteria->compare('REC_IMG_AUTH',$this->REC_IMG_AUTH,true);
 		$criteria->compare('REC_IMG_ETAG',$this->REC_IMG_ETAG,true);
 		$criteria->compare('RET_ID',$this->RET_ID);
+		$criteria->compare('REC_KCAL',$this->REC_KCAL);
 		$criteria->compare('REC_NAME_EN_GB',$this->REC_NAME_EN_GB,true);
 		$criteria->compare('REC_NAME_DE_CH',$this->REC_NAME_DE_CH,true);
 		$criteria->compare('CREATED_BY',$this->CREATED_BY);

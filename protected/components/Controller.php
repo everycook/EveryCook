@@ -44,10 +44,10 @@ class Controller extends CController
 		} else {
 			$newRecSearch=array();
 		}
-		
+		$cmsLink = '/cms/' . strtolower(substr(Yii::app()->session['lang'],0,2)) . '/';
 		$this->mainButtons = array(
 			array('label'=>$this->trans->BOTL_CONTENT, 'link_id'=>'left', 'url'=>array('recipes/search',$newRecSearch)),
-			array('label'=>$this->trans->BOTR_CONTENT, 'link_id'=>'right', 'url'=>array('site/page', array('view'=>'about'))),
+			array('label'=>$this->trans->BOTR_CONTENT, 'link_id'=>'right', 'url'=>$cmsLink),
 			array('label'=>$this->trans->BOTM_CONTENT, 'link_id'=>'middle', 'url'=>array('ingredients/search',$newIngSearch)),
 		);
 	}
@@ -77,6 +77,8 @@ class Controller extends CController
 			$this->trans->JUMPTO_SHOP_FINDER => Yii::app()->createUrl('stores/storeFinder',array()),
 			$this->trans->JUMPTO_FAVORITE_FOOD => Yii::app()->createUrl('profiles/favoriteFood',array()),
 			$this->trans->JUMPTO_FAVORITE_RECIPES => Yii::app()->createUrl('profiles/favoriteRecipes',array()),
+			$this->trans->JUMPTO_MEALLIST => Yii::app()->createUrl('meals/mealList',array()),
+			$this->trans->JUMPTO_MEALPLANNER => Yii::app()->createUrl('meals/mealPlanner',array()),
 		);
 	}
 	
@@ -265,7 +267,7 @@ class Controller extends CController
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/jquery.Jcrop.min.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/imgcrop_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/map_handling.js', CClientScript::POS_HEAD);
-				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/mealplaner.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/mealplanner.js', CClientScript::POS_HEAD);
 				//Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/jquery.slider.min.js', CClientScript::POS_HEAD);
 				//Yii::app()->clientscript->registerCssFile($request_baseurl . '/css/jquery.slider.min.css');
 				Yii::app()->clientscript->registerCoreScript('yiiactiveform');

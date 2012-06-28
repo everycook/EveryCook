@@ -51,7 +51,7 @@ class Steps extends ActiveRecordEC
 		return array(
 			array('REC_ID, STE_STEP_NO, CREATED_BY, CREATED_ON', 'required'),
 			array('REC_ID, ACT_ID, ING_ID, STE_STEP_NO, STE_GRAMS, STE_CELSIUS, STE_KPA, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, STT_ID, CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
-			array('CHANGED_ON, recipe, ingredient, action, stepType', 'safe'),
+			array('ACT_ID, ING_ID, STE_GRAMS, STE_CELSIUS, STE_KPA, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, STT_ID, recipe, ingredient, action, stepType', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('REC_ID, ACT_ID, ING_ID, STE_STEP_NO, STE_GRAMS, STE_CELSIUS, STE_KPA, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, STT_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),

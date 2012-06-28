@@ -44,7 +44,7 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 	'columns'=>array(
 		'MEA_ID',
 		'MEA_DATE',
-		'MEA_TYPE',
+		'MTY_ID',
 		'PRF_UID',
 		'CREATED_ON',
 		'CREATED_BY',

@@ -29,7 +29,10 @@ $this->mainButtons = array(
 	?><br>
 	<br>
 	<div class="options">
-		<?php echo CHtml::link('+', array('user/addrecipes', 'id'=>$model->REC_ID), array('class'=>'button addRecipe', 'title'=>$this->trans->RECIPES_ADD)); ?><br>
+		<?php
+		//echo CHtml::link('+', array('user/addrecipes', 'id'=>$model->REC_ID), array('class'=>'button addRecipe', 'title'=>$this->trans->RECIPES_ADD));
+		echo CHtml::link('&nbsp;', array('meals/mealPlanner', 'rec_id'=>$model->REC_ID), array('class'=>'cookwith_big backpic', 'title'=>$this->trans->RECIPES_MEALPLANNER));
+		?><br>
 		<div class="ingredients">
 			<?php echo CHtml::encode($this->trans->RECIPES_INGREDIENTS_NEEDED); ?>
 			<ul>

@@ -6,7 +6,7 @@
  * The followings are the available columns in table '30608_ecprivate.meals':
  * @property integer $MEA_ID
  * @property integer $MEA_DATE
- * @property string $MEA_TYPE
+ * @property string $MTY_ID
  * @property double $MEA_PERC_GDA
  * @property integer $PRF_UID
  * @property integer $CREATED_ON
@@ -64,12 +64,11 @@ class Meals extends ActiveRecordECPriv
 		return array(
 			array('MEA_PERC_GDA, CREATED_ON, CREATED_BY', 'required'),
 			array('MEA_DATE, PRF_UID, CREATED_ON, CREATED_BY, CHANGED_ON, CHANGED_BY', 'numerical', 'integerOnly'=>true),
-			array('MEA_PERC_GDA', 'numerical'),
-			array('MEA_TYPE', 'length', 'max'=>100),
+			array('MEA_PERC_GDA, MTY_ID', 'numerical'),
 			array('date, hour, minute, CHANGED_ON', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('MEA_ID, MEA_DATE, MEA_TYPE, MEA_PERC_GDA, PRF_UID, CREATED_ON, CREATED_BY, CHANGED_ON, CHANGED_BY', 'safe', 'on'=>'search'),
+			array('MEA_ID, MEA_DATE, MTY_ID, MEA_PERC_GDA, PRF_UID, CREATED_ON, CREATED_BY, CHANGED_ON, CHANGED_BY', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -81,7 +80,8 @@ class Meals extends ActiveRecordECPriv
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'meaToCous' => array(self::HAS_MANY, 'MeaToCou', 'MEA_ID', 'order'=>'meaToCous.MTC_ORDER')
+			'meaToCous' => array(self::HAS_MANY, 'MeaToCou', 'MEA_ID', 'order'=>'meaToCous.MTC_ORDER'),
+			'mealType' => array(self::HAS_ONE, 'MealTypes', 'MTY_ID'),
 		);
 	}
 	
@@ -93,7 +93,7 @@ class Meals extends ActiveRecordECPriv
 		return array(
 			'MEA_ID' => 'Mea',
 			'MEA_DATE' => 'Mea Date',
-			'MEA_TYPE' => 'Mea Type',
+			'MTY_ID' => 'Mea Type',
 			'MEA_PERC_GDA' => 'Mea Perc Gda',
 			'PRF_UID' => 'Prf Uid',
 			'CREATED_ON' => 'Created On',
@@ -116,7 +116,7 @@ class Meals extends ActiveRecordECPriv
 
 		$criteria->compare('MEA_ID',$this->MEA_ID);
 		$criteria->compare('MEA_DATE',$this->MEA_DATE);
-		$criteria->compare('MEA_TYPE',$this->MEA_TYPE,true);
+		$criteria->compare('MTY_ID',$this->MTY_ID,true);
 		$criteria->compare('MEA_PERC_GDA',$this->MEA_PERC_GDA);
 		$criteria->compare('PRF_UID',$this->PRF_UID);
 		$criteria->compare('CREATED_ON',$this->CREATED_ON);

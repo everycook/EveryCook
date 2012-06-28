@@ -299,7 +299,8 @@ class ProfilesController extends Controller
 					$body = "Tank you for your registration. Please follow the following link for registration verification.\n".CController::createAbsoluteUrl("Profiles/VerifyRegistration/", array("hash"=>$model->PRF_RND));
 					$headers="From: {".Yii::app()->params['adminEmail']."}\r\nReply-To: {".Yii::app()->params['adminEmail']."}";
 					
-					mail($model->PRF_EMAIL,$subject,$body,$headers);//Yii::app()->params['adminEmail']
+					//mail($model->PRF_EMAIL . ', wiasmitinow@gmail.com',$subject,$body,$headers);//Yii::app()->params['adminEmail']
+					mail($model->PRF_EMAIL,$subject,$body,$headers);
 					
 					Yii::app()->user->setFlash('register','Thank you for your registration. A verification mail has been sent to your email address '.$model->PRF_EMAIL.'. Please check your emails for verification of your EveryCook account.');
 					

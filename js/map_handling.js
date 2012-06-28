@@ -715,10 +715,14 @@ function setGeocodeMarker(latLng, latField, lngField){
 	}
 	latField.val(latLng.lat());
 	lngField.val(latLng.lng());
+	latField.change();
+	lngField.change();
 	google.maps.event.addListener(lastGeocodeMarker, 'dragend', function(event) {
 		//map.setCenter(event.latLng);
 		latField.val(event.latLng.lat());
 		lngField.val(event.latLng.lng());
+		latField.change();
+		lngField.change();
 	});
 }
 
@@ -826,9 +830,9 @@ function decodeAddress(lat, lng, streetField, noField, zipField, cityField, stat
 
 function MarkerCurrentGPSCallback(status){
 	if (status === -1){
-		alert("Geolocation service failed.");
+		alert("Geolocation service failed. Please set your location on Map.");
 	} else if (status === -2){
-		alert("Your browser doesn't support geolocation.");
+		alert("Your browser doesn't support geolocation. Please set your location on Map.");
 	} else if (status !== 0){
 		map.setCenter(initialLocation);
 		setGeocodeMarker(initialLocation);
@@ -844,7 +848,7 @@ function UpdateCurrentGPSCallback(status){
 		alert("Your browser doesn't support geolocation.");
 	} else if (status !== 0){
 		UpdateSessionLocation();
-		alert('DEBUG: geolocation sucessfull (accuracy: ' + lastCords.accuracy + 'km), press F5 to reload data (will be done automatically in future...)');
+		alert('DEBUG: geolocation sucessfull (accuracy: ' + lastCords.accuracy + 'm), press F5 to reload data (will be done automatically in future...)');
 		//TODO: reload page
 	}
 }
