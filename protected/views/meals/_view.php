@@ -112,13 +112,17 @@
 			?>
 			<div class="f-right">
 				<?php
-				echo CHtml::link($this->trans->GENERAL_CANCEL, array('meals/mealList'), array('class'=>'button', 'id'=>'cancel'));
+				echo CHtml::link($this->trans->GENERAL_CANCEL, array('cancel'), array('class'=>'button', 'id'=>'cancel'));
 				echo CHtml::submitButton($data->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE, array('name'=>'save', 'class'=>'button'));
 				?>
 			</div>
 		<?php
 		} else {
-			echo CHtml::link($this->trans->MEALPLANNER_SAVE_TO_SHOPPINGLIST, array('meals/shoppingList', 'id'=>$data->MEA_ID), array('class'=>'button'));
+			if (isset($data->SHO_ID) && $data->SHO_ID != 0){
+				echo CHtml::link($this->trans->MEALPLANNER_SAVE_TO_SHOPPINGLIST, array('shoppinglists/view', 'id'=>$data->SHO_ID), array('class'=>'button'));
+			} else {
+				echo CHtml::link($this->trans->MEALPLANNER_SAVE_TO_SHOPPINGLIST, array('meals/createShoppingList', 'id'=>$data->MEA_ID), array('class'=>'button'));
+			}
 			?>
 			<div class="f-right">
 				<?php echo CHtml::link($this->trans->GENERAL_EDIT, array('meals/mealplanner', 'id'=>$data->MEA_ID), array('class'=>'button')); ?>

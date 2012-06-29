@@ -12,6 +12,9 @@ class MealsController extends Controller
 		);
 	}
 
+	protected $createBackup = 'Meals_Backup';
+	protected $searchBackup = 'Meals';
+	
 	/**
 	 * Specifies the access control rules.
 	 * This method is used by the 'accessControl' filter.
@@ -25,7 +28,7 @@ class MealsController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','mealPlanner','mealList','changePeople','shoppingList'),
+				'actions'=>array('create','update','mealPlanner','mealList','createShoppingList','cancel'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -37,7 +40,21 @@ class MealsController extends Controller
 			),
 		);
 	}
-
+	
+	public function actionCancel(){
+		$this->saveLastAction = false;
+		$Session_Backup = Yii::app()->session[$this->createBackup];
+		unset(Yii::app()->session[$this->createBackup.'_Time']);
+		if (isset($Session_Backup) && isset($Session_Backup->MEA_ID)){
+			unset(Yii::app()->session[$this->createBackup]);
+			$this->forwardAfterSave(array('view', 'id'=>$Session_Backup->MEA_ID));
+		} else {
+			unset(Yii::app()->session[$this->createBackup]);
+			$this->showLastNotCreateAction();
+			//$this->forwardAfterSave(array('search'));
+		}
+	}
+	
 	/**
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
@@ -53,23 +70,8 @@ class MealsController extends Controller
 	 * Creates a new model.
 	 * If creation is successful, the browser will be redirected to the 'view' page.
 	 */
-	public function actionCreate()
-	{
-		$model=new Meals;
-
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-
-		if(isset($_POST['Meals']))
-		{
-			$model->attributes=$_POST['Meals'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->MEA_ID));
-		}
-
-		$this->checkRenderAjax('create',array(
-			'model'=>$model,
-		));
+	public function actionCreate() {
+		$this->actionMealPlanner();
 	}
 
 	/**
@@ -77,23 +79,8 @@ class MealsController extends Controller
 	 * If update is successful, the browser will be redirected to the 'view' page.
 	 * @param integer $id the ID of the model to be updated
 	 */
-	public function actionUpdate($id)
-	{
-		$model=$this->loadModel($id);
-
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-
-		if(isset($_POST['Meals']))
-		{
-			$model->attributes=$_POST['Meals'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->MEA_ID));
-		}
-
-		$this->checkRenderAjax('update',array(
-			'model'=>$model,
-		));
+	public function actionUpdate($id) {
+		$this->actionMealPlanner();
 	}
 
 	/**
@@ -115,13 +102,23 @@ class MealsController extends Controller
 		else
 			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
 	}
-
+	
+	public function actionMealList(){
+		$this->actionIndex();
+	}
+	
 	/**
 	 * Lists all models.
 	 */
-	public function actionIndex()
-	{
-		$dataProvider=new CActiveDataProvider('Meals');
+	public function actionIndex() {
+		$selectDate = mktime(0,0,0, date("n"), date("j"), date("Y"));
+		$dataProvider=new CActiveDataProvider('Meals', array(
+			'criteria'=>array(
+				'condition'=>'PRF_UID = ' . Yii::app()->user->id,
+				'order'=>'MEA_DATE',
+				//'condition'=>'MEA_DATE > ' . $selectDate, //TODO: only show planed meals in future
+			),
+		));
 		$this->checkRenderAjax('index',array(
 			'dataProvider'=>$dataProvider,
 		));
@@ -147,7 +144,15 @@ class MealsController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 		
-		$Session_Meals_Backup = Yii::app()->session['Meals_Backup'];
+		if (!isset($_GET['id'])){ // -> create
+			if (isset($_GET['newModel']) && isset(Yii::app()->session[$this->createBackup.'_Time']) && $_GET['newModel']>Yii::app()->session[$this->createBackup.'_Time']){
+					unset(Yii::app()->session[$this->createBackup]);
+					unset(Yii::app()->session[$this->createBackup.'_Time']);
+					unset($_GET['newModel']);
+			}
+		}
+		
+		$Session_Meals_Backup = Yii::app()->session[$this->createBackup];
 		if (isset($Session_Meals_Backup)){
 			$oldmodel = $Session_Meals_Backup;
 		}
@@ -202,7 +207,8 @@ class MealsController extends Controller
 			
 			$model = Functions::arrayToRelatedObjects($model, $_POST['Meals']);
 			
-			Yii::app()->session['Meals_Backup'] = $model;
+			Yii::app()->session[$this->createBackup] = $model;
+			Yii::app()->session[$this->createBackup.'_Time'] = time();
 			
 			/*
 			echo '<pre>';
@@ -257,9 +263,14 @@ class MealsController extends Controller
 					if ($saveOK){
 						$transaction2->commit();
 						$transaction->commit();
-						unset(Yii::app()->session['Meals_Backup']);
+						unset(Yii::app()->session[$this->createBackup]);
+						unset(Yii::app()->session[$this->createBackup.'_Time']);
 						if (isset($_POST['saveToShoppingList'])){
-							$this->forwardAfterSave(array('shoppingList', 'id'=>$model->MEA_ID));
+							if (isset($model->SHO_ID) && $model->SHO_ID != 0){
+								$this->forwardAfterSave(array('shoppinglists/view', 'id'=>$model->SHO_ID));
+							} else {
+								$this->forwardAfterSave(array('createShoppingList', 'id'=>$model->MEA_ID));
+							}
 						} else {
 							$this->forwardAfterSave(array('mealList', 'id'=>$model->MEA_ID));
 						}
@@ -346,7 +357,7 @@ class MealsController extends Controller
 			$couPeopleGDA[] = $newCouPeopleGDA;
 		}
 			
-		Yii::app()->session['Meals_Backup'] = $model;
+		Yii::app()->session[$this->createBackup] = $model;
 		
 		$this->checkRenderAjax('mealplanner',array(
 			'model'=>$model,
@@ -359,28 +370,10 @@ class MealsController extends Controller
 		));
 	}
 	
-	public function actionChangePeople(){
-		$this->checkRenderAjax('changePeople',array(
-		));
-	}
-	
-	public function actionMealList(){
-		$selectDate = mktime(0,0,0, date("n"), date("j"), date("Y"));
-		$dataProvider=new CActiveDataProvider('Meals', array(
-			'criteria'=>array(
-				'condition'=>'PRF_UID = ' . Yii::app()->user->id,
-				'order'=>'MEA_DATE',
-				//'condition'=>'MEA_DATE > ' . $selectDate, //TODO: only show planed meals in future
-			),
-		));
-		$this->checkRenderAjax('index',array(
-			'dataProvider'=>$dataProvider,
-		));
-	}
 	
 	
-	
-	public function actionShoppingList($id){
+	public function actionCreateShoppingList($id){
+		$this->saveLastAction = false;
 		$command = Yii::app()->dbp->createCommand()
 			->select('meals.*, mea_to_cou.*')
 			->from('meals')
@@ -410,24 +403,11 @@ class MealsController extends Controller
 			->leftJoin('ingredients', 'ingredients.ING_ID=steps.ING_ID')
 			->where('courses.COU_ID IN (' . $paramName . ') AND ingredients.ING_ID IS NOT NULL',$paramArray)
 			->order('courses.COU_ID, recipes.REC_ID, steps.STE_STEP_NO');
-			
-			/*
-			->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
-			->leftJoin('group_names', 'ingredients.GRP_ID=group_names.GRP_ID')
-			->leftJoin('subgroup_names', 'ingredients.SGR_ID=subgroup_names.SGR_ID')
-			->leftJoin('ingredient_conveniences', 'ingredients.ICO_ID=ingredient_conveniences.ICO_ID')
-			->leftJoin('storability', 'ingredients.STB_ID=storability.STB_ID')
-			->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID')
-			->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
-			->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
-			->leftJoin('stores', 'pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID')
-			->group('ingredients.ING_ID');
-			//echo $command->text;
-			*/
 		
 		$rows = $command->queryAll();
 		
-		$ingredients = array();
+		$ing_to_weights = array();
+		
 		$rec_id = -1;
 		for($i=0; $i<count($rows); ++$i){
 			$row = $rows[$i];
@@ -444,110 +424,101 @@ class MealsController extends Controller
 					$rec_proz = 1;
 				}
 			}
-			$ing_amount = round($row['STE_GRAMS'] * $rec_proz, 2);
-			$ing = array('ING_ID'=>$row['ING_ID'],'ING_NAME_'.Yii::app()->session['lang']=>$row['ING_NAME_'.Yii::app()->session['lang']],'ing_amount'=>$ing_amount);
-			$ingredients[] = $ing;
+			$ing_amount = $row['STE_GRAMS'] * $rec_proz;
 			
-			$rows[$i]['ing_amount'] = $ing_amount;
-			$rows[$i]['meal_gda'] = $meal_gda;
-			$rows[$i]['cou_gda'] = $cou_gda;
-			$rows[$i]['rec_gda'] = $rec_gda;
-			$rows[$i]['rec_kcal'] = $rec_kcal;
-			$rows[$i]['rec_proz'] = $rec_proz;
-		}
-		
-		
-		$dataProvider=new CArrayDataProvider($rows, array(
-			'id'=>'ING_ID',
-			'keyField'=>'ING_ID',
-			'pagination'=>array(
-				'pageSize'=>40,
-			),
-		));
-		
-		$this->checkRenderAjax('shoppingList',array(
-			'dataProvider'=>$dataProvider,
-		));
-	}
-	
-	public function actionShoppingList2($id){
-		$distanceFields = '';
-		if (isset(Yii::app()->session['current_gps']) && isset(Yii::app()->session['current_gps'][2])) {
-			$distanceFields = ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as distance_to_you';
-			$distanceFields .= ', count(DISTINCT IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance . ', products.PRO_ID, NULL)) as distance_to_you_prod';
-		} else {
-			$distanceFields = ', MIN(-1) as distance_to_you';
-			$distanceFields .= ', MIN(-1) as distance_to_you_prod';
-		}
-		
-		if (!Yii::app()->user->isGuest && isset(Yii::app()->user->home_gps) && isset(Yii::app()->user->home_gps[2])){
-			$distanceFields .= ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as distance_to_home';
-			$distanceFields .= ', count(DISTINCT IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\')) <= '. Yii::app()->user->view_distance . ', products.PRO_ID, NULL)) as distance_to_home_prod';
-		} else {
-			$distanceFields .= ', MIN(-1) as distance_to_home';
-			$distanceFields .= ', MIN(-1) as distance_to_home_prod';
-		}
-		
-		$command = Yii::app()->db->createCommand()
-			->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*, count(DISTINCT products.PRO_ID) as pro_count' . $distanceFields)
-			->from('ingredients')
-			->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
-			->leftJoin('group_names', 'ingredients.GRP_ID=group_names.GRP_ID')
-			->leftJoin('subgroup_names', 'ingredients.SGR_ID=subgroup_names.SGR_ID')
-			->leftJoin('ingredient_conveniences', 'ingredients.ICO_ID=ingredient_conveniences.ICO_ID')
-			->leftJoin('storability', 'ingredients.STB_ID=storability.STB_ID')
-			->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID')
-			->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
-			->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
-			->leftJoin('stores', 'pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID')
-			->group('ingredients.ING_ID');
-			//echo $command->text;
-		
-		$suppliersCommand = Yii::app()->db->createCommand()
-			->select('ingredients.ING_ID, suppliers.SUP_NAME')
-			->from('ingredients')
-			->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
-			->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
-			->leftJoin('suppliers', 'suppliers.SUP_ID=pro_to_sto.SUP_ID')
-			->group('ingredients.ING_ID, suppliers.SUP_ID')
-			->order('ingredients.ING_ID, suppliers.SUP_ID');
-		
-		$rows = $command->queryAll();
-		$suppliers = $suppliersCommand->queryAll();
-		
-		$ingredient_id = 0;
-		$supplier_texts = array();
-		$supplier_text = '';
-		foreach($suppliers as $supplier){
-			if ($supplier['ING_ID'] != $ingredient_id){
-				$supplier_texts[$ingredient_id] = $supplier_text;
-				$supplier_text = '';
-				$ingredient_id = $supplier['ING_ID'];
-			}
-			if ($supplier_text != ''){
-				$supplier_text .= ', ';
-			}
-			$supplier_text .= $supplier['SUP_NAME'];
-		}
-		for($i = 0; $i < count($rows); $i++){
-			if (isset($supplier_texts[$rows[$i]['ING_ID']]) && $supplier_texts[$rows[$i]['ING_ID']] != null){
-				$rows[$i]['sup_names'] = $supplier_texts[$rows[$i]['ING_ID']];
+			if(isset($ing_to_weights[$row['ING_ID']])){
+				$ing_to_weights[$row['ING_ID']] += $ing_amount;
 			} else {
-				$rows[$i]['sup_names'] = '';
+				$ing_to_weights[$row['ING_ID']] = $ing_amount;
+			}
+		}
+		$command = Yii::app()->dbp->createCommand()
+			->select('meals.SHO_ID')
+			->from('meals')
+			->where('meals.MEA_ID = :id',array(':id'=>$id));
+		$sho_id = $command->queryScalar();
+		
+		if (!isset($sho_id) || $sho_id == 0){
+			$shoppingList = new Shoppinglists;
+			$shoppingList->SHO_DATE = time(); //TODO
+		} else {
+			$shoppingList = Shoppinglists::model()->findByPk($sho_id);
+			if($shoppingList === null){
+				$shoppingList = new Shoppinglists;
+				$shoppingList->SHO_DATE = time(); //TODO
+				$shoppingList->SHO_ID = $sho_id;
 			}
 		}
 		
-		$dataProvider=new CArrayDataProvider($rows, array(
-			'id'=>'ING_ID',
-			'keyField'=>'ING_ID',
-			'pagination'=>array(
-				'pageSize'=>10,
-			),
-		));
 		
-		$this->checkRenderAjax('shoppingList',array(
-			'dataProvider'=>$dataProvider,
-		));
+		$ing_ids_old = explode(';',$shoppingList->SHO_INGREDIENTS);
+		$ing_weights_old = explode(';',$shoppingList->SHO_WEIGHTS);
+		$pro_ids_old = explode(';',$shoppingList->SHO_PRODUCTS);
+		$amounts_old = explode(';',$shoppingList->SHO_QUANTITIES);
+		
+		$ingToIndex = array();
+		//$ing_to_weights_old = array();
+		for($i=0;$i<count($ing_ids_old);++$i){
+			$ing_id = $ing_ids_old[$i];
+			if ($ing_id != ''){
+				$ingToIndex[$ing_id]=$i;
+				//$ing_to_weights_old[$ing_id] = $ing_weights_old[$i];
+				if (!isset($ing_to_weights[$ing_id])){
+					$ing_to_weights[$ing_id] = $ing_weights_old[$i];
+				}
+			}
+		}
+		
+		$ing_id_text = '';
+		$ing_weight_text = '';
+		$pro_id_text = '';
+		$amount_text = '';
+		foreach($ing_to_weights as $ing_id=>$ing_weight){		
+			if ($ing_id_text != ''){
+				$ing_id_text .= ';';
+				$ing_weight_text .= ';';
+				$pro_id_text .= ';';
+				$amount_text .= ';';
+			}
+			$ing_id_text .= $ing_id;
+			$ing_weight_text .= round($ing_weight, 2);
+			if(isset($ingToIndex[$ing_id])){
+				$pro_id_text .= $pro_ids_old[$ingToIndex[$ing_id]];
+				$amount_text .= $amounts_old[$ingToIndex[$ing_id]];
+			}
+		}
+		
+		$shoppingList->SHO_INGREDIENTS = $ing_id_text;
+		$shoppingList->SHO_WEIGHTS = $ing_weight_text;
+		$shoppingList->SHO_PRODUCTS = $pro_id_text;
+		$shoppingList->SHO_QUANTITIES = $amount_text;
+		if ($shoppingList->save()){		
+			Yii::app()->dbp->createCommand()->update(Meals::model()->tableName(), array('SHO_ID'=>$shoppingList->SHO_ID), 'MEA_ID = :id', array(':id'=>$id));
+			
+			$command = Yii::app()->dbp->createCommand()
+				->select('profiles.PRF_SHOPLISTS')
+				->from('profiles')
+				->where('profiles.PRF_UID = :id',array(':id'=>Yii::app()->user->id));
+			$shoppinglists = $command->queryScalar();
+			if (!isset($shoppinglists) || $shoppinglists == null || $shoppinglists == ''){
+				$shoppinglists = $shoppingList->SHO_ID;
+			} else {
+				//no dupplicates
+				$values = explode(';', $shoppinglists);
+				$values[] = $shoppingList->SHO_ID;
+				$values = array_unique($values);
+				//sort($values, SORT_NUMERIC);
+				$shoppinglists = implode(';', $values);
+			}
+			
+			Yii::app()->dbp->createCommand()->update(Profiles::model()->tableName(), array('PRF_SHOPLISTS'=>$shoppinglists), 'PRF_UID = :id', array(':id'=>Yii::app()->user->id));
+			
+			$this->forwardAfterSave(array('shoppinglists/view', 'id'=>$shoppingList->SHO_ID));
+		} else {
+			echo '<pre>';
+			print_r($shoppingList->getErrors());
+			echo '</pre>';
+		}
 	}
 	
 	/**
@@ -558,7 +529,7 @@ class MealsController extends Controller
 	public function loadModel($id)
 	{
 		if ($id == 'backup'){
-			$model=Yii::app()->session['Meals_Backup'];
+			$model=Yii::app()->session[$this->createBackup];
 		} else {
 			$model=Meals::model()->findByPk($id);
 		}

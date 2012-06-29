@@ -34,8 +34,8 @@ class Controller extends CController
 	public $debug = false;
 	
 	public function useDefaultMainButtons(){
-		if (Yii::app()->session['Ingredient'] && Yii::app()->session['Ingredient']['time']){
-			$newIngSearch=array('newSearch'=>Yii::app()->session['Ingredient']['time']);
+		if (Yii::app()->session['Ingredients'] && Yii::app()->session['Ingredients']['time']){
+			$newIngSearch=array('newSearch'=>Yii::app()->session['Ingredients']['time']);
 		} else {
 			$newIngSearch=array();
 		}
@@ -73,12 +73,13 @@ class Controller extends CController
 	
 	public function getJumpTos(){
 		return array(
-			$this->trans->JUMPTO_SHOP_CREATOR => Yii::app()->createUrl('stores/create',array()),
+			$this->trans->JUMPTO_SHOP_CREATOR => Yii::app()->createUrl('stores/create',array('newModel'=>time())),
 			$this->trans->JUMPTO_SHOP_FINDER => Yii::app()->createUrl('stores/storeFinder',array()),
 			$this->trans->JUMPTO_FAVORITE_FOOD => Yii::app()->createUrl('profiles/favoriteFood',array()),
 			$this->trans->JUMPTO_FAVORITE_RECIPES => Yii::app()->createUrl('profiles/favoriteRecipes',array()),
 			$this->trans->JUMPTO_MEALLIST => Yii::app()->createUrl('meals/mealList',array()),
-			$this->trans->JUMPTO_MEALPLANNER => Yii::app()->createUrl('meals/mealPlanner',array()),
+			$this->trans->JUMPTO_MEALPLANNER => Yii::app()->createUrl('meals/mealPlanner',array('newModel'=>time())),
+			$this->trans->JUMPTO_SHOPPINGLISTS => Yii::app()->createUrl('shoppinglists/index',array()),
 		);
 	}
 	
@@ -139,14 +140,24 @@ class Controller extends CController
 	}
 	
 	protected function afterAction($action){
-		if ($this->saveLastAction){
+		if ($this->saveLastAction && !$this->isFancyAjaxRequest){
 			if (count($_POST) == 0 && $this->route != '' && (substr($this->route, 0, 5) != 'site/')){
 				Yii::app()->session['LAST_ACTION'] = $this->route;
 				$params = $this->getActionParams();
 				if (isset($params['ajaxPaging'])){ // remove "ajaxPaging"-param
 					unset($params['ajaxPaging']);
 				}
+				if (isset($params['noPrev'])){ // remove ajaxPaging "noPrev"-param
+					unset($params['noPrev']);
+				}
+				if (isset($params['noNext'])){ // remove ajaxPaging "noNext"-param
+					unset($params['noNext']);
+				}
 				Yii::app()->session['LAST_ACTION_PARAMS'] = $params;
+				if (!preg_match('/(create|update|assign|mealPlanner)/i', $this->route)){
+					Yii::app()->session['LAST_ACTION_NOT_CREATE'] = $this->route;
+					Yii::app()->session['LAST_ACTION_NOT_CREATE_PARAMS'] = $params;
+				}
 			}
 			if (isset(Yii::app()->session['AFTER_SAVE_FOR']) && Yii::app()->session['AFTER_SAVE_FOR'] != $this->route){
 				unset(Yii::app()->session['AFTER_SAVE_ACTION']);
@@ -180,32 +191,34 @@ class Controller extends CController
 			return;
 		}
 		
+		$this->forwardTo($url);
+	}
+	
+	public function forwardTo($urlparams){
 		if($this->useAjaxLinks && $this->getIsAjaxRequest()){
-			echo "{hash:'" . $this->createUrlHash($url[0], array_splice($url,1)) . "'}";
+			echo "{hash:'" . $this->createUrlHash($urlparams[0], array_splice($urlparams,1)) . "'}";
 		} else {
-			$this->redirect($url);
+			$this->redirect($urlparams);
 		}
 	}
 	
 	public function showLastAction(){
 		if (isset(Yii::app()->session['LAST_ACTION']) && isset(Yii::app()->session['LAST_ACTION_PARAMS'])){
-			if($this->useAjaxLinks && $this->getIsAjaxRequest()){
-				echo "{hash:'" . $this->createUrlHash(Yii::app()->session['LAST_ACTION'], Yii::app()->session['LAST_ACTION_PARAMS']). "'}";
-			} else {
-				$this->redirect(array_merge(array(Yii::app()->session['LAST_ACTION']), Yii::app()->session['LAST_ACTION_PARAMS']));
-			}
+			$this->forwardTo(array_merge(array(Yii::app()->session['LAST_ACTION']), Yii::app()->session['LAST_ACTION_PARAMS']));
 		} else if (isset(Yii::app()->session['LAST_ACTION']) && isset(Yii::app()->session['LAST_ACTION_PARAMS'])){
-			if($this->useAjaxLinks && $this->getIsAjaxRequest()){
-				echo "{hash:'" . $this->createUrlHash(Yii::app()->session['LAST_ACTION']). "'}";
-			} else {
-				$this->redirect(array(Yii::app()->session['LAST_ACTION']));
-			}
+			$this->forwardTo(array(Yii::app()->session['LAST_ACTION']));
 		} else {
-			if($this->useAjaxLinks && $this->getIsAjaxRequest()){
-				echo "{hash:'" . $this->createUrlHash('site/index') . "'}";
-			} else {
-				$this->redirect(array('site/index'));
-			}
+			$this->forwardTo(array('site/index'));
+		}
+	}
+	
+	public function showLastNotCreateAction(){
+		if (isset(Yii::app()->session['LAST_ACTION_NOT_CREATE']) && isset(Yii::app()->session['LAST_ACTION_NOT_CREATE_PARAMS'])){
+			$this->forwardTo(array_merge(array(Yii::app()->session['LAST_ACTION_NOT_CREATE']), Yii::app()->session['LAST_ACTION_NOT_CREATE_PARAMS']));
+		} else if (isset(Yii::app()->session['LAST_ACTION_NOT_CREATE']) && isset(Yii::app()->session['LAST_ACTION_NOT_CREATE_PARAMS'])){
+			$this->forwardTo(array(Yii::app()->session['LAST_ACTION_NOT_CREATE']));
+		} else {
+			$this->forwardTo(array('site/index'));
 		}
 	}
 	
@@ -215,8 +228,14 @@ class Controller extends CController
 			Yii::app()->session['ajaxSession'] = true;
 		}
 		if (isset($_GET['ajaxPaging']) && $_GET['ajaxPaging']){
+			//$this->saveLastAction = false; //TODO: is this correct???
+			$pagingView = 'paging';
+			if (isset($_GET['ajaxPagingView']) && strlen($_GET['ajaxPagingView'])>0){
+				$pagingView = $_GET['ajaxPagingView'];
+				unset($_GET['ajaxPagingView']);
+			}
 			if($this->beforeRender($view)) {
-				$output=$this->renderPartial('paging',$data,true);
+				$output=$this->renderPartial($pagingView,$data,true);
 				$this->afterRender($view,$output);
 				
 				$output=$this->processOutput($output);

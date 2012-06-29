@@ -11,7 +11,10 @@ class ProfilesController extends Controller
 			'accessControl', // perform access control for CRUD operations
 		);
 	}
-
+	
+	protected $createBackup = 'Profiles_Backup';
+	protected $searchBackup = 'Profiles';
+	
 	/**
 	 * Specifies the access control rules.
 	 * This method is used by the 'accessControl' filter.
@@ -25,7 +28,7 @@ class ProfilesController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow',  // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('index','view','create','update','uploadImage','admin','delete', 'favoriteFood', 'favoriteRecipes','ChangeLanguageMenu', 'changeDesignMenu'),
+				'actions'=>array('index','view','create','update','uploadImage','admin','delete', 'favoriteFood', 'favoriteRecipes','ChangeLanguageMenu', 'changeDesignMenu','cancel'),
 				'users'=>array('@'),
 			),
 			array('deny',  // deny all users
@@ -33,8 +36,7 @@ class ProfilesController extends Controller
 			),
 		);
 	}
-
-
+	
 	/**
 	 * Declares class-based actions.
 	 */
@@ -52,7 +54,21 @@ class ProfilesController extends Controller
 			),
 		);
 	}
-
+	
+	public function actionCancel(){
+		$this->saveLastAction = false;
+		$Session_Backup = Yii::app()->session[$this->createBackup];
+		unset(Yii::app()->session[$this->createBackup.'_Time']);
+		if (isset($Session_Backup) && isset($Session_Backup->PRF_UID)){
+			unset(Yii::app()->session[$this->createBackup]);
+			$this->forwardAfterSave(array('view', 'id'=>$Session_Backup->PRF_UID));
+		} else {
+			unset(Yii::app()->session[$this->createBackup]);
+			$this->showLastNotCreateAction();
+			//$this->forwardAfterSave(array('search'));
+		}
+	}
+	
 	/**
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
@@ -65,7 +81,7 @@ class ProfilesController extends Controller
 	}
 	
 	private function getModelAndOldPic($id){
-		$Session_Profiles_Backup = Yii::app()->session['Profiles_Backup'];
+		$Session_Profiles_Backup = Yii::app()->session[$this->createBackup];
 		if (isset($Session_Profiles_Backup)){
 			$oldmodel = $Session_Profiles_Backup;
 		}
@@ -86,6 +102,7 @@ class ProfilesController extends Controller
 	}
 	
 	public function actionUploadImage(){
+		$this->saveLastAction = false;
 		if (isset($_GET['id'])){
 			$id = $_GET['id'];
 		}
@@ -123,7 +140,8 @@ class ProfilesController extends Controller
 				$model->PRF_BIRTHDAY = null;
 			}
 			
-			Yii::app()->session['Profiles_Backup'] = $model;
+			Yii::app()->session[$this->createBackup] = $model;
+			Yii::app()->session[$this->createBackup.'_Time'] = time();
 			if (isset($model->new_pw) && $model->new_pw != ''){
 				$model->setScenario('pw_change');
 			} else {
@@ -147,14 +165,16 @@ class ProfilesController extends Controller
 					Yii::app()->user->home_gps = $home_gps;
 					Yii::app()->user->view_distance = $model->PRF_VIEW_DISTANCE;
 					
-					unset(Yii::app()->session['Profiles_Backup']);
+					unset(Yii::app()->session[$this->createBackup]);
+					unset(Yii::app()->session[$this->createBackup.'_Time']);
 					
 					$this->forwardAfterSave(array('view', 'id'=>$model->PRF_UID));
 					return;
 				}
 			}
 		} else {
-			Yii::app()->session['Profiles_Backup'] = $model;
+			Yii::app()->session[$this->createBackup] = $model;
+			Yii::app()->session[$this->createBackup.'_Time'] = time();
 		}
 
 		$this->checkRenderAjax($view,array(
@@ -168,7 +188,15 @@ class ProfilesController extends Controller
 	 */
 	public function actionCreate()
 	{
+		$this->actionRegister();
+		/*
+		if (isset($_GET['newModel']) && isset(Yii::app()->session[$this->createBackup.'_Time']) && $_GET['newModel']>Yii::app()->session[$this->createBackup.'_Time']){
+				unset(Yii::app()->session[$this->createBackup]);
+				unset(Yii::app()->session[$this->createBackup.'_Time']);
+				unset($_GET['newModel']);
+		}
 		$this->prepareCreateOrUpdate(null, 'create');
+		*/
 	}
 
 	/**
@@ -234,10 +262,14 @@ class ProfilesController extends Controller
 	/**
 	 * Displays the register page
 	 */
-	public function actionRegister() 
-	{ 
-		//$arg = $hash;
-		$Session_Profiles_Backup = Yii::app()->session['Profiles_Backup'];
+	public function actionRegister() {
+		if (isset($_GET['newModel']) && isset(Yii::app()->session[$this->createBackup.'_Time']) && $_GET['newModel']>Yii::app()->session[$this->createBackup.'_Time']){
+				unset(Yii::app()->session[$this->createBackup]);
+				unset(Yii::app()->session[$this->createBackup.'_Time']);
+				unset($_GET['newModel']);
+		}
+		
+		$Session_Profiles_Backup = Yii::app()->session[$this->createBackup];
 		if (isset($Session_Profiles_Backup)){
 			$model = $Session_Profiles_Backup;
 		} else {
@@ -264,7 +296,8 @@ class ProfilesController extends Controller
 				$model->PRF_BIRTHDAY = null;
 			}
 			
-			Yii::app()->session['Profiles_Backup'] = $model;
+			Yii::app()->session[$this->createBackup] = $model;
+			Yii::app()->session[$this->createBackup.'_Time'] = time();
 			if($model->validate()) {
 				// all entered values are valid and no constraint has been violated
 				
@@ -293,7 +326,8 @@ class ProfilesController extends Controller
 				//	$hash = crypt($hash . $password, $salt);
 				//}
 				if($model->save(false)) { //false = not validate again
-					unset(Yii::app()->session['Profiles_Backup']);
+					unset(Yii::app()->session[$this->createBackup]);
+					unset(Yii::app()->session[$this->createBackup.'_Time']);
 					// no errors occured during save, send verification mail & and post message
 					$subject = 'EveryCook Verification Mail';
 					$body = "Tank you for your registration. Please follow the following link for registration verification.\n".CController::createAbsoluteUrl("Profiles/VerifyRegistration/", array("hash"=>$model->PRF_RND));
@@ -350,7 +384,7 @@ class ProfilesController extends Controller
 		}
 		self::$trans=new Translations($_GET['lang']);
 		
-		$Session_Profiles_Backup = Yii::app()->session['Profiles_Backup'];
+		$Session_Profiles_Backup = Yii::app()->session[$this->createBackup];
 		if (isset($Session_Profiles_Backup)){
 			$model = $Session_Profiles_Backup;
 		} else {
@@ -362,7 +396,7 @@ class ProfilesController extends Controller
 		}
 		$model->PRF_LANG = $_GET['lang'];
 
-		Yii::app()->session['Profiles_Backup'] = $model;
+		Yii::app()->session[$this->createBackup] = $model;
 		if (isset($_GET['id'])){
 			$this->redirect(array($action, 'id'=>$_GET['id']));
 		} else {
@@ -412,7 +446,7 @@ class ProfilesController extends Controller
 	public static function loadModel($id)
 	{
 		if ($id == 'backup'){
-			$model=Yii::app()->session['Profiles_Backup'];
+			$model=Yii::app()->session[$this->createBackup];
 		} else {
 			if ($id != Yii::app()->user->id){
 				throw new CHttpException(403,'It\'s not allowed to open profile of other user.');

@@ -54,16 +54,16 @@
 	<?php } ?>
 	
 	<?php
-	echo Functions::createInput($this->trans->INGREDIENTS_GROUP, $model, 'GRP_ID', $groupNames, Functions::DROP_DOWN_LIST, 'groupNames', $htmlOptions_type0, $form);
+	echo Functions::createInput(null, $model, 'GRP_ID', $groupNames, Functions::DROP_DOWN_LIST, 'groupNames', $htmlOptions_type0, $form);
 	if ($model->GRP_ID){
-		echo Functions::createInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'SGR_ID', $subgroupNames, Functions::DROP_DOWN_LIST, 'subgroupNames', $htmlOptions_type0, $form);
+		echo Functions::createInput(null, $model, 'SGR_ID', $subgroupNames, Functions::DROP_DOWN_LIST, 'subgroupNames', $htmlOptions_type0, $form);
 	} else {
 		$htmlOptions_subGroup = array('empty'=>$this->trans->INGREDIENTS_CHOOSE_GROUP_FIRST);
-		echo Functions::createInput($this->trans->INGREDIENTS_SUBGROUP, $model, 'SGR_ID', array(), Functions::DROP_DOWN_LIST, 'subgroupNames', $htmlOptions_subGroup, $form);
+		echo Functions::createInput(null, $model, 'SGR_ID', array(), Functions::DROP_DOWN_LIST, 'subgroupNames', $htmlOptions_subGroup, $form);
 	}
-	echo Functions::createInput($this->trans->INGREDIENTS_STORABILITY, $model, 'STB_ID', $storability, Functions::DROP_DOWN_LIST, 'storability', $htmlOptions_type0, $form);
-	echo Functions::createInput($this->trans->INGREDIENTS_CONVENIENCE, $model, 'ICO_ID', $ingredientConveniences, Functions::DROP_DOWN_LIST, 'ingredientConveniences', $htmlOptions_type0, $form);
-	echo Functions::createInput($this->trans->INGREDIENTS_STATE, $model, 'IST_ID', $ingredientStates, Functions::DROP_DOWN_LIST, 'ingredientStates', $htmlOptions_type0, $form);
+	echo Functions::createInput(null, $model, 'STB_ID', $storability, Functions::DROP_DOWN_LIST, 'storability', $htmlOptions_type0, $form);
+	echo Functions::createInput(null, $model, 'ICO_ID', $ingredientConveniences, Functions::DROP_DOWN_LIST, 'ingredientConveniences', $htmlOptions_type0, $form);
+	echo Functions::createInput(null, $model, 'IST_ID', $ingredientStates, Functions::DROP_DOWN_LIST, 'ingredientStates', $htmlOptions_type0, $form);
 	
 	if ($model->nutrientData && $model->nutrientData->NUT_DESC){
 		$NutrientDescription = $model->nutrientData->NUT_DESC;
@@ -74,7 +74,7 @@
 	
 	<div class="row" id="nutrientData">
 		<?php echo $form->labelEx($model,'NUT_ID',array('label'=>$this->trans->INGREDIENTS_NUTRIENT/*, 'style'=>'vertical-align: middle;'*/)); ?>
-		<div>
+		<div class="imageTip">
 		<?php
 		echo $this->trans->TIP_NUT_ID . '<br>';
 		echo $form->hiddenField($model,'NUT_ID', array('id'=>'NUT_ID', 'class'=>'fancyValue'));
@@ -90,7 +90,7 @@
 	</div>
 	
 	<?php
-		if (isset(Yii::app()->session['Ingredient_Backup']) && isset(Yii::app()->session['Ingredient_Backup']->ING_IMG_ETAG)){
+		if (isset(Yii::app()->session['Ingredients_Backup']) && isset(Yii::app()->session['Ingredients_Backup']->ING_IMG_ETAG)){
 			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'ingredient' .(($model->imagechanged)?' cropable':''), 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
 		} else if ($model->ING_ID && isset($model->ING_IMG_ETAG)) {
 			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
@@ -119,6 +119,7 @@
 
 	<div class="buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE); ?>
+		<?php echo CHtml::link($this->trans->GENERAL_CANCEL, array('cancel'), array('class'=>'button', 'id'=>'cancel')); ?>
 	</div>
 
 <?php $this->endWidget(); ?>

@@ -217,6 +217,7 @@
 		*/ ?>
 		<div class="buttons">
 			<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE); ?>
+			<?php echo CHtml::link($this->trans->GENERAL_CANCEL, array('cancel'), array('class'=>'button', 'id'=>'cancel')); ?>
 		</div>
 	</div>
 	<strong><?php echo $this->trans->PROFILES_SELECT_HOME; ?></strong>

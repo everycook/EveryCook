@@ -154,6 +154,7 @@
 			<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE, array('name'=>'save', 'class'=>'button')); ?>
 			<?php echo CHtml::button('Address to GPS', array('id'=>'Address_to_GPS', 'class'=>'button')); ?>
 			<?php echo CHtml::button('GPS to Address', array('id'=>'GPS_to_Address', 'class'=>'button')); ?>
+			<?php echo CHtml::link($this->trans->GENERAL_CANCEL, array('cancel'), array('class'=>'button', 'id'=>'cancel')); ?>
 		</div>
 	</div>
 	<div id="map_canvas" style="height:300px; width:300px;"></div>

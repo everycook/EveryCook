@@ -15,16 +15,6 @@ $this->menu=array(
 
 <h1>View Meals #<?php echo $model->MEA_ID; ?></h1>
 
-<?php $this->widget('zii.widgets.CDetailView', array(
-	'data'=>$model,
-	'attributes'=>array(
-		'MEA_ID',
-		'MEA_DATE',
-		'MTY_ID',
-		'PRF_UID',
-		'CREATED_ON',
-		'CREATED_BY',
-		'CHANGED_ON',
-		'CHANGED_BY',
-	),
-)); ?>
+<div class="list-view form">
+	<?php $this->renderPartial('_view',array('data'=>$model)); ?>
+</div>

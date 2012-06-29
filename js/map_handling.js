@@ -114,6 +114,10 @@ function checkMapInitialized(){
 }
 
 function initialize() {
+	if (typeof(google) === 'undefined'){
+		return;
+	}
+	
 	if (!locationBasel){
 		locationBasel = new google.maps.LatLng(47.557473,7.592926);
 	}

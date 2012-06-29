@@ -10,7 +10,10 @@ class IngredientsController extends Controller
 			'accessControl', // perform access control for CRUD operations
 		);
 	}
-
+	
+	protected $createBackup = 'Ingredients_Backup';
+	protected $searchBackup = 'Ingredients';
+	
 	/**
 	 * Specifies the access control rules.
 	 * This method is used by the 'accessControl' filter.
@@ -24,7 +27,7 @@ class IngredientsController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','uploadImage','delicious','disgusting'),
+				'actions'=>array('create','update','uploadImage','delicious','disgusting','cancel'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -36,7 +39,21 @@ class IngredientsController extends Controller
 			),
 		);
 	}
-
+	
+	public function actionCancel(){
+		$this->saveLastAction = false;
+		$Session_Backup = Yii::app()->session[$this->createBackup];
+		unset(Yii::app()->session[$this->createBackup.'_Time']);
+		if (isset($Session_Backup) && isset($Session_Backup->ING_ID)){
+			unset(Yii::app()->session[$this->createBackup]);
+			$this->forwardAfterSave(array('view', 'id'=>$Session_Backup->ING_ID));
+		} else {
+			unset(Yii::app()->session[$this->createBackup]);
+			$this->showLastNotCreateAction();
+			//$this->forwardAfterSave(array('search'));
+		}
+	}
+	
 	/**
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
@@ -83,13 +100,14 @@ class IngredientsController extends Controller
 	}
 	
 	public function actionUploadImage(){
+		$this->saveLastAction = false;
 		if (isset($_GET['id'])){
 			$id = $_GET['id'];
 		}
 		
-		$Session_Ingredient_Backup = Yii::app()->session['Ingredient_Backup'];
-		if (isset($Session_Ingredient_Backup)){
-			$oldmodel = $Session_Ingredient_Backup;
+		$Session_Ingredients_Backup = Yii::app()->session[$this->createBackup];
+		if (isset($Session_Ingredients_Backup)){
+			$oldmodel = $Session_Ingredients_Backup;
 		}
 		if (isset($id)){
 			if (!isset($oldmodel) || $oldmodel->ING_ID != $id){
@@ -104,16 +122,16 @@ class IngredientsController extends Controller
 			$model=new Ingredients;
 			$oldPicture = null;
 		}
-		Functions::uploadImage('Ingredients', $model, 'Ingredient_Backup', 'ING_IMG');
+		Functions::uploadImage('Ingredients', $model, 'Ingredients_Backup', 'ING_IMG');
 	}
 		
 	private function prepareCreateOrUpdate($id, $view){
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 		
-		$Session_Ingredient_Backup = Yii::app()->session['Ingredient_Backup'];
-		if (isset($Session_Ingredient_Backup)){
-			$oldmodel = $Session_Ingredient_Backup;
+		$Session_Ingredients_Backup = Yii::app()->session[$this->createBackup];
+		if (isset($Session_Ingredients_Backup)){
+			$oldmodel = $Session_Ingredients_Backup;
 		}
 		if (isset($id)){
 			if (!isset($oldmodel) || $oldmodel->ING_ID != $id){
@@ -135,7 +153,8 @@ class IngredientsController extends Controller
 				Functions::updatePicture($model,'ING_IMG', $oldPicture);
 			}
 			
-			Yii::app()->session['Ingredient_Backup'] = $model;
+			Yii::app()->session[$this->createBackup] = $model;
+			Yii::app()->session[$this->createBackup.'_Time'] = time();
 			if ($model->validate()){
 				$duplicates = null;
 				if (!isset($model->ING_ID)){
@@ -158,7 +177,8 @@ class IngredientsController extends Controller
 					$this->errorText .= CHtml::label('Ignore possible duplicates','ignoreDuplicates') . CHtml::checkBox('ignoreDuplicates');
 				} else {
 					if($model->save()){
-						unset(Yii::app()->session['Ingredient_Backup']);
+						unset(Yii::app()->session[$this->createBackup]);
+						unset(Yii::app()->session[$this->createBackup.'_Time']);
 						$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
 						return;
 					}
@@ -198,6 +218,11 @@ class IngredientsController extends Controller
 	 */
 	public function actionCreate()
 	{
+		if (isset($_GET['newModel']) && isset(Yii::app()->session[$this->createBackup.'_Time']) && $_GET['newModel'] > Yii::app()->session[$this->createBackup.'_Time']){
+				unset(Yii::app()->session[$this->createBackup]);
+				unset(Yii::app()->session[$this->createBackup.'_Time']);
+				unset($_GET['newModel']);
+		}
 		$this->prepareCreateOrUpdate(null, 'create');
 	}
 
@@ -287,8 +312,8 @@ class IngredientsController extends Controller
 			$modelAvailable = true;
 		}
 		
-		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Ingredients']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session['Ingredient']['time'])){
-			$Session_Ingredient = Yii::app()->session['Ingredient'];
+		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Ingredients']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session[$this->searchBackup]['time'])){
+			$Session_Ingredient = Yii::app()->session[$this->searchBackup];
 			if (isset($Session_Ingredient)){
 				if (isset($Session_Ingredient['query'])){
 					$query = $Session_Ingredient['query'];
@@ -309,10 +334,10 @@ class IngredientsController extends Controller
 			if (!$this->isFancyAjaxRequest){
 				$distanceFields = ', count(DISTINCT products.PRO_ID) as pro_count';
 				if (isset(Yii::app()->session['current_gps']) && isset(Yii::app()->session['current_gps'][2])) {
-					$distanceFields = ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as distance_to_you';
+					$distanceFields .= ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as distance_to_you';
 					$distanceFields .= ', count(DISTINCT IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance . ', products.PRO_ID, NULL)) as distance_to_you_prod';
 				} else {
-					$distanceFields = ', MIN(-1) as distance_to_you';
+					$distanceFields .= ', MIN(-1) as distance_to_you';
 					$distanceFields .= ', MIN(-1) as distance_to_you_prod';
 				}
 				
@@ -323,8 +348,9 @@ class IngredientsController extends Controller
 					$distanceFields .= ', MIN(-1) as distance_to_home';
 					$distanceFields .= ', MIN(-1) as distance_to_home_prod';
 				}
+			} else {
+				$distanceFields = ', 0 as pro_count';
 			}
-			
 			$command = Yii::app()->db->createCommand()
 				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*' . $distanceFields)
 				->from('ingredients')
@@ -359,7 +385,7 @@ class IngredientsController extends Controller
 				}
 				$Session_Ingredient['model'] = $model;
 				$Session_Ingredient['time'] = time();
-				Yii::app()->session['Ingredient'] = $Session_Ingredient;
+				Yii::app()->session[$this->searchBackup] = $Session_Ingredient;
 				
 				$criteria = $model->getCriteriaString();
 				//$command = $model->commandBuilder->createFindCommand($model->tableName(), $model->getCriteriaString())
@@ -385,7 +411,7 @@ class IngredientsController extends Controller
 				$Session_Ingredient = array();
 				$Session_Ingredient['query'] = $query;
 				$Session_Ingredient['time'] = time();
-				Yii::app()->session['Ingredient'] = $Session_Ingredient;
+				Yii::app()->session[$this->searchBackup] = $Session_Ingredient;
 				
 				//$rows = $model->commandBuilder->createFindCommand($model->tableName(),$model->commandBuilder->createCriteria($criteriaString))->queryAll();
 				//$rows = $model->commandBuilder->createFindCommand($model->tableName(), $model->getCriteria())->queryAll();
@@ -423,7 +449,7 @@ class IngredientsController extends Controller
 			*/
 		} else {
 			$rows = array();
-			unset(Yii::app()->session['Ingredient']);
+			unset(Yii::app()->session[$this->searchBackup]);
 		}
 		
 		$dataProvider=new CArrayDataProvider($rows, array(
@@ -557,7 +583,7 @@ class IngredientsController extends Controller
 	public function loadModel($id, $withPicture = false)
 	{
 		if ($id == 'backup'){
-			$model=Yii::app()->session['Ingredient_Backup'];
+			$model=Yii::app()->session[$this->createBackup];
 		} else {
 			$model=Ingredients::model()->findByPk($id);
 		}

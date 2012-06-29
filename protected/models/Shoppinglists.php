@@ -1,11 +1,13 @@
 <?php
 
 /**
- * This is the model class for table "shoplists".
+ * This is the model class for table "30608_ecprivate.shoppinglists".
  *
- * The followings are the available columns in table 'shoplists':
+ * The followings are the available columns in table '30608_ecprivate.shoppinglists':
  * @property integer $SHO_ID
  * @property integer $SHO_DATE
+ * @property string $SHO_INGREDIENTS
+ * @property string $SHO_WEIGHTS
  * @property string $SHO_PRODUCTS
  * @property string $SHO_QUANTITIES
  * @property integer $CREATED_BY
@@ -13,11 +15,11 @@
  * @property integer $CHANGED_BY
  * @property string $CHANGED_ON
  */
-class Shoplists extends ActiveRecordECPriv
+class Shoppinglists extends ActiveRecordECPriv
 {
 	/**
 	 * Returns the static model of the specified AR class.
-	 * @return Shoplists the static model class
+	 * @return Shoppinglists the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -29,7 +31,7 @@ class Shoplists extends ActiveRecordECPriv
 	 */
 	public function tableName()
 	{
-		return 'shoplists';
+		return 'shoppinglists';
 	}
 
 	/**
@@ -40,12 +42,12 @@ class Shoplists extends ActiveRecordECPriv
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('SHO_DATE, CREATED_BY, CREATED_ON', 'required'),
+			array('SHO_DATE, SHO_INGREDIENTS, SHO_WEIGHTS, CREATED_BY, CREATED_ON', 'required'),
 			array('SHO_DATE, CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
 			array('SHO_PRODUCTS, SHO_QUANTITIES, CHANGED_ON', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('SHO_ID, SHO_DATE, SHO_PRODUCTS, SHO_QUANTITIES, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('SHO_ID, SHO_DATE, SHO_INGREDIENTS, SHO_WEIGHTS, SHO_PRODUCTS, SHO_QUANTITIES, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -68,6 +70,8 @@ class Shoplists extends ActiveRecordECPriv
 		return array(
 			'SHO_ID' => 'Sho',
 			'SHO_DATE' => 'Sho Date',
+			'SHO_INGREDIENTS' => 'Sho Ingredients',
+			'SHO_WEIGHTS' => 'Sho Weights',
 			'SHO_PRODUCTS' => 'Sho Products',
 			'SHO_QUANTITIES' => 'Sho Quantities',
 			'CREATED_BY' => 'Created By',
@@ -90,6 +94,8 @@ class Shoplists extends ActiveRecordECPriv
 
 		$criteria->compare('SHO_ID',$this->SHO_ID);
 		$criteria->compare('SHO_DATE',$this->SHO_DATE);
+		$criteria->compare('SHO_INGREDIENTS',$this->SHO_INGREDIENTS,true);
+		$criteria->compare('SHO_WEIGHTS',$this->SHO_WEIGHTS,true);
 		$criteria->compare('SHO_PRODUCTS',$this->SHO_PRODUCTS,true);
 		$criteria->compare('SHO_QUANTITIES',$this->SHO_QUANTITIES,true);
 		$criteria->compare('CREATED_BY',$this->CREATED_BY);

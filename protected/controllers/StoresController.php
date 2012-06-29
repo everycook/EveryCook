@@ -11,7 +11,10 @@ class StoresController extends Controller
 			'accessControl', // perform access control for CRUD operations
 		);
 	}
-
+	
+	protected $createBackup = 'Stores_Backup';
+	protected $searchBackup = 'Stores';
+	
 	/**
 	 * Specifies the access control rules.
 	 * This method is used by the 'accessControl' filter.
@@ -25,7 +28,7 @@ class StoresController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','assign'),
+				'actions'=>array('create','update','assign','cancel'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -37,7 +40,21 @@ class StoresController extends Controller
 			),
 		);
 	}
-
+	
+	public function actionCancel(){
+		$this->saveLastAction = false;
+		$Session_Backup = Yii::app()->session[$this->createBackup];
+		unset(Yii::app()->session[$this->createBackup.'_Time']);
+		if (isset($Session_Backup) && isset($Session_Backup->STO_ID)){
+			unset(Yii::app()->session[$this->createBackup]);
+			$this->forwardAfterSave(array('view', 'id'=>$Session_Backup->STO_ID));
+		} else {
+			unset(Yii::app()->session[$this->createBackup]);
+			$this->showLastNotCreateAction();
+			//$this->forwardAfterSave(array('search'));
+		}
+	}
+	
 	/**
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
@@ -89,7 +106,7 @@ class StoresController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 		
-		$Session_Stores = Yii::app()->session['Stores_Backup'];
+		$Session_Stores = Yii::app()->session[$this->createBackup];
 		if (isset($Session_Stores)){
 			$oldmodel = $Session_Stores;
 		}
@@ -112,7 +129,8 @@ class StoresController extends Controller
 			
 			Functions::updatePicture($model,'STO_IMG', $oldPicture);
 			
-			Yii::app()->session['Stores_Backup'] = $model;
+			Yii::app()->session[$this->createBackup] = $model;
+			Yii::app()->session[$this->createBackup.'_Time'] = time();
 			if ($model->validate()){
 				$duplicates = null;
 				if (!isset($model->STO_ID)){
@@ -140,7 +158,8 @@ class StoresController extends Controller
 						$model->STO_GPS_POINT = null;
 					}
 					if($model->save()){
-						unset(Yii::app()->session['Stores_Backup']);
+						unset(Yii::app()->session[$this->createBackup]);
+						unset(Yii::app()->session[$this->createBackup.'_Time']);
 						$this->forwardAfterSave(array('view', 'id'=>$model->STO_ID));
 						return;
 					}
@@ -168,6 +187,11 @@ class StoresController extends Controller
 	 */
 	public function actionCreate()
 	{
+		if (isset($_GET['newModel']) && isset(Yii::app()->session[$this->createBackup.'_Time']) && $_GET['newModel']>Yii::app()->session[$this->createBackup.'_Time']){
+				unset(Yii::app()->session[$this->createBackup]);
+				unset(Yii::app()->session[$this->createBackup.'_Time']);
+				unset($_GET['newModel']);
+		}
 		$this->prepareCreateOrUpdate(null, 'create');
 	}
 
@@ -371,8 +395,8 @@ class StoresController extends Controller
 			$modelAvailable = true;
 		}
 		
-		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Stores']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session['Stores']['time'])){
-			$Session_Stores = Yii::app()->session['Stores'];
+		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Stores']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session[$this->searchBackup]['time'])){
+			$Session_Stores = Yii::app()->session[$this->searchBackup];
 			if (isset($Session_Stores)){
 				if (isset($Session_Stores['query'])){
 					$query = $Session_Stores['query'];
@@ -395,7 +419,7 @@ class StoresController extends Controller
 			}
 			$Session_Stores['model'] = $model;
 			$Session_Stores['time'] = time();
-			Yii::app()->session['Stores'] = $Session_Stores;
+			Yii::app()->session[$this->searchBackup] = $Session_Stores;
 			
 			$criteria = $model->getCriteriaString();
 			//$command = $model->commandBuilder->createFindCommand($model->tableName(), $criteria);
@@ -419,7 +443,7 @@ class StoresController extends Controller
 			$Session_Stores = array();
 			$Session_Stores['query'] = $query;
 			$Session_Stores['time'] = time();
-			Yii::app()->session['Stores'] = $Session_Stores;
+			Yii::app()->session[$this->searchBackup] = $Session_Stores;
 			
 			//$rows = $model->commandBuilder->createFindCommand($model->tableName(),$model->commandBuilder->createCriteria($criteriaString))->queryAll();
 			$command = Yii::app()->db->createCommand()->from($model->tableName())->where($criteriaString);
@@ -428,7 +452,7 @@ class StoresController extends Controller
 			$this->validSearchPerformed = true;
 		} else {
 			$rows = array();
-			unset(Yii::app()->session['Stores']);
+			unset(Yii::app()->session[$this->searchBackup]);
 		}
 		
 		$dataProvider=new CArrayDataProvider($rows, array(
@@ -474,7 +498,7 @@ class StoresController extends Controller
 	public function loadModel($id, $withPicture = false)
 	{
 		if ($id == 'backup'){
-			$model=Yii::app()->session['Stores_Backup'];
+			$model=Yii::app()->session[$this->createBackup];
 		} else {
 			$model=Stores::model()->findByPk($id);
 		}

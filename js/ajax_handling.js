@@ -58,10 +58,12 @@ jQuery(function($){
 	ajaxpaging.next.dom = {};
 	ajaxpaging.next.top = 0;
 	ajaxpaging.next.parent = {};
+	ajaxpaging.next.activ = false;
 	ajaxpaging.prev = {};
 	ajaxpaging.prev.dom = {};
 	ajaxpaging.prev.bottom = 0;
 	ajaxpaging.prev.parent = {};
+	ajaxpaging.prev.activ = false;
 	
 	function initAjaxUpload(){
 		$('form.ajaxupload:not([target='+$.fn.iframePostForm.defaults.iframeID+'])').iframePostForm({
@@ -111,6 +113,7 @@ jQuery(function($){
 		var focusElement = jQuery('input[autofocus]');
 		if (focusElement.length > 0) {
 			focusElement.get(0).focus();
+			focusElement.removeAttr('autofocus');
 		}
 	}
 	
@@ -289,18 +292,18 @@ jQuery(function($){
 	});
 	
 	jQuery('body').undelegate('.fancyForm .button.IngredientSelect','click').delegate('.fancyForm .button.IngredientSelect','click', function(){
-		return fancyChooseSelect ('IngredientSelect', this);
+		return fancyChooseSelect('IngredientSelect', this);
 	});
 	
 	jQuery('body').undelegate('.fancyForm .button.ProducerSelect','click').delegate('.fancyForm .button.ProducerSelect','click', function(){
-		return fancyChooseSelect ('ProducerSelect', this);
+		return fancyChooseSelect('ProducerSelect', this);
 	});
 	jQuery('body').undelegate('.fancyForm .button.StoresSelect','click').delegate('.fancyForm .button.StoresSelect','click', function(){
-		return fancyChooseSelect ('StoresSelect', this);
+		return fancyChooseSelect('StoresSelect', this);
 	});
 	
-	function fancyChooseSelect (fieldIdentifier, caller){
-		elem = jQuery('.activeFancyField');
+	function fancyChooseSelect(fieldIdentifier, caller){
+		var elem = jQuery('.activeFancyField');
 		if (elem.length == 0){
 			elem = jQuery('.fancyChoose.'+fieldIdentifier).siblings('input.fancyValue');
 		}
@@ -480,11 +483,13 @@ jQuery(function($){
 				pagingParent = jQuery(window);
 				ajaxpaging.next.top = ajaxpaging.next.dom.offset().top;
 			} else {
-				ajaxpaging.next.top = ajaxpaging.next.dom.position().top + pagingParent.scrollTop();
+				ajaxpaging.next.top = ajaxpaging.next.dom.position().top + pagingParent.scrollTop() - pagingParent.position().top;
 			}
 			ajaxpaging.next.parent = pagingParent;
+			ajaxpaging.next.activ = true;
 		} else {
 			ajaxpaging.next.dom = undefined;
+			ajaxpaging.next.activ = false;
 		}
 		
 		ajaxpaging.prev.dom = jQuery('#ajaxPagingPrev');
@@ -494,13 +499,15 @@ jQuery(function($){
 			pagingParent = ajaxpaging.prev.dom.parents('.scrollArea:first');
 			if (pagingParent.length == 0){
 				pagingParent = jQuery(window);
-				ajaxpaging.prev.bottom = ajaxpaging.prev.dom.offset().top + ajaxpaging.prev.height();
+				ajaxpaging.prev.bottom = ajaxpaging.prev.dom.offset().top + ajaxpaging.prev.dom.height();
 			} else {
-				ajaxpaging.prev.bottom = ajaxpaging.prev.dom.position().top + ajaxpaging.prev.height() + pagingParent.scrollTop();
+				ajaxpaging.prev.bottom = ajaxpaging.prev.dom.position().top + ajaxpaging.prev.dom.height() + pagingParent.scrollTop();
 			}
 			ajaxpaging.prev.parent = pagingParent;
+			ajaxpaging.prev.activ = true;
 		}else {
 			ajaxpaging.prev.dom = undefined;
+			ajaxpaging.prev.activ = false;
 		}
 	
 		if (pagingParent != null) {
@@ -515,8 +522,7 @@ jQuery(function($){
 		elem.unbind('click');
 		elem.css('cursor','auto');
 		
-		elem.find('.pagingText').hide();
-		elem.find('.pagingLoading').show();
+		elem.addClass('loading');
 		
 		var url = elem.find('.pagingUrl').val();
 		
@@ -530,16 +536,19 @@ jQuery(function($){
 	}
 	
 	function checkStartAjaxPaging(){
-		if (typeof(ajaxpaging.next.dom)==='object') {
+		if (ajaxpaging.next.activ && typeof(ajaxpaging.next.dom)==='object') {
 			if (ajaxpaging.next.parent.scrollTop() + ajaxpaging.next.parent.height() > ajaxpaging.next.top ) {
 				ajaxpaging.next.parent.unbind('.ajaxpaging');
+				ajaxpaging.next.activ = false;
 				ajaxpaging.next.dom.click();
 				return;
 			}
 		}
-		if (typeof(ajaxpaging.prev.dom)==='object') {
-			if (ajaxpaging.prev.parent.scrollTop() + ajaxpaging.prev.parent.height() < ajaxpaging.prev.bottom ) {
-				ajaxpaging.next.parent.unbind('.ajaxpaging');
+		if (ajaxpaging.prev.activ && typeof(ajaxpaging.prev.dom)==='object') {
+			//if (ajaxpaging.prev.parent.scrollTop() + ajaxpaging.prev.parent.height() < ajaxpaging.prev.bottom ) {
+			if (ajaxpaging.prev.parent.scrollTop() < ajaxpaging.prev.bottom ) {
+				ajaxpaging.prev.parent.unbind('.ajaxpaging');
+				ajaxpaging.prev.activ = false;
 				ajaxpaging.prev.dom.click();
 				return;
 			}
@@ -547,6 +556,74 @@ jQuery(function($){
 			//jQuery(window).unbind('.ajaxpaging');
 		}
 	}
+	
+	
+	//Shoppinglist
+	jQuery('body').undelegate('.shoppingList_right .removeFromList','click').delegate('.shoppingList_right .removeFromList','click',function(){
+		var elem = jQuery(this);
+		var url = elem.attr('href');
+		if (url.substr(0,1) == '#'){
+			url = glob.hashToUrl(url.substr(1));
+		}
+		
+		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
+			elem.parents('.resultArea:first').remove();
+		}});
+		
+		return false;
+	});
+	
+	jQuery('body').undelegate('.fancyForm .button.ProductSelect','click').delegate('.fancyForm .button.ProductSelect','click', function(){
+		/*
+		if (jQuery('#shoppinglistView').length == 0){
+			return fancyChooseSelect('ProductSelect', this);
+		}
+		*/
+		var elem = jQuery(this);
+		var elemParent = elem.parent();
+		
+		var destElem = jQuery('.activeFancyField');
+		if (destElem.length == 0){
+			destElem = jQuery('.fancyChoose.ProductSelect').siblings('input.fancyValue');
+		}
+		var destParent = destElem.parent();
+		
+		var gramms = elemParent.find('.PRO_PACKAGE_GRAMMS').val();
+		var url = destParent.parent().find('.setProductLink').val();
+		url = glob.urlAddParamStart(url) + 'pro_id=' + elem.attr('href');
+		url = glob.urlAddParamStart(url) + 'gramms=' + gramms;
+		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
+			//Change Name
+			destElem.siblings('div.name').html(elemParent.find('.name').text());
+			
+			//Change Image
+			var proImg = destParent.parent().find('img');
+			var newProImg = elemParent.find('img');
+			proImg.attr('src', newProImg.attr('src'));
+			proImg.attr('title', newProImg.attr('title'));
+			proImg.attr('alt', newProImg.attr('alt'));
+			
+			//"add" change button
+			var productSelects = destParent.find('.ProductSelect');
+			if (productSelects.length == 2){
+				var secondButton = jQuery(productSelects.get(1));
+				secondButton.prev().remove(); //<br>
+				secondButton.text('change'); //TODO: $this->trans->SHOPPINGLIST_CHANGE_PRODUCT
+				jQuery(productSelects.get(0)).remove();
+			}
+			
+			//Change store infos
+			destParent.find('.ProductsStoreInfo').remove();
+			
+			var storeInfos = elemParent.find('.ProductsStoreInfo');
+			storeInfos = storeInfos.not(storeInfos.has('span a'));
+			destParent.append(storeInfos);
+			
+			jQuery.fancybox.close();
+		}});
+		
+		return false;
+	});
 	
 });
 

@@ -10,7 +10,7 @@ $this->menu=array(
 
 //if ($this->validSearchPerformed){
 	$this->mainButtons = array(
-		array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('producers/create',array())),
+		array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('producers/create',array('newModel'=>time()))),
 	);
 //}
 if ($this->isFancyAjaxRequest){

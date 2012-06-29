@@ -7,12 +7,13 @@ $this->menu=array(
 	array('label'=>'Create Products', 'url'=>array('create')),
 	array('label'=>'Manage Products', 'url'=>array('admin')),
 );
-
-//if ($this->validSearchPerformed){
-	$this->mainButtons = array(
-		array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('products/create',array('ing_id'=>$ing_id))),
-	);
-//}
+if (!$this->isFancyAjaxRequest){
+	//if ($this->validSearchPerformed){
+		$this->mainButtons = array(
+			array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('products/create',array('ing_id'=>$ing_id, 'newModel'=>time()))),
+		);
+	//}
+}
 ?>
 
 <div>
@@ -26,6 +27,7 @@ $this->menu=array(
 		'action'=>Yii::app()->createUrl($this->route),
 		'id'=>'products_form',
 		'method'=>'post',
+		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 	)); ?>
 	<?php  if($ing_id == null){ ?>
 	<div class="f-left search">
@@ -40,17 +42,18 @@ $this->menu=array(
 	</div>
 	*/
 	
-	if (isset(Yii::app()->session['Ingredient']) && isset(Yii::app()->session['Ingredient']['model'])){
-		$back_url = array('ingredients/advanceSearch');
-	} else {
-		$back_url = array('ingredients/search');
+	if (!$this->isFancyAjaxRequest){
+		if (isset(Yii::app()->session['Ingredients']) && isset(Yii::app()->session['Ingredients']['model'])){
+			$back_url = array('ingredients/advanceSearch');
+		} else {
+			$back_url = array('ingredients/search');
+		}
+		echo CHtml::link(CHtml::encode($this->trans->PRODUCTS_BACK_TO_INGREDIENTS), $back_url, array('class'=>'button f-center')); 
 	}
-	echo CHtml::link(CHtml::encode($this->trans->PRODUCTS_BACK_TO_INGREDIENTS), $back_url, array('class'=>'button f-center')); 
 	?>
 	
 	<div class="clearfix"></div>
 	
-<?php $this->endWidget(); ?>
 <div id="map_canvas" style="height:300px; width:300px; display:none;"></div>
 	
 <?php $this->widget('AjaxPagingListView', array(
@@ -59,9 +62,17 @@ $this->menu=array(
 	'ajaxUpdate'=>false,
 	'id'=>'productsResult',
 )); ?>
-<?php echo CHtml::link(CHtml::encode($this->trans->PRODUCTS_BACK_TO_INGREDIENTS), $back_url, array('class'=>'button f-center')); ?>
+<?php
+if (!$this->isFancyAjaxRequest){
+	echo CHtml::link(CHtml::encode($this->trans->PRODUCTS_BACK_TO_INGREDIENTS), $back_url, array('class'=>'button f-center'));
+}
+?>
 
+<?php //if (!$this->isFancyAjaxRequest){ ?>
 <script type="text/javascript">
 	loadScript(false, "CH", false, true, false, false);
 </script>
+<?php //} ?>
+<?php $this->endWidget(); ?>
+
 </div>

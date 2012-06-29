@@ -8,15 +8,17 @@ $this->menu=array(
 	array('label'=>'Manage Ingredients', 'url'=>array('admin')),
 );
 
-//if ($this->validSearchPerformed){
-	$this->mainButtons = array(
-		array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('ingredients/create',array())),
-	);
-//}
+if (!$this->isFancyAjaxRequest){
+	//if ($this->validSearchPerformed){
+		$this->mainButtons = array(
+			array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('ingredients/create',array('newModel'=>time()))),
+		);
+	//}
+}
 
 $ingSearch = array(($this->isFancyAjaxRequest)?'ingredients/advanceChooseIngredient':'ingredients/advanceSearch');
-if (isset(Yii::app()->session['Ingredient']) && isset(Yii::app()->session['Ingredient']['time'])){
-	$ingSearch=array_merge($ingSearch,array('newSearch'=>Yii::app()->session['Ingredient']['time']));
+if (isset(Yii::app()->session['Ingredients']) && isset(Yii::app()->session['Ingredients']['time'])){
+	$ingSearch=array_merge($ingSearch,array('newSearch'=>Yii::app()->session['Ingredients']['time']));
 }
 
 if ($this->isFancyAjaxRequest){ ?>

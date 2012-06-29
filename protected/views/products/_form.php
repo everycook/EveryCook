@@ -31,7 +31,7 @@
 	?>
 	
 	<div class="row" id="ingredient">
-		<?php echo $form->label($model,'ING_ID'); ?>
+		<?php echo $form->label($model,'ING_ID', array('label'=>$this->trans->PRODUCTS_INGREDIENT)); ?>
 		<?php echo $form->hiddenField($model,'ING_ID', array('id'=>'ING_ID', 'class'=>'fancyValue')); ?>
 		<?php echo CHtml::link($IngredientDescription, array('ingredients/chooseIngredient'), array('class'=>'fancyChoose IngredientSelect')) ?>
 	</div>
@@ -84,19 +84,19 @@
 	<div class="row">
 		<?php echo $form->labelEx($model,'PRO_PACKAGE_GRAMMS'); ?>
 		<?php echo $form->textField($model,'PRO_PACKAGE_GRAMMS'); ?>
-		<?php echo CHtml::dropdownList('PACKAGE_MULT', '1', array('1'=>'g','1000'=>'kg')); ?>
+		<?php echo CHtml::dropdownList('PACKAGE_MULT', '1', array('1'=>'g','1000'=>'kg'), array('style'=>'width: 4em;')); ?>
 		<?php echo $form->error($model,'PRO_PACKAGE_GRAMMS'); ?>
 	</div>
 	
 	<?php
 	$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
 	
-	echo Functions::createInput($this->trans->PRODUCTS_SUSTAINABILITY, $model, 'ECO_ID', $ecology, Functions::DROP_DOWN_LIST, 'ecology', $htmlOptions_type0, $form);
-	echo Functions::createInput($this->trans->PRODUCTS_ETHICAL, $model, 'ETH_ID', $ethicalCriteria, Functions::DROP_DOWN_LIST, 'ethicalCriteria', $htmlOptions_type0, $form);
+	echo Functions::createInput(null, $model, 'ECO_ID', $ecology, Functions::DROP_DOWN_LIST, 'ecology', $htmlOptions_type0, $form);
+	echo Functions::createInput(null, $model, 'ETH_ID', $ethicalCriteria, Functions::DROP_DOWN_LIST, 'ethicalCriteria', $htmlOptions_type0, $form);
 	?>
 	
 	<?php
-		if (isset(Yii::app()->session['Product_Backup']) && isset(Yii::app()->session['Product_Backup']->PRO_IMG_ETAG)){
+		if (isset(Yii::app()->session['Products_Backup']) && isset(Yii::app()->session['Products_Backup']->PRO_IMG_ETAG)){
 			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'product' .(($model->imagechanged)?' cropable':''), 'alt'=>$model->PRO_IMG_CR, 'title'=>$model->PRO_IMG_CR));
 		} else if ($model->PRO_ID && isset($model->PRO_IMG_ETAG)) {
 			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$model->PRO_ID, 'ext'=>'.png')), '', array('class'=>'product', 'alt'=>$model->PRO_IMG_CR, 'title'=>$model->PRO_IMG_CR));
@@ -104,17 +104,19 @@
 	?>
 	
 	<div class="row">
-		<?php echo $form->labelEx($model,'filename'); ?>
-		<div class="imageTip">
 		<?php
+		echo $form->labelEx($model,'filename');
+		/*
+		echo '<div class="imageTip">';
 		echo $this->trans->TIP_OWN_IMAGE . '<br>';
 		echo $this->trans->TIP_FLICKR_IMAGE . '<br>';
 		printf($this->trans->TIP_LOOK_ON_FLICKR, $model->__get('PRO_NAME_EN_GB')); //.Yii::app()->session['lang']
 		echo '<br>';
+		*/
 		echo $form->FileField($model,'filename');
+		//e3cho '</div>';
+		echo $form->error($model,'filename');
 		?>
-		</div>
-		<?php echo $form->error($model,'filename'); ?>
 	</div>
 
 	<div class="row">
@@ -127,6 +129,7 @@
 		<?php
 		echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE, array('name'=>'save', 'class'=>'button'));
 		echo CHtml::submitButton($this->trans->PRODUCTS_SAVE_AND_ASSIGN, array('name'=>'saveAddAssing', 'class'=>'button'));
+		echo CHtml::link($this->trans->GENERAL_CANCEL, array('cancel'), array('class'=>'button', 'id'=>'cancel'));
 		?>
 	</div>
 

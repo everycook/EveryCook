@@ -98,3 +98,8 @@ div.mealOverview {
 .meal_course {
 	background-color:#99B299;
 }
+
+.pagingLoading {
+	background: url('../../pics/loading.gif') no-repeat scroll 0 0 transparent;
+	background-size: contain;
+}

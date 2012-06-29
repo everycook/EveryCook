@@ -39,7 +39,7 @@
 	
 	<?php
 	$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
-	echo Functions::createInput($this->trans->RECIPES_TYPE, $model, 'RET_ID', $recipeTypes, Functions::DROP_DOWN_LIST, 'recipeTypes', $htmlOptions_type0, $form);
+	echo Functions::createInput(null, $model, 'RET_ID', $recipeTypes, Functions::DROP_DOWN_LIST, 'recipeTypes', $htmlOptions_type0, $form);
 	?>
 	
 	<?php
@@ -90,6 +90,7 @@
 	</div>
 	<div class="buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE, array('class'=>'button')); ?>
+		<?php echo CHtml::link($this->trans->GENERAL_CANCEL, array('cancel'), array('class'=>'button', 'id'=>'cancel')); ?>
 	</div>
 
 <?php $this->endWidget(); ?>

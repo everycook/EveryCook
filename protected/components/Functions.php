@@ -480,6 +480,7 @@ class Functions extends CHtml{
 			$model->attributes=$_POST[$modelName];
 			$sucessfull = Functions::uploadPicture($model, $pictureFieldName);
 			Yii::app()->session[$sessionBackupName] = $model;
+			Yii::app()->session[$sessionBackupName.'_Time'] = time();
 			
 			if ($sucessfull === true){
 				echo '{imageId:"backup"}';

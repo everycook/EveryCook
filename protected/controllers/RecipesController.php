@@ -10,7 +10,10 @@ class RecipesController extends Controller
 			'accessControl', // perform access control for CRUD operations
 		);
 	}
-
+	
+	protected $createBackup = 'Recipes_Backup';
+	protected $searchBackup = 'Recipes';
+	
 	/**
 	 * Specifies the access control rules.
 	 * This method is used by the 'accessControl' filter.
@@ -24,7 +27,7 @@ class RecipesController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','uploadImage','delicious','disgusting'),
+				'actions'=>array('create','update','uploadImage','delicious','disgusting','cancel'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -35,6 +38,20 @@ class RecipesController extends Controller
 				'users'=>array('*'),
 			),
 		);
+	}
+	
+	public function actionCancel(){
+		$this->saveLastAction = false;
+		$Session_Backup = Yii::app()->session[$this->createBackup];
+		unset(Yii::app()->session[$this->createBackup.'_Time']);
+		if (isset($Session_Backup) && isset($Session_Backup->REC_ID)){
+			unset(Yii::app()->session[$this->createBackup]);
+			$this->forwardAfterSave(array('view', 'id'=>$Session_Backup->REC_ID));
+		} else {
+			unset(Yii::app()->session[$this->createBackup]);
+			$this->showLastNotCreateAction();
+			//$this->forwardAfterSave(array('search'));
+		}
 	}
 	
 	public function calculateNutrientData($id){
@@ -102,11 +119,12 @@ class RecipesController extends Controller
 	}
 
 	public function actionUploadImage(){
+		$this->saveLastAction = false;
 		if (isset($_GET['id'])){
 			$id = $_GET['id'];
 		}
 		
-		$Session_Recipes_Backup = Yii::app()->session['Recipes_Backup'];
+		$Session_Recipes_Backup = Yii::app()->session[$this->createBackup];
 		if (isset($Session_Recipes_Backup)){
 			$oldmodel = $Session_Recipes_Backup;
 		}
@@ -125,23 +143,11 @@ class RecipesController extends Controller
 		Functions::uploadImage('Recipes', $model, 'Recipes_Backup', 'REC_IMG');
 	}
 	
-	public function actionCancel(){
-		$Session_Recipes_Backup = Yii::app()->session['Recipes_Backup'];
-		if (isset($Session_Recipes_Backup) && isset($Session_Recipes_Backup->REC_ID)){
-			unset(Yii::app()->session['Recipes_Backup']);
-			$this->forwardAfterSave(array('view', 'id'=>$Session_Recipes_Backup->REC_ID));
-		} else {
-			unset(Yii::app()->session['Recipes_Backup']);
-			$this->forwardAfterSave(array('search'));
-			//$this->showLastAction();
-		}
-	}
-	
 	private function prepareCreateOrUpdate($id, $view){
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 		
-		$Session_Recipes_Backup = Yii::app()->session['Recipes_Backup'];
+		$Session_Recipes_Backup = Yii::app()->session[$this->createBackup];
 		if (isset($Session_Recipes_Backup)){
 			$oldmodel = $Session_Recipes_Backup;
 		}
@@ -208,7 +214,8 @@ class RecipesController extends Controller
 				Functions::updatePicture($model,'REC_IMG', $oldPicture);
 			}
 			
-			Yii::app()->session['Recipes_Backup'] = $model;
+			Yii::app()->session[$this->createBackup] = $model;
+			Yii::app()->session[$this->createBackup.'_Time'] = time();
 			if ($stepsOK){
 				$transaction=$model->dbConnection->beginTransaction();
 				try {
@@ -238,7 +245,8 @@ class RecipesController extends Controller
 						if ($saveOK){
 							$this->updateKCal($model->REC_ID);
 							$transaction->commit();
-							unset(Yii::app()->session['Recipes_Backup']);
+							unset(Yii::app()->session[$this->createBackup]);
+							unset(Yii::app()->session[$this->createBackup.'_Time']);
 							$this->forwardAfterSave(array('view', 'id'=>$model->REC_ID));
 							return;
 						} else {
@@ -320,6 +328,11 @@ class RecipesController extends Controller
 	 */
 	public function actionCreate()
 	{
+		if (isset($_GET['newModel']) && isset(Yii::app()->session[$this->createBackup.'_Time']) && $_GET['newModel']>Yii::app()->session[$this->createBackup.'_Time']){
+				unset(Yii::app()->session[$this->createBackup]);
+				unset(Yii::app()->session[$this->createBackup.'_Time']);
+				unset($_GET['newModel']);
+		}
 		$this->prepareCreateOrUpdate(null, 'create');
 	}
 
@@ -514,7 +527,7 @@ class RecipesController extends Controller
 	public function loadModel($id, $withPicture = false)
 	{
 		if ($id == 'backup'){
-			$model=Yii::app()->session['Recipes_Backup'];
+			$model=Yii::app()->session[$this->createBackup];
 		} else {
 			$model=Recipes::model()->findByPk($id);
 		}

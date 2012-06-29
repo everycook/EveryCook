@@ -261,8 +261,19 @@ div.resultArea img.store {
 	border-radius:0.8em;
 }
 
+div.resultArea img.shoppinglist_product {
+	width:8em;
+	height:8em;
+	border-radius:0.8em;
+}
+
 div.resultArea div.data {
 	margin-left:12.8em;
+}
+
+div.resultArea div.data_right {
+	margin-right: 10em;
+	text-align: right;
 }
 
 div.resultArea.noPic div.data {
@@ -666,93 +677,41 @@ div.mealView span.value {
 	margin-left: 0.25em;
 }
 
-
-
-.jslider_plastic .jslider-bg i,
-.jslider_plastic .jslider-pointer {
-	background-image: url('../pics/jslider.plastic.png');
-} 
-
-
-
-
-
-
-
-
-
-.portlet
-{
-
+.shoppingList_left {
+	float: left;
+}
+.shoppingList_right {
+	float: right;
+}
+.shoppingList_right .shoppingList_image {
+	float: right;
+	text-align: center;
+}
+.shoppingList_right .shoppingList_image img {
+	margin-bottom: 0.8em;
 }
 
-.portlet-decoration
-{
-	padding: 3px 8px;
-	background: #B7D6E7;
-	border-left: 0.4em solid #6FACCF;
+.shoppingList_right .data_right .button {
+	margin-bottom: 0.8em;
 }
 
-.portlet-title
-{
-	font-size: 12px;
-	font-weight: bold;
-	padding: 0;
-	margin: 0;
-	color: #298dcd;
+
+#ajaxPaging, 
+#ajaxPagingPrev {
+	text-align: center;
+	padding: 0.5em;
+}
+.pagingLoading {
+	display: none;
+	height: 1.5em;
+	width: 1.5em;
+	display: none;
 }
 
-.portlet-content
-{
-	font-size:0.9em;
-	margin: 0 0 10.4em 0;
-	padding: 0.4em 8px;
-	background:#EFFDFF;
+.loading .pagingText {
+	display: none;
 }
-
-.portlet-content ul
-{
-	list-style-image:none;
-	list-style-position:outside;
-	list-style-type:none;
-	margin: 0;
-	padding: 0;
-}
-
-.portlet-content li
-{
-	padding: 2px 0 4px 0px;
-}
-
-.operations
-{
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-}
-
-.operations li
-{
-	padding-bottom: 2px;
-}
-
-.operations li a
-{
-	font: bold 12px Arial;
-	color: #0066A4;
-	display: block;
-	padding: 2px 0 2px 8px;
-	line-height: 12px;
-	text-decoration: none;
-}
-
-.operations li a:visited
-{
-	color: #0066A4;
-}
-
-.operations li a:hover
-{
-	background: #80CFFF;
+.loading .pagingLoading {
+	display: inline-block;
 }
 

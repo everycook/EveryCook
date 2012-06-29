@@ -18,11 +18,6 @@ class AjaxPager extends CBasePager
 	{
 		if(!isset($this->htmlOptions['id']))
 			$this->htmlOptions['id']=$this->getId();
-		
-		
-		Yii::app()->controller->trans->GENERAL_CLICK_TO_LOAD_NEXTPAGE;
-		Yii::app()->controller->trans->GENERAL_LOADING_PREVPAGE;
-		Yii::app()->controller->trans->GENERAL_CLICK_TO_LOAD_PREVPAGE;
 	}
 
 	/**
@@ -35,26 +30,25 @@ class AjaxPager extends CBasePager
 			return;
 		$currentPage = $this->getCurrentPage();
 		$params = $this->getController()->getActionParams();
-		
 		if ($this->prev){
-			$this->prev = false;
-			if ($currentPage<=1)
+			if ($currentPage<=0)
 				return;
 			if (isset($_GET['noPrev']) && $_GET['noPrev'])
 				return;
 			$nextPage = $currentPage-1;
 			$params['noNext'] = true;
-			$text = Yii::app()->controller->trans->GENERAL_LOADING_NEXTPAGE;
+			$text = Yii::app()->controller->trans->GENERAL_LOADING_PREVPAGE;
+			//Yii::app()->controller->trans->GENERAL_CLICK_TO_LOAD_PREVPAGE;
 		} else {
-			if ($currentPage>=$pageCount)
-				return;
 			if (isset($_GET['noNext']) && $_GET['noNext'])
 				return;
 			$nextPage = $currentPage+1;
+			if ($nextPage>=$pageCount)
+				return;
 			$params['noPrev'] = true;
-			$text = Yii::app()->controller->trans->GENERAL_LOADING_PREVPAGE;
+			$text = Yii::app()->controller->trans->GENERAL_LOADING_NEXTPAGE;
+			//Yii::app()->controller->trans->GENERAL_CLICK_TO_LOAD_NEXTPAGE;
 		}
-		$text = 'load next page';
 		
 		$params['ajaxPaging'] = true;
 		$this->getPages()->params = $params;
@@ -64,7 +58,7 @@ class AjaxPager extends CBasePager
 		echo '<div id="ajaxPaging' . (($nextPage<$currentPage)?'Prev':'') . '" class="ajaxPagingAutoLoad">';
 		echo '<input type="hidden" class="pagingUrl" value="' . $url . '"/>';
 		echo '<div class="pagingText">' . $text . '</div>';
-		echo '<div class="pagingLoading"></div>';
+		echo '<div class="pagingLoading backpic"></div>';
 		echo '</div>';
 	}
 }

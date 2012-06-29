@@ -1,6 +1,11 @@
 <div class="resultArea">
-	<!-- STL show image -->
-	<?php echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$data['ING_IMG_AUTH'], 'title'=>$data['ING_IMG_AUTH'])), array('view', 'id'=>$data['ING_ID'])); ?>
+	<?php
+	if (!$this->isFancyAjaxRequest){
+		echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$data['ING_IMG_AUTH'], 'title'=>$data['ING_IMG_AUTH'])), array('view', 'id'=>$data['ING_ID']));
+	} else {
+		echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$data['ING_IMG_AUTH'], 'title'=>$data['ING_IMG_AUTH']));
+	}
+	?>
 	
 	<?php
 	if ($this->isFancyAjaxRequest){
@@ -85,7 +90,7 @@
 				
 				echo '</span></div></a>';
 			} else {
-				echo '<a href="' . Yii::app()->createUrl('products/create',array('ing_id'=>$data['ING_ID'])) . '" class="button shopInfo" title="' . $this->trans->INGREDIENTS_CREATE_PRODUCTS . '">';
+				echo '<a href="' . Yii::app()->createUrl('products/create',array('ing_id'=>$data['ING_ID'], 'newModel'=>time())) . '" class="button shopInfo" title="' . $this->trans->INGREDIENTS_CREATE_PRODUCTS . '">';
 				echo '<div class="shopInfo">' . $this->trans->INGREDIENTS_CREATE_PRODUCTS . '</div>';
 				echo '</a>';
 			}

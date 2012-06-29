@@ -11,7 +11,10 @@ class ProductsController extends Controller
 			'accessControl', // perform access control for CRUD operations
 		);
 	}
-
+	
+	protected $createBackup = 'Products_Backup';
+	protected $searchBackup = 'Products';
+	
 	/**
 	 * Specifies the access control rules.
 	 * This method is used by the 'accessControl' filter.
@@ -21,11 +24,11 @@ class ProductsController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','displaySavedImage'),
+				'actions'=>array('index','view','search','displaySavedImage','chooseProduct'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','uploadImage','delicious','disgusting'),
+				'actions'=>array('create','update','uploadImage','delicious','disgusting','cancel'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -37,7 +40,21 @@ class ProductsController extends Controller
 			),
 		);
 	}
-
+	
+	public function actionCancel(){
+		$this->saveLastAction = false;
+		$Session_Backup = Yii::app()->session[$this->createBackup];
+		unset(Yii::app()->session[$this->createBackup.'_Time']);
+		if (isset($Session_Backup) && isset($Session_Backup->PRO_ID)){
+			unset(Yii::app()->session[$this->createBackup]);
+			$this->forwardAfterSave(array('view', 'id'=>$Session_Backup->PRO_ID));
+		} else {
+			unset(Yii::app()->session[$this->createBackup]);
+			$this->showLastNotCreateAction();
+			//$this->forwardAfterSave(array('search'));
+		}
+	}
+	
 	/**
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
@@ -84,9 +101,9 @@ class ProductsController extends Controller
 	}
 	
 	private function getModelAndOldPic($id){
-		$Session_Product_Backup = Yii::app()->session['Product_Backup'];
-		if (isset($Session_Product_Backup)){
-			$oldmodel = $Session_Product_Backup;
+		$Session_Products_Backup = Yii::app()->session[$this->createBackup];
+		if (isset($Session_Products_Backup)){
+			$oldmodel = $Session_Products_Backup;
 		}
 		if (isset($id) && $id != null){
 			if (!isset($oldmodel) || $oldmodel->PRO_ID != $id){
@@ -105,6 +122,7 @@ class ProductsController extends Controller
 	}
 	
 	public function actionUploadImage(){
+		$this->saveLastAction = false;
 		if (isset($_GET['id'])){
 			$id = $_GET['id'];
 		} else {
@@ -112,7 +130,7 @@ class ProductsController extends Controller
 		}
 		list($model, $oldPicture) = $this->getModelAndOldPic($id);
 		
-		Functions::uploadImage('Products', $model, 'Product_Backup', 'PRO_IMG');
+		Functions::uploadImage('Products', $model, 'Products_Backup', 'PRO_IMG');
 	}
 	
 	private function prepareCreateOrUpdate($id, $view){
@@ -153,7 +171,8 @@ class ProductsController extends Controller
 				$model->PRO_PACKAGE_GRAMMS = $model->PRO_PACKAGE_GRAMMS * $_POST['PACKAGE_MULT'];
 			}
 			
-			Yii::app()->session['Product_Backup'] = $model;
+			Yii::app()->session[$this->createBackup] = $model;
+			Yii::app()->session[$this->createBackup.'_Time'] = time();
 			if ($model->validate()){
 				$duplicates = null;
 				if (!isset($model->PRO_ID)){
@@ -220,7 +239,8 @@ class ProductsController extends Controller
 								ProToPrd::model()->deleteAllByAttributes(array('PRO_ID'=>$model->PRO_ID, 'PRD_ID'=>$removeIDs));
 							}
 							
-							unset(Yii::app()->session['Product_Backup']);
+							unset(Yii::app()->session[$this->createBackup]);
+							unset(Yii::app()->session[$this->createBackup.'_Time']);
 							if (isset($_POST['saveAddAssing'])){
 								$dest = array('stores/assign', 'pro_id'=>$model->PRO_ID);
 							} else {
@@ -257,6 +277,11 @@ class ProductsController extends Controller
 	 */
 	public function actionCreate()
 	{
+		if (isset($_GET['newModel']) && isset(Yii::app()->session[$this->createBackup.'_Time']) && $_GET['newModel']>Yii::app()->session[$this->createBackup.'_Time']){
+				unset(Yii::app()->session[$this->createBackup]);
+				unset(Yii::app()->session[$this->createBackup.'_Time']);
+				unset($_GET['newModel']);
+		}
 		$this->prepareCreateOrUpdate(null, 'create');
 	}
 
@@ -290,8 +315,7 @@ class ProductsController extends Controller
 			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
 	}
 	
-	public function actionSearch()
-	{
+	private function prepareSearch($view, $ajaxLayout){
 		$model=new Products('search');
 		$model->unsetAttributes();  // clear any default values
 		if(isset($_GET['Products']))
@@ -312,8 +336,8 @@ class ProductsController extends Controller
 			$ing_id = $_GET['ing_id'];
 		}
 		
-		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Products']) && !isset($_GET['ing_id']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session['Product']['time'])){
-			$Session_Product = Yii::app()->session['Product'];
+		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Products']) && !isset($_GET['ing_id']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session[$this->searchBackup]['time'])){
+			$Session_Product = Yii::app()->session[$this->searchBackup];
 			if (isset($Session_Product)){
 				if (isset($Session_Product['query'])){
 					$query = $Session_Product['query'];
@@ -338,7 +362,7 @@ class ProductsController extends Controller
 			$Session_Product = array();
 			$Session_Product['ing_id'] = $ing_id;
 			$Session_Product['time'] = time();
-			Yii::app()->session['Product'] = $Session_Product;
+			Yii::app()->session[$this->searchBackup] = $Session_Product;
 			
 			$criteria = array('products.ING_ID=:id', array(':id'=>$ing_id));
 		} else {
@@ -347,48 +371,52 @@ class ProductsController extends Controller
 				$Session_Product = array();
 				$Session_Product['query'] = $query;
 				$Session_Product['time'] = time();
-				Yii::app()->session['Product'] = $Session_Product;
+				Yii::app()->session[$this->searchBackup] = $Session_Product;
 			} else {
-				unset(Yii::app()->session['Product']);
+				unset(Yii::app()->session[$this->searchBackup]);
 			}
 		}
 		if ($criteria != ''){
 			$distanceForGroupSQL = 'SELECT
 				theView.PRO_ID,
+				MAX(min_dist) as min_dist,
 				MAX(dist) as dist,
-				SUM(amount) as amount
+				SUM(amount) as amount,
+				SUM(amount_range) as amount_range
 				FROM (
 					(SELECT
 						@count := 0,
 						@oldId := 0 AS PRO_ID,
+						0 AS min_dist,
 						0 AS dist,
-						0 AS amount)
+						0 AS amount,
+						0 As amount_range)
 					UNION
 					(SELECT
 						@count := if(@oldId = id, @count+1, 0),
 						@oldId := id,
+						if(@count = 1, value, 0),
 						if(@count < :count, value, 0),
-						if(@count < :count, 1, 0)
+						if(@count < :count, 1, 0),
+						if(value < :view_distance, 1, 0)
 					FROM
 						(SELECT products.PRO_ID as id, cosines_distance(stores.STO_GPS_POINT, GeomFromText(\':point\')) as value
 						FROM products
 						LEFT JOIN pro_to_sto ON pro_to_sto.PRO_ID=products.PRO_ID 
 						LEFT JOIN stores ON pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID
-						WHERE stores.STO_GPS_POINT is not NULL
+						WHERE stores.STO_GPS_POINT IS NOT NULL
 						ORDER BY products.PRO_ID, value ASC) AS theTable
 					)
 				) AS theView
 				WHERE theView.PRO_ID != 0 AND dist != 0
 				GROUP BY theView.PRO_ID;';
 			
-			$distanceFields = '';
 			if (isset(Yii::app()->session['current_gps']) && isset(Yii::app()->session['current_gps'][2])) {
-				$distanceFields = ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->session['current_gps'][2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as stores_near_you';
-				
 				$point = Yii::app()->session['current_gps'][2];
 				$count = 5;
 				$youDistanceForGroupSQL = str_replace(':point', $point, $distanceForGroupSQL);
 				$youDistanceForGroupSQL = str_replace(':count', $count, $youDistanceForGroupSQL);
+				$youDistanceForGroupSQL = str_replace(':view_distance', Yii::app()->user->view_distance, $youDistanceForGroupSQL);
 				$youDistCommand = Yii::app()->db->createCommand($youDistanceForGroupSQL);
 				/*
 				$youDistCommand = Yii::app()->db->createCommand($distanceForGroupSQL);
@@ -398,17 +426,15 @@ class ProductsController extends Controller
 				*/
 				$hasYouDist = true;
 			} else {
-				$distanceFields = ', min(-1) as stores_near_you';
 				$hasYouDist = false;
 			}
 			
 			if (!Yii::app()->user->isGuest && isset(Yii::app()->user->home_gps) && isset(Yii::app()->user->home_gps[2])){
-				$distanceFields .= ', SUM(IF(cosines_distance(stores.STO_GPS_POINT, GeomFromText(\'' . Yii::app()->user->home_gps[2] . '\')) <= '. Yii::app()->user->view_distance . ', 1, 0)) as stores_near_home';
-				
 				$point = Yii::app()->user->home_gps[2];
 				$count = 5;
 				$homeDistanceForGroupSQL = str_replace(':point', $point, $distanceForGroupSQL);
 				$homeDistanceForGroupSQL = str_replace(':count', $count, $homeDistanceForGroupSQL);
+				$homeDistanceForGroupSQL = str_replace(':view_distance', Yii::app()->user->view_distance, $homeDistanceForGroupSQL);
 				$HomeDistCommand = Yii::app()->db->createCommand($homeDistanceForGroupSQL);
 				/*
 				$HomeDistCommand = Yii::app()->db->createCommand($distanceForGroupSQL);
@@ -417,18 +443,15 @@ class ProductsController extends Controller
 				*/
 				$hasHomeDist = true;
 			} else {
-				$distanceFields .= ', Min(-1) as stores_near_home';
 				$hasHomeDist = false;
 			}
 			
 			$command = Yii::app()->db->createCommand()
-				->select('products.*, ecology.*, ethical_criteria.*' . $distanceFields)
+				->select('products.*, ecology.*, ethical_criteria.*')
 				->from('products')
 				->leftJoin('ingredients', 'products.ING_ID=ingredients.ING_ID')
 				->leftJoin('ecology', 'products.ECO_ID=ecology.ECO_ID')
 				->leftJoin('ethical_criteria', 'products.ETH_ID=ethical_criteria.ETH_ID')
-				->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
-				->leftJoin('stores', 'pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID')
 				->group('products.PRO_ID');
 			
 			if (is_array($criteria)){
@@ -453,20 +476,23 @@ class ProductsController extends Controller
 				$youDistRows = $youDistCommand->queryAll();
 				$youDistArray = array();
 				foreach ($youDistRows as $row){
-					$youDistArray[$row['PRO_ID']] = array($row['dist'], $row['amount']);
+					$youDistArray[$row['PRO_ID']] = array($row['dist'], $row['amount'], $row['min_dist'], $row['amount_range']);
 				}
 			}
 			if ($hasHomeDist){
 				$homeDistRows = $HomeDistCommand->queryAll();
 				$homeDistArray = array();
 				foreach ($homeDistRows as $row){
-					$homeDistArray[$row['PRO_ID']] = array($row['dist'], $row['amount']);
+					$homeDistArray[$row['PRO_ID']] = array($row['dist'], $row['amount'], $row['min_dist'], $row['amount_range']);
 				}
 			}
+			$order_you = array();
+			$order_home = array();
 			for ($i=0; $i<count($rows); $i++){
 				if ($hasYouDist){
 					if (isset($youDistArray[$rows[$i]['PRO_ID']])){
 						$rows[$i]['distance_to_you'] = $youDistArray[$rows[$i]['PRO_ID']];
+						$order_you[$youDistArray[$rows[$i]['PRO_ID']][2]] = $i;
 					} else  {
 						$rows[$i]['distance_to_you'] = -2;
 					}
@@ -476,11 +502,29 @@ class ProductsController extends Controller
 				if ($hasHomeDist){
 					if (isset($homeDistArray[$rows[$i]['PRO_ID']])){
 						$rows[$i]['distance_to_home'] = $homeDistArray[$rows[$i]['PRO_ID']];
+						$order_home[$homeDistArray[$rows[$i]['PRO_ID']][2]] = $i;
 					} else  {
 						$rows[$i]['distance_to_home'] = -2;
 					}
 				} else {
 					$rows[$i]['distance_to_home'] = -1;
+				}
+			}
+			if (isset($_GET['order'])){
+				if ($_GET['order'] == 'you'){
+					$orderArray = $order_you;
+				} else if ($_GET['order'] == 'home'){
+					$orderArray = $order_home;
+				} else {
+					$orderArray = array();
+				}
+				if (count($orderArray)>0){
+					ksort($orderArray, SORT_NUMERIC);
+					$newRows = array();
+					foreach($orderArray as $min_dist=>$index){
+						$newRows[]=$rows[$index];
+					}
+					$rows = $newRows;
 				}
 			}
 		} else {
@@ -495,12 +539,22 @@ class ProductsController extends Controller
 			),
 		));
 		
-		$this->checkRenderAjax('search',array(
+		$this->checkRenderAjax($view,array(
 			'model'=>$model,
 			'model2'=>$model2,
 			'dataProvider'=>$dataProvider,
 			'ing_id'=>$ing_id,
-		));
+		), $ajaxLayout);
+	}
+	
+	
+	public function actionSearch() {
+		$this->prepareSearch('search', null);
+	}
+	
+	public function actionChooseProduct(){
+		$this->isFancyAjaxRequest = true;
+		$this->prepareSearch('search', 'none');
 	}
 
 	/**
@@ -537,7 +591,7 @@ class ProductsController extends Controller
 	public function loadModel($id, $withPicture = false)
 	{
 		if ($id == 'backup'){
-			$model=Yii::app()->session['Product_Backup'];
+			$model=Yii::app()->session[$this->createBackup];
 		} else {
 			$model=Products::model()->findByPk($id);
 		}

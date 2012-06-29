@@ -549,7 +549,7 @@ jQuery(function($){
 						oldFields = oldFields.not(field.prev());
 						oldFields = oldFields.not(field.prev().prev());
 					}
-					if (field.val().length == 0 || fieldOpt[1] != 0){
+					if (field.val().length == 0){
 						setFieldValue(field,fieldOpt[1]);
 					}
 					if (required.indexOf(fieldOpt[0]) == -1){

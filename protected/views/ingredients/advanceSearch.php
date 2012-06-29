@@ -8,12 +8,13 @@ $this->menu=array(
 	array('label'=>'Manage Ingredients', 'url'=>array('admin')),
 );
 
-//if ($this->validSearchPerformed){
-	$this->mainButtons = array(
-		array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('ingredients/create',array())),
-	);
-//}
-
+if (!$this->isFancyAjaxRequest){
+	//if ($this->validSearchPerformed){
+		$this->mainButtons = array(
+			array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('ingredients/create',array('newModel'=>time()))),
+		);
+	//}
+}
 if ($this->isFancyAjaxRequest){
 	?>
 	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('ingredients/advanceChooseIngredient'); ?>"/>

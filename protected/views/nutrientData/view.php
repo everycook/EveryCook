@@ -14,7 +14,7 @@ $this->menu=array(
 ?>
 
 <?php
-	if (isset(Yii::app()->session['Ingredient']) && isset(Yii::app()->session['Ingredient']['model'])){
+	if (isset(Yii::app()->session['Ingredients']) && isset(Yii::app()->session['Ingredients']['model'])){
 		$back_url = array('ingredients/advanceSearch');
 	} else {
 		$back_url = array('ingredients/search');
