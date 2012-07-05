@@ -103,3 +103,7 @@ div.mealOverview {
 	background: url('../../pics/loading.gif') no-repeat scroll 0 0 transparent;
 	background-size: contain;
 }
+
+.slider_holder .jslider_plastic .jslider-bg i, .slider_holder .jslider_plastic .jslider-pointer {
+    background-image: url('../../pics/jslider.plastic.png');
+}

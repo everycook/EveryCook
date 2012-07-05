@@ -547,6 +547,7 @@ div.form .hint {
 	top: 25px;
 	border-radius:1.5em;
 	padding: 0.8em;
+	z-index: 10;
 }
 
 .navMenuListL2 {
@@ -715,3 +716,16 @@ div.mealView span.value {
 	display: inline-block;
 }
 
+.slider_holder {
+	display: inline-block;
+	height: 1.5em;
+	margin-bottom: 0.8em;
+	margin-right: 0.8em;
+	padding-top: 1em;
+	vertical-align: middle;
+	width: 15em;
+}
+
+.cou_recipe .slider_holder, .cou_recipe .slider_holder input {
+	width: 11em;
+}

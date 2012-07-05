@@ -395,7 +395,7 @@ class ProductsController extends Controller
 					(SELECT
 						@count := if(@oldId = id, @count+1, 0),
 						@oldId := id,
-						if(@count = 1, value, 0),
+						if(@count = 0, value, 0),
 						if(@count < :count, value, 0),
 						if(@count < :count, 1, 0),
 						if(value < :view_distance, 1, 0)
@@ -408,7 +408,7 @@ class ProductsController extends Controller
 						ORDER BY products.PRO_ID, value ASC) AS theTable
 					)
 				) AS theView
-				WHERE theView.PRO_ID != 0 AND dist != 0
+				WHERE theView.PRO_ID != 0 AND (dist != 0 OR amount_range != 0)
 				GROUP BY theView.PRO_ID;';
 			
 			if (isset(Yii::app()->session['current_gps']) && isset(Yii::app()->session['current_gps'][2])) {

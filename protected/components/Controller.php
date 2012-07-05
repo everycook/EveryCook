@@ -287,8 +287,8 @@ class Controller extends CController
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/imgcrop_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/map_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/mealplanner.js', CClientScript::POS_HEAD);
-				//Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/jquery.slider.min.js', CClientScript::POS_HEAD);
-				//Yii::app()->clientscript->registerCssFile($request_baseurl . '/css/jquery.slider.min.css');
+				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/jquery.slider.min.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerCssFile($request_baseurl . '/css/jquery.slider.min.css');
 				Yii::app()->clientscript->registerCoreScript('yiiactiveform');
 				
 				$ziiBaseScriptUrl=Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('zii.widgets.assets'));

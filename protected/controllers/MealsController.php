@@ -495,16 +495,13 @@ class MealsController extends Controller
 		if ($shoppingList->save()){		
 			Yii::app()->dbp->createCommand()->update(Meals::model()->tableName(), array('SHO_ID'=>$shoppingList->SHO_ID), 'MEA_ID = :id', array(':id'=>$id));
 			
-			$command = Yii::app()->dbp->createCommand()
-				->select('profiles.PRF_SHOPLISTS')
-				->from('profiles')
-				->where('profiles.PRF_UID = :id',array(':id'=>Yii::app()->user->id));
-			$shoppinglists = $command->queryScalar();
-			if (!isset($shoppinglists) || $shoppinglists == null || $shoppinglists == ''){
+			$shoppinglists = Yii::app()->user->shoppinglists;
+			if (!isset($shoppinglists) || $shoppinglists == null || count($shoppinglists) == 0){
 				$shoppinglists = $shoppingList->SHO_ID;
+				$values = array($shoppingList->SHO_ID);
 			} else {
 				//no dupplicates
-				$values = explode(';', $shoppinglists);
+				$values = $shoppinglists;
 				$values[] = $shoppingList->SHO_ID;
 				$values = array_unique($values);
 				//sort($values, SORT_NUMERIC);
@@ -512,6 +509,7 @@ class MealsController extends Controller
 			}
 			
 			Yii::app()->dbp->createCommand()->update(Profiles::model()->tableName(), array('PRF_SHOPLISTS'=>$shoppinglists), 'PRF_UID = :id', array(':id'=>Yii::app()->user->id));
+			Yii::app()->user->shoppinglists = $values;
 			
 			$this->forwardAfterSave(array('shoppinglists/view', 'id'=>$shoppingList->SHO_ID));
 		} else {

@@ -1,23 +1,39 @@
 ﻿var glob = glob || {};
 
 jQuery(function($){
+	var fixProzentValues_loop = false;
+	var fixProzentValues_new = false;
+	
 	//Initialize Links
-	function initMealplanner(){
-	/*
-		jQuery("#MeaToCou_MTC_PERC_GDA").slider({
-			from: 0, 
-			to: 100, 
-			step: 1,
-			dimension: '%',
-			skin: 'plastic'
-		});
-	*/
+	function initSliders(parent){
+		if (typeof(parent) !== 'undefined'){
+			var sliders = parent.find("input[type=range]");
+		} else {
+			var sliders = jQuery("input[type=range]");
+		}
+		if (sliders.length > 0){
+			if (sliders.get(0).type == 'text'){
+				//browser don't know 'range' input type, do jQuery fallback.
+				jQuery("input[type=range]").slider({
+					from: 0, 
+					to: 100, 
+					step: 1,
+					dimension: '%',
+					skin: 'plastic',
+					onstatechange: function(value){
+						var slider = this;
+						if(!slider.is.init) return false;
+						slider.inputNode.change();
+					},
+				});
+			}
+		}
 	}
 	
 	$('#page').ajaxComplete(function(e, xhr, settings) {
-		initMealplanner();
+		initSliders();
 	});
-	initMealplanner();
+	initSliders();
 	
 	function selectNearestMeal(){
 		var currentDate = new Date();
@@ -292,12 +308,12 @@ jQuery(function($){
 	
 	jQuery('body').undelegate('.mealView input[id$=_MEA_PERC_GDA]','change').delegate('.mealView input[id$=_MEA_PERC_GDA]','change',function(){
 		var elem = jQuery(this);
-		elem.parent().find('.value:first').text(elem.val());
+		elem.parent().parent().find('.value:first').text(elem.val());
 	});
 	
 	jQuery('body').undelegate('.cou_recipes [type=range]','change').delegate('.cou_recipes [type=range]','change',function(){
 		var elem = jQuery(this);
-		elem.parent().find('.value:first').text(elem.val());
+		elem.parent().parent().find('.value:first').text(elem.val());
 		
 		var ranges = elem.parents('.cou_recipes:first').find('.input_range');
 		fixProzentValues(elem, ranges);
@@ -305,20 +321,26 @@ jQuery(function($){
 	
 	jQuery('body').undelegate('.meal_course input[id$=_MTC_PERC_MEAL]','change').delegate('.meal_course input[id$=_MTC_PERC_MEAL]','change',function(){
 		var elem = jQuery(this);
-		elem.parent().find('.value:first').text(elem.val());
+		elem.parent().parent().find('.value:first').text(elem.val());
 		
 		var ranges = elem.parents('.meal_courses:first').find('input[id$=_MTC_PERC_MEAL]');
 		fixProzentValues(elem, ranges);
 	});
 	
 	function fixProzentValues(elem, ranges){
+		if (fixProzentValues_loop) return;
 		var amount = ranges.length;
+		if (amount == 0) return;
 		if (amount == 1){
 			if (elem == null){
 				elem = jQuery(ranges.get(0));
 			}
 			if (elem.val() != 100){
-				elem.val(100);
+				elem.attr('value',100);
+				if (elem.is(':hidden') && elem.next().is('.jslider')){
+					console.log(elem.attr('name') + ' change amount == 1');
+					elem.slider('value', 100);
+				}
 				elem.parent().find('.value:first').text(100);
 			}
 			return;
@@ -333,10 +355,10 @@ jQuery(function($){
 				var value = Math.round(100 / amount);
 				for (var i=0; i<amount; ++i){
 					var changeElem = jQuery(ranges[i]);
-					changeElem.val(value);
+					changeElem.attr('value',value);
 					changeElem.parent().find('.value:first').text(changeElem.val());
 				}
-			} else if (elem != null && elem.val() == 100){
+			} else if (fixProzentValues_new && elem != null && elem.val() == 100 && ranges.index(elem) == amount-1){
 				var newValue = Math.round(100 / amount);
 				elem.val(newValue);
 				elem.parent().find('.value:first').text(newValue);
@@ -346,8 +368,9 @@ jQuery(function($){
 				for (var i=0; i<amount; ++i){
 					var changeElem = jQuery(ranges[i]);
 					if (ranges[i] != elem.get(0)){
-						changeElem.val(parseInt(changeElem.val())-substract_each);
-						changeElem.parent().find('.value:first').text(changeElem.val());
+						var value = parseInt(changeElem.val())-substract_each;
+						changeElem.attr('value',value);
+						changeElem.parent().find('.value:first').text(value);
 					}
 				}
 			} else {
@@ -360,8 +383,9 @@ jQuery(function($){
 				for (var i=0; i<amount; ++i){
 					var changeElem = jQuery(ranges[i]);
 					if (elem == null || ranges[i] != elem.get(0)){
-						changeElem.val(parseInt(changeElem.val())-substract_each);
-						changeElem.parent().find('.value:first').text(changeElem.val());
+						var value = parseInt(changeElem.val())-substract_each;
+						changeElem.attr('value',value);
+						changeElem.parent().find('.value:first').text(value);
 					}
 				}
 			}
@@ -375,11 +399,22 @@ jQuery(function($){
 			for (var i=0; i<amount; ++i){
 				var changeElem = jQuery(ranges[i]);
 				if (elem == null || ranges[i] != elem.get(0)){
-					changeElem.val(parseInt(changeElem.val())+rest_each);
+					var value = parseInt(changeElem.val())+rest_each;
+					changeElem.attr('value',value);
 					changeElem.parent().find('.value:first').text(changeElem.val());
 				}
 			}
 		}
+		fixProzentValues_loop = true;
+		if (ranges.get(0).type == 'text'){
+			ranges.each(function(){
+				var elem = jQuery(this);
+				if( elem.data( "jslider" ) ){
+					elem.slider('value',elem.val());
+				}
+			});
+		}
+		fixProzentValues_loop = false;
 	}
 	
 	
@@ -397,11 +432,15 @@ jQuery(function($){
 		
 		var courseIndex = elem.parent().parent().parent().index();
 		var recipeIndex = elem.parent().index();
-		var newRecipe = jQuery('<div class="cou_recipe"><input type="hidden" id="Meals_meaToCous_' + courseIndex + '_course_couToRecs_' + recipeIndex + '_recipe_REC_ID" name="Meals[meaToCous][' + courseIndex + '][course][couToRecs][' + recipeIndex + '][REC_ID]" value="' + recipeId + '"><img src="' + recipePicUrl + '" title="' + recipePicAuthor + '" alt="" class="cou_recipe"><br><span class="title">' + recipeName + '</span><br><input type="range" id="Meals_meaToCous_' + courseIndex + '_course_couToRecs_' + recipeIndex + '_CTR_REC_PROC" name="Meals[meaToCous][' + courseIndex + '][course][couToRecs][' + recipeIndex + '][CTR_REC_PROC]" value="100" class="input_range" max="100" min="0"><span class="value">100</span>%</div>');
+		var newRecipe = jQuery('<div class="cou_recipe"><input type="hidden" id="Meals_meaToCous_' + courseIndex + '_course_couToRecs_' + recipeIndex + '_recipe_REC_ID" name="Meals[meaToCous][' + courseIndex + '][course][couToRecs][' + recipeIndex + '][REC_ID]" value="' + recipeId + '"><img src="' + recipePicUrl + '" title="' + recipePicAuthor + '" alt="" class="cou_recipe"><br><span class="title">' + recipeName + '</span><br><div class="slider_holder"><input type="range" id="Meals_meaToCous_' + courseIndex + '_course_couToRecs_' + recipeIndex + '_CTR_REC_PROC" name="Meals[meaToCous][' + courseIndex + '][course][couToRecs][' + recipeIndex + '][CTR_REC_PROC]" value="100" class="input_range" max="100" min="0"></div><span class="value">100</span>%</div>');
 		newRecipe.insertBefore(elem.parent());
 		
-		jQuery.fancybox.close();
+		fixProzentValues_new = true;
+		initSliders(newRecipe);
 		newRecipe.find('.input_range').change();
+		fixProzentValues_new = false;
+		
+		jQuery.fancybox.close();
 		return false;
 	});
 	
@@ -413,9 +452,14 @@ jQuery(function($){
 		var peopleEatingText = '0 Erwachsene + 0 Kinder essen';
 		var courseNameText = 'Course Description';
 		var removeRecipeText = 'Remove Recipe';
-		var newCourse = jQuery('<div class="meal_course"><div>' + courseNameText + ': <input type="text" id="Meals_meaToCous_' + courseIndex + '_course_COU_DESC" name="Meals[meaToCous][' + courseIndex + '][course][COU_DESC]" value="" style="width: 20em;"><br><input type="range" id="Meals_meaToCous_' + courseIndex + '_MTC_PERC_MEAL" name="Meals[meaToCous][' + courseIndex + '][MTC_PERC_MEAL]" value="100" class="input_range" max="100" min="0">' + gdaMealText + '<input type="hidden" id="Meals_meaToCous_' + courseIndex + '_course_COU_ID" name="Meals[meaToCous][' + courseIndex + '][course][COU_ID]" value=""><input type="hidden" id="Meals_meaToCous_' + courseIndex + '_MTC_EAT_PERS" name="Meals[meaToCous][' + courseIndex + '][MTC_EAT_PERS]" value="0xF:15_2000"><input type="hidden" id="Meals_meaToCous_' + courseIndex + '_MTC_KCAL_DAY_TOTAL" name="Meals[meaToCous][' + courseIndex + '][MTC_KCAL_DAY_TOTAL]" value="0"><input type="hidden" id="Meals_meaToCous_' + courseIndex + '_MTC_EAT_ADULTS" name="Meals[meaToCous][' + courseIndex + '][MTC_EAT_ADULTS]" value="0"><input type="hidden" id="Meals_meaToCous_' + courseIndex + '_MTC_EAT_CHILDREN" name="Meals[meaToCous][' + courseIndex + '][MTC_EAT_CHILDREN]" value="0"></div><div class="cou_recipes"><div style="display: table-cell; vertical-align: top;"><a href="#peopleDetailsContent" class="button PeopleSelect bbq-current">' + peopleEatingText + '</a><a href="' + glob.prefix + 'recipes/chooseRecipe" class="button fancyChoose RecipeSelect">' + addRecipeText + '</a><a href="#removeRecipeContent" class="button RecipeRemove">' + removeRecipeText + '</a><input type="hidden" class="fancyValue"></div></div></div>');
+		//' + courseNameText + ': <input type="text" id="Meals_meaToCous_' + courseIndex + '_course_COU_DESC" name="Meals[meaToCous][' + courseIndex + '][course][COU_DESC]" value="" style="width: 20em;"><br>
+		var newCourse = jQuery('<div class="meal_course"><div><div class="slider_holder"><input type="range" id="Meals_meaToCous_' + courseIndex + '_MTC_PERC_MEAL" name="Meals[meaToCous][' + courseIndex + '][MTC_PERC_MEAL]" value="100" class="input_range" max="100" min="0"></div>' + gdaMealText + '<input type="hidden" id="Meals_meaToCous_' + courseIndex + '_course_COU_ID" name="Meals[meaToCous][' + courseIndex + '][course][COU_ID]" value=""><input type="hidden" id="Meals_meaToCous_' + courseIndex + '_MTC_EAT_PERS" name="Meals[meaToCous][' + courseIndex + '][MTC_EAT_PERS]" value="0xF:15_2000"><input type="hidden" id="Meals_meaToCous_' + courseIndex + '_MTC_KCAL_DAY_TOTAL" name="Meals[meaToCous][' + courseIndex + '][MTC_KCAL_DAY_TOTAL]" value="0"><input type="hidden" id="Meals_meaToCous_' + courseIndex + '_MTC_EAT_ADULTS" name="Meals[meaToCous][' + courseIndex + '][MTC_EAT_ADULTS]" value="0"><input type="hidden" id="Meals_meaToCous_' + courseIndex + '_MTC_EAT_CHILDREN" name="Meals[meaToCous][' + courseIndex + '][MTC_EAT_CHILDREN]" value="0"></div><div class="cou_recipes"><div style="display: table-cell; vertical-align: top;"><a href="#peopleDetailsContent" class="button PeopleSelect bbq-current">' + peopleEatingText + '</a><a href="' + glob.prefix + 'recipes/chooseRecipe" class="button fancyChoose RecipeSelect">' + addRecipeText + '</a><a href="#removeRecipeContent" class="button RecipeRemove">' + removeRecipeText + '</a><input type="hidden" class="fancyValue"></div></div></div>');
 		newCourse.insertBefore(elem);
+		
+		fixProzentValues_new = true;
+		initSliders(newCourse);
 		newCourse.find('.input_range').change();
+		fixProzentValues_new = false;
 		
 		newCourse.find('a.fancyChoose').bind('click.multiFancyCoose', function(){
 			jQuery('.activeFancyField').removeClass('activeFancyField');

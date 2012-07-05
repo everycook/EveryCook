@@ -25,7 +25,7 @@ class ShoppinglistsController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('index','view','create','update','removeFromList','setProduct'),
+				'actions'=>array('index','view','create','update','removeFromList','setProduct','showAllAsOne'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -39,28 +39,38 @@ class ShoppinglistsController extends Controller
 	}
 	
 	public function actionSetProduct($id, $ing_id){
+		$shoppinglists = Yii::app()->user->shoppinglists;
+		if (!isset($shoppinglists) || $shoppinglists == null || count($shoppinglists) == 0){
+			throw new CHttpException(403,'It\'s not allowed to open shoppinglists of other users, expect they share it with you.');
+		} else {
+			$values = array_flip($shoppinglists);
+			if (!isset($values[$id])){
+				throw new CHttpException(403,'It\'s not allowed to open shoppinglists of other users, expect they share it with you.');
+			}
+		}
+		
 		$pro_id = $_GET['pro_id'];
 		$gramms = $_GET['gramms'];
 		$model = $this->loadModel($id);
 		$ing_ids = explode(';',$model->SHO_INGREDIENTS);
 		$ing_weights = explode(';',$model->SHO_WEIGHTS);
 		$pro_ids = explode(';',$model->SHO_PRODUCTS);
-		$amounts = explode(';',$model->SHO_QUANTITIES);
+		$gramm_values = explode(';',$model->SHO_QUANTITIES);
 		
 		for($i=0;$i<count($ing_ids);++$i){
 			if ($ing_ids[$i] == $ing_id){
 				$pro_ids[$i] = $pro_id;
 				if ($gramms > 0){
-					$amounts[$i] = ceil($ing_weights[$i] / $gramms);
+					$gramm_values[$i] = $gramms;
 				} else {
-					$amounts[$i] = '';
+					$gramm_values[$i] = '';
 				}
 				break;
 			}
 		}
 		
 		$model->SHO_PRODUCTS = implode(';',$pro_ids);
-		$model->SHO_QUANTITIES = implode(';',$amounts);
+		$model->SHO_QUANTITIES = implode(';',$gramm_values);
 		
 		if($model->save()){
 			echo '{"sucessfull":true}';
@@ -72,18 +82,28 @@ class ShoppinglistsController extends Controller
 	}
 	
 	public function actionRemoveFromList($id, $ing_id){
+		$shoppinglists = Yii::app()->user->shoppinglists;
+		if (!isset($shoppinglists) || $shoppinglists == null || count($shoppinglists) == 0){
+			throw new CHttpException(403,'It\'s not allowed to open shoppinglists of other users, expect they share it with you.');
+		} else {
+			$values = array_flip($shoppinglists);
+			if (!isset($values[$id])){
+				throw new CHttpException(403,'It\'s not allowed to open shoppinglists of other users, expect they share it with you.');
+			}
+		}
+		
 		$model = $this->loadModel($id);
 		$ing_ids = explode(';',$model->SHO_INGREDIENTS);
 		$ing_weights = explode(';',$model->SHO_WEIGHTS);
 		$pro_ids = explode(';',$model->SHO_PRODUCTS);
-		$amounts = explode(';',$model->SHO_QUANTITIES);
+		$gramm_values = explode(';',$model->SHO_QUANTITIES);
 		
 		for($i=0;$i<count($ing_ids);++$i){
 			if ($ing_ids[$i] == $ing_id){
 				unset($ing_ids[$i]);
 				unset($ing_weights[$i]);
 				unset($pro_ids[$i]);
-				unset($amounts[$i]);
+				unset($gramm_values[$i]);
 				break;
 			}
 		}
@@ -91,7 +111,7 @@ class ShoppinglistsController extends Controller
 		$model->SHO_INGREDIENTS = implode(';',$ing_ids);
 		$model->SHO_WEIGHTS = implode(';',$ing_weights);
 		$model->SHO_PRODUCTS = implode(';',$pro_ids);
-		$model->SHO_QUANTITIES = implode(';',$amounts);
+		$model->SHO_QUANTITIES = implode(';',$gramm_values);
 		
 		if($model->save()){
 			echo '{"sucessfull":true}';
@@ -107,17 +127,11 @@ class ShoppinglistsController extends Controller
 	 * @param integer $id the ID of the model to be displayed
 	 */
 	public function actionView($id) {
-		$command = Yii::app()->dbp->createCommand()
-			->select('profiles.PRF_SHOPLISTS')
-			->from('profiles')
-			->where('profiles.PRF_UID = :id',array(':id'=>Yii::app()->user->id));
-		$shoppinglists = $command->queryScalar();
-		
-		if (!isset($shoppinglists) || $shoppinglists == null || $shoppinglists == ''){
+		$shoppinglists = Yii::app()->user->shoppinglists;
+		if (!isset($shoppinglists) || $shoppinglists == null || count($shoppinglists) == 0){
 			throw new CHttpException(403,'It\'s not allowed to open shoppinglists of other users, expect they share it with you.');
 		} else {
-			$values = explode(';', $shoppinglists);
-			$values = array_flip($values);
+			$values = array_flip($shoppinglists);
 			if (!isset($values[$id])){
 				throw new CHttpException(403,'It\'s not allowed to open shoppinglists of other users, expect they share it with you.');
 			}
@@ -127,8 +141,95 @@ class ShoppinglistsController extends Controller
 		$ing_ids = explode(';',$model->SHO_INGREDIENTS);
 		$ing_weights = explode(';',$model->SHO_WEIGHTS);
 		$pro_ids = explode(';',$model->SHO_PRODUCTS);
-		$amounts = explode(';',$model->SHO_QUANTITIES);
+		$gramm_values = explode(';',$model->SHO_QUANTITIES);
 		
+		$command = Yii::app()->dbp->createCommand()
+			->select('meals.MEA_ID, meals.CHANGED_ON')
+			->from('meals')
+			->where('SHO_ID = :id AND PRF_UID = :uid', array(':id'=>$model->SHO_ID, ':uid'=>Yii::app()->user->id));
+		$meal = $command->queryRow();
+		if ($meal === false){
+			$MEA_ID = 0;
+			$changed = false;
+		} else {
+			$MEA_ID = $meal['MEA_ID'];
+			$changed = (isset($meal['CHANGED_ON']) && $meal['CHANGED_ON'] > $model->CHANGED_ON);
+		}
+		
+		
+		$this->viewList($ing_ids, $ing_weights, $pro_ids, $gramm_values, $model->SHO_ID, $MEA_ID, $changed);
+	}
+	
+	
+	public function actionShowAllAsOne() {
+		$shoppinglists = Yii::app()->user->shoppinglists;
+		if (!isset($shoppinglists) || $shoppinglists == null || count($shoppinglists) == 0){
+			$dataProvider=new CArrayDataProvider(array(), array(
+				'id'=>'ING_ID',
+				'keyField'=>'ING_ID',
+				'pagination'=>array(
+					'pageSize'=>10,
+				),
+			));
+			
+			$this->checkRenderAjax('view',array(
+				'SHO_ID'=>-1,
+				'dataProvider'=>$dataProvider,
+			));
+		} else {
+			$values = $shoppinglists;
+			
+			$selectDate = mktime(0,0,0, date("n"), date("j")-7, date("Y"));
+			
+			$criteria=new CDbCriteria;
+			$criteria->compare('SHO_ID',$values,true);
+			//$criteria->addCondition('SHO_DATE > '.$selectDate); //TODO: only show shoppinglists in future.
+			
+			$command = Yii::app()->dbp->createCommand()
+				->from('shoppinglists')
+				->where($criteria->condition,$criteria->params)
+				->order('SHO_DATE');
+			$shoppinglists = $command->queryAll();
+			
+			$ing_ids_total = array();
+			$ing_weights_total = array();
+			$pro_ids_total = array();
+			$gramm_values_total = array();
+			$ing_id_to_index = array();
+			$total_index = 0;
+			foreach($shoppinglists as $shoppinglist){
+				$ing_ids = explode(';',$shoppinglist['SHO_INGREDIENTS']);
+				$ing_weights = explode(';',$shoppinglist['SHO_WEIGHTS']);
+				$pro_ids = explode(';',$shoppinglist['SHO_PRODUCTS']);
+				$gramm_values = explode(';',$shoppinglist['SHO_QUANTITIES']);
+				
+				for($i=0; $i<count($ing_ids);++$i){
+					$ing_id = $ing_ids[$i];
+					if (isset($ing_id_to_index[$ing_id])){
+						$index = $ing_id_to_index[$ing_id];
+						
+						//$ing_ids_total[$index] = $ing_ids[$i];
+						$ing_weights_total[$index] = $ing_weights_total[$index] + $ing_weights[$i];
+						if (!isset($pro_ids_total[$index]) || $pro_ids_total[$index] == ''){
+							$pro_ids_total[$index] = $pro_ids[$i];
+							$gramm_values_total[$index] = $gramm_values[$i];
+						}
+					} else {
+						$ing_ids_total[$total_index] = $ing_ids[$i];
+						$ing_weights_total[$total_index] = $ing_weights[$i];
+						$pro_ids_total[$total_index] = $pro_ids[$i];
+						$gramm_values_total[$total_index] = $gramm_values[$i];
+						$ing_id_to_index[$ing_id] = $total_index;
+						++$total_index;
+					}
+				}
+			}
+			
+			$this->viewList($ing_ids_total, $ing_weights_total, $pro_ids_total, $gramm_values_total, 0, 0, false);
+		}
+	}
+	
+	private function viewList($ing_ids, $ing_weights, $pro_ids, $gramm_values, $SHO_ID, $MEA_ID, $mealChanged) {
 		$ing_criteria=new CDbCriteria;
 		$ing_criteria->compare('ING_ID',$ing_ids,true);
 		
@@ -162,7 +263,7 @@ class ShoppinglistsController extends Controller
 				(SELECT
 					@count := if(@oldId = id, @count+1, 0),
 					@oldId := id,
-					if(@count = 1, value, 0),
+					if(@count = 0, value, 0),
 					if(@count < :count, value, 0),
 					if(@count < :count, 1, 0),
 					if(value < :view_distance, 1, 0)
@@ -175,7 +276,7 @@ class ShoppinglistsController extends Controller
 					ORDER BY products.PRO_ID, value ASC) AS theTable
 				)
 			) AS theView
-			WHERE theView.PRO_ID != 0 AND dist != 0
+			WHERE theView.PRO_ID != 0 AND (dist != 0 OR amount_range != 0)
 			GROUP BY theView.PRO_ID;';
 		
 		if (isset(Yii::app()->session['current_gps']) && isset(Yii::app()->session['current_gps'][2])) {
@@ -238,7 +339,7 @@ class ShoppinglistsController extends Controller
 		for ($i=0; $i<count($ing_ids);++$i){
 			$ing_id = $ing_ids[$i];
 			$proToIng[$pro_ids[$i]] = $ing_id;
-			$data[$ing_id] = array('ING_ID'=>$ing_id, 'ing_weight'=>$ing_weights[$i], 'PRO_ID'=>$pro_ids[$i], 'amount'=>$amounts[$i], 'SHO_ID'=>$model->SHO_ID);
+			$data[$ing_id] = array('ING_ID'=>$ing_id, 'ing_weight'=>$ing_weights[$i], 'PRO_ID'=>$pro_ids[$i], 'amount'=>$gramm_values[$i], 'SHO_ID'=>$SHO_ID);
 		}
 		foreach($ingredient_names as $row){
 			$ing_id = $row['ING_ID'];
@@ -287,7 +388,9 @@ class ShoppinglistsController extends Controller
 		}
 		
 		$this->checkRenderAjax('view',array(
-			'model'=>$model,
+			'SHO_ID'=>$SHO_ID,
+			'MEA_ID'=>$MEA_ID,
+			'mealChanged'=>$mealChanged,
 			'dataProvider'=>$dataProvider,
 		));
 	}
@@ -362,15 +465,9 @@ class ShoppinglistsController extends Controller
 	/**
 	 * Lists all models.
 	 */
-	public function actionIndex()
-	{
-		$command = Yii::app()->dbp->createCommand()
-			->select('profiles.PRF_SHOPLISTS')
-			->from('profiles')
-			->where('profiles.PRF_UID = :id',array(':id'=>Yii::app()->user->id));
-		$shoppinglists = $command->queryScalar();
-		
-		if (!isset($shoppinglists) || $shoppinglists == null || $shoppinglists == ''){
+	public function actionIndex() {
+		$shoppinglists = Yii::app()->user->shoppinglists;
+		if (!isset($shoppinglists) || $shoppinglists == null || count($shoppinglists) == 0){
 			$dataProvider=new CArrayDataProvider(array(), array(
 				'id'=>'SHO_ID',
 				'keyField'=>'SHO_ID',
@@ -379,20 +476,85 @@ class ShoppinglistsController extends Controller
 				),
 			));
 		} else {
-			$values = explode(';', $shoppinglists);
+			$values = $shoppinglists;
 			
 			$selectDate = mktime(0,0,0, date("n"), date("j")-7, date("Y"));
 			
 			$criteria=new CDbCriteria;
 			$criteria->compare('SHO_ID',$values,true);
-			//$criteria->addCondition('SHO_DATE > ',$selectDate); //TODO: only show shoppinglists in future.
+			//$criteria->addCondition('SHO_DATE > '.$selectDate); //TODO: only show shoppinglists in future.
 			
-			$dataProvider=new CActiveDataProvider('Shoppinglists', array(
-				'criteria'=>$criteria,
+			$command = Yii::app()->dbp->createCommand()
+				->from('shoppinglists')
+				->where($criteria->condition,$criteria->params)
+				->order('SHO_DATE');
+			$shoppinglists = $command->queryAll();
+			
+			$rows = array();
+			foreach($shoppinglists as $shoppinglist){
+				$row = array();
+				$row['SHO_ID'] = $shoppinglist['SHO_ID'];
+				$row['SHO_DATE'] = $shoppinglist['SHO_DATE'];
+				
+				$ing_ids = explode(';',$shoppinglist['SHO_INGREDIENTS']);
+				//$ing_weights = explode(';',$shoppinglist['SHO_WEIGHTS']);
+				$pro_ids = explode(';',$shoppinglist['SHO_PRODUCTS']);
+				//$gramm_values = explode(';',$shoppinglist['SHO_QUANTITIES']);
+				
+				//ingredients
+				$ing_criteria=new CDbCriteria;
+				$ing_criteria->compare('ING_ID',$ing_ids,true);
+				
+				$command = Yii::app()->db->createCommand()
+					->select('ingredients.ING_ID, ingredients.ING_IMG_AUTH, ING_NAME_'.Yii::app()->session['lang'])
+					->from('ingredients')
+					->where($ing_criteria->condition, $ing_criteria->params);
+					
+				$ingredient_names = $command->queryAll();
+				$ingredient_names = CHtml::listData($ingredient_names,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
+				$row['ingredients'] = $ingredient_names;
+				
+				//products
+				$row['total_products'] = count($ing_ids);
+				$notAssigned = 0;
+				$pro_ids_clear = array();
+				foreach($pro_ids as $pro_id){
+					if ($pro_id == ''){
+						++$notAssigned;
+					} else {
+						$pro_ids_clear[] = $pro_id;
+					}
+				}
+				$row['not_assigned'] = $notAssigned;
+				
+				if (count($pro_ids_clear)>0){
+					$pro_criteria=new CDbCriteria;
+					$pro_criteria->compare('PRO_ID',$pro_ids_clear,true);
+					
+					$command = Yii::app()->db->createCommand()
+						->select('count(distinct pro_to_sto.PRO_ID) as amount, suppliers.SUP_NAME as supplier')
+						->from('pro_to_sto')
+						->leftJoin('suppliers','pro_to_sto.SUP_ID = suppliers.SUP_ID')
+						->group('pro_to_sto.SUP_ID')
+						->where($pro_criteria->condition, $pro_criteria->params);
+					$supplier = $command->queryAll();
+					
+					$row['products_from'] = $supplier;
+				} else {
+					$row['products_from'] = array();
+				}
+				
+				$rows[] = $row;
+			}
+			
+			$dataProvider=new CArrayDataProvider($rows, array(
+				'id'=>'SHO_ID',
+				'keyField'=>'SHO_ID',
 				'pagination'=>array(
 					'pageSize'=>10,
 				),
 			));
+			
 		}
 		
 		$this->checkRenderAjax('index',array(

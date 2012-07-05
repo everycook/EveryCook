@@ -31,25 +31,24 @@
 					echo '</div>';
 					//$noShopsAssigned = true;
 				} else {
-					echo '<div class="ProductsStoreInfo">';
 					if ($data['distance_to_you'] == -1){
 						//echo '<span>' . CHtml::link($this->trans->PRODUCTS_LOCATE_FOR_STORES, '#', array('class'=>'actionlink', 'id'=>'updateCurrentGPS')) . '</span>'."\n";
 					} else {
 						if (is_array($data['distance_to_you'])){
+							echo '<div class="ProductsStoreInfo">';
 							if ($data['distance_to_you'][3] == 0){
 								echo '<span>'; printf($this->trans->PRODUCTS_DISTANCE_TO_YOU, $data['distance_to_you'][1], $data['distance_to_you'][0]); echo '</span> <input type="hidden" class="viewDistance" value="' . $data['distance_to_you'][0] . '" />'."\n";
 							} else {
 								echo '<span>'; printf($this->trans->PRODUCTS_DISTANCE_TO_YOU, $data['distance_to_you'][3], Yii::app()->user->view_distance); echo '</span>'."\n";
 							}
+							echo '</div>';
 						/*} else {
 							echo '<span>'; echo $this->trans->PRODUCTS_NO_SHOPS_ASSIGNED; echo '</span>'."\n";
 							$noShopsAssigned = true;*/
 						}
 					}
-					echo '</div>';
 					
 					//if (!$noShopsAssigned) {
-						echo '<div class="ProductsStoreInfo">';
 						if ($data['distance_to_home'] == -1){
 							/*
 							if (Yii::app()->user->isGuest){
@@ -60,16 +59,17 @@
 							*/
 						} else {
 							if (is_array($data['distance_to_home'])){
+								echo '<div class="ProductsStoreInfo">';
 								if ($data['distance_to_home'][3] == 0){
 									echo '<span>'; printf($this->trans->PRODUCTS_DISTANCE_TO_HOME, $data['distance_to_home'][1], $data['distance_to_home'][0]); echo '</span> <input type="hidden" class="viewDistance" value="' . $data['distance_to_home'][0] . '" />'."\n";
 								} else {
 									echo '<span>'; printf($this->trans->PRODUCTS_DISTANCE_TO_HOME, $data['distance_to_home'][3], Yii::app()->user->view_distance); echo '</span>'."\n";
 								}
+								echo '</div>';
 							/*} else {
 								echo '<span>'; echo $this->trans->PRODUCTS_NO_SHOPS_ASSIGNED; echo '</span>'."\n";*/
 							}
 						}
-						echo '</div>';
 					//}
 				}
 				?>

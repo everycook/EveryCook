@@ -2,7 +2,7 @@
 	<?php
 	echo '<div>';
 		if(isset($editMode) && $editMode){
-			echo Functions::activeSpecialField($data, 'MEA_PERC_GDA', 'range', array('min'=>0,'max'=>100));
+			echo '<div class="slider_holder">' . Functions::activeSpecialField($data, 'MEA_PERC_GDA', 'range', array('min'=>0,'max'=>100)) . '</div>';
 			printf($this->trans->MEALPLANNER_MEAL_GDA,'<span class="value">' . $data->MEA_PERC_GDA . '</span>');
 			$inputName = Functions::resolveMultiArrayName($data, array('MEA_ID'));
 			echo CHtml::hiddenField($inputName, $data->MEA_ID);
@@ -40,7 +40,7 @@
 						//echo CHtml::textField($inputName, $meaToCou->course->COU_DESC, array('style'=>'width: 20em;'));
 						echo '<br>';
 						$inputName = Functions::resolveMultiArrayName($data, array('meaToCous', $meaToCous_index, 'MTC_PERC_MEAL'));
-						echo Functions::specialField($inputName, $meaToCou->MTC_PERC_MEAL, 'range', array('min'=>0,'max'=>100));
+						echo '<div class="slider_holder">' . Functions::specialField($inputName, $meaToCou->MTC_PERC_MEAL, 'range', array('min'=>0,'max'=>100)) . '</div>';
 						printf($this->trans->MEALPLANNER_COURSE_GDA,'<span class="value">' . $meaToCou->MTC_PERC_MEAL . '</span>');
 						$inputName = Functions::resolveMultiArrayName($data, array('meaToCous', $meaToCous_index, 'course', 'COU_ID'));
 						echo CHtml::hiddenField($inputName, $meaToCou->course->COU_ID);
@@ -72,7 +72,7 @@
 									echo '<span class="title">' . $recipe['REC_NAME_'.Yii::app()->session['lang']] . '</span><br>';
 									if(isset($editMode) && $editMode){
 										$inputName = Functions::resolveMultiArrayName($data, array('meaToCous', $meaToCous_index, 'course', 'couToRecs', $couToRecs_index, 'CTR_REC_PROC'));
-										echo Functions::specialField($inputName, $couToRec->CTR_REC_PROC, 'range', array('min'=>0,'max'=>100));
+										echo '<div class="slider_holder">' . Functions::specialField($inputName, $couToRec->CTR_REC_PROC, 'range', array('min'=>0,'max'=>100)) . '</div>';
 										echo '<span class="value">' . $couToRec->CTR_REC_PROC . '</span>%';
 									} else {
 										echo '<span>' . $couToRec->CTR_REC_PROC . '</span>%';

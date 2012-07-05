@@ -240,14 +240,16 @@ jQuery(function($){
 		reinitialize(cord[0], cord[1], undefined, distInput.val(), loadDataProduct, title);
 	});
 	
+	/*
 	jQuery('body').undelegate('#Products_PRO_NAME_EN_GB','blur').delegate('#Products_PRO_NAME_EN_GB','blur', function(){
 		var value = jQuery(this).val();
 		var link = jQuery('#lookOnFlickr');
 		glob.changeLinkUrlParam(link, 'q', value);
 	});
+	*/
+	
 	
 	//Recipe functions
-	
 	jQuery('body').undelegate('#Recipes_REC_NAME_EN_GB','blur').delegate('#Recipes_REC_NAME_EN_GB','blur', function(){
 		var value = jQuery(this).val();
 		var link = jQuery('#lookOnFlickr');

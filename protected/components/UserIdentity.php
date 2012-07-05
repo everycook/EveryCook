@@ -41,6 +41,14 @@ class UserIdentity extends CUserIdentity
 				$this->setState('home_gps', $home_gps);
 				$this->setState('view_distance', $record->PRF_VIEW_DISTANCE);
 				$this->setState('design', $record->PRF_DESIGN);
+				
+				if (!isset($record->PRF_SHOPLISTS) || $record->PRF_SHOPLISTS == null || $record->PRF_SHOPLISTS == ''){
+					$shoppinglists = null;
+				} else {
+					$shoppinglists = explode(';', $record->PRF_SHOPLISTS);
+				}
+				$this->setState('shoppinglists', $shoppinglists);
+				
 				$this->errorCode=self::ERROR_NONE;
 			}
 		}
