@@ -14,8 +14,8 @@ $this->menu=array(
 	);
 //}
 
-if (isset(Yii::app()->session['Recipe']) && isset(Yii::app()->session['Recipe']['time'])){
-	$newRecSearch=array('newSearch'=>Yii::app()->session['Recipe']['time']);
+if (isset(Yii::app()->session['Recipes']) && isset(Yii::app()->session['Recipes']['time'])){
+	$newRecSearch=array('newSearch'=>Yii::app()->session['Recipes']['time']);
 } else {
 	$newRecSearch=array();
 }

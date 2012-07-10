@@ -24,7 +24,7 @@ $this->breadcrumbs=array(
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'username'); ?>
-		<?php echo $form->textField($model,'username'); ?>
+		<?php echo $form->textField($model,'username', array('autofocus'=>'autofocus')); ?>
 		<?php echo $form->error($model,'username'); ?>
 	</div>
 

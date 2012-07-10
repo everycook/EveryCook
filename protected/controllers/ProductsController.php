@@ -28,7 +28,7 @@ class ProductsController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','uploadImage','delicious','disgusting','cancel'),
+				'actions'=>array('create','update','uploadImage','delicious','disgusting','cancel','showLike', 'showNotLike'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -117,6 +117,10 @@ class ProductsController extends Controller
 		} else {
 			$model=new Products;
 			$oldPicture = null;
+		}
+		
+		if (isset($model->PRO_IMG) && $model->PRO_IMG != ''){
+			$model->setScenario('withPic');
 		}
 		return array($model, $oldPicture);
 	}
@@ -315,7 +319,7 @@ class ProductsController extends Controller
 			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
 	}
 	
-	private function prepareSearch($view, $ajaxLayout){
+	private function prepareSearch($view, $ajaxLayout, $criteria){
 		$model=new Products('search');
 		$model->unsetAttributes();  // clear any default values
 		if(isset($_GET['Products']))
@@ -358,7 +362,10 @@ class ProductsController extends Controller
 			$model2->query = $query;
 		}
 		
-		if($ing_id !== null){
+		if ($criteria != null){
+			Yii::app()->session[$this->searchBackup] = array('time'=>time());
+			$criteria = array($criteria->condition, $criteria->params);
+		} else if($ing_id !== null){
 			$Session_Product = array();
 			$Session_Product['ing_id'] = $ing_id;
 			$Session_Product['time'] = time();
@@ -549,14 +556,42 @@ class ProductsController extends Controller
 	
 	
 	public function actionSearch() {
-		$this->prepareSearch('search', null);
+		$this->prepareSearch('search', null, null);
 	}
 	
 	public function actionChooseProduct(){
 		$this->isFancyAjaxRequest = true;
-		$this->prepareSearch('search', 'none');
+		$this->prepareSearch('search', 'none', null);
 	}
 
+	public function actionShowLike(){
+		$command = Yii::app()->dbp->createCommand()
+			->select('PRF_LIKES_P')
+			->from('profiles')
+			->where('PRF_UID = :id',array(':id'=>Yii::app()->user->id));
+		$ids = $command->queryScalar();
+		
+		$ids = explode(',', $ids);
+		$criteria=new CDbCriteria;
+		$criteria->compare(Products::model()->tableName().'.PRO_ID',$ids);
+		
+		$this->prepareSearch('like', null, $criteria);
+	}
+	
+	public function actionShowNotLike(){
+		$command = Yii::app()->dbp->createCommand()
+			->select('PRF_NOTLIKES_P')
+			->from('profiles')
+			->where('PRF_UID = :id',array(':id'=>Yii::app()->user->id));
+		$ids = $command->queryScalar();
+		
+		$ids = explode(',', $ids);
+		$criteria=new CDbCriteria;
+		$criteria->compare(Products::model()->tableName().'.PRO_ID',$ids);
+		
+		$this->prepareSearch('like', null, $criteria);
+	}
+	
 	/**
 	 * Lists all models.
 	 */

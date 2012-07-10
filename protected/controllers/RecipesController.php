@@ -27,7 +27,7 @@ class RecipesController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','uploadImage','delicious','disgusting','cancel'),
+				'actions'=>array('create','update','uploadImage','delicious','disgusting','cancel','showLike', 'showNotLike'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -166,6 +166,14 @@ class RecipesController extends Controller
 			$oldPicture = null;
 			$oldAmount = 0;
 		}
+		if (isset($model->REC_IMG) && $model->REC_IMG != ''){
+			$model->setScenario('withPic');
+		}
+		
+		$stepTypeConfig = Yii::app()->db->createCommand()->select('STT_ID,STT_DEFAULT,STT_REQUIRED,STT_DESC_'.Yii::app()->session['lang'])->from('step_types')->order('STT_ID')->queryAll();
+		
+		$actions = Yii::app()->db->createCommand()->select('ACT_ID,ACT_DESC_'.Yii::app()->session['lang'])->from('actions')->queryAll();
+		$actions = CHtml::listData($actions,'ACT_ID','ACT_DESC_'.Yii::app()->session['lang']);
 		
 		if(isset($_POST['Recipes'])){
 			$model->attributes=$_POST['Recipes'];
@@ -173,6 +181,38 @@ class RecipesController extends Controller
 			$stepsOK = true;
 			if (isset($_POST['Steps'])){
 				$model = Functions::arrayToRelatedObjects($model, array('steps'=> $_POST['Steps']));
+				
+				$index = 1;
+				foreach($model->steps as $step){
+					$required = '';
+					foreach ($stepTypeConfig as $stepType){
+						if ($stepType['STT_ID'] == $step['STT_ID']){
+							$required = $stepType['STT_REQUIRED'];
+							break;
+						}
+					}
+					if ($required != ''){
+						$requiredFields = explode(';', $required);
+						foreach($requiredFields as $requiredField){
+							if (!isset($step[$requiredField]) || $step[$requiredField] == null || $step[$requiredField] == ''){
+								array_push($this->errorFields, 'Steps_'.$index.'_'.$requiredField);
+								$stepsOK = false;
+							}
+						}
+						if (isset($step['ACT_ID']) && isset($actions[$step['ACT_ID']])){
+							$actiontext = $actions[$step['ACT_ID']];
+							if (strpos($actiontext, '#objectofaction#') !== false){ // > -1
+								$requiredField = 'ING_ID';
+								if (!isset($step[$requiredField]) || $step[$requiredField] == null || $step[$requiredField] == ''){
+									array_push($this->errorFields, 'Steps_'.$index.'_'.$requiredField);
+									$stepsOK = false;
+								}
+							}
+						}
+					}
+					++$index;
+				}
+				
 				/*
 				foreach($_POST['Steps'] as $index => $values){
 					if ($index <= $oldAmount && $index-1>=0){
@@ -270,10 +310,7 @@ class RecipesController extends Controller
 		$recipeTypes = Yii::app()->db->createCommand()->select('RET_ID,RET_DESC_'.Yii::app()->session['lang'])->from('recipe_types')->queryAll();
 		$recipeTypes = CHtml::listData($recipeTypes,'RET_ID','RET_DESC_'.Yii::app()->session['lang']);
 		
-		$stepTypeConfig = Yii::app()->db->createCommand()->select('STT_ID,STT_DEFAULT,STT_REQUIRED,STT_DESC_'.Yii::app()->session['lang'])->from('step_types')->order('STT_ID')->queryAll();
 		$stepTypes = CHtml::listData($stepTypeConfig,'STT_ID','STT_DESC_'.Yii::app()->session['lang']);
-		$actions = Yii::app()->db->createCommand()->select('ACT_ID,ACT_DESC_'.Yii::app()->session['lang'])->from('actions')->queryAll();
-		$actions = CHtml::listData($actions,'ACT_ID','ACT_DESC_'.Yii::app()->session['lang']);
 		//$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
 		//$ingredients = CHtml::listData($ingredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
 		
@@ -371,7 +408,7 @@ class RecipesController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$this->prepareSearch('search');
+		$this->prepareSearch('search', null, null);
 		/*
 		$dataProvider=new CActiveDataProvider('Recipes');
 		$this->checkRenderAjax('index',array(
@@ -395,7 +432,7 @@ class RecipesController extends Controller
 		));
 	}
 	
-	private function prepareSearch($view, $ajaxLayout)
+	private function prepareSearch($view, $ajaxLayout, $criteria)
 	{
 		$model=new Recipes('search');
 		$model->unsetAttributes();  // clear any default values
@@ -421,8 +458,8 @@ class RecipesController extends Controller
 			$ing_id = $_GET['ing_id'];
 		}
 		
-		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Recipes']) && !isset($_GET['ing_id'])  && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session['Recipe']['time'])){
-			$Session_Recipe = Yii::app()->session['Recipe'];
+		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Recipes']) && !isset($_GET['ing_id'])  && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session[$this->searchBackup]['time'])){
+			$Session_Recipe = Yii::app()->session[$this->searchBackup];
 			if (isset($Session_Recipe)){
 				if (isset($Session_Recipe['query'])){
 					$query = $Session_Recipe['query'];
@@ -444,11 +481,23 @@ class RecipesController extends Controller
 		}
 		
 		$rows = null;
-		if($ing_id !== null){
+		if ($criteria != null){
+			Yii::app()->session[$this->searchBackup] = array('time'=>time());
+			
+			$rows = Yii::app()->db->createCommand()
+				->from('recipes')
+				->leftJoin('recipe_types', 'recipes.RET_ID=recipe_types.RET_ID')
+				//->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID')
+				//->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID')
+				//->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID')
+				->where($criteria->condition, $criteria->params)
+				//->order('steps.STE_STEP_NO')
+				->queryAll();
+		} else if($ing_id !== null){
 			$Session_Recipe = array();
 			$Session_Recipe['ing_id'] = $ing_id;
 			$Session_Recipe['time'] = time();
-			Yii::app()->session['Recipe'] = $Session_Recipe;
+			Yii::app()->session[$this->searchBackup] = $Session_Recipe;
 			
 			$rows = Yii::app()->db->createCommand()
 				//->select('recipes.*')
@@ -468,7 +517,7 @@ class RecipesController extends Controller
 				$Session_Recipe = array();
 				$Session_Recipe['query'] = $query;
 				$Session_Recipe['time'] = time();
-				Yii::app()->session['Recipe'] = $Session_Recipe;
+				Yii::app()->session[$this->searchBackup] = $Session_Recipe;
 				
 				$rows = Yii::app()->db->createCommand()
 					->from('recipes')
@@ -481,7 +530,7 @@ class RecipesController extends Controller
 					->queryAll();
 			} else {
 				$rows = array();
-				unset(Yii::app()->session['Recipe']);
+				unset(Yii::app()->session[$this->searchBackup]);
 			}
 		}
 		
@@ -501,22 +550,49 @@ class RecipesController extends Controller
 	
 	public function actionAdvanceSearch()
 	{
-		$this->prepareSearch('advanceSearch', null);
+		$this->prepareSearch('advanceSearch', null, null);
 	}
 	
 	public function actionSearch()
 	{
-		$this->prepareSearch('search', null);
+		$this->prepareSearch('search', null, null);
 	}
 	
 	public function actionChooseRecipe(){
 		$this->isFancyAjaxRequest = true;
-		$this->prepareSearch('search', 'none');
+		$this->prepareSearch('search', 'none', null);
 	}
 	
 	public function actionAdvanceChooseRecipe(){
 		$this->isFancyAjaxRequest = true;
-		$this->prepareSearch('advanceSearch', 'none');
+		$this->prepareSearch('advanceSearch', 'none', null);
+	}
+	
+	public function actionShowLike(){
+		$command = Yii::app()->dbp->createCommand()
+			->select('PRF_LIKES_R')
+			->from('profiles')
+			->where('PRF_UID = :id',array(':id'=>Yii::app()->user->id));
+		$ids = $command->queryScalar();
+		
+		$ids = explode(',', $ids);
+		$criteria=new CDbCriteria;
+		$criteria->compare(Recipes::model()->tableName().'.REC_ID',$ids);
+		
+		$this->prepareSearch('like', null, $criteria);
+	}
+	public function actionShowNotLike(){
+		$command = Yii::app()->dbp->createCommand()
+			->select('PRF_NOTLIKES_R')
+			->from('profiles')
+			->where('PRF_UID = :id',array(':id'=>Yii::app()->user->id));
+		$ids = $command->queryScalar();
+		
+		$ids = explode(',', $ids);
+		$criteria=new CDbCriteria;
+		$criteria->compare(Recipes::model()->tableName().'.REC_ID',$ids);
+		
+		$this->prepareSearch('like', null, $criteria);
 	}
 	
 	/**

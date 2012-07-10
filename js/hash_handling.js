@@ -1,4 +1,5 @@
 var glob = glob || {};
+var _gaq = _gaq || [];
 
 glob.prefix = window.location.pathname.substr(0,window.location.pathname.indexOf('/',1)+1);
 glob.hashToUrl = function(url){
@@ -53,8 +54,14 @@ jQuery(function($){
 		}
 	}
 	
+	
+	$('#page').ajaxStart(function(e) {
+		jQuery.fancybox.showActivity();
+	});
+	
 	$('#page').ajaxComplete(function(e, xhr, settings) {
 		initLinks();
+		jQuery.fancybox.hideActivity();
 	});
 	initLinks();
 	
@@ -87,6 +94,7 @@ jQuery(function($){
 				$( '.bbq-loading' ).hide();
 				glob.lastHash = hash;
 				ajaxResponceHandler(data);
+				_gaq.push(['_trackPageview', hash]);
 			}});
 			
 			/*

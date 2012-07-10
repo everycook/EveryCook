@@ -27,7 +27,7 @@ class IngredientsController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','uploadImage','delicious','disgusting','cancel'),
+				'actions'=>array('create','update','uploadImage','delicious','disgusting','cancel','showLike', 'showNotLike'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -145,6 +145,9 @@ class IngredientsController extends Controller
 		} else {
 			$model=new Ingredients;
 			$oldPicture=null;
+		}
+		if (isset($model->ING_IMG) && $model->ING_IMG != ''){
+			$model->setScenario('withPic');
 		}
 		
 		if(isset($_POST['Ingredients'])){
@@ -292,7 +295,7 @@ class IngredientsController extends Controller
 		));
 	}
 	
-	private function prepareSearch($view, $ajaxLayout){
+	private function prepareSearch($view, $ajaxLayout, $criteria){
 		$model=new Ingredients('search');
 		$model->unsetAttributes();  // clear any default values
 		
@@ -312,9 +315,9 @@ class IngredientsController extends Controller
 			$modelAvailable = true;
 		}
 		
-		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Ingredients']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session[$this->searchBackup]['time'])){
-			$Session_Ingredient = Yii::app()->session[$this->searchBackup];
-			if (isset($Session_Ingredient)){
+		$Session_Ingredient = Yii::app()->session[$this->searchBackup];
+		if (isset($Session_Ingredient)){
+			if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Ingredients']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_Ingredient['time'])){
 				if (isset($Session_Ingredient['query'])){
 					$query = $Session_Ingredient['query'];
 					//echo "query from session\n";
@@ -329,7 +332,7 @@ class IngredientsController extends Controller
 		
 		$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'ingredients.');
 		
-		if ($modelAvailable || $criteriaString != ''){
+		if ($modelAvailable || $criteriaString != '' || $criteria != null){
 			if (!$this->isFancyAjaxRequest){
 				$distanceForGroupSQL = 'SELECT storeAmountView.ING_ID, storeAmountView.min_dist, storeAmountView.store_count, productAmountView.pro_count
 					FROM
@@ -452,7 +455,24 @@ class IngredientsController extends Controller
 				->group('ingredients.ING_ID, suppliers.SUP_ID')
 				->order('ingredients.ING_ID, suppliers.SUP_ID');
 			*/
-			if($modelAvailable) {
+			if ($criteria != null){
+				if (isset($criteria->condition) && $criteria->condition != '') {
+					Yii::app()->session[$this->searchBackup] = array('time'=>time());
+					
+					if ($criteriaString != ''){
+						$command->where($criteria->condition . ' AND ' . $criteriaString, $criteria->params);
+						//$suppliersCommand->where($criteria->condition . ' AND ' . $criteriaString, $criteria->params);
+					} else {
+						$command->where($criteria->condition, $criteria->params);
+						//$suppliersCommand->where($criteria->condition, $criteria->params);
+					}
+					$this->validSearchPerformed = true;
+				} else if ($criteriaString != ''){
+					$command->where($criteriaString);
+					//$suppliersCommand->where($criteriaString);
+					$this->validSearchPerformed = true;
+				}
+			} else if($modelAvailable) {
 				$Session_Ingredient = array();
 				if (isset($query)){
 					$Session_Ingredient['query'] = $query;
@@ -630,22 +650,49 @@ class IngredientsController extends Controller
 	
 	public function actionAdvanceSearch()
 	{
-		$this->prepareSearch('advanceSearch', null);
+		$this->prepareSearch('advanceSearch', null, null);
 	}
 	
 	public function actionSearch()
 	{
-		$this->prepareSearch('search', null);
+		$this->prepareSearch('search', null, null);
 	}
 	
 	public function actionChooseIngredient(){
 		$this->isFancyAjaxRequest = true;
-		$this->prepareSearch('search', 'none');
+		$this->prepareSearch('search', 'none', null);
 	}
 	
 	public function actionAdvanceChooseIngredient(){
 		$this->isFancyAjaxRequest = true;
-		$this->prepareSearch('advanceSearch', 'none');
+		$this->prepareSearch('advanceSearch', 'none', null);
+	}
+	
+	public function actionShowLike(){
+		$command = Yii::app()->dbp->createCommand()
+			->select('PRF_LIKES_I')
+			->from('profiles')
+			->where('PRF_UID = :id',array(':id'=>Yii::app()->user->id));
+		$ids = $command->queryScalar();
+		
+		$ids = explode(',', $ids);
+		$criteria=new CDbCriteria;
+		$criteria->compare(Ingredients::model()->tableName().'.ING_ID',$ids);
+		
+		$this->prepareSearch('like', null, $criteria);
+	}
+	public function actionShowNotLike(){
+		$command = Yii::app()->dbp->createCommand()
+			->select('PRF_NOTLIKES_I')
+			->from('profiles')
+			->where('PRF_UID = :id',array(':id'=>Yii::app()->user->id));
+		$ids = $command->queryScalar();
+		
+		$ids = explode(',', $ids);
+		$criteria=new CDbCriteria;
+		$criteria->compare(Ingredients::model()->tableName().'.ING_ID',$ids);
+		
+		$this->prepareSearch('like', null, $criteria);
 	}
 	
 	private function getSubGroupData($model){

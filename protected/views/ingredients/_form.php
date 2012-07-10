@@ -78,7 +78,7 @@
 		<?php
 		echo $this->trans->TIP_NUT_ID . '<br>';
 		echo $form->hiddenField($model,'NUT_ID', array('id'=>'NUT_ID', 'class'=>'fancyValue'));
-		echo CHtml::link($NutrientDescription, array('nutrientData/chooseNutrientData'), array('class'=>'fancyChoose NutrientDataSelect buttonSmall'));
+		echo CHtml::link($NutrientDescription, array('nutrientData/chooseNutrientData', 'query'=>$model->ING_NAME_EN_GB), array('class'=>'fancyChoose NutrientDataSelect buttonSmall'));
 		?>
 		</div>
 	</div>

@@ -24,7 +24,7 @@ class StoresController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','chooseStores','advanceChooseStores','displaySavedImage','getStoresInRange', 'getStoresInRangeWithProduct', 'currentGPSForStores', 'storeFinder'),
+				'actions'=>array('index','view','search','advanceSearch','chooseStores','advanceChooseStores','displaySavedImage','getStoresInRange', 'getStoresInRangeWithProduct', 'currentGPSForStores', 'storeFinder','addressInput'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -123,6 +123,9 @@ class StoresController extends Controller
 			$model=new Stores;
 			$oldPicture = null;
 		}
+		if (isset($model->STO_IMG) && $model->STO_IMG != ''){
+			$model->setScenario('withPic');
+		}
 		
 		if(isset($_POST['Stores'])){
 			$model->attributes=$_POST['Stores'];
@@ -170,7 +173,7 @@ class StoresController extends Controller
 		$supplier = CHtml::listData($supplier,'SUP_ID','SUP_NAME');
 		$storeType = Yii::app()->db->createCommand()->select('STY_ID,STY_TYPE_'.Yii::app()->session['lang'])->from('store_types')->queryAll();
 		$storeType = CHtml::listData($storeType,'STY_ID','STY_TYPE_'.Yii::app()->session['lang']);
-		$countrys = Yii::app()->db->createCommand()->select('CRY_ID,CRY_NAME_'.Yii::app()->session['lang'])->from('countrys')->queryAll();
+		$countrys = Yii::app()->db->createCommand()->select('CRY_ID,CRY_NAME_'.Yii::app()->session['lang'])->from('countrys')->order('CRY_NAME_'.Yii::app()->session['lang'])->queryAll();
 		$countrys = CHtml::listData($countrys,'CRY_ID','CRY_NAME_'.Yii::app()->session['lang']);
 		
 		$this->checkRenderAjax($view,array(
@@ -532,6 +535,7 @@ class StoresController extends Controller
     }
 	
 	public function actionGetStoresInRange(){
+		$this->saveLastAction = false;
 		$southWestLat = $_POST["southWestLat"];
 		$southWestLng = $_POST["southWestLng"];
 		$northEastLat = $_POST["northEastLat"];
@@ -559,6 +563,7 @@ class StoresController extends Controller
 	}
 	
 	public function actionGetStoresInRangeWithProduct(){
+		$this->saveLastAction = false;
 		$southWestLat = $_POST["southWestLat"];
 		$southWestLng = $_POST["southWestLng"];
 		$northEastLat = $_POST["northEastLat"];
@@ -587,6 +592,7 @@ class StoresController extends Controller
 	}
 	
 	public function actionCurrentGPSForStores(){
+		$this->saveLastAction = false;
 		$lat = $_POST['lat'];
 		$lng = $_POST['lng'];
 		$time = $_POST['time'];
@@ -595,5 +601,18 @@ class StoresController extends Controller
 			Yii::app()->session['current_gps'] = $current_gps;
 			Yii::app()->session['current_gps_time'] = $time;
 		}
+	}
+	
+	
+	public function actionAddressInput(){
+		$this->saveLastAction = false;
+		$model=new Stores;
+		$countrys = Yii::app()->db->createCommand()->select('CRY_ID,CRY_NAME_'.Yii::app()->session['lang'])->from('countrys')->order('CRY_NAME_'.Yii::app()->session['lang'])->queryAll();
+		$countrys = CHtml::listData($countrys,'CRY_ID','CRY_NAME_'.Yii::app()->session['lang']);
+		
+		$this->checkRenderAjax('address',array(
+			'model'=>$model,
+			'countrys'=>$countrys,
+		), 'none');
 	}
 }

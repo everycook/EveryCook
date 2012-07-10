@@ -28,7 +28,7 @@ class ProfilesController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow',  // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('index','view','create','update','uploadImage','admin','delete', 'favoriteFood', 'favoriteRecipes','ChangeLanguageMenu', 'changeDesignMenu','cancel'),
+				'actions'=>array('index','view','create','update','uploadImage','admin','delete', 'ChangeLanguageMenu', 'changeDesignMenu','cancel'),
 				'users'=>array('@'),
 			),
 			array('deny',  // deny all users
@@ -426,17 +426,6 @@ class ProfilesController extends Controller
 		$model->PRF_DESIGN = $_GET['design'];
 		$model->save();
 	}
-   
-	public function actionFavoriteFood(){
-		//TODO
-		echo "TODO";
-	}
-   
-	public function actionFavoriteRecipes(){
-		//TODO
-		echo "TODO";
-	}
-   
 
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.

@@ -39,8 +39,8 @@ class Controller extends CController
 		} else {
 			$newIngSearch=array();
 		}
-		if (Yii::app()->session['Recipe'] && Yii::app()->session['Recipe']['time']){
-			$newRecSearch=array('newSearch'=>Yii::app()->session['Recipe']['time']);
+		if (Yii::app()->session['Recipes'] && Yii::app()->session['Recipes']['time']){
+			$newRecSearch=array('newSearch'=>Yii::app()->session['Recipes']['time']);
 		} else {
 			$newRecSearch=array();
 		}
@@ -73,13 +73,14 @@ class Controller extends CController
 	
 	public function getJumpTos(){
 		return array(
-			$this->trans->JUMPTO_SHOP_CREATOR => Yii::app()->createUrl('stores/create',array('newModel'=>time())),
-			$this->trans->JUMPTO_SHOP_FINDER => Yii::app()->createUrl('stores/storeFinder',array()),
-			$this->trans->JUMPTO_FAVORITE_FOOD => Yii::app()->createUrl('profiles/favoriteFood',array()),
-			$this->trans->JUMPTO_FAVORITE_RECIPES => Yii::app()->createUrl('profiles/favoriteRecipes',array()),
-			$this->trans->JUMPTO_MEALLIST => Yii::app()->createUrl('meals/mealList',array()),
-			$this->trans->JUMPTO_MEALPLANNER => Yii::app()->createUrl('meals/mealPlanner',array('newModel'=>time())),
-			$this->trans->JUMPTO_SHOPPINGLISTS => Yii::app()->createUrl('shoppinglists/index',array()),
+			$this->trans->JUMPTO_SHOP_CREATOR => array(Yii::app()->createUrl('stores/create',array('newModel'=>time())), ' newModelTime'),
+			$this->trans->JUMPTO_SHOP_FINDER => array(Yii::app()->createUrl('stores/storeFinder',array())),
+			$this->trans->JUMPTO_LIKE_INGREDIENT => array(Yii::app()->createUrl('ingredients/showLike',array())),
+			$this->trans->JUMPTO_LIKE_PRODUCTS => array(Yii::app()->createUrl('products/showLike',array())),
+			$this->trans->JUMPTO_LIKE_RECIPES => array(Yii::app()->createUrl('recipes/showLike',array())),
+			$this->trans->JUMPTO_MEALLIST => array(Yii::app()->createUrl('meals/mealList',array())),
+			$this->trans->JUMPTO_MEALPLANNER => array(Yii::app()->createUrl('meals/mealPlanner',array('newModel'=>time())), ' newModelTime'),
+			$this->trans->JUMPTO_SHOPPINGLISTS => array(Yii::app()->createUrl('shoppinglists/index',array())),
 		);
 	}
 	

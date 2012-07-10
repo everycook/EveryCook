@@ -19,8 +19,8 @@ $this->mainButtons = array(
 
 <div class="detailView">
 	<?php
-	if (isset(Yii::app()->session['Recipe'])){
-		if (isset(Yii::app()->session['Recipe']['model'])){
+	if (isset(Yii::app()->session['Recipes'])){
+		if (isset(Yii::app()->session['Recipes']['model'])){
 			echo CHtml::link($this->trans->SEARCH_BACK_TO_RESULTS, array('recipes/advancesearch'), array('class'=>'button'));
 		} else {
 			echo CHtml::link($this->trans->SEARCH_BACK_TO_RESULTS, array('recipes/search'), array('class'=>'button'));

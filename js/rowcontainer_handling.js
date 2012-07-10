@@ -166,7 +166,9 @@ jQuery(function($){
 		var multiplier = unitField.val();
 		var dataField = unitField.next();
 		var value = inputField.val();
-		dataField.val(value * multiplier);
+		if (value !== ''){
+			dataField.val(value * multiplier);
+		}
 	});
 	
 	jQuery('body').undelegate('.addRowContainer .unit','change').delegate('.addRowContainer .unit','change',function(){
@@ -175,7 +177,9 @@ jQuery(function($){
 		var inputField = unitField.prev();
 		var dataField = unitField.next();
 		var value = inputField.val();
-		dataField.val(value * multiplier);
+		if (value !== ''){
+			dataField.val(value * multiplier);
+		}
 	});
 	
 	jQuery('body').undelegate('.addRowContainer .withUnit','change').delegate('.addRowContainer .withUnit','change',function(){
@@ -184,7 +188,9 @@ jQuery(function($){
 		var multiplier = unitField.val();
 		var inputField = unitField.prev();
 		var value = dataField.val();
-		inputField.val(value / multiplier);
+		if (value !== ''){
+			inputField.val(value / multiplier);
+		}
 	});
 	
 	var fieldTypes = {'STE_CELSIUS':'number','STE_KPA':'number','STE_RPM':'number','STE_CLOCKWISE':'boolean','STE_STIR_RUN':'time','STE_STIR_PAUSE':'time','STE_STEP_DURATION':'time'};

@@ -14,11 +14,11 @@
  *   http://www.opensource.org/licenses/mit-license.php
  *   http://www.gnu.org/licenses/gpl.html
  */
-//line 186: replace "$(this).replaceWith(content.children());" with "$(this).replaceWith(content.children('div').children());".
+//line 186: replace "$(this).replaceWith(content.children());" with "$(this).replaceWith(content.children('div').children());". // deactivate animation in $.fancybox.showActivity
 ;(function($) {
 	var tmp, loading, overlay, wrap, outer, content, close, title, nav_left, nav_right,
 
-		selectedIndex = 0, selectedOpts = {}, selectedArray = [], currentIndex = 0, currentOpts = {}, currentArray = [],
+		selectedIndex = 0, selectedOpts = {onCancel : function(){}}, selectedArray = [], currentIndex = 0, currentOpts = {}, currentArray = [],
 
 		ajaxLoader = null, imgPreloader = new Image(), imgRegExp = /\.(jpg|gif|png|bmp|jpeg)(.*)?$/i, swfRegExp = /[^\.]\.(swf)\s*$/i,
 
@@ -866,10 +866,10 @@
 	};
 
 	$.fancybox.showActivity = function() {
-		clearInterval(loadingTimer);
+		//clearInterval(loadingTimer);
 
 		loading.show();
-		loadingTimer = setInterval(_animate_loading, 66);
+		//loadingTimer = setInterval(_animate_loading, 66);
 	};
 
 	$.fancybox.hideActivity = function() {

@@ -82,16 +82,25 @@
 								++$couToRecs_index;
 							}
 						}
+						if ($meaToCou->MTC_EAT_CHILDREN>0){
+							if ($meaToCou->MTC_EAT_ADULTS>0){
+								$text = sprintf($this->trans->MEALPLANNER_EATING_PEOPLE,$meaToCou->MTC_EAT_ADULTS,$meaToCou->MTC_EAT_CHILDREN);
+							} else {
+								$text = sprintf($this->trans->MEALPLANNER_EATING_PEOPLE_CHILD,$meaToCou->MTC_EAT_CHILDREN);
+							}
+						} else {
+							$text = sprintf($this->trans->MEALPLANNER_EATING_PEOPLE_ADULT,$meaToCou->MTC_EAT_ADULTS);
+						}
 						if(isset($editMode) && $editMode){
 							echo '<div style="display: table-cell; vertical-align: top;">';
-								echo CHtml::link(sprintf($this->trans->MEALPLANNER_EATING_PEOPLE,$meaToCou->MTC_EAT_ADULTS,$meaToCou->MTC_EAT_CHILDREN), '#peopleDetailsContent', array('class'=>'button PeopleSelect'));
+								echo CHtml::link($text, '#peopleDetailsContent', array('class'=>'button PeopleSelect'));
 								echo CHtml::link($this->trans->MEALPLANNER_ADD_RECIPE, array('recipes/chooseRecipe'), array('class'=>'button fancyChoose RecipeSelect'));
 								echo CHtml::link($this->trans->MEALPLANNER_REMOVE_RECIPE, '#removeRecipeContent', array('class'=>'button RecipeRemove'));
 								echo '<input type="hidden" class="fancyValue"/>';
 							echo '</div>';
 						} else {
 							echo '<div style="display: table-cell; vertical-align: top;">';
-								echo '<span>' . sprintf($this->trans->MEALPLANNER_EATING_PEOPLE,$meaToCou->MTC_EAT_ADULTS,$meaToCou->MTC_EAT_CHILDREN) . '</span>';
+								echo '<span>' . $text . '</span>';
 							echo '</div>';
 						}
 					echo '</div>';

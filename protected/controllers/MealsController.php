@@ -358,6 +358,7 @@ class MealsController extends Controller
 		}
 			
 		Yii::app()->session[$this->createBackup] = $model;
+		Yii::app()->session[$this->createBackup.'_Time'] = time();
 		
 		$this->checkRenderAjax('mealplanner',array(
 			'model'=>$model,

@@ -107,3 +107,9 @@ div.mealOverview {
 .slider_holder .jslider_plastic .jslider-bg i, .slider_holder .jslider_plastic .jslider-pointer {
     background-image: url('../../pics/jslider.plastic.png');
 }
+
+
+#fancybox-loading {
+	background: url('../../pics/Please_wait_small.gif') no-repeat scroll 0 0 transparent !important;
+	background-size: 100% auto !important;
+}

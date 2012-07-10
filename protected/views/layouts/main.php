@@ -104,11 +104,17 @@
 						<?php
 						$first = true;
 						foreach($this->getJumpTos() as $title=>$link){
+							if (count($link)>1){
+								$class = $link[1];
+							} else {
+								$class = '';
+							}
+							$link = $link[0];
 							if ($first){
-								echo '<a class="button navMenuListEntry first" href="' . $link . '">' . $title . '</a><br>'."\n";
+								echo '<a class="button navMenuListEntry'.$class.' first" href="' . $link . '">' . $title . '</a><br>'."\n";
 								$first = false;
 							} else {
-								echo '<a class="button navMenuListEntry" href="' . $link . '">' . $title . '</a><br>'."\n";
+								echo '<a class="button navMenuListEntry'.$class.'" href="' . $link . '">' . $title . '</a><br>'."\n";
 							}
 						}
 						?>
@@ -124,7 +130,10 @@
 			<input type="hidden" id="current_gps_lat" value="<?php if (isset(Yii::app()->session['current_gps'])) {echo Yii::app()->session['current_gps'][0];} ?>" />
 			<input type="hidden" id="current_gps_lng" value="<?php if (isset(Yii::app()->session['current_gps'])) {echo Yii::app()->session['current_gps'][1];} ?>" />
 			<input type="hidden" id="current_gps_time" value="<?php if (isset(Yii::app()->session['current_gps_time'])) {echo Yii::app()->session['current_gps_time'];} ?>" />
+			<input type="hidden" id="home_gps_lat" value="<?php if (isset(Yii::app()->user->home_gps)) {echo Yii::app()->user->home_gps[0];} ?>" />
+			<input type="hidden" id="home_gps_lng" value="<?php if (isset(Yii::app()->user->home_gps)) {echo Yii::app()->user->home_gps[1];} ?>" />
 			<input type="hidden" id="markCurrentGPS" value="<?php echo Yii::app()->createUrl('stores/currentGPSForStores'); ?>" />
+			<input type="hidden" id="addressFormLink" value="<?php echo Yii::app()->createUrl('stores/addressInput'); ?>" />
 			<div id="changable_content">
 				<?php echo $content; ?>
 			</div>
@@ -132,5 +141,20 @@
 		<div id="footer">
 				Copyright &copy; <?php echo date('Y'); ?> by EveryCook. <a href="http://creativecommons.org/licenses/by-sa/3.0/"><img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/by-sa.png" width="57" height="20"></a> <?php echo Yii::powered(); ?>
 		</div><!-- footer -->
+		
+		<script>
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-32739550-1']);
+		_gaq.push(['_trackPageview']);
+
+		(function() {
+			var ga = document.createElement('script'); ga.type =
+			'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' :
+			'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(ga, s);
+		})();
+		</script>
 	</body>
 </html>

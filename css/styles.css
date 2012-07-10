@@ -254,7 +254,8 @@ div.resultArea.noPic {
 div.resultArea img.ingredient,
 div.resultArea img.recipe,
 div.resultArea img.product,
-div.resultArea img.store {
+div.resultArea img.store,
+div.resultArea img.profile {
 	width:12em;
 	height:12em;
 	float:left;
@@ -728,4 +729,15 @@ div.mealView span.value {
 
 .cou_recipe .slider_holder, .cou_recipe .slider_holder input {
 	width: 11em;
+}
+
+#fancybox-loading div  {
+	display: none;
+}
+
+#fancybox-loading {
+	width: 10em !important;
+	height: 10em !important;
+	margin-left: -5em !important;
+	margin-top: -5em !important;
 }

@@ -193,10 +193,27 @@ jQuery(function($){
 		courseSettings.find('[id$=MTC_EAT_ADULTS]').val(adult);
 		courseSettings.find('[id$=MTC_EAT_CHILDREN]').val(child);
 		
-		var eatingText = '%d Adults + %d Child eating';
-		var pos = eatingText.indexOf('%d');
-		var pos2 = eatingText.indexOf('%d', pos+2);
-		eatingText = eatingText.substr(0,pos-1) + adult + eatingText.substr(pos+2,pos2-pos-2) + child +  eatingText.substr(pos2+2,eatingText.length-pos2-2);
+		var eatingText_both = '%d Adults + %d Child eating';
+		var eatingText_adult = '%d Adults eating';
+		var eatingText_child = '%d Child eating';
+		
+		if (child>0){
+			if (adult>0){
+				eatingText = eatingText_both;
+				var pos = eatingText.indexOf('%d');
+				var pos2 = eatingText.indexOf('%d', pos+2);
+				eatingText = eatingText.substr(0,pos-1) + adult + eatingText.substr(pos+2,pos2-pos-2) + child +  eatingText.substr(pos2+2,eatingText.length-pos2-2);
+			} else {
+				eatingText = eatingText_child;
+				var pos = eatingText.indexOf('%d');
+				eatingText = eatingText.substr(0,pos-1) + child +  eatingText.substr(pos+2,eatingText.length-pos-2);
+			}
+		} else {
+			eatingText = eatingText_adult;
+			var pos = eatingText.indexOf('%d');
+			eatingText = eatingText.substr(0,pos-1) + adult +  eatingText.substr(pos+2,eatingText.length-pos-2);
+		}
+		
 		courseSettings.find('.PeopleSelect').text(eatingText);
 	}
 	
@@ -338,7 +355,6 @@ jQuery(function($){
 			if (elem.val() != 100){
 				elem.attr('value',100);
 				if (elem.is(':hidden') && elem.next().is('.jslider')){
-					console.log(elem.attr('name') + ' change amount == 1');
 					elem.slider('value', 100);
 				}
 				elem.parent().find('.value:first').text(100);
@@ -447,9 +463,9 @@ jQuery(function($){
 	jQuery('body').undelegate('#addCourse','click').delegate('#addCourse','click', function(){
 		var elem = jQuery(this);
 		var courseIndex = elem.index();
-		var addRecipeText = 'Rezept Hinzufügen';
-		var gdaMealText = '<span class="value">100</span>% der GDA der Mahlzeit.';
-		var peopleEatingText = '0 Erwachsene + 0 Kinder essen';
+		var addRecipeText = 'Add recipe';
+		var gdaMealText = '<span class="value">100</span>% meal GDA.';
+		var peopleEatingText = '0 adults eating';
 		var courseNameText = 'Course Description';
 		var removeRecipeText = 'Remove Recipe';
 		//' + courseNameText + ': <input type="text" id="Meals_meaToCous_' + courseIndex + '_course_COU_DESC" name="Meals[meaToCous][' + courseIndex + '][course][COU_DESC]" value="" style="width: 20em;"><br>

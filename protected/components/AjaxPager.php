@@ -30,6 +30,7 @@ class AjaxPager extends CBasePager
 			return;
 		$currentPage = $this->getCurrentPage();
 		$params = $this->getController()->getActionParams();
+		$autoLoad = true;
 		if ($this->prev){
 			if ($currentPage<=0)
 				return;
@@ -38,7 +39,8 @@ class AjaxPager extends CBasePager
 			$nextPage = $currentPage-1;
 			$params['noNext'] = true;
 			$text = Yii::app()->controller->trans->GENERAL_LOADING_PREVPAGE;
-			//Yii::app()->controller->trans->GENERAL_CLICK_TO_LOAD_PREVPAGE;
+			//$text = Yii::app()->controller->trans->GENERAL_CLICK_TO_LOAD_PREVPAGE;
+			//$autoLoad = false;
 		} else {
 			if (isset($_GET['noNext']) && $_GET['noNext'])
 				return;
@@ -55,7 +57,7 @@ class AjaxPager extends CBasePager
 		
 		$url = $this->getPages()->createPageUrl($this->getController(),$nextPage);
 		
-		echo '<div id="ajaxPaging' . (($nextPage<$currentPage)?'Prev':'') . '" class="ajaxPagingAutoLoad">';
+		echo '<div id="ajaxPaging' . (($nextPage<$currentPage)?'Prev':'') . '" class="ajaxPaging' . (($autoLoad)?'AutoLoad':'') . '">';
 		echo '<input type="hidden" class="pagingUrl" value="' . $url . '"/>';
 		echo '<div class="pagingText">' . $text . '</div>';
 		echo '<div class="pagingLoading backpic"></div>';
