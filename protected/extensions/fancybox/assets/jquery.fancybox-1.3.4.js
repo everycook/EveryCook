@@ -31,7 +31,17 @@
 		/*
 		 * Private methods 
 		 */
+		 
+		mousewheelImageChange = function (e, delta) {
+			if (busy) {
+				e.preventDefault();
 
+			} else if ($(e.target).get(0).clientHeight == 0 || $(e.target).get(0).scrollHeight === $(e.target).get(0).clientHeight) {
+				e.preventDefault();
+				$.fancybox[ delta > 0 ? 'prev' : 'next']();
+			}
+		},
+			
 		_abort = function() {
 			loading.hide();
 
@@ -166,6 +176,8 @@
 			$('.fancybox-inline-tmp').unbind('fancybox-cancel').bind('fancybox-change', function() {
 				$(this).replaceWith(content.children());
 			});
+			
+			wrap.unbind('mousewheel.fb', mousewheelImageChange);
 
 			switch (type) {
 				case 'html' :
@@ -198,6 +210,10 @@
 
 					$.fancybox.showActivity();
 
+					if ($.fn.mousewheel) {
+						wrap.bind('mousewheel.fb', mousewheelImageChange);
+					}
+		
 					imgPreloader = new Image();
 
 					imgPreloader.onerror = function() {
@@ -1069,18 +1085,6 @@
 			e.preventDefault();
 			$.fancybox.next();
 		});
-
-		if ($.fn.mousewheel) {
-			wrap.bind('mousewheel.fb', function(e, delta) {
-				if (busy) {
-					e.preventDefault();
-
-				} else if ($(e.target).get(0).clientHeight == 0 || $(e.target).get(0).scrollHeight === $(e.target).get(0).clientHeight) {
-					e.preventDefault();
-					$.fancybox[ delta > 0 ? 'prev' : 'next']();
-				}
-			});
-		}
 
 		if (!$.support.opacity) {
 			wrap.addClass('fancybox-ie');

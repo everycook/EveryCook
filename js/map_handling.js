@@ -321,13 +321,13 @@ function locateCallback(status){
 		//alert("Geolocation service failed. We've placed you in Basel, Schweiz.");
 		//initialLocation = locationBasel;
 		var url = glob.urlAddParamStart(jQuery('#addressFormLink').val()) + 'errorCode=' + status;
-		jQuery.fancybox({'href':url});
+		jQuery.fancybox({'href':url,'onComplete': function(){jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );}});
 		locateAddressCallback = locateCallback;
 	} else if (status === -2){
 		//alert("Your browser doesn't support geolocation. We've placed you in Basel, Schweiz.");
 		//initialLocation = locationBasel;
 		var url = glob.urlAddParamStart(jQuery('#addressFormLink').val()) + 'errorCode=' + status;
-		jQuery.fancybox({'href':url});
+		jQuery.fancybox({'href':url,'onComplete': function(){jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );}});
 		locateAddressCallback = locateCallback;
 	} else {
 		if (status !== 0){
@@ -792,7 +792,7 @@ function setGeocodeMarker(latLng, latField, lngField){
 		var url = glob.urlAddParamStart(jQuery('#addressFormLink').val()) + 'errorCode=' + status;
 		url = glob.urlAddParamStart(url) + 'lat=' + latField.val();
 		url = glob.urlAddParamStart(url) + 'lng=' + lngField.val();
-		jQuery.fancybox({'href':url});
+		jQuery.fancybox({'href':url,'onComplete': function(){jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );}});
 		locateAddressCallback = MarkerCurrentGPSCallback;
 	});
 }
@@ -851,9 +851,11 @@ jQuery(function($){
 function codeAddress(address, latField, lngField) {
 	geocoder.geocode( {'address': address}, function(results, status) {
 		if (status == google.maps.GeocoderStatus.OK) {
-			map.setCenter(results[0].geometry.location);
-			if(jQuery('#address-form').length == 0){
-				setGeocodeMarker(results[0].geometry.location, latField, lngField);
+			if (map) {
+				map.setCenter(results[0].geometry.location);
+				if(jQuery('#address-form').length == 0){
+					setGeocodeMarker(results[0].geometry.location, latField, lngField);
+				}
 			}
 			
 			latField.val(results[0].geometry.location.lat());
@@ -876,10 +878,12 @@ function decodeAddress(lat, lng, streetField, noField, zipField, cityField, stat
 	geocoder.geocode({'latLng': latLng}, function(results, status) {
 		if (status == google.maps.GeocoderStatus.OK) {
 			if (results[0]) {
-				if(jQuery('#address-form').length == 0){
-					setGeocodeMarker(results[0].geometry.location);
+				if (map) {
+					if(jQuery('#address-form').length == 0){
+						setGeocodeMarker(results[0].geometry.location);
+					}
+					map.setCenter(results[0].geometry.location);
 				}
-				map.setCenter(results[0].geometry.location);
 				
 				var parts = results[0].address_components;
 				for(var i=0; i<parts.length; ++i){
@@ -914,12 +918,12 @@ function decodeAddress(lat, lng, streetField, noField, zipField, cityField, stat
 function MarkerCurrentGPSCallback(status){
 	if (status === -1){
 		var url = glob.urlAddParamStart(jQuery('#addressFormLink').val()) + 'errorCode=' + status;
-		jQuery.fancybox({'href':url});
+		jQuery.fancybox({'href':url,'onComplete': function(){jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );}});
 		locateAddressCallback = MarkerCurrentGPSCallback;
 		//alert("Geolocation service failed. Please set your location on Map.");
 	} else if (status === -2){
 		var url = glob.urlAddParamStart(jQuery('#addressFormLink').val()) + 'errorCode=' + status;
-		jQuery.fancybox({'href':url});
+		jQuery.fancybox({'href':url,'onComplete': function(){jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );}});
 		locateAddressCallback = MarkerCurrentGPSCallback;
 		//alert("Your browser doesn't support geolocation. Please set your location on Map.");
 	} else if (status !== 0){
@@ -935,19 +939,25 @@ function UpdateCurrentGPSCallback(status){
 		//alert("Geolocation service failed.");
 		locateAddressCallback = UpdateCurrentGPSCallback;
 		var url = glob.urlAddParamStart(jQuery('#addressFormLink').val()) + 'errorCode=' + status;
-		jQuery.fancybox({'href':url});
+		jQuery.fancybox({'href':url,'onComplete': function(){jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );}});
 	} else if (status === -2){
 		//alert("Your browser doesn't support geolocation.");
 		locateAddressCallback = UpdateCurrentGPSCallback;
 		var url = glob.urlAddParamStart(jQuery('#addressFormLink').val()) + 'errorCode=' + status;
-		jQuery.fancybox({'href':url});
+		jQuery.fancybox({'href':url,'onComplete': function(){jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );}});
 	} else if (status !== 0){
-		map.setCenter(initialLocation);
+		if (map) {
+			map.setCenter(initialLocation);
+		}
 		//setGeocodeMarker(initialLocation);
 		
 		UpdateSessionLocation();
 		if (typeof(lastLocation) === 'undefined' || lastLocation.lat()  != initialLocation.lat() || lastLocation.lng()  != initialLocation.lng()){
-			alert('DEBUG: geolocation sucessfull (accuracy: ' + lastCords.accuracy + 'm), press F5 to reload data (will be done automatically in future...)'); //TODO
+			if (lastCords != null){
+				alert('DEBUG: geolocation sucessfull (accuracy: ' + lastCords.accuracy + 'm), press F5 to reload data (will be done automatically in future...)'); //TODO
+			} else {
+				alert('DEBUG: setting address GPS  sucessfull , press F5 to reload data (will be done automatically in future...)'); //TODO
+			}
 			//TODO: reload page
 		} else {
 			if (typeof(currentMarker) !== 'undefined'){
@@ -982,6 +992,7 @@ jQuery(function($){
 			var lng = form.find('#Stores_STO_GPS_LNG').val();
 			if (lat != '' && lng != ''){
 				initialLocation = new google.maps.LatLng(lat, lng);
+				lastCords = null;
 				locateAddressCallback(3);
 			} else {
 				alert('You need coordinates, please press the "Address to GPS" button to translate address to coordinates.')

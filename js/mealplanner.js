@@ -5,12 +5,8 @@ jQuery(function($){
 	var fixProzentValues_new = false;
 	
 	//Initialize Links
-	function initSliders(parent){
-		if (typeof(parent) !== 'undefined'){
-			var sliders = parent.find("input[type=range]");
-		} else {
-			var sliders = jQuery("input[type=range]");
-		}
+	function initSliders(type, contentParent){
+		var sliders = contentParent.find("input[type=range]");
 		if (sliders.length > 0){
 			if (sliders.get(0).type == 'text'){
 				//browser don't know 'range' input type, do jQuery fallback.
@@ -30,10 +26,12 @@ jQuery(function($){
 		}
 	}
 	
-	$('#page').ajaxComplete(function(e, xhr, settings) {
-		initSliders();
+	
+	$('#page').bind('newContent.mealplanner', function(e, type, contentParent) {
+		initSliders(type, contentParent);
 	});
-	initSliders();
+	initSliders('initial', jQuery('#page'));
+	
 	
 	function selectNearestMeal(){
 		var currentDate = new Date();
@@ -230,7 +228,15 @@ jQuery(function($){
 		glob.rowContainer.clear(container);
 		glob.rowContainer.MealplannerPeopleInit(container, rowsJSON, '[]');
 		
-		jQuery.fancybox({'href':elem.attr('href'),'autoScale':true,'autoDimensions':true,'centerOnScroll':true});
+		jQuery.fancybox({
+			'href':elem.attr('href'),
+			'autoScale':true,
+			'autoDimensions':true,
+			'centerOnScroll':true,
+			'onComplete': function(){
+				jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );
+			}
+		});
 		return false;
 	});
 	
@@ -270,7 +276,15 @@ jQuery(function($){
 			var option = '<option value="' + i + '">' + jQuery(recipes.get(i)).text() + '</option>';
 			select.append(jQuery(option));
 		}
-		jQuery.fancybox({'href':elem.attr('href'),'autoScale':true,'autoDimensions':true,'centerOnScroll':true});
+		jQuery.fancybox({
+			'href':elem.attr('href'),
+			'autoScale':true,
+			'autoDimensions':true,
+			'centerOnScroll':true,
+			'onComplete': function(){
+				jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );
+			}
+		});
 		return false;
 	});
 	
@@ -452,7 +466,7 @@ jQuery(function($){
 		newRecipe.insertBefore(elem.parent());
 		
 		fixProzentValues_new = true;
-		initSliders(newRecipe);
+		initSliders('html', newRecipe);
 		newRecipe.find('.input_range').change();
 		fixProzentValues_new = false;
 		
@@ -473,7 +487,7 @@ jQuery(function($){
 		newCourse.insertBefore(elem);
 		
 		fixProzentValues_new = true;
-		initSliders(newCourse);
+		initSliders('html', newCourse);
 		newCourse.find('.input_range').change();
 		fixProzentValues_new = false;
 		

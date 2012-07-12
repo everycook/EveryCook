@@ -1,7 +1,7 @@
 jQuery(function($){
-	function backpicFix(){
+	function backpicFix(type, contentParent){
 		if (!('backgroundSize' in document.documentElement.style)){
-			jQuery('.backpic').each(function(){
+			contentParent.find('.backpic').each(function(){
 				var elem = jQuery(this);
 				var image = elem.css('background-image');
 				elem.css('background','none');
@@ -18,8 +18,9 @@ jQuery(function($){
 		}
 	}
 	
-	$('#page').ajaxComplete(function(e, xhr, settings) {
-		backpicFix();
+	
+	$('#page').bind('newContent.iefix_handling', function(e, type, contentParent) {
+		backpicFix(type, contentParent);
 	});
-	backpicFix();
+	backpicFix('initial', jQuery('html'));
 });

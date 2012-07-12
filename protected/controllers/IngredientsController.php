@@ -442,9 +442,6 @@ class IngredientsController extends Controller
 				$command->group('ingredients.ING_ID');
 				//echo $command->text;
 				
-				
-				
-			$this->isFancyAjaxRequest = false;
 			/*
 			$suppliersCommand = Yii::app()->db->createCommand()
 				->select('ingredients.ING_ID, suppliers.SUP_NAME')

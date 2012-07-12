@@ -339,10 +339,10 @@ jQuery(function($){
 	
 	//##################################################################################
 	//Mealplanner people functions
-	function initMealplannerPeopleRowContainer(){
-		var container = jQuery('.people .addRowContainer');
-		var data = jQuery('#rowsJSON').attr('value');
-		var errors = jQuery('#errorJSON').attr('value');
+	function initMealplannerPeopleRowContainer(type, contentParent){
+		var container = contentParent.find('.people .addRowContainer');
+		var data = contentParent.find('#rowsJSON').attr('value');
+		var errors = contentParent.find('#errorJSON').attr('value');
 		initMealplannerPeopleRowContainerDoIt(container, data, errors);
 	}
 	
@@ -410,15 +410,15 @@ jQuery(function($){
 	var ingredientSelectContent;
 	var weightContent;
 	var ingredients;
-	function initRecipeStepsRowContainer(){
-		if (jQuery('.steps .addRowContainer').length == 0){
+	function initRecipeStepsRowContainer(type, contentParent){
+		if (contentParent.find('.steps .addRowContainer').length == 0){
 			return;
 		}
-		if (jQuery('.steps .addRowContainer .rowContainerInitialized').length > 0){
+		if (contentParent.find('.steps .addRowContainer .rowContainerInitialized').length > 0){
 			return;
 		}
 		
-		stepConfig = jQuery('#stepConfigValues').attr('value');
+		stepConfig = contentParent.find('#stepConfigValues').attr('value');
 		if (stepConfig && stepConfig.length > 0){
 			stepConfig = JSON.parse(stepConfig);
 		} else {
@@ -426,12 +426,12 @@ jQuery(function($){
 			return;
 		}
 		
-		ingredients = jQuery('#ingredientsJSON').attr('value');
+		ingredients = contentParent.find('#ingredientsJSON').attr('value');
 		ingredients = JSON.parse(ingredients);
 		
-		var container = jQuery('.steps .addRowContainer');
-		var data = jQuery('#rowsJSON').attr('value');
-		var errors = jQuery('#errorJSON').attr('value');
+		var container = contentParent.find('.steps .addRowContainer');
+		var data = contentParent.find('#rowsJSON').attr('value');
+		var errors = contentParent.find('#errorJSON').attr('value');
 		initRowContainer(container, data, errors, ':not([id$=STT_ID]):not([id$=ACT_ID])', function(newLine){
 			var ingredientSelectContentElem = newLine.find('[id$=ING_ID]');
 			ingredientSelectContent = ingredientSelectContentElem.parents(':first').html();
@@ -454,7 +454,7 @@ jQuery(function($){
 			if (ingredientField.length > 0){
 				var value = data_row['ING_ID'];
 				ingredientField.attr('value',value);
-				jQuery('#' + ingredientField.attr('id') + '_DESC').html(ingredients[value]);
+				contentParent.find('#' + ingredientField.attr('id') + '_DESC').html(ingredients[value]);
 			}
 		});
 		
@@ -621,11 +621,12 @@ jQuery(function($){
 	
 	
 	//----------------------------------------------
-	
-	$('#page').ajaxComplete(function(e, xhr, settings) {
-		initRecipeStepsRowContainer();
-		initMealplannerPeopleRowContainer();
+
+
+	$('#page').bind('newContent.rowcontainer_handling', function(e, type, contentParent) {
+		initRecipeStepsRowContainer(type, contentParent);
+		initMealplannerPeopleRowContainer(type, contentParent);
 	});
-	initRecipeStepsRowContainer();
-	initMealplannerPeopleRowContainer();
+	initRecipeStepsRowContainer('initial', jQuery('#page'));
+	initMealplannerPeopleRowContainer('initial', jQuery('#page'));
 });

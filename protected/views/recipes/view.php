@@ -36,9 +36,14 @@ $this->mainButtons = array(
 		<div class="ingredients">
 			<?php echo CHtml::encode($this->trans->RECIPES_INGREDIENTS_NEEDED); ?>
 			<ul>
-			<?php foreach($model->steps as $step){
+			<?php
+			$ingredient_printed = array();
+			foreach($model->steps as $step){
 				if ($step->ingredient != null){
-					echo '<li>' . CHtml::link($step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']), array('ingredients/view', 'id'=>$step->ingredient->ING_ID), array('title'=>$this->trans->RECIPES_TOOLTIP_OPEN_INGREDIENT)) . '</li>';
+					if (!isset($ingredient_printed[$step->ingredient->ING_ID])){
+						echo '<li>' . CHtml::link($step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']), array('ingredients/view', 'id'=>$step->ingredient->ING_ID), array('title'=>$this->trans->RECIPES_TOOLTIP_OPEN_INGREDIENT)) . '</li>';
+						$ingredient_printed[$step->ingredient->ING_ID] = true;
+					}
 				}
 			}
 			?>

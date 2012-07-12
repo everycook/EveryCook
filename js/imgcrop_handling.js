@@ -1,7 +1,7 @@
 jQuery(function($){
-	function initCrop(){
-		var cropable = $('.cropable');
-		if (jQuery('#imagecrop_x').length == 0){
+	function initCrop(type, contentParent){
+		var cropable = contentParent.find('.cropable');
+		if (contentParent.find('#imagecrop_x').length == 0){
 			cropable.each(function(){
 				var parent = jQuery(this).parent();
 				parent.append(jQuery('<input type="hidden" id="imagecrop_x" name="imagecrop_x" />'));
@@ -24,10 +24,11 @@ jQuery(function($){
 		cropable.removeClass('cropable');
 	}
 	
-	$('#page').ajaxComplete(function(e, xhr, settings) {
-		initCrop();
+	$('#page').bind('newContent.imgcrop_handling', function(e, type, contentParent) {
+		initCrop(type, contentParent);
 	});
-	initCrop();
+	initCrop('initial', jQuery('#page'));
+	
 	
 // The variable jcrop_api will hold a reference to the
 // Jcrop API once Jcrop is instantiated.

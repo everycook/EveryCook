@@ -42,28 +42,30 @@ glob.changeHash = function(newParamName, newParamValue, noSubmit){
 
 jQuery(function($){
 	//Initialize Links
-	function initLinks(){
+	function initLinks(type, contentParent){
 		if (glob.prefix && window.location.pathname != glob.prefix){
-			$('a[href*="' + glob.prefix + '"]:not(a[href*="#"]):not(.fancyChoose):not(.noAjax)').each(function(){
+			contentParent.find('a[href*="' + glob.prefix + '"]:not(a[href*="#"]):not(.fancyChoose):not(.noAjax)').each(function(){
 				$(this).attr('href', glob.prefix + "#" + $(this).attr('href').substr(glob.prefix.length));
 			});
 		} else {
-			$('a[href*="' + glob.prefix + '"]:not(.fancyChoose):not(.noAjax)').each(function(){
+			contentParent.find('a[href*="' + glob.prefix + '"]:not(.fancyChoose):not(.noAjax)').each(function(){
 				$(this).attr('href', "#" + $(this).attr('href').substr(glob.prefix.length));
 			});
 		}
 	}
-	
 	
 	$('#page').ajaxStart(function(e) {
 		jQuery.fancybox.showActivity();
 	});
 	
 	$('#page').ajaxComplete(function(e, xhr, settings) {
-		initLinks();
 		jQuery.fancybox.hideActivity();
 	});
-	initLinks();
+	
+	$('#page').bind('newContent.ajax_handling', function(e, type, contentParent) {
+		initLinks(type, contentParent);
+	});
+	initLinks('initial', jQuery('#page'));
 	
 	
 	$(window).bind('hashchange', function(e) {
@@ -93,7 +95,7 @@ jQuery(function($){
 				// Content loaded, hide "loading" content.
 				$( '.bbq-loading' ).hide();
 				glob.lastHash = hash;
-				ajaxResponceHandler(data);
+				ajaxResponceHandler(data, 'hash');
 				_gaq.push(['_trackPageview', hash]);
 			}});
 			
