@@ -91,6 +91,7 @@ return array(
 		
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors
+			'class'=>'ErrorHandler',
 			'errorAction'=>'site/error',
 		),
 		'log'=>array(

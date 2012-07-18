@@ -330,11 +330,12 @@ class ProfilesController extends Controller
 					unset(Yii::app()->session[$this->createBackup.'_Time']);
 					// no errors occured during save, send verification mail & and post message
 					$subject = 'EveryCook Verification Mail';
-					$body = "Tank you for your registration. Please follow the following link for registration verification.\n".CController::createAbsoluteUrl("Profiles/VerifyRegistration/", array("hash"=>$model->PRF_RND));
-					$headers="From: {".Yii::app()->params['adminEmail']."}\r\nReply-To: {".Yii::app()->params['adminEmail']."}";
+					$link = CController::createAbsoluteUrl("Profiles/VerifyRegistration/", array("hash"=>$model->PRF_RND));
+					$body = "Tank you for your registration. Please follow the following link for registration verification.<br>\n" . '<a href="'.$link . '" target="_blank">' . $link . '</a>';
+					$headers="From: {".Yii::app()->params['adminEmail']."}\r\nReply-To: {".Yii::app()->params['adminEmail']."}\r\nContent-Type: text/html";
 					
-					//mail($model->PRF_EMAIL . ', wiasmitinow@gmail.com',$subject,$body,$headers);//Yii::app()->params['adminEmail']
-					mail($model->PRF_EMAIL,$subject,$body,$headers);
+					mail($model->PRF_EMAIL . ', wiasmitinow@gmail.com',$subject,$body,$headers);//Yii::app()->params['adminEmail']
+					//mail($model->PRF_EMAIL,$subject,$body,$headers);
 					
 					Yii::app()->user->setFlash('register','Thank you for your registration. A verification mail has been sent to your email address '.$model->PRF_EMAIL.'. Please check your emails for verification of your EveryCook account.');
 					
@@ -365,11 +366,15 @@ class ProfilesController extends Controller
       // activate account
       $model = Profiles::model()->findByAttributes(array('PRF_RND'=>$hash));
       if($model!==null){
-         $model->PRF_ACTIVE = '1';
-         $model->save();
-			Yii::app()->user->setFlash('register','Thank you for your verification. You can now login using the following link.');
+        $model->PRF_ACTIVE = '1';
+        $model->save();
+		Yii::app()->user->setFlash('register','Thank you for your verification. You can now login using the following link.');
 //$this->refresh();
-      }
+      } else {
+		Yii::app()->user->setFlash('register','Hash value invalid, cannot verification user.');
+	  }
+	  //echo $hash . "<br>\r\n";
+	  //print_r($model);
       $this->checkRenderAjax('register',array('model'=>$model,));
    }
 

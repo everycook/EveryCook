@@ -1,5 +1,6 @@
 jQuery(function($){
 	function backpicFix(type, contentParent){
+		if (typeof(contentParent) === 'undefined') return;
 		if (!('backgroundSize' in document.documentElement.style)){
 			contentParent.find('.backpic').each(function(){
 				var elem = jQuery(this);

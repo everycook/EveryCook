@@ -32,20 +32,58 @@ glob.changeLinkUrlParam = function(elem, param, newValue){
 	elem.attr('href', url);
 }
 
-function ajaxResponceHandler(data, type){
+function ajaxResponceHandler(data, type, asFancy){
 	if (data.indexOf('{')===0){
 		eval('var data = ' + data + ';');
 	}
 	if (data.hash){
-		if (glob.prefix && window.location.pathname != glob.prefix){
-			window.location.pathname = glob.prefix + '#' + data.hash;
+		if (asFancy){
+			jQuery.fancybox({
+				'href':glob.hashToUrl(data.hash),
+				'onComplete': function(){
+					jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );
+				}
+			});
 		} else {
-			window.location.hash = data.hash;
+			if (glob.prefix && window.location.pathname != glob.prefix){
+				window.location.pathname = glob.prefix + '#' + data.hash;
+			} else {
+				window.location.hash = data.hash;
+			}
 		}
-	} else {
-		jQuery('#changable_content').html(data);
-		
-		jQuery.event.trigger( "newContent", [type, jQuery('#changable_content')] );
+	} else if (data.fancy){
+		jQuery.fancybox({
+			'href':data.fancy,
+			'onComplete': function(){
+				jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );
+			}
+		});
+	}else {
+		var JSONBegin = data.indexOf('{');
+		if (JSONBegin<5){
+			var JSONLength = parseInt(data.substr(0,JSONBegin));
+			if (!isNaN(JSONLength) && JSONLength>0){
+				var JSONText = data.substr(JSONBegin,JSONLength);
+				data = data.substr(JSONBegin+JSONLength);
+				if (type != 'fancy'){
+					eval('var json = ' + JSONText + ';');
+					if (json.title){
+						jQuery('title').text(json.title);
+					}
+				}
+			}
+		}
+		if (asFancy){
+			jQuery.fancybox({
+				'content':data,
+				'onComplete': function(){
+					jQuery.event.trigger( "newContent", [type, jQuery('#fancybox-content')] );
+				}
+			});
+		} else {
+			jQuery('#changable_content').html(data);
+			jQuery.event.trigger( "newContent", [type, jQuery('#changable_content')] );
+		}
 	}
 }
 
@@ -61,6 +99,7 @@ jQuery(function($){
 	
 	
 	function initAjaxUpload(type, contentParent){
+		if (typeof(contentParent) === 'undefined') return;
 		contentParent.find('form.ajaxupload:not([target='+$.fn.iframePostForm.defaults.iframeID+'])').iframePostForm({
 			'json' : false, /*JSON.parse sems do not work correct...*/
 			'post' : function (){
@@ -134,6 +173,7 @@ jQuery(function($){
 	
 	//All currently used types are: hash, form, ajax, fancy, html, paging
 	function newContentFunction(type, contentParent){
+		if (typeof(contentParent) === 'undefined') return;
 		initAjaxUpload(type, contentParent);
 		initFancyCoose(type, contentParent);
 		initDatePicker(type, contentParent);
@@ -166,7 +206,11 @@ jQuery(function($){
 			destUrl = glob.urlAddParamStart(destUrl);
 			jQuery.ajax({'type':'get', 'url':destUrl + form.serialize() + submitValue,'cache':false,'success':function(data){
 				successFunc(data, 'form');
-			}});
+			},
+			'error':function(xhr){
+				ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
+			},
+			});
 		} else {
 			var queryInput = form.find('#SimpleSearchForm_query');
 			if (queryInput.length && !queryInput.hasClass('notUrl')){
@@ -183,7 +227,11 @@ jQuery(function($){
 			
 			jQuery.ajax({'type':'post', 'url':destUrl, 'data': form.serialize() + submitValue,'cache':false,'success':function(data){
 				successFunc(data, 'form');
-			}});
+			},
+			'error':function(xhr){
+				ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
+			},
+			});
 		}	
 		return false;
 	}
@@ -196,7 +244,11 @@ jQuery(function($){
 			jQuery('#subgroupNames').replaceWith(newData);
 			jQuery.fancybox.close();
 			jQuery.event.trigger( "newContent", ['ajax', newData] );
-		}});
+		},
+		'error':function(xhr){
+			ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
+		},
+		});
 	});
 	
 	jQuery('body').undelegate('#ingredients_form #groupNames select','change').delegate('#ingredients_form #groupNames select','change',function(){
@@ -204,11 +256,24 @@ jQuery(function($){
 			var newData = jQuery(html);
 			jQuery('#ingredients_form #subgroupNames select').replaceWith(newData);
 			jQuery.event.trigger( "newContent", ['ajax', newData] );
-		}});
+		},
+		'error':function(xhr){
+			ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
+		},
+		});
 	});
 	
 	jQuery('body').undelegate('.fancyForm #advanceSearch.button','click').delegate('.fancyForm #advanceSearch.button','click', function(){
-		var url = jQuery(this).attr('href');
+		return openInFancy(jQuery(this));
+	});
+	
+	
+	jQuery('body').undelegate('.fancybutton.button','click').delegate('.fancybutton.button','click', function(){
+		return openInFancy(jQuery(this));
+	});
+	
+	function openInFancy(elem){
+		var url = elem.attr('href');
 		if (url.indexOf('#')===0){
 			url = glob.hashToUrl(url.substr(1));
 		}
@@ -219,9 +284,16 @@ jQuery(function($){
 					jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );
 				}
 			});
-		}});
+		},
+		'error':function(xhr){
+			ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
+		},
+		});
 		return false;
-	});
+	}
+	
+	
+	
 	
 	jQuery('body').undelegate('#Ingredients_ING_NAME_EN_GB','blur').delegate('#Ingredients_ING_NAME_EN_GB','blur', function(){
 		var value = jQuery(this).val();
@@ -313,14 +385,14 @@ jQuery(function($){
 			submitValue = "&" + encodeURI(pressedButton.name + "=" + pressedButton.value);
 		} catch(ex){
 		}
-		jQuery.ajax({'type':'post', 'url':jQuery('#FancyChooseSubmitLink').attr('value'),'data':form.serialize() + submitValue,'cache':false,'success':function(html){
-			jQuery.fancybox({
-				'content':html,
-				'onComplete': function(){
-					jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );
-				}
-			});
-		}});
+		//jQuery.ajax({'type':'post', 'url':jQuery('#FancyChooseSubmitLink').attr('value'),'data':form.serialize() + submitValue,'cache':false,'success':function(html){
+		jQuery.ajax({'type':'post', 'url':form.attr('action'),'data':form.serialize() + submitValue,'cache':false,'success':function(html){
+			ajaxResponceHandler(html, 'fancy', true);
+		},
+		'error':function(xhr){
+			ajaxResponceHandler(xhr.responseText, 'fancy', true); //xhr.status //xhr.statusText
+		},
+		});
 		return false;
 	});
 	
@@ -492,7 +564,11 @@ jQuery(function($){
 		
 		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
 			ajaxResponceHandler(data, 'ajax');
-		}});
+		},
+		'error':function(xhr){
+			ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
+		},
+		});
 		
 		return false;
 	});
@@ -505,7 +581,11 @@ jQuery(function($){
 		
 		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
 			ajaxResponceHandler(data, 'ajax');
-		}});
+		},
+		'error':function(xhr){
+			ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
+		},
+		});
 		
 		return false;
 	});
@@ -618,7 +698,11 @@ jQuery(function($){
 				}
 				jQuery.event.trigger( "newContent", ['paging', newElements] );
 			}
-		}});
+		},
+		'error':function(xhr){
+			ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
+		},
+		});
 	}
 	
 	function checkStartAjaxPaging(){
@@ -668,7 +752,11 @@ jQuery(function($){
 		
 		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
 			elem.parents('.resultArea:first').remove();
-		}});
+		},
+		'error':function(xhr){
+			ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
+		},
+		});
 		
 		return false;
 	});
@@ -720,7 +808,11 @@ jQuery(function($){
 			destParent.append(storeInfos);
 			
 			jQuery.fancybox.close();
-		}});
+		},
+		'error':function(xhr){
+			ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
+		},
+		});
 		
 		return false;
 	});

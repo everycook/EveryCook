@@ -6,6 +6,7 @@ jQuery(function($){
 	
 	//Initialize Links
 	function initSliders(type, contentParent){
+		if (typeof(contentParent) === 'undefined') return;
 		var sliders = contentParent.find("input[type=range]");
 		if (sliders.length > 0){
 			if (sliders.get(0).type == 'text'){

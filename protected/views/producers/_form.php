@@ -3,11 +3,19 @@
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'producers-form',
 	'enableAjaxValidation'=>false,
+	'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 )); ?>
 
 	<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
 
-	<?php echo $form->errorSummary($model); ?>
+	<?php
+	echo $form->errorSummary($model);
+	if ($this->errorText){
+		echo '<div class="errorSummary">';
+		echo $this->errorText;
+		echo '</div>';
+	}
+	?>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'PRD_NAME'); ?>

@@ -184,7 +184,9 @@ class Controller extends CController
 			unset(Yii::app()->session['AFTER_SAVE_ACTION']);
 			unset(Yii::app()->session['AFTER_SAVE_FOR']);
 			
-			if($this->useAjaxLinks && $this->getIsAjaxRequest()){
+			if($this->isFancyAjaxRequest){
+				echo "{fancy:'" . $url. "'}";
+			} else if($this->useAjaxLinks && $this->getIsAjaxRequest()){
 				echo "{hash:'" . $this->urlToHash($url). "'}";
 			} else {
 				$this->redirect($url);
@@ -196,7 +198,9 @@ class Controller extends CController
 	}
 	
 	public function forwardTo($urlparams){
-		if($this->useAjaxLinks && $this->getIsAjaxRequest()){
+		if($this->isFancyAjaxRequest){
+			echo "{fancy:'" . Yii::app()->createUrl($urlparams[0], array_splice($urlparams,1)). "'}";
+		} else  if($this->useAjaxLinks && $this->getIsAjaxRequest()){
 			echo "{hash:'" . $this->createUrlHash($urlparams[0], array_splice($urlparams,1)) . "'}";
 		} else {
 			$this->redirect($urlparams);
@@ -254,6 +258,11 @@ class Controller extends CController
 				$this->afterRender($view,$output);
 				
 				$output=$this->processOutput($output);
+				
+				if ($this->getIsAjaxRequest() && !$this->isFancyAjaxRequest){
+					$json = "{'title':'" . CHtml::encode($this->pageTitle) . "'}";
+					echo strlen($json) . $json;
+				}
 				echo $output;
 			}
 		}

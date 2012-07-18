@@ -13,6 +13,7 @@ $this->menu=array(
 		array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('producers/create',array('newModel'=>time()))),
 	);
 //}
+
 if ($this->isFancyAjaxRequest){
 	?>
 	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('producers/chooseProducer'); ?>"/>
@@ -40,6 +41,12 @@ if ($this->isFancyAjaxRequest){
 	'ajaxUpdate'=>false,
 	'id'=>'producersResult',
 )); ?>
-
+<?php
+if ($this->isFancyAjaxRequest){
+	if ($this->validSearchPerformed){
+		echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('producers/createFancy', 'newModel'=>time(), 'afterSave'=>urlencode($this->createUrl($this->route, $this->getActionParams()))), array('class'=>'button noAjax f-center fancybutton'));
+	}
+}
+?>
 <?php $this->endWidget(); ?>
 </div>

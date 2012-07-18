@@ -43,6 +43,7 @@ glob.changeHash = function(newParamName, newParamValue, noSubmit){
 jQuery(function($){
 	//Initialize Links
 	function initLinks(type, contentParent){
+		if (typeof(contentParent) === 'undefined') return;
 		if (glob.prefix && window.location.pathname != glob.prefix){
 			contentParent.find('a[href*="' + glob.prefix + '"]:not(a[href*="#"]):not(.fancyChoose):not(.noAjax)').each(function(){
 				$(this).attr('href', glob.prefix + "#" + $(this).attr('href').substr(glob.prefix.length));
@@ -91,13 +92,29 @@ jQuery(function($){
 			
 			url = glob.hashToUrl(hash);
 			
-			jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
-				// Content loaded, hide "loading" content.
-				$( '.bbq-loading' ).hide();
-				glob.lastHash = hash;
-				ajaxResponceHandler(data, 'hash');
-				_gaq.push(['_trackPageview', hash]);
-			}});
+			jQuery.fancybox.close();
+			
+			jQuery.ajax({
+				'type':'get',
+				'url':url,
+				'cache':false,
+				'success':function(data){
+					// Content loaded, hide "loading" content.
+					$( '.bbq-loading' ).hide();
+					glob.lastHash = hash;
+					ajaxResponceHandler(data, 'hash');
+					_gaq.push(['_trackPageview', hash]);
+				},
+				'error':function(xhr){
+					// Content loaded, hide "loading" content.
+					$( '.bbq-loading' ).hide();
+					glob.lastHash = hash;
+					//xhr.status
+					//xhr.statusText
+					ajaxResponceHandler(xhr.responseText, 'hash');
+					_gaq.push(['_trackPageview', hash]);
+				},
+			});
 			
 			/*
 			$('#changable_content').load( url, function(){

@@ -25,7 +25,7 @@ class ProducersController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
+				'actions'=>array('create','update','createFancy'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -48,28 +48,76 @@ class ProducersController extends Controller
 			'model'=>$this->loadModel($id),
 		));
 	}
-
-	/**
-	 * Creates a new model.
-	 * If creation is successful, the browser will be redirected to the 'view' page.
-	 */
-	public function actionCreate()
-	{
-		$model=new Producers;
+	
+	private function checkDuplicate($model){
+		$duplicates = array();
+		$command = Yii::app()->db->createCommand()
+				->from('producers')
+				->where('PRD_NAME like :name', array(':name'=>'%' . $model->PRD_NAME . '%'));
+		$rows = $command->queryAll();
+		if (count($rows)>0){
+			$dup_rows = array();
+			foreach($rows as $row){
+				$dup_rows[] = $row['PRD_ID'] . ': ' . $row['PRD_NAME'];
+			}
+			$duplicates = array_merge($duplicates, array ('PRD_NAME'=>$dup_rows));
+		}
+		return $duplicates;
+	}
+	
+	private function prepareCreateOrUpdate($id, $view, $ajaxLayout){
+		if (isset($id)){
+			$model=$this->loadModel($id);
+		} else {
+			$model=new Producers;
+		}
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['Producers']))
-		{
+		if(isset($_POST['Producers'])) {
 			$model->attributes=$_POST['Producers'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->PRD_ID));
+			
+			if ($model->validate()){
+				$duplicates = $this->checkDuplicate($model);
+				if ($duplicates != null && count($duplicates)>0 && !isset($_POST['ignoreDuplicates'])){
+					foreach($duplicates as $dup_type => $values){
+						if ($this->errorText != ''){
+							$this->errorText .= '<br />';
+						}
+						if ($dup_type == 'PRD_NAME'){
+							$this->errorText .='<p>There are already producers with a similar name:</p>';
+						}
+						foreach($values as $dup){
+							$this->errorText .= $dup . '<br />';
+						}
+					}
+					$this->errorText .= CHtml::label('Ignore possible duplicates','ignoreDuplicates') . CHtml::checkBox('ignoreDuplicates');
+				} else {
+					if($model->save()){
+						$this->forwardAfterSave(array('view','id'=>$model->PRD_ID));
+						return;
+					}
+				}
+			}
 		}
 
-		$this->checkRenderAjax('create',array(
+		$this->checkRenderAjax($view,array(
 			'model'=>$model,
-		));
+		), $ajaxLayout);
+	}
+	
+	/**
+	 * Creates a new model.
+	 * If creation is successful, the browser will be redirected to the 'view' page.
+	 */
+	public function actionCreate() {
+		$this->prepareCreateOrUpdate(null, 'create', null);
+	}
+	
+	public function actionCreateFancy() {
+		$this->isFancyAjaxRequest = true;
+		$this->prepareCreateOrUpdate(null, 'create', 'none');
 	}
 
 	/**
@@ -77,23 +125,8 @@ class ProducersController extends Controller
 	 * If update is successful, the browser will be redirected to the 'view' page.
 	 * @param integer $id the ID of the model to be updated
 	 */
-	public function actionUpdate($id)
-	{
-		$model=$this->loadModel($id);
-
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-
-		if(isset($_POST['Producers']))
-		{
-			$model->attributes=$_POST['Producers'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->PRD_ID));
-		}
-
-		$this->checkRenderAjax('update',array(
-			'model'=>$model,
-		));
+	public function actionUpdate($id) {
+		$this->prepareCreateOrUpdate($id, 'update', 'none');
 	}
 
 	/**

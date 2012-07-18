@@ -456,10 +456,24 @@ class Functions extends CHtml{
 	private static function uploadPicture($model, $picFieldName){
 		$file = CUploadedFile::getInstance($model,'filename');
 		if ($file){
-			$imginfo = self::changePictureType($file->getTempName(),$file->getTempName(), IMAGETYPE_PNG);
+			$filename = $file->getTempName();
+			$maxHeight = $_POST['MaxHeight'] * 0.8;
+			if ($maxHeight<self::IMG_HEIGHT*1.5){
+				$maxHeight = self::IMG_HEIGHT*1.5;
+			}
+			$maxWidth = $_POST['MaxWidth'] * 0.8;
+			if ($maxWidth<self::IMG_WIDTH*1.5){
+				$maxWidth = self::IMG_WIDTH*1.5;
+			}
+			$imginfo = getimagesize($filename);
+			if ($imginfo[0]>$maxWidth || $imginfo[1]>$maxHeight){
+				self::resizePicture($filename, $filename, $maxWidth, $maxHeight, 0.8, IMAGETYPE_PNG);
+			}
+			
+			$imginfo = self::changePictureType($filename,$filename, IMAGETYPE_PNG);
 			if ($imginfo !== false){
 				if ($imginfo[0]>=self::IMG_WIDTH && $imginfo[1]>=self::IMG_HEIGHT){
-					$model->__set($picFieldName, file_get_contents($file->getTempName()));
+					$model->__set($picFieldName, file_get_contents($filename));
 					$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
 					$model->imagechanged = true;
 					$model->setScenario('withPic');

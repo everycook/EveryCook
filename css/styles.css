@@ -741,3 +741,7 @@ div.mealView span.value {
 	margin-left: -5em !important;
 	margin-top: -5em !important;
 }
+
+#producers-form  {
+	min-width: 35em;
+}

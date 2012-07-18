@@ -1,5 +1,6 @@
 jQuery(function($){
 	function initCrop(type, contentParent){
+		if (typeof(contentParent) === 'undefined') return;
 		var cropable = contentParent.find('.cropable');
 		if (contentParent.find('#imagecrop_x').length == 0){
 			cropable.each(function(){
@@ -50,6 +51,8 @@ jQuery(function($){
 		var oldAction = form.attr('action');
 		form.attr('action', jQuery('#uploadImageLink').attr('value'));
 		form.unbind('submit');
+		form.append('<input type="hidden" class="cropMaxInitSize" name="MaxHeight" value="' + window.screen.height + '"/>');
+		form.append('<input type="hidden" class="cropMaxInitSize" name="MaxWidth" value="' + window.screen.width + '"/>');
 		form.iframePostForm({
 			'json' : false, /*JSON.parse sems do not work correct...*/
 			'iframeID' : 'imageUploadFrame',
@@ -60,6 +63,9 @@ jQuery(function($){
 			complete : function (data) {
 				if (data.indexOf('{')===0){
 					eval('var data = ' + data + ';');
+					var isJSON = true;
+				} else {
+					var isJSON = false;
 				}
 				var imageParent = elem.parent().parent();
 				var imageBefore = elem.parent();
@@ -76,7 +82,7 @@ jQuery(function($){
 					var rand = Math.floor(Math.random()*1000000000);
 					var image = jQuery('<img src="' + jQuery('#imageLink').attr('value') + '?rand=' + rand+ '" class="cropable"/>');
 					image.insertBefore(imageBefore);
-					initCrop();
+					initCrop('form', imageBefore.parent());
 					elem.attr('value','');
 				} else {
 					//No image/unknown type uploaded...
@@ -88,12 +94,23 @@ jQuery(function($){
 					var error = jQuery('<span id="img_error" class="error">' + data.error + '</span>');
 					error.insertBefore(imageBefore);
 					elem.attr('value','');
+					
+					if (!isJSON){
+						//Show error in fancy
+						jQuery.fancybox({
+							'content':data,
+							'onComplete': function(){
+								jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );
+							}
+						});
+					}
 				}
 			}
 		});
 		form.submit();
 		
 		form.attr('action', oldAction);
-		glob.initAjaxUpload();
+		form.find('.cropMaxInitSize').remove();
+		glob.initAjaxUpload('form', form.parent());
 	});
 });
