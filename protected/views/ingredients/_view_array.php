@@ -23,7 +23,7 @@
 	
 	<div class="data">
 		<div class="name">
-			<?php echo CHtml::encode($data['ING_NAME_'.Yii::app()->session['lang']]); ?>
+			<?php echo CHtml::encode($data['ING_NAME_'.Yii::app()->session['lang']]); ?>&nbsp;
 		</div>
 		<?php
 		if (!$this->isFancyAjaxRequest){

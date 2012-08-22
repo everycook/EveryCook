@@ -262,10 +262,10 @@ class Functions extends CHtml{
 	}
 	
 	public static function resizePicture($file, $file_new, $width, $height, $qualitaet, $destType){
-		self::resizePicturePart($file, $file_new, $width, $height, $qualitaet, $destType, 0, 0 ,-1 ,-1);
+		self::resizePicturePart($file, $file_new, $width, $height, $qualitaet, $destType, 0, 0 ,-1 ,-1, false);
 	}
 	
-	public static function resizePicturePart($file, $file_new, $width, $height, $qualitaet, $destType, $src_x, $src_y, $src_w, $src_h)
+	public static function resizePicturePart($file, $file_new, $destWidth, $destHeight, $qualitaet, $destType, $src_x, $src_y, $src_w, $src_h, $fillWhite)
 	{
 		if(!file_exists($file))
 			return false;
@@ -290,12 +290,17 @@ class Functions extends CHtml{
 			$width=$height;
 			$height=$width;
 		}*/
-		if ($width > $src_w && $src_w != -1){
-			$width = $src_w;
+		if (!$fillWhite){
+			if ($destWidth > $src_w && $src_w != -1){
+				$destWidth = $src_w;
+			}
+			if ($destHeight > $src_h && $src_h != -1){
+				$destHeight = $src_h;
+			}
 		}
-		if ($height > $src_h && $src_h != -1){
-			$height = $src_h;
-		}
+		
+		$width = $destWidth;
+		$height = $destHeight;
 		
 		if ($src_w==-1){$src_w=$info[0];}
 		if ($src_h==-1){$src_h=$info[1];}
@@ -304,9 +309,27 @@ class Functions extends CHtml{
 		} else { 
 			$height = ($width / $src_w) * $src_h; 
 		}
-		$imagetc = imagecreatetruecolor($width, $height);
+		if ($fillWhite){
+			$imagetc = imagecreatetruecolor($destWidth, $destHeight);
+		} else {
+			$imagetc = imagecreatetruecolor($width, $height);
+		}
 		if (($info[0] > $width) or ($info[1] > $height) or ($width != $src_w) or ($height != $src_h) or ($src_x != 0) or ($src_y != 0)){
-			imagecopyresampled($imagetc, $image, 0, 0, $src_x, $src_y, $width, $height, $src_w, $src_h);
+			if ($fillWhite){
+				$xmove=0;
+				$ymove=0;
+				$whiteCol=imagecolorallocatealpha($imagetc, 255, 255, 255, 0);
+				imagefill($imagetc, 0, 0, $whiteCol);
+				if ($destWidth>$width){
+					$xmove = ($destWidth-$width)/2;
+				}
+				if ($destHeight>$height){
+					$ymove = ($destHeight-$height)/2;
+				}
+				imagecopyresampled($imagetc, $image, $xmove, $ymove, $src_x, $src_y, $width, $height, $src_w, $src_h);
+			} else {
+				imagecopyresampled($imagetc, $image, 0, 0, $src_x, $src_y, $width, $height, $src_w, $src_h);
+			}
 		} else {
 			if ($info[2] == $destType){
 				copy($file,$file_new);
@@ -441,7 +464,7 @@ class Functions extends CHtml{
 					$tempfile = tempnam(sys_get_temp_dir(), 'img');
 					file_put_contents($tempfile,$model->__get($picFieldName));
 					if ($cropInfosAvailable){
-						self::resizePicturePart($tempfile, $tempfile, self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG, $_POST['imagecrop_x'], $_POST['imagecrop_y'], $_POST['imagecrop_w'], $_POST['imagecrop_h']);
+						self::resizePicturePart($tempfile, $tempfile, self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG, $_POST['imagecrop_x'], $_POST['imagecrop_y'], $_POST['imagecrop_w'], $_POST['imagecrop_h'], true);
 					} else {
 						self::resizePicture($tempfile, $tempfile, self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG);
 					}
@@ -472,7 +495,8 @@ class Functions extends CHtml{
 			
 			$imginfo = self::changePictureType($filename,$filename, IMAGETYPE_PNG);
 			if ($imginfo !== false){
-				if ($imginfo[0]>=self::IMG_WIDTH && $imginfo[1]>=self::IMG_HEIGHT){
+				//if ($imginfo[0]>=self::IMG_WIDTH && $imginfo[1]>=self::IMG_HEIGHT){
+				if ($imginfo[0]>=self::IMG_WIDTH || $imginfo[1]>=self::IMG_HEIGHT){
 					$model->__set($picFieldName, file_get_contents($filename));
 					$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
 					$model->imagechanged = true;
@@ -507,7 +531,7 @@ class Functions extends CHtml{
 				echo '{error:"Unknown Filetype, you can only use GIF, JPG and PNG."}';
 				exit;
 			} else if ($sucessfull == -3){
-				echo '{error:"Image must have a minimal size of ' . self::IMG_WIDTH . 'x' . self::IMG_HEIGHT . '."}';
+				echo '{error:"Image must have minimal a width of ' . self::IMG_WIDTH . ' or a height of ' . self::IMG_HEIGHT . '."}';
 				exit;
 			}
 		} else {
@@ -642,6 +666,34 @@ class Functions extends CHtml{
 		}
 		return $model;
 	}
-
+	
+	public static function browserCheck(){
+		$userAgent = $_SERVER['HTTP_USER_AGENT'];
+		$type = explode('|', stat_func::browser_detection($userAgent, 'unknown'));
+		if (count($type)>1){
+			$type[1] = $type[1]+0;
+		} else {
+			$type[1] = 0;
+		}
+		$browserOK = false;
+		if (strtolower($type[0]) == 'firefox'){
+			if ($type[1]>=12){
+				$browserOK = true;
+			}
+		} else if (strtolower($type[0]) == 'chrome'){
+			if ($type[1]>=20){
+				$browserOK = true;
+			}
+		}
+		if (!$browserOK && (!isset(Yii::app()->session['browserErrorClosed']) || !Yii::app()->session['browserErrorClosed'])){
+			//echo 'browser type:' . $type[0] . ' version:'  . $type[1] ;
+			echo '<div class="browserError">';
+			echo '<div class="closeButton"></div>';
+			echo 'Sorry but we have not tested our platform with <span class="browserName">' . $type[0] . ' '  . $type[1] . '</span> yet. you can proceed but there may be some functions not working properly. please give us a <a class="actionlink" href="mailto:alexis@everycook.org"> feedback </a> when you try it. we strongly recommend using chrome>20 or firefox>12 for best compatibility.';
+			echo '<input type="hidden" id="browserErrorCloseLink" value="' . Yii::app()->createUrl("site/closeBrowserError") . '"/>';
+			echo '</div>';
+			echo '<div id="modal" style="display:block;"></div>';
+		}
+	}
 }
 ?>

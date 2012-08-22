@@ -44,14 +44,16 @@ class IngredientsController extends Controller
 		$this->saveLastAction = false;
 		$Session_Backup = Yii::app()->session[$this->createBackup];
 		unset(Yii::app()->session[$this->createBackup.'_Time']);
+		/*
 		if (isset($Session_Backup) && isset($Session_Backup->ING_ID)){
 			unset(Yii::app()->session[$this->createBackup]);
 			$this->forwardAfterSave(array('view', 'id'=>$Session_Backup->ING_ID));
 		} else {
+		*/
 			unset(Yii::app()->session[$this->createBackup]);
 			$this->showLastNotCreateAction();
 			//$this->forwardAfterSave(array('search'));
-		}
+		//}
 	}
 	
 	/**
@@ -182,7 +184,8 @@ class IngredientsController extends Controller
 					if($model->save()){
 						unset(Yii::app()->session[$this->createBackup]);
 						unset(Yii::app()->session[$this->createBackup.'_Time']);
-						$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
+						//$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
+						$this->forwardAfterSave(array('search', 'query'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
 						return;
 					}
 				}

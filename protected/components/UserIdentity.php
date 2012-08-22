@@ -43,7 +43,7 @@ class UserIdentity extends CUserIdentity
 				$this->setState('design', $record->PRF_DESIGN);
 				
 				if (!isset($record->PRF_SHOPLISTS) || $record->PRF_SHOPLISTS == null || $record->PRF_SHOPLISTS == ''){
-					$shoppinglists = null;
+					$shoppinglists = array();
 				} else {
 					$shoppinglists = explode(';', $record->PRF_SHOPLISTS);
 				}

@@ -259,7 +259,7 @@ class Controller extends CController
 				
 				$output=$this->processOutput($output);
 				
-				if ($this->getIsAjaxRequest() && !$this->isFancyAjaxRequest){
+				if (Yii::app()->request->isAjaxRequest && !$this->isFancyAjaxRequest){
 					$json = "{'title':'" . CHtml::encode($this->pageTitle) . "'}";
 					echo strlen($json) . $json;
 				}
@@ -300,6 +300,7 @@ class Controller extends CController
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/jquery.slider.min.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerCssFile($request_baseurl . '/css/jquery.slider.min.css');
 				Yii::app()->clientscript->registerCoreScript('yiiactiveform');
+				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/cookasisstant_handling.js', CClientScript::POS_HEAD);
 				
 				$ziiBaseScriptUrl=Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('zii.widgets.assets'));
 				Yii::app()->clientscript->registerScriptFile($ziiBaseScriptUrl.'/listview'.'/jquery.yiilistview.js',CClientScript::POS_END);

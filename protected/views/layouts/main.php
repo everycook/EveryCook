@@ -121,6 +121,7 @@
 					</div>
 				</div>
 			</div>
+			<?php Functions::browserCheck(); ?>
 			<?php 
 			if (isset(Yii::app()->session['current_gps_time']) && Yii::app()->session['current_gps_time']<time()) {
 				unset(Yii::app()->session['current_gps']);

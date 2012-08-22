@@ -68,7 +68,16 @@ function ajaxResponceHandler(data, type, asFancy){
 				if (type != 'fancy'){
 					eval('var json = ' + JSONText + ';');
 					if (json.title){
-						jQuery('title').text(json.title);
+						if (jQuery('title').length>0){
+							try {
+								jQuery('title').text(json.title);
+							} catch(ex){
+								try {
+									jQuery('title').get(0).innerHTML = json.title;
+								} catch(ex){
+								}
+							}
+						}
 					}
 				}
 			}
@@ -86,7 +95,6 @@ function ajaxResponceHandler(data, type, asFancy){
 		}
 	}
 }
-
 jQuery(function($){
 	var navMenuTiemout = new Array();
 	
@@ -829,5 +837,10 @@ jQuery(function($){
 		glob.changeLinkUrlParam(link, 'newModel', value);
 	});
 	
+	jQuery('body').undelegate('.browserError .closeButton','click').delegate('.browserError .closeButton','click', function(){
+		jQuery(this).parent().hide();;
+		jQuery('#modal').hide();;
+		jQuery.ajax({'type':'get', 'url':jQuery('#browserErrorCloseLink').val()});
+	});
 });
 

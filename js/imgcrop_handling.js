@@ -12,15 +12,29 @@ jQuery(function($){
 			});
 		}
 		cropable.Jcrop({
-			aspectRatio: 1,
+			//aspectRatio: 1,
 			bgOpacity: .6,
-			minSize: [400, 400],
+			minSize: [40, 40],
 			onSelect: updateCoords,
-			onChange: updateCoords,
+			//onChange: checkSelectionValide,
 			onRelease: releaseCheck,
 		},function(){
 			jcrop_api = this;
-			jcrop_api.animateTo([0,0,400,400]);
+			var imgWidth = jcrop_api.getBounds()[0];
+			var imgHeight = jcrop_api.getBounds()[1];
+			var currentAspectRatio = imgWidth/imgHeight;
+			if ((imgWidth>=(400*1.2) && imgHeight>=(400*1.2) && currentAspectRatio>0.5 && currentAspectRatio<2) || (imgWidth==400 && imgHeight==400)){
+				jcrop_api.setOptions({aspectRatio: 1, minSize: [400, 400],});
+			} else {
+				if (imgWidth>imgHeight){
+					jcrop_api.setOptions({minSize: [400, 40],});
+				} else {
+					jcrop_api.setOptions({minSize: [40, 400],});
+				}
+			}
+			jcrop_api.animateTo([0,0,400,400], function(){
+				//jcrop_api.setOptions({onChange: checkSelectionValide,});
+			});
 		});
 		cropable.removeClass('cropable');
 	}
@@ -34,6 +48,28 @@ jQuery(function($){
 // The variable jcrop_api will hold a reference to the
 // Jcrop API once Jcrop is instantiated.
 	var jcrop_api;
+	
+	/*
+	var jcrop_fixingSize = false;
+	
+	function checkSelectionValide(c){
+		if (c.w<400 && c.h<400){
+			if (!jcrop_fixingSize){
+				var imgWidth = jcrop_api.getBounds()[0];
+				var imgHeight = jcrop_api.getBounds()[1];
+				jcrop_api.setOptions({ allowResize: false });
+				jcrop_fixingSize = true;
+				if (imgWidth>imgHeight){
+					jcrop_api.setSelect([c.x,c.y,400,c.h]);
+				} else {
+					jcrop_api.setSelect([c.x,c.y,c.w,400]);
+				}
+				jcrop_fixingSize = false;
+				jcrop_api.setOptions({ allowResize: true });
+			}
+		}
+	};
+	*/
 	
 	function updateCoords(c){
 		jQuery('#imagecrop_x').val(c.x);

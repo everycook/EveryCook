@@ -113,3 +113,12 @@ div.mealOverview {
 	background: url('../../pics/Please_wait_small.gif') no-repeat scroll 0 0 transparent !important;
 	background-size: 100% auto !important;
 }
+
+.browserError {
+	color: red;
+	background-color: #FFFFFF;
+	border: 1px solid red;
+}
+.browserError .closeButton {
+	background: url('../../pics/close.png') no-repeat scroll 0 0 transparent;
+}

@@ -80,6 +80,10 @@ class SiteController extends Controller
 		}
 		$this->checkRenderAjax('contact',array('model'=>$model));
 	}
+	
+	public function actionCloseBrowserError(){
+		Yii::app()->session['browserErrorClosed'] = true;
+	}
 
 	/**
 	 * Displays the login page
