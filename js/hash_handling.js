@@ -40,6 +40,8 @@ glob.changeHash = function(newParamName, newParamValue, noSubmit){
 	location.hash = newHash;
 };
 
+glob.ShowActivity = true;
+
 jQuery(function($){
 	//Initialize Links
 	function initLinks(type, contentParent){
@@ -56,7 +58,9 @@ jQuery(function($){
 	}
 	
 	$('#page').ajaxStart(function(e) {
-		jQuery.fancybox.showActivity();
+		if (glob.ShowActivity){
+			jQuery.fancybox.showActivity();
+		}
 	});
 	
 	$('#page').ajaxComplete(function(e, xhr, settings) {

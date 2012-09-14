@@ -122,3 +122,20 @@ div.mealOverview {
 .browserError .closeButton {
 	background: url('../../pics/close.png') no-repeat scroll 0 0 transparent;
 }
+.cookAssistant .progress{
+	background: url('../../pics/cookassistant_action_aubergine.png') no-repeat scroll left center transparent;
+}
+
+
+.cookAssistant .recipeSteps .recipeStep .stepHeader .finishTime.toLate div {
+	background-color: #FF0000;
+}
+
+.cookAssistant .recipeSteps .recipeStep .stepHeader .nextTime.toLate div {
+	background-color: #FF0000;
+}
+
+.cookAssistant .recipeSteps .recipeStep .stepInfo .action .actionText .toMuch {
+	color: #FF0000;
+	font-weight: bold;
+}

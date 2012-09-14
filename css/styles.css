@@ -815,7 +815,7 @@ div.mealView span.value {
 .cookAssistant .recipeSteps .recipeStep .stepHeader {
 	margin-bottom: 0.4em;
 }
-.cookAssistant .recipeSteps .recipeStep .stepHeader div div {
+.cookAssistant .recipeSteps .recipeStep .stepHeader > div > div {
 	border-radius:1.5em;
 	padding:0.8em;
 	background-color: #FFFFFF;
@@ -830,8 +830,14 @@ div.mealView span.value {
 	width: 20%;
 	float:left;
 }
-.cookAssistant .recipeSteps .recipeStep .stepHeader .finishTime.toLate {
-	background-color: #FF0000;
+.cookAssistant .recipeSteps .recipeStep .stepHeader div.temp {
+	margin-left: 0.8em;
+	width: 15%;
+	float:left;
+}
+.cookAssistant .recipeSteps .recipeStep .stepHeader div div div {
+	font-size: 0.5em;
+	line-height: 1em;
 }
 .cookAssistant .recipeSteps .recipeStep .stepHeader .nextTime {
 	width: 17%;
@@ -840,20 +846,32 @@ div.mealView span.value {
 
 
 .cookAssistant .recipeSteps .recipeStep .stepInfo {
+	position: relative;
 }
 .cookAssistant .recipeSteps .recipeStep .stepInfo .action {
 	width: 81%;
 	float: left;
+	border-radius:1.5em;
+	border: 1px solid #FFFFFF;
+	background-color: #FFFFFF;
+	position: absolute;
+	height: 5em;
+	overflow: hidden
+}
+
+.cookAssistant .recipeSteps .recipeStep .stepInfo .progress {
+	border-radius: 1.5em;
+	height: 5em;
+	position: absolute;
 }
 .cookAssistant .recipeSteps .recipeStep .stepInfo .action .actionInner {
 	border-radius:1.5em;
-	background-color: #FFFFFF;
 	padding: 2em 1em 0 1em;
+	position: relative;
 }
 .cookAssistant .recipeSteps .recipeStep .stepInfo .action .actionInner.withPic {
 	padding-right: 7em;
 }
-
 
 .cookAssistant .recipeSteps .recipeStep .stepInfo .action .actionText {
 	font-size: 1.2em;
@@ -862,7 +880,8 @@ div.mealView span.value {
 
 .cookAssistant .recipeSteps .recipeStep .stepInfo .action img {
 	float: right;
-	margin: -2em -5.5em 0 0;
+	position: relative;
+	margin-right: 1.5em;
 	width: 5em;
 	height: 5em;
 }
@@ -871,7 +890,14 @@ div.mealView span.value {
 	background-color: #FFFFFF;
 	padding:0 0.8em;
 	height: 5em;
+	border: 1px solid transparent;
 }
+.cookAssistant .recipeSteps .recipeStep .stepInfo .nextStep span {
+	padding:0 0.8em;
+	height: 5em;
+	display: block;
+}
+
 .cookAssistant .recipeSteps .recipeStep .stepInfo .nextStep {
 	float: right;
 	width: 17%;

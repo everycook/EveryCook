@@ -71,7 +71,7 @@ $this->mainButtons = array(
 					echo '<span class="stepType">' . $step->stepType->__get('STT_DESC_' . Yii::app()->session['lang']) . ':</span> ';
 				}
 				if (isset($step->action) && $step->action != null){
-					$text = $step->action->__get('ACT_DESC_' . Yii::app()->session['lang']);
+					$text = $step->action->__get('ACT_DESC_AUTO_' . Yii::app()->session['lang']);
 					if (isset($step->ingredient) && $step->ingredient != null){
 						$replText = '<span class="igredient">' . $step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']) . '</span> ';
 						if ($step->STE_GRAMS){

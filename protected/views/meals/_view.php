@@ -128,13 +128,16 @@
 		<?php
 		} else {
 			if (isset($data->SHO_ID) && $data->SHO_ID != 0){
-				echo CHtml::link($this->trans->MEALPLANNER_SAVE_TO_SHOPPINGLIST, array('shoppinglists/view', 'id'=>$data->SHO_ID), array('class'=>'button'));
+				echo CHtml::link($this->trans->MEALPLANNER_SAVE_TO_SHOPPINGLIST, array('shoppinglists/view', 'id'=>$data->SHO_ID), array('class'=>'button f-left'));
 			} else {
-				echo CHtml::link($this->trans->MEALPLANNER_SAVE_TO_SHOPPINGLIST, array('meals/createShoppingList', 'id'=>$data->MEA_ID), array('class'=>'button'));
+				echo CHtml::link($this->trans->MEALPLANNER_SAVE_TO_SHOPPINGLIST, array('meals/createShoppingList', 'id'=>$data->MEA_ID), array('class'=>'button f-left'));
 			}
 			?>
 			<div class="f-right">
 				<?php echo CHtml::link($this->trans->GENERAL_EDIT, array('meals/mealplanner', 'id'=>$data->MEA_ID), array('class'=>'button')); ?>
+			</div>
+			<div class="f-center">
+				<?php echo CHtml::link($this->trans->MEALPLANNER_COOKASSISTANT, array('cookAssistant/start', 'id'=>$data->MEA_ID), array('class'=>'button')); ?>
 			</div>
 		<?php } ?>
 	</div>

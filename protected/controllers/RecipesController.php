@@ -172,8 +172,9 @@ class RecipesController extends Controller
 		
 		$stepTypeConfig = Yii::app()->db->createCommand()->select('STT_ID,STT_DEFAULT,STT_REQUIRED,STT_DESC_'.Yii::app()->session['lang'])->from('step_types')->order('STT_ID')->queryAll();
 		
-		$actions = Yii::app()->db->createCommand()->select('ACT_ID,ACT_DESC_'.Yii::app()->session['lang'])->from('actions')->queryAll();
-		$actions = CHtml::listData($actions,'ACT_ID','ACT_DESC_'.Yii::app()->session['lang']);
+		$actions = Yii::app()->db->createCommand()->select('ACT_ID,ACT_DESC_AUTO_'.Yii::app()->session['lang'].',ACT_DESC_MAN_'.Yii::app()->session['lang'].',ACT_SKIP')->from('actions')->queryAll();
+		$actions_auto = CHtml::listData($actions,'ACT_ID','ACT_DESC_AUTO_'.Yii::app()->session['lang']);
+		$actions_man = CHtml::listData($actions,'ACT_ID','ACT_DESC_MAN_'.Yii::app()->session['lang']);
 		
 		if(isset($_POST['Recipes'])){
 			$model->attributes=$_POST['Recipes'];
@@ -199,8 +200,8 @@ class RecipesController extends Controller
 								$stepsOK = false;
 							}
 						}
-						if (isset($step['ACT_ID']) && isset($actions[$step['ACT_ID']])){
-							$actiontext = $actions[$step['ACT_ID']];
+						if (isset($step['ACT_ID']) && isset($actions_auto[$step['ACT_ID']])){
+							$actiontext = $actions_auto[$step['ACT_ID']];
 							if (strpos($actiontext, '#objectofaction#') !== false){ // > -1
 								$requiredField = 'ING_ID';
 								if (!isset($step[$requiredField]) || $step[$requiredField] == null || $step[$requiredField] == ''){
@@ -352,7 +353,7 @@ class RecipesController extends Controller
 			'model'=>$model,
 			'recipeTypes'=>$recipeTypes,
 			'stepTypes'=>$stepTypes,
-			'actions'=>$actions,
+			'actions'=>$actions_auto, //TODO submit both
 			'ingredients'=>$usedIngredients,
 			'stepTypeConfig'=>$stepTypeConfig,
 			'stepsJSON'=>$stepsJSON,

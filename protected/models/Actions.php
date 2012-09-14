@@ -7,13 +7,16 @@
  * @property integer $ACT_ID
  * @property integer $PRF_UID
  * @property integer $CREATED_BY
- * @property string $CREATED_ON
+ * @property integer $CREATED_ON
  * @property integer $CHANGED_BY
- * @property string $CHANGED_ON
+ * @property integer $CHANGED_ON
  * @property string $ACT_IMG
  * @property string $ACT_IMG_AUTH
- * @property string $ACT_DESC_EN_GB
- * @property string $ACT_DESC_DE_CH
+ * @property string $ACT_DESC_AUTO_EN_GB
+ * @property string $ACT_DESC_AUTO_DE_CH
+ * @property string $ACT_DESC_MAN_EN_GB
+ * @property string $ACT_DESC_MAN_DE_CH
+ * @property string $ACT_SKIP
  */
 class Actions extends ActiveRecordEC
 {
@@ -43,12 +46,13 @@ class Actions extends ActiveRecordEC
 		// will receive user inputs.
 		return array(
 			array('CREATED_BY, CREATED_ON', 'required'),
-			array('PRF_UID, CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
+			array('PRF_UID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('ACT_IMG_AUTH', 'length', 'max'=>30),
-			array('CHANGED_ON, ACT_IMG, ACT_DESC_EN_GB, ACT_DESC_DE_CH', 'safe'),
+			array('ACT_SKIP', 'length', 'max'=>1),
+			array('ACT_IMG, ACT_DESC_AUTO_EN_GB, ACT_DESC_AUTO_DE_CH, ACT_DESC_MAN_EN_GB, ACT_DESC_MAN_DE_CH', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('ACT_ID, PRF_UID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON, ACT_IMG, ACT_IMG_AUTH, ACT_DESC_EN_GB, ACT_DESC_DE_CH', 'safe', 'on'=>'search'),
+			array('ACT_ID, PRF_UID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON, ACT_IMG, ACT_IMG_AUTH, ACT_DESC_AUTO_EN_GB, ACT_DESC_AUTO_DE_CH, ACT_DESC_MAN_EN_GB, ACT_DESC_MAN_DE_CH, ACT_SKIP', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -77,8 +81,11 @@ class Actions extends ActiveRecordEC
 			'CHANGED_ON' => 'Changed On',
 			'ACT_IMG' => 'Act Img',
 			'ACT_IMG_AUTH' => 'Act Img Auth',
-			'ACT_DESC_EN_GB' => 'Act Desc En Gb',
-			'ACT_DESC_DE_CH' => 'Act Desc De Ch',
+			'ACT_DESC_AUTO_EN_GB' => 'Act Desc Auto En Gb',
+			'ACT_DESC_AUTO_DE_CH' => 'Act Desc Auto De Ch',
+			'ACT_DESC_MAN_EN_GB' => 'Act Desc Man En Gb',
+			'ACT_DESC_MAN_DE_CH' => 'Act Desc Man De Ch',
+			'ACT_SKIP' => 'Act Skip',
 		);
 	}
 
@@ -96,13 +103,16 @@ class Actions extends ActiveRecordEC
 		$criteria->compare('ACT_ID',$this->ACT_ID);
 		$criteria->compare('PRF_UID',$this->PRF_UID);
 		$criteria->compare('CREATED_BY',$this->CREATED_BY);
-		$criteria->compare('CREATED_ON',$this->CREATED_ON,true);
+		$criteria->compare('CREATED_ON',$this->CREATED_ON);
 		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
-		$criteria->compare('CHANGED_ON',$this->CHANGED_ON,true);
+		$criteria->compare('CHANGED_ON',$this->CHANGED_ON);
 		$criteria->compare('ACT_IMG',$this->ACT_IMG,true);
 		$criteria->compare('ACT_IMG_AUTH',$this->ACT_IMG_AUTH,true);
-		$criteria->compare('ACT_DESC_EN_GB',$this->ACT_DESC_EN_GB,true);
-		$criteria->compare('ACT_DESC_DE_CH',$this->ACT_DESC_DE_CH,true);
+		$criteria->compare('ACT_DESC_AUTO_EN_GB',$this->ACT_DESC_AUTO_EN_GB,true);
+		$criteria->compare('ACT_DESC_AUTO_DE_CH',$this->ACT_DESC_AUTO_DE_CH,true);
+		$criteria->compare('ACT_DESC_MAN_EN_GB',$this->ACT_DESC_MAN_EN_GB,true);
+		$criteria->compare('ACT_DESC_MAN_DE_CH',$this->ACT_DESC_MAN_DE_CH,true);
+		$criteria->compare('ACT_SKIP',$this->ACT_SKIP,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

@@ -1,23 +1,25 @@
 <?php
 
-class MealPlannerStep extends CModel
+class CookAsisstantInfo extends CModel
 {
-	public $recipeNr = 0;
-	public $stepNr = 0;
-	public $recipeName = null;
-	public $stepDuration = 0;
+	public $meal = null;
+	public $courseNr = 0;
+	public $course =  null;
+	public $stepNumbers = array();
+	public $steps = array();
+	public $stepStartTime = array();
+	public $recipeStartTime = array();
+	public $cookWithEveryCook = array();
+	public $totalTime = array();
+	public $usedTime = array();
+	public $recipeUsedTime = array();
+	public $timeDiff = array();
 	public $finishedIn = 0;
-	public $inTime = true;
-	public $nextStepIn = 0;
-	public $mustWait = true;
-	public $actionText = null;
-	public $ingredientId = null;
-	public $ingredientCopyright = null;
-	public $ingredientGrammsTotal = 0;
-	public $ingredientGrammsCurrent = 0;
+	public $timeDiffMax = 0;
+	public $started = false;
 	
 	public function attributeNames(){
-		return array('recipeNr', 'stepNr', 'recipeName', 'stepDuration', 'finishedIn', 'inTime', 'nextStepIn', 'mustWait', 'actionText', 'ingredientId', 'ingredientGrammsTotal', 'ingredientGrammsCurrent');
+		return array('meal', 'courseNr', 'course', 'stepNumbers', 'steps', 'stepStartTime', 'recipeStartTime', 'cookWithEveryCook', 'totalTime', 'usedTime', 'recipeUsedTime', 'timeDiff', 'finishedIn', 'timeDiffMax', '$started');
 	}	
 	
 	public function __get($name) {
