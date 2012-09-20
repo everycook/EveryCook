@@ -905,6 +905,14 @@ div.mealView span.value {
 
 
 
+.addRowContainer div.up, .addRowContainer div.down, .addRowContainer div.remove {
+	width: 2.4em;
+	height: 2.4em;
+	float:left;
+	margin-left: 0.8em;
+	cursor: pointer;
+}
+
 
 
 

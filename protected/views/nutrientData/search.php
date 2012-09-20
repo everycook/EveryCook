@@ -9,36 +9,9 @@ $this->menu=array(
 	array('label'=>'Create NutrientData', 'url'=>array('create')),
 );
 
-if ($this->isFancyAjaxRequest){
-	/*
-	$this->widget('application.extensions.fancybox.EFancyBox', array(
-		'target'=>'a.fancyChoose',
-		'config'=>array('autoScale' => true, 'autoDimensions'=> true, 'centerOnScroll'=> true, ),
-		)
-	);*/
-	/*jQuery(\"#nutrientDataSearch\").replaceWith(html);*/
-	$link = $this->createUrl('nutrientData/chooseNutrientData');
-	/*Yii::app()->clientScript->registerScript('ajaxSearch', "*/
-	/*jQuery.ajax({'type':'post', 'url':'<?php echo $link; ?>','data':jQuery('#nutrientData_form').serialize(),'cache':false,'success':function(html){jQuery.fancybox({'content':html});}});*/
-	?>
-	
-	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $link; ?>"/>
-	<script type="text/javascript">
-	<?php /*
-	jQuery('#nutrientData_form').bind('submit', function(){
-		jQuery.ajax({'type':'get', 'url':'<?php echo $link; ?>?' + jQuery('#nutrientData_form').serialize(),'cache':false,'success':function(html){jQuery.fancybox({'content':html});}});
-		return false;
-	});
-	*/ ?>
-	jQuery('.button.NutrientDataSelect').bind('click', function(){
-		jQuery('#NUT_ID').attr('value', jQuery(this).attr('href'));
-		jQuery('.fancyChoose.NutrientDataSelect').html(jQuery(this).parent().children('a:not(.button):first').html());
-		jQuery.fancybox.close();
-		return false;
-	});
-	</script>
-	<?php	
-	/*");*/
+if ($this->isFancyAjaxRequest){ ?>
+	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('nutrientData/chooseNutrientData'); ?>"/>
+<?php
 }
 ?>
 

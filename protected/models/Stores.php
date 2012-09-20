@@ -8,9 +8,9 @@
  * @property string $STO_NAME
  * @property string $STO_STREET
  * @property string $STO_HOUSE_NO
- * @property integer $STO_ZIP
+ * @property string $STO_ZIP
  * @property string $STO_CITY
- * @property integer $STO_COUNTRY
+ * @property string $STO_COUNTRY
  * @property string $STO_STATE
  * @property integer $STY_ID
  * @property double $STO_GPS_LAT
@@ -55,12 +55,14 @@ class Stores extends ActiveRecordEC
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('STO_NAME, STO_STREET, STO_ZIP, STO_CITY, STO_COUNTRY, STO_GPS_LAT, STO_GPS_LNG, STO_GPS_POINT, STO_IMG_AUTH, STO_IMG_ETAG, STY_ID, SUP_ID, CREATED_BY, CREATED_ON', 'required'),
+			array('STO_NAME, STO_STREET, STO_ZIP, STO_CITY, STO_COUNTRY, STO_GPS_LAT, STO_GPS_LNG, STY_ID, SUP_ID, CREATED_BY, CREATED_ON', 'required'),
 			array('STO_IMG_AUTH', 'required', 'on'=>'withPic'),
-			array('STO_ZIP, STO_COUNTRY, STY_ID, SUP_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('STY_ID, SUP_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('STO_GPS_LAT, STO_GPS_LNG', 'numerical'),
 			array('STO_NAME, STO_STREET, STO_CITY, STO_STATE, STO_IMG_AUTH', 'length', 'max'=>100),
 			array('STO_HOUSE_NO, STO_PHONE', 'length', 'max'=>20),
+			array('STO_ZIP', 'length', 'max'=>10),
+			array('STO_COUNTRY', 'length', 'max'=>2),
 			array('STO_IMG_ETAG', 'length', 'max'=>40),
 			array('STO_IMG', 'safe'),
 			// The following rule is used by search().
@@ -95,7 +97,6 @@ class Stores extends ActiveRecordEC
 			'STO_COUNTRY' => 'Sto Country',
 			'STO_STATE' => 'Sto State',
 			'STY_ID' => 'Sty',
-			'STO_GPS' => 'Sto Gps',
 			'STO_GPS_LAT' => 'Sto Gps Lat',
 			'STO_GPS_LNG' => 'Sto Gps Lng',
 			'STO_GPS_POINT' => 'Sto Gps Point',
@@ -130,9 +131,9 @@ class Stores extends ActiveRecordEC
 		$criteria->compare('STO_NAME',$this->STO_NAME,true);
 		$criteria->compare('STO_STREET',$this->STO_STREET,true);
 		$criteria->compare('STO_HOUSE_NO',$this->STO_HOUSE_NO,true);
-		$criteria->compare('STO_ZIP',$this->STO_ZIP);
+		$criteria->compare('STO_ZIP',$this->STO_ZIP,true);
 		$criteria->compare('STO_CITY',$this->STO_CITY,true);
-		$criteria->compare('STO_COUNTRY',$this->STO_COUNTRY);
+		$criteria->compare('STO_COUNTRY',$this->STO_COUNTRY,true);
 		$criteria->compare('STO_STATE',$this->STO_STATE,true);
 		$criteria->compare('STY_ID',$this->STY_ID);
 		$criteria->compare('STO_GPS_LAT',$this->STO_GPS_LAT);

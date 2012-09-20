@@ -1,4 +1,9 @@
+var glob = glob || {};
+
 jQuery(function($){
+	var IMG_HEIGHT = 400;
+	var IMG_WIDTH = 400;
+	
 	function initCrop(type, contentParent){
 		if (typeof(contentParent) === 'undefined') return;
 		var cropable = contentParent.find('.cropable');
@@ -11,11 +16,23 @@ jQuery(function($){
 				parent.append(jQuery('<input type="hidden" id="imagecrop_h" name="imagecrop_h" />'));
 			});
 		}
+		
+		var maxWidth = window.screen.width  * 0.8;
+		if (maxWidth<IMG_WIDTH*1.5){
+			maxWidth = IMG_WIDTH*1.5;
+		}
+		var maxHeight = window.screen.height * 0.8;
+		if (maxHeight<IMG_HEIGHT*1.5){
+			maxHeight = IMG_HEIGHT*1.5;
+		}
+		
 		cropable.Jcrop({
 			//aspectRatio: 1,
 			bgOpacity: .6,
 			minSize: [40, 40],
 			onSelect: updateCoords,
+			boxWidth: maxWidth,
+			boxHeight: maxHeight,
 			//onChange: checkSelectionValide,
 			onRelease: releaseCheck,
 		},function(){
@@ -81,14 +98,64 @@ jQuery(function($){
 		updateCoords({});
 	}
 	
+	
+	glob.showImageOrError = function(filenameInput, data){
+		var elem = filenameInput;
+		if (data.indexOf('{')===0){
+			eval('var data = ' + data + ';');
+			var isJSON = true;
+		} else {
+			var isJSON = false;
+		}
+		var imageParent = elem.parent().parent();
+		var imageBefore = elem.parent();
+		if (imageBefore.is('.imageTip')){
+			imageParent = imageParent.parent();
+			imageBefore = imageBefore.parent();
+		}
+		if (data.imageId){
+			if (typeof(jcrop_api) !== 'undefined' && jcrop_api != null){
+				jcrop_api.destroy();
+			}
+			imageParent.find('img').remove();
+			imageParent.find('#img_error').remove();
+			var rand = Math.floor(Math.random()*1000000000);
+			var image = jQuery('<img src="' + jQuery('#imageLink').attr('value') + '?rand=' + rand+ '" class="cropable"/>');
+			image.insertBefore(imageBefore);
+			initCrop('form', imageBefore.parent());
+			elem.attr('value','');
+		} else {
+			//No image/unknown type uploaded...
+			if (typeof(jcrop_api) !== 'undefined' && jcrop_api != null){
+				jcrop_api.destroy();
+			}
+			imageParent.find('img').remove();
+			imageParent.find('#img_error').remove();
+			var error = jQuery('<span id="img_error" class="error">' + data.error + '</span>');
+			error.insertBefore(imageBefore);
+			elem.attr('value','');
+			
+			if (!isJSON){
+				//Show error in fancy
+				jQuery.fancybox({
+					'content':data,
+					'onComplete': function(){
+						jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );
+					}
+				});
+			}
+		}
+	};
+	
+	
 	jQuery('body').undelegate('[name*="[filename]"]','change').delegate('[name*="[filename]"]','change', function(){
 		var elem = jQuery(this);
 		var form = elem.parents('form:first');
 		var oldAction = form.attr('action');
 		form.attr('action', jQuery('#uploadImageLink').attr('value'));
 		form.unbind('submit');
-		form.append('<input type="hidden" class="cropMaxInitSize" name="MaxHeight" value="' + window.screen.height + '"/>');
-		form.append('<input type="hidden" class="cropMaxInitSize" name="MaxWidth" value="' + window.screen.width + '"/>');
+		//form.append('<input type="hidden" class="cropMaxInitSize" name="MaxHeight" value="' + window.screen.height + '"/>');
+		//form.append('<input type="hidden" class="cropMaxInitSize" name="MaxWidth" value="' + window.screen.width + '"/>');
 		form.iframePostForm({
 			'json' : false, /*JSON.parse sems do not work correct...*/
 			'iframeID' : 'imageUploadFrame',
@@ -97,56 +164,13 @@ jQuery(function($){
 				//return false; // to abort send
 			},
 			complete : function (data) {
-				if (data.indexOf('{')===0){
-					eval('var data = ' + data + ';');
-					var isJSON = true;
-				} else {
-					var isJSON = false;
-				}
-				var imageParent = elem.parent().parent();
-				var imageBefore = elem.parent();
-				if (imageBefore.is('.imageTip')){
-					imageParent = imageParent.parent();
-					imageBefore = imageBefore.parent();
-				}
-				if (data.imageId){
-					if (typeof(jcrop_api) !== 'undefined' && jcrop_api != null){
-						jcrop_api.destroy();
-					}
-					imageParent.find('img').remove();
-					imageParent.find('#img_error').remove();
-					var rand = Math.floor(Math.random()*1000000000);
-					var image = jQuery('<img src="' + jQuery('#imageLink').attr('value') + '?rand=' + rand+ '" class="cropable"/>');
-					image.insertBefore(imageBefore);
-					initCrop('form', imageBefore.parent());
-					elem.attr('value','');
-				} else {
-					//No image/unknown type uploaded...
-					if (typeof(jcrop_api) !== 'undefined' && jcrop_api != null){
-						jcrop_api.destroy();
-					}
-					imageParent.find('img').remove();
-					imageParent.find('#img_error').remove();
-					var error = jQuery('<span id="img_error" class="error">' + data.error + '</span>');
-					error.insertBefore(imageBefore);
-					elem.attr('value','');
-					
-					if (!isJSON){
-						//Show error in fancy
-						jQuery.fancybox({
-							'content':data,
-							'onComplete': function(){
-								jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );
-							}
-						});
-					}
-				}
+				glob.showImageOrError(elem, data);
 			}
 		});
 		form.submit();
 		
 		form.attr('action', oldAction);
-		form.find('.cropMaxInitSize').remove();
+		//form.find('.cropMaxInitSize').remove();
 		glob.initAjaxUpload('form', form.parent());
 	});
 });

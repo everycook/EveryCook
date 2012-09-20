@@ -2,8 +2,13 @@
 	<?php 
 	if ($this->isFancyAjaxRequest){
 		echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$data['REC_IMG_AUTH'], 'title'=>$data['REC_IMG_AUTH']));
-	
-		echo CHtml::link($this->trans->GENERAL_SELECT, $data['REC_ID'], array('class'=>'f-right button RecipeSelect'));
+		
+		if ($this->isTemplateChoose){
+			$class = ' RecipeTemplateSelect';
+		} else {
+			$class = ' RecipeSelect';
+		}
+		echo CHtml::link($this->trans->GENERAL_SELECT, $data['REC_ID'], array('class'=>'f-right button'.$class));
 	} else {
 		echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$data['REC_IMG_AUTH'], 'title'=>$data['REC_IMG_AUTH'])), array('view', 'id'=>$data['REC_ID'])); 
 		echo '<div class="options">';

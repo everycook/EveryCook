@@ -11,7 +11,7 @@ glob.removeUrlParam = function(url, key){
 		}
 	}
 	return url;
-}
+};
 
 glob.urlAddParamStart = function(url){
 	if (url.indexOf('?')>0){
@@ -30,7 +30,7 @@ glob.changeLinkUrlParam = function(elem, param, newValue){
 	url = glob.urlAddParamStart(url);
 	url = url + param + '=' + encodeURI(newValue);
 	elem.attr('href', url);
-}
+};
 
 function ajaxResponceHandler(data, type, asFancy){
 	if (data.indexOf('{')===0){
@@ -415,6 +415,17 @@ jQuery(function($){
 		return fancyChooseSelect('StoresSelect', this);
 	});
 	
+	jQuery('body').undelegate('.fancyForm .button.NutrientDataSelect','click').delegate('.fancyForm .button.NutrientDataSelect','click', function(){
+		return fancyChooseSelect('NutrientDataSelect', this);
+	});
+	/*
+	jQuery('.button.NutrientDataSelect').bind('click', function(){
+		jQuery('#NUT_ID').attr('value', jQuery(this).attr('href'));
+		jQuery('.fancyChoose.NutrientDataSelect').html(jQuery(this).parent().children('a:not(.button):first').html());
+		jQuery.fancybox.close();
+		return false;
+	});
+	*/
 	function fancyChooseSelect(fieldIdentifier, caller){
 		var elem = jQuery('.activeFancyField');
 		if (elem.length == 0){

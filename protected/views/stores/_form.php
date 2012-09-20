@@ -1,3 +1,4 @@
+<input type="hidden" id="imageLink" value="<?php echo $this->createUrl('stores/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
 <div class="form">
 
 <?php $form=$this->beginWidget('CActiveForm', array(
@@ -106,7 +107,7 @@
 
 		<?php
 			if (Yii::app()->session['Stores_Backup'] && Yii::app()->session['Stores_Backup']->STO_IMG_ETAG){
-				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'store cropable', 'alt'=>$model->STO_IMG_AUTH, 'title'=>$model->STO_IMG_AUTH));
+				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())), '', array('class'=>'store cropable', 'alt'=>$model->STO_IMG_AUTH, 'title'=>$model->STO_IMG_AUTH));
 			} else if ($model->STO_ID) {
 				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>$model->STO_ID, 'ext'=>'.png')), '', array('class'=>'store', 'alt'=>$model->STO_IMG_AUTH, 'title'=>$model->STO_IMG_AUTH));
 			}

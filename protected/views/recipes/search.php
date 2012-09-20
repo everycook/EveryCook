@@ -20,8 +20,15 @@ if (isset(Yii::app()->session['Recipes']) && isset(Yii::app()->session['Recipes'
 	$newRecSearch=array();
 }
 if ($this->isFancyAjaxRequest){ ?>
-	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('recipes/chooseRecipe'); ?>"/>
+	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl($this->route); ?>"/>
 	<?php
+	if ($this->isTemplateChoose){
+		$advanceURL = 'recipes/advanceChooseRecipe';
+	} else {
+		$advanceURL = 'recipes/advanceChooseTemplateRecipe';
+	}
+} else {
+	$advanceURL = 'recipes/advanceSearch';
 }
 ?>
 
@@ -37,7 +44,7 @@ if ($this->isFancyAjaxRequest){ ?>
 	</div>
 	
 	<div class="f-right">
-		<?php echo CHtml::link($this->trans->GENERAL_ADVANCE_SEARCH, array('recipes/advanceSearch', $newRecSearch), array('class'=>'button')); ?><br>
+		<?php echo CHtml::link($this->trans->GENERAL_ADVANCE_SEARCH, array($advanceURL, $newRecSearch), array('class'=>'button')); ?><br>
 	</div>
 	
 	<div class="clearfix"></div>

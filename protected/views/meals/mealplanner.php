@@ -41,7 +41,7 @@
 				$fieldOptions = array(
 					array('amount', $this->trans->MEALPLANNER_PEOPLE_AMOUNT, null, array('field_type'=>'number', 'size'=>3)),
 					array('gender', $this->trans->MEALPLANNER_PEOPLE_GENDER, array('F'=>$this->trans->PROFILES_GENDER_F, 'M'=>$this->trans->PROFILES_GENDER_M), array()),
-					array('gda_id_kcal', $this->trans->MEALPLANNER_PEOPLE_AGE, array('GDA_F'=>$GDA_Woman, 'GDA_M'=>$GDA_Man), array('multiple_selects'=>true)),
+					array('gda_id_kcal', $this->trans->MEALPLANNER_PEOPLE_AGE, array('GDA_F'=>$GDA_Woman, 'GDA_M'=>$GDA_Man), array('multiple_selects'=>0)),
 					array(null, $this->trans->MEALPLANNER_PEOPLE_GDA, null, array('htmlTag'=>'span','htmlContent'=>sprintf($this->trans->MEALPLANNER_PEOPLE_GDA_SUM,'<span class="value">0</span>'))),
 				);
 				$text = array('add'=>$this->trans->GENERAL_ADD, 'remove'=>$this->trans->GENERAL_REMOVE, 'options'=>'Options');

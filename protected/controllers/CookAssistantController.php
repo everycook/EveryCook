@@ -19,6 +19,7 @@ class CookAssistantController extends Controller {
 	const PRESSURELESS=33;
 	const WEIGHT_REACHED=34;
 	const COOK_TIMEEND=35;
+	const RECIPE_END=39;
 	
 	const INPUT_ERROR=40;
 	const EMERGANCY_SHUTDOWN=41;
@@ -414,7 +415,7 @@ class CookAssistantController extends Controller {
 			
 			//$restTime = $state->STIME;
 			$additional='';
-			if ($state->SMODE==self::STANDBY || $state->SMODE==self::CUT || $state->SMODE==self::MOTOR || $state->SMODE==self::COOK || $state->SMODE==self::PRESSHOLD || $state->SMODE==self::COOK_TIMEEND){
+			if ($state->SMODE==self::STANDBY || $state->SMODE==self::CUT || $state->SMODE==self::MOTOR || $state->SMODE==self::COOK || $state->SMODE==self::PRESSHOLD || $state->SMODE==self::COOK_TIMEEND || $state->SMODE==self::RECIPE_END){
 				//$percent = 1 - ($state->STIME / $step->STE_STEP_DURATION);
 				$percent = 1 - ($restTime / $mealStep->nextStepTotal);
 			} else if ($state->SMODE==self::SCALE || $state->SMODE==self::WEIGHT_REACHED){
@@ -499,7 +500,7 @@ class CookAssistantController extends Controller {
 			if (isset($info->course->couToRecs[$recipeNr]->recipe->steps[$info->stepNumbers[$recipeNr]])){
 				$step = $info->course->couToRecs[$recipeNr]->recipe->steps[$info->stepNumbers[$recipeNr]];
 				if ($info->steps[$recipeNr]->endReached){
-					$command='{"T0":0,"P0":0,"M0RPM":0,"M0ON":0,"M0OFF":0,"W0":0,"STIME":0,"SMODE":0,"SID":0}';
+					$command='{"T0":0,"P0":0,"M0RPM":0,"M0ON":0,"M0OFF":0,"W0":0,"STIME":0,"SMODE":'.self::RECIPE_END.',"SID":0}';
 				} else {
 					$command='{"T0":'.$step->STE_CELSIUS.',"P0":'.$step->STE_KPA.',"M0RPM":'.$step->STE_RPM.',"M0ON":'.$step->STE_STIR_RUN.',"M0OFF":'.$step->STE_STIR_PAUSE.',"W0":'.$step->STE_GRAMS.',"STIME":'.$step->STE_STEP_DURATION.',"SMODE":'.$step->STT_ID.',"SID":'.$step->STE_STEP_NO.'}';
 				}
@@ -563,7 +564,7 @@ class CookAssistantController extends Controller {
 	private function sendStopToFirmware($info){
 		for ($recipeNr=0; $recipeNr<count($info->$course->couToRecs); ++$recipeNr){
 			if (isset($info->cookWithEveryCook[$recipeNr]) && $info->cookWithEveryCook[$recipeNr]){
-				$command='{"T0":0,"P0":0,"M0RPM":0,"M0ON":0,"M0OFF":0,"W0":0,"STIME":0,"SMODE":0,"SID":0}';
+				$command='{"T0":0,"P0":0,"M0RPM":0,"M0ON":0,"M0OFF":0,"W0":0,"STIME":0,"SMODE":'.self::RECIPE_END.',"SID":0}';
 				
 				$dest = $info->cookWithEveryCook[$recipeNr];
 				

@@ -14,7 +14,7 @@ $this->menu=array(
 	);
 //}
 if ($this->isFancyAjaxRequest){ ?>
-	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('recipes/advanceChooseRecipe'); ?>"/>
+	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl($this->route); ?>"/>
 	<?php
 }
 ?>

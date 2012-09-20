@@ -118,19 +118,19 @@ class Functions extends CHtml{
 				}
 				$htmlOptions = array_merge(array('id'=>self::getIdByName(self::resolveArrayName($value,$field[0].'_DESC',$index))),$options['htmlOptions']);
 				$html .= '<td>' . self::hiddenField(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), array('class'=>'fancyValue')) . self::link($text, $options['url'], $htmlOptions) . '</td>';
-			} else if (isset($options['multiple_selects']) && $options['multiple_selects']){
+			} else if (isset($options['multiple_selects']) && $options['multiple_selects'] !== ''){
 				$html .= '<td>';
-				$first = true;
+				$valueIndex = 0;
 				foreach($field[2] as $id=>$values){
 					$field_name = self::resolveArrayName($value,$field[0],$index);
 					$field_id = self::getIdByName($field_name).'_'.$id;
 					$htmlparams = array_merge($field[3],array('id'=>$field_id));
 					unset($htmlparams['multiple_selects']);
-					if (!$first){
-						$htmlparams = array_merge($htmlparams,array('style'=>'display: none;'));
+					if ($valueIndex != $options['multiple_selects']){
+						$htmlparams = array_merge($htmlparams,array('style'=>'display: none;', 'disabled'=>'disabled'));
 					}
 					$html .= self::dropDownList($field_name, $value->__get($field[0]), $values, $htmlparams);
-					$first = false;
+					++$valueIndex;
 				}
 				$html .= '</td>';
 			} else if (is_array($field[2])){
@@ -190,15 +190,15 @@ class Functions extends CHtml{
 			}
 		}
 		if (isset($texts['options'])){
-			$html .= '<td>';
+			$html .= '<td class="options">';
 			if (isset($texts['remove'])){
-				$html .= '<div class="buttonSmall remove">' . $texts['remove'] . '</div>';
+				$html .= '<div class="remove" title="' . $texts['remove'] . '"></div>';
 			}
 			if (isset($texts['move up'])){
-				$html .= '<div class="buttonSmall up">' . $texts['move up'] . '</div>';
+				$html .= '<div class="up" title="' . $texts['move up'] . '"></div>';
 			}
 			if (isset($texts['move down'])){
-				$html .= '<div class="buttonSmall down">' . $texts['move down'] . '</div>';
+				$html .= '<div class="down" title="' . $texts['move down'] . '"></div>';
 			}
 			$html .= '</td>';
 		}
@@ -480,6 +480,7 @@ class Functions extends CHtml{
 		$file = CUploadedFile::getInstance($model,'filename');
 		if ($file){
 			$filename = $file->getTempName();
+			/*
 			$maxHeight = $_POST['MaxHeight'] * 0.8;
 			if ($maxHeight<self::IMG_HEIGHT*1.5){
 				$maxHeight = self::IMG_HEIGHT*1.5;
@@ -492,6 +493,7 @@ class Functions extends CHtml{
 			if ($imginfo[0]>$maxWidth || $imginfo[1]>$maxHeight){
 				self::resizePicture($filename, $filename, $maxWidth, $maxHeight, 0.8, IMAGETYPE_PNG);
 			}
+			*/
 			
 			$imginfo = self::changePictureType($filename,$filename, IMAGETYPE_PNG);
 			if ($imginfo !== false){

@@ -13,6 +13,7 @@ class RecipesController extends Controller
 	
 	protected $createBackup = 'Recipes_Backup';
 	protected $searchBackup = 'Recipes';
+	public $isTemplateChoose = false;
 	
 	/**
 	 * Specifies the access control rules.
@@ -23,11 +24,11 @@ class RecipesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','chooseRecipe','advanceChooseRecipe'),
+				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','chooseRecipe','advanceChooseRecipe','chooseTemplateRecipe','advanceChooseTemplateRecipe'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','uploadImage','delicious','disgusting','cancel','showLike', 'showNotLike'),
+				'actions'=>array('create','update','uploadImage','delicious','disgusting','cancel','showLike', 'showNotLike', 'getRecipeInfos'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -349,16 +350,75 @@ class RecipesController extends Controller
 		$stepsJSON = CJSON::encode($model->steps);
 		$stepTypeConfig = CJSON::encode($stepTypeConfig);
 		
+		if (!isset($_POST['CookVariant']) || $_POST['CookVariant'] == ''){
+			$_POST['CookVariant'] = 0;
+		}
+		
 		$this->checkRenderAjax($view,array(
 			'model'=>$model,
 			'recipeTypes'=>$recipeTypes,
 			'stepTypes'=>$stepTypes,
-			'actions'=>$actions_auto, //TODO submit both
+			'actions'=>array($actions_auto, $actions_man),
 			'ingredients'=>$usedIngredients,
 			'stepTypeConfig'=>$stepTypeConfig,
 			'stepsJSON'=>$stepsJSON,
 		));
 	}
+	
+	public function actionGetRecipeInfos($id){
+		$this->saveLastAction = false;
+		$model = $this->loadModel($id, false);
+		if (isset($model->steps) && isset($model->steps[0])/* && !isset($model->steps[0]->ingredient)*/){
+			/*
+			$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
+			$ingredients = CHtml::listData($ingredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
+			$usedIngredients = array();
+			foreach($model->steps as $step){
+				foreach($ingredients as $row_key=>$row_val){
+					if($row_key == $val){
+						$usedIngredients = array_merge($usedIngredients,array($row_key=>$row_val));
+						break;
+					}
+				}
+			}
+			*/
+			$neededIngredients = array();
+			foreach($model->steps as $step){
+				array_push($neededIngredients,$step->ING_ID);
+			}
+			if (count($neededIngredients)>0){
+				$criteria=new CDbCriteria;
+				$criteria->select = 'ING_ID,ING_NAME_'.Yii::app()->session['lang'];
+				$criteria->compare('ING_ID',$neededIngredients);
+				$usedIngredients = Yii::app()->db->commandBuilder->createFindCommand('ingredients', $criteria, '')->queryAll();
+				$usedIngredients = CHtml::listData($usedIngredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
+			} else {
+				$usedIngredients=array();
+			}
+		} else {
+			$usedIngredients=array();
+		}
+		
+		if (isset($model->REC_IMG) && strlen($model->REC_IMG)>0){
+			$currentModel = Yii::app()->session[$this->createBackup];
+			if (!isset($currentModel) || $currentModel == null){
+				$currentModel = new Recipes();
+			}
+			$currentModel->REC_IMG = $model->REC_IMG;
+			$currentModel->REC_IMG_ETAG = $model->REC_IMG_ETAG;
+			$currentModel->REC_IMG_AUTH = $model->REC_IMG_AUTH;
+			
+			Yii::app()->session[$this->createBackup] = $currentModel;
+			
+			$model->REC_IMG = 'backup';
+		}
+		
+		$stepsJSON = CJSON::encode($model->steps);
+		$ingredientsJSON = CJSON::encode($usedIngredients);
+		$modelJSON = CJSON::encode($model);
+		echo '{steps:'.$stepsJSON.', ingredients:'.$ingredientsJSON.', model:'.$modelJSON.'}';
+	}
+	
 	
 	/**
 	 * Creates a new model.
@@ -566,6 +626,18 @@ class RecipesController extends Controller
 	
 	public function actionAdvanceChooseRecipe(){
 		$this->isFancyAjaxRequest = true;
+		$this->prepareSearch('advanceSearch', 'none', null);
+	}
+	
+	public function actionChooseTemplateRecipe(){
+		$this->isFancyAjaxRequest = true;
+		$this->isTemplateChoose = true;
+		$this->prepareSearch('search', 'none', null);
+	}
+	
+	public function actionAdvanceChooseTemplateRecipe(){
+		$this->isFancyAjaxRequest = true;
+		$this->isTemplateChoose = true;
 		$this->prepareSearch('advanceSearch', 'none', null);
 	}
 	

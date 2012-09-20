@@ -1,5 +1,6 @@
 <input type="hidden" id="uploadImageLink" value="<?php echo $this->createUrl('recipes/uploadImage',array('id'=>$model->REC_ID)); ?>"/>
 <input type="hidden" id="imageLink" value="<?php echo $this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
+<input type="hidden" id="stepDetailsLink" value="<?php echo $this->createUrl('recipes/getRecipeInfos'); ?>"/>
 <div class="form">
 
 <div class="hidden" id="stepConfig">
@@ -29,6 +30,11 @@
 		}
 	?>
 	
+	<div class="row">
+		<label class="required" for="Recipes_Template"><?php echo $this->trans->RECIPE_SELECT_TEMPLATE; ?></label>
+		<?php echo CHtml::link($this->trans->GENERAL_CHOOSE, array('recipes/chooseTemplateRecipe'), array('class'=>'fancyChoose RecipeTemplateSelect buttonSmall', 'id'=>'Recipes_Template')) ?>
+	</div>
+	
 	<?php foreach($this->allLanguages as $lang=>$name){ ?>
 	<div class="row">
 		<?php echo $form->labelEx($model,'REC_NAME_'.strtoupper($lang)); ?>
@@ -44,7 +50,7 @@
 	
 	<?php
 		if (isset(Yii::app()->session['Recipes_Backup']) && isset(Yii::app()->session['Recipes_Backup']->REC_IMG_ETAG)){
-			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')), '', array('class'=>'recipe' .(($model->imagechanged)?' cropable':''), 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));
+			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())), '', array('class'=>'recipe' .(($model->imagechanged)?' cropable':''), 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));
 		} else if ($model->REC_ID && isset($model->REC_IMG_ETAG)) {
 			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH));
 		}
@@ -69,16 +75,22 @@
 		<?php echo $form->error($model,'REC_IMG_AUTH'); ?>
 	</div>
 	
+	<div class="row">
+		<label class="required" for="Recipes_Template"><?php echo $this->trans->RECIPE_ACTION_VARIANTS; ?></label>
+		<div id="RecipeAuto" class="button"><?php echo $this->trans->RECIPE_AUTO; ?></div><div id="RecipeMan" class="button"><?php echo $this->trans->RECIPE_MAN; ?></div>
+		<?php echo CHtml::hiddenField('CookVariant', $_POST['CookVariant'], array('id'=>'CookVariant')); ?>
+	</div>
+	
 	<div class="steps">
 	<?php
 		$fieldOptions = array(
 			array('REC_ID', null, null, array('hidden'=>true)),
 			array('STE_STEP_NO', null, null, array('hidden'=>true)),
 			array('STT_ID', $this->trans->RECIPES_STEP_TYPE, $stepTypes, null),
-			array('ACT_ID', $this->trans->RECIPES_ACTION, $actions, array('empty'=>$this->trans->GENERAL_CHOOSE)),
+			array('ACT_ID', $this->trans->RECIPES_ACTION, $actions, array('empty'=>$this->trans->GENERAL_CHOOSE, 'multiple_selects'=>$_POST['CookVariant'])),
 			//array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('empty'=>$this->trans->GENERAL_CHOOSE)),
 			//array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('fancy'=>true, 'empty'=>$this->trans->GENERAL_CHOOSE, 'url'=>'#'.$this->createUrlHash('ingredients/chooseIngredient',array()), 'htmlOptions'=>array('class'=>'fancyChoose IngredientSelect'))),
-			array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('fancy'=>true, 'empty'=>$this->trans->GENERAL_CHOOSE, 'url'=>array('ingredients/chooseIngredient'), 'htmlOptions'=>array('class'=>'fancyChoose IngredientSelect'))),
+			array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('fancy'=>true, 'empty'=>$this->trans->GENERAL_CHOOSE, 'url'=>array('ingredients/chooseIngredient'), 'htmlOptions'=>array('class'=>'fancyChoose IngredientSelect buttonSmall'))),
 			array('STE_GRAMS', $this->trans->RECIPES_INGREDIENT_AMOUNT, null, array('type_weight'=>'g')),
 		);
 		$text = array('add'=>$this->trans->GENERAL_ADD, 'remove'=>$this->trans->GENERAL_REMOVE, 'move up'=>'-up-', 'move down'=>'-down-', 'options'=>'Options');

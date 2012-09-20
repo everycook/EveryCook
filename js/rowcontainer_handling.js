@@ -238,7 +238,7 @@ jQuery(function($){
 				newFieldText += '<input type="number" pattern="[01]" name="'+name+'" id="'+id+'" value="'+value+'" />';
 			} else if (data_type == 'time'){
 				name = name.substr(0,name.length-1);
-				newFieldText += '<input type="number" name="'+name+'_VIEW]" id="'+id+'_VIEW" value="'+value+'" class="viewWithUnit" />';
+				newFieldText += '<input type="number" step="any" name="'+name+'_VIEW]" id="'+id+'_VIEW" value="'+value+'" class="viewWithUnit" />';
 				newFieldText += timeSelectType.replace('%name%', name+'_UNIT]').replace('%id%',id+'_UNIT');
 				newFieldText += '<input type="hidden" name="'+name+']" id="'+id+'" value="'+value+'" class="withUnit" />';
 			} else if (data_type == 'weight'){
@@ -256,13 +256,16 @@ jQuery(function($){
 	}
 	
 	function setFieldValue(field, value){
+		var oldVal = field.val();
 		if (field.prop('tagName') == 'SELECT'){
 			field.find('option:selected').removeAttr('selected');
 			field.find('option[value=' + value + ']').attr('selected','selected');
 		} else {
 			field.attr('value',value);
 		}
-		field.change();
+		if (oldVal != value){
+			field.change();
+		}
 	}
 	
 	
@@ -278,7 +281,11 @@ jQuery(function($){
 			if (typeof(bevoreRowCallback) !== 'undefined'){
 				bevoreRowCallback(newLine);
 			}
-			rows = JSON.parse(data);
+			if (typeof(data) === 'string'){
+				rows = JSON.parse(data);
+			} else if (typeof(data) === 'object'){
+				rows = data;
+			}
 			for (var rowId = 0; rowId<rows.length; rowId++){
 				var data_row = rows[rowId];
 				newLine = addEmptyRow(emptyLineContainer);
@@ -434,7 +441,18 @@ jQuery(function($){
 		var container = contentParent.find('.steps .addRowContainer');
 		var data = contentParent.find('#rowsJSON').attr('value');
 		var errors = contentParent.find('#errorJSON').attr('value');
-		initRowContainer(container, data, errors, ':not([id$=STT_ID]):not([id$=ACT_ID])', function(newLine){
+		initRecipeStepsRowContainerDoIt(container, data, errors, false);
+	}
+	
+	function initRecipeStepsRowContainerDoIt(container, data, errors, append){
+		if (container.is('.steps .addRowContainer').length == 0){
+			return;
+		}
+		if (container.find('.steps .addRowContainer .rowContainerInitialized').length > 0 && append !== true){
+			return;
+		}
+		
+		initRowContainer(container, data, errors, ':not([id$=STT_ID]):not([id*=ACT_ID])', function(newLine){
 			var ingredientSelectContentElem = newLine.find('[id$=ING_ID]');
 			ingredientSelectContent = ingredientSelectContentElem.parents(':first').html();
 			//ingredientSelectContentElem.remove();
@@ -448,7 +466,7 @@ jQuery(function($){
 			setFieldValue(stepType,data_row.STT_ID);
 			updateFields(stepType);
 			
-			var actionType = newLine.find('[id$=ACT_ID]');
+			var actionType = newLine.find('[id*=ACT_ID]');
 			setFieldValue(actionType,data_row.ACT_ID);
 			updateIngredientVisible(actionType);
 		}, function(fieldParents, data_row){
@@ -456,7 +474,7 @@ jQuery(function($){
 			if (ingredientField.length > 0){
 				var value = data_row['ING_ID'];
 				ingredientField.attr('value',value);
-				contentParent.find('#' + ingredientField.attr('id') + '_DESC').html(ingredients[value]);
+				container.find('#' + ingredientField.attr('id') + '_DESC').html(ingredients[value]);
 			}
 		});
 		
@@ -468,7 +486,15 @@ jQuery(function($){
 		var insertBefore = jQuery(this).parents('tr:first');
 		var newRow = addEmptyRow(insertBefore);
 		updateFields(newRow.find('[id$=STT_ID]'));
-		updateIngredientVisible(newRow.find('[id$=ACT_ID]'));
+		updateIngredientVisible(newRow.find('[id*=ACT_ID]'));
+		if(jQuery('#CookVariant').val() == 0){
+			newRow.find('[id$=ACT_ID_0]').css('display','block'); //.removeAttr('disabled')
+			newRow.find('[id$=ACT_ID_1]').css('display','none'); //.attr('disabled','disabled')
+		} else {
+			newRow.find('[id$=ACT_ID_0]').css('display','none');
+			newRow.find('[id$=ACT_ID_1]').css('display','block');
+		}
+		newRow.find('[id*=ACT_ID]')
 		initMultiFancyCoose();
 	});
 	
@@ -496,7 +522,7 @@ jQuery(function($){
 			var required = [];
 		}
 		
-		row.find('[id$=ACT_ID]').removeAttr('disabled');
+		row.find('[id*=ACT_ID]').removeAttr('disabled');
 		next.find('[id$=ACT_ID_backup]').remove();
 		if ((defaults.length === 0 || (defaults.length == 1 && defaults[0] == "")) && (required.length === 0 || (required.length == 1 && required[0] == ""))){
 			if (next.attr('class') == 'addFields'){
@@ -550,7 +576,7 @@ jQuery(function($){
 					continue;
 				}
 				var fieldOpt=defaults[defaultIndex].split('=');
-				var field = fieldParents.find('[id$='+fieldOpt[0]+']');
+				var field = fieldParents.find('[id*='+fieldOpt[0]+']');
 				if (field.length){
 					oldFields = oldFields.not(field);
 					if (field.hasClass('withUnit')){
@@ -588,39 +614,108 @@ jQuery(function($){
 	
 	jQuery('body').undelegate('.steps .addRowContainer [id$=STT_ID]','change').delegate('.steps .addRowContainer [id$=STT_ID]','change',function(){
 		updateFields(jQuery(this));
-		updateIngredientVisible(jQuery(this).parents('tr:first').find('[id$=ACT_ID]'));
+		updateIngredientVisible(jQuery(this).parents('tr:first').find('[id*=ACT_ID]'));
 		initMultiFancyCoose();
 	});
 	
 	function updateIngredientVisible(elem){
 		var value = elem.attr('value');
 		var text = elem.find(':selected').get(0).text;
-		var row = elem.parents('tr:first');
-		var ingredientElem = row.find('[id*=ING_ID]');
-		var weightElem = row.find('[id*=STE_GRAMS]');
-		if (text.indexOf('#objectofaction#') == -1){
-			ingredientElem.remove();
-			weightElem.remove();
-		} else {
-			currentIndexInt = getIndexFromFieldName(elem.attr('name'));
-			if (ingredientElem.length == 0){
-				newIngredientSelectContent = ingredientSelectContent.replace(/%index%/g,currentIndexInt);
-				newIngredientSelectContent = jQuery(newIngredientSelectContent);
-				jQuery(row.find('td').get(2)).append(newIngredientSelectContent);
-			}
-			if (weightElem.length == 0){
-				newWeightContent = weightContent.replace(/%index%/g,currentIndexInt);
-				newWeightContent = jQuery(newWeightContent);
-				jQuery(row.find('td').get(3)).append(newWeightContent);
+		if (text != ''){ //do not change, because thre is no value for this display varaint (auto/man)
+			var row = elem.parents('tr:first');
+			var ingredientElem = row.find('[id*=ING_ID]');
+			var weightElem = row.find('[id*=STE_GRAMS]');
+			if (text.indexOf('#objectofaction#') == -1){
+				ingredientElem.remove();
+				weightElem.remove();
+			} else {
+				currentIndexInt = getIndexFromFieldName(elem.attr('name'));
+				if (ingredientElem.length == 0){
+					newIngredientSelectContent = ingredientSelectContent.replace(/%index%/g,currentIndexInt);
+					newIngredientSelectContent = jQuery(newIngredientSelectContent);
+					jQuery(row.find('td').get(2)).append(newIngredientSelectContent);
+				}
+				if (weightElem.length == 0){
+					newWeightContent = weightContent.replace(/%index%/g,currentIndexInt);
+					newWeightContent = jQuery(newWeightContent);
+					jQuery(row.find('td').get(3)).append(newWeightContent);
+				}
 			}
 		}
 	}
 	
-	jQuery('body').undelegate('.steps .addRowContainer [id$=ACT_ID]','change').delegate('.steps .addRowContainer [id$=ACT_ID]','change',function(){
-		updateIngredientVisible(jQuery(this));
+	jQuery('body').undelegate('.steps .addRowContainer [id*=ACT_ID]','change').delegate('.steps .addRowContainer [id*=ACT_ID]','change',function(){
+		var elem = jQuery(this);
+		setFieldValue(elem.parent().find('[id*=ACT_ID]').not(elem),elem.val());
+		updateIngredientVisible(elem);
 		initMultiFancyCoose();
 	});
 	
+	
+	
+	jQuery('body').undelegate('#recipes-form .button#RecipeAuto','click').delegate('#recipes-form .button#RecipeAuto','click', function(){
+		var elem = jQuery(this);
+		elem.parents('form:first').find('[id$=ACT_ID_0]').css('display','block'); //.removeAttr('disabled')
+		elem.parents('form:first').find('[id$=ACT_ID_1]').css('display','none'); //.attr('disabled','disabled')
+		jQuery('#CookVariant').val(0);
+		elem.siblings().removeClass('selected');
+		elem.addClass('selected');
+	});
+	
+	jQuery('body').undelegate('#recipes-form .button#RecipeMan','click').delegate('#recipes-form .button#RecipeMan','click', function(){
+		var elem = jQuery(this);
+		elem.parents('form:first').find('[id$=ACT_ID_0]').css('display','none');
+		elem.parents('form:first').find('[id$=ACT_ID_1]').css('display','block');
+		jQuery('#CookVariant').val(1);
+		elem.siblings().removeClass('selected');
+		elem.addClass('selected');
+	});
+	
+	jQuery('body').undelegate('.fancyForm .button.RecipeTemplateSelect','click').delegate('.fancyForm .button.RecipeTemplateSelect','click', function(){
+		var link = jQuery('#stepDetailsLink').val();
+		
+		var caller = jQuery(this);
+		var recipeId = caller.attr('href');
+		
+		link = glob.urlAddParamStart(link);
+		link = link + "id=" + recipeId;
+		
+		jQuery.ajax({'type':'get', 'url':link,'cache':false,'success':function(data){
+				if (data.indexOf('{')===0){
+					eval('var data = ' + data + ';');
+				}
+				if (data.model){
+					var rows = jQuery('#recipes-form').children('.row');
+					var inputs = rows.find('input').add(rows.find('select'));
+					for (var value in data.model){
+						var input = inputs.filter('[id$='+value+']');
+						if (input.length > 0){
+							setFieldValue(input, data.model[value]);
+						}
+					}
+					if (data.model.REC_IMG === 'backup'){
+						glob.showImageOrError(jQuery('input[id$=filename][type=file]'), '{imageId:\'' + data.model.REC_IMG + '\'}');
+					}
+				}
+				if (data.steps){
+					ingredients = data.ingredients;
+					var container = jQuery('.steps .addRowContainer');
+					//lastIndex = container.find('.odd').add(container.find('.even')).length;
+					var emptyLineContainer = container.find('#newLine');
+					var lastIndexElem = emptyLineContainer.find('input[name=lastIndex]')
+					lastIndexElem.attr('value', lastIndex);
+					initRecipeStepsRowContainerDoIt(container, data.steps, '[]', true);
+				}
+				jQuery.fancybox.close();
+			},
+			'error':function(xhr){
+				ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
+				jQuery.fancybox.close();
+			},
+		});
+		
+		return false;
+	});
 	
 	//----------------------------------------------
 

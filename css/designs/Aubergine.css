@@ -139,3 +139,20 @@ div.mealOverview {
 	color: #FF0000;
 	font-weight: bold;
 }
+
+
+
+.addRowContainer div.up {
+	background: url('../../pics/up.png') no-repeat scroll 0 0 transparent;
+	background-size: contain;
+}
+
+.addRowContainer div.down {
+	background: url('../../pics/down.png') no-repeat scroll 0 0 transparent;
+	background-size: contain;
+}
+
+.addRowContainer div.remove {
+	background: url('../../pics/remove.png') no-repeat scroll 0 0 transparent;
+	background-size: contain;
+}
