@@ -1,12 +1,14 @@
 <div class="resultArea">
+	<div class="list_img">
 	<?php 
 	if (!$this->isFancyAjaxRequest){
-		echo CHtml::link(CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'.png')), '', array('class'=>'product', 'alt'=>$data['PRO_IMG_CR'], 'title'=>$data['PRO_IMG_CR'])), array('view', 'id'=>$data['PRO_ID']));
+		echo CHtml::link(CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'.png')), '', array('class'=>'product', 'alt'=>$data['PRO_NAME_' . Yii::app()->session['lang']], 'title'=>$data['PRO_NAME_' . Yii::app()->session['lang']])), array('view', 'id'=>$data['PRO_ID']));
 	} else {
-		echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'.png')), '', array('class'=>'product', 'alt'=>$data['PRO_IMG_CR'], 'title'=>$data['PRO_IMG_CR']));
+		echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'.png')), '', array('class'=>'product', 'alt'=>$data['PRO_NAME_' . Yii::app()->session['lang']], 'title'=>$data['PRO_NAME_' . Yii::app()->session['lang']]));
 	}
 	?>
-	
+	<div class="img_auth"><?php if ($data['PRO_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $data['PRO_IMG_CR']; } ?></div>
+	</div>
 	
 	<?php
 	if ($this->isFancyAjaxRequest){

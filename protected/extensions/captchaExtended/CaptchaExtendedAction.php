@@ -119,7 +119,7 @@ class CaptchaExtendedAction extends CCaptchaAction{
 				$this->height = 50;
 				break;
 			case self::MODE_MATHVERBAL:
-				$this->width = 400;
+				$this->width = 450;
 				$this->height = 50;
 				break;
 			case self::MODE_MATH:

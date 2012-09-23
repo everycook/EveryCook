@@ -67,7 +67,13 @@
 										$inputName = Functions::resolveMultiArrayName($data, array('meaToCous', $meaToCous_index, 'course', 'couToRecs', $couToRecs_index, 'REC_ID'));
 										echo CHtml::hiddenField($inputName, $recipe['REC_ID']);
 									}
-									echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), '', array('class'=>'cou_recipe', 'alt'=>$recipe['REC_IMG_AUTH'], 'title'=>$recipe['REC_IMG_AUTH']));
+									echo '<div class="list_img">';
+										echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), '', array('class'=>'cou_recipe', 'alt'=>$recipe['REC_NAME_' . Yii::app()->session['lang']], 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']]));
+										echo '<div class="img_auth">';
+										if ($model->REC_IMG_ETAG == '') { echo '&nbsp;'; } else {echo '© by ' . $model->REC_IMG_AUTH; } 
+										echo '</div>';
+									echo '</div>';
+									
 									echo '<br>';
 									echo '<span class="title">' . $recipe['REC_NAME_'.Yii::app()->session['lang']] . '</span><br>';
 									if(isset($editMode) && $editMode){

@@ -179,6 +179,31 @@ jQuery(function($){
 		}
 	}
 	
+	function initPlaceholders(type, contentParent){
+		contentParent.find('[placeholder]').focus(function() {
+			var input = $(this);
+			if (input.val() == input.attr('placeholder')) {
+				input.val('');
+				input.removeClass('placeholder');
+			}
+		}).blur(function() {
+			var input = $(this);
+			if (input.val() == '' || input.val() == input.attr('placeholder')) {
+				input.addClass('placeholder');
+				input.val(input.attr('placeholder'));
+			}
+		}).blur()/*;
+		
+		contentParent.find('[placeholder]')*/.parents('form').submit(function() {
+			$(this).find('[placeholder]').each(function() {
+				var input = $(this);
+				if (input.val() == input.attr('placeholder')) {
+					input.val('');
+				}
+			})
+		});
+	}
+	
 	//All currently used types are: hash, form, ajax, fancy, html, paging
 	function newContentFunction(type, contentParent){
 		if (typeof(contentParent) === 'undefined') return;
@@ -190,6 +215,7 @@ jQuery(function($){
 		}
 		initAjaxPaging(type, contentParent);
 		updateHomeGPS(type, contentParent);
+		//initPlaceholders(type, contentParent);
 	}
 	
 	$('#page').bind('newContent.ajax_handling', function(e, type, contentParent) {
@@ -198,7 +224,7 @@ jQuery(function($){
 	newContentFunction('initial', jQuery('#page'));
 	
 	
-	jQuery('body').undelegate('form:not(.ajaxupload):not(.fancyForm):not(.noAjax)','submit').delegate('form:not(.ajaxupload):not(.fancyForm):not(.noAjax)','submit',function(){
+	jQuery('body').undelegate('form:not(.ajaxupload):not(.fancyForm):not(.noAjax):not(.submitToUrl)','submit').delegate('form:not(.ajaxupload):not(.fancyForm):not(.noAjax):not(.submitToUrl)','submit',function(){
 		var form = jQuery(this);
 		try {
 			submitValue = "";
@@ -207,6 +233,25 @@ jQuery(function($){
 		} catch(ex){
 		}
 		return submitForm(form, form.attr('action'), submitValue, ajaxResponceHandler);
+	});
+	
+	jQuery('body').undelegate('form.submitToUrl','submit').delegate('form.submitToUrl','submit',function(){
+		var form = jQuery(this);
+		/*
+		try {
+			submitValue = "";
+			pressedButton = arguments[0].originalEvent.explicitOriginalTarget;
+			submitValue = "&" + encodeURI(pressedButton.name + "=" + pressedButton.value);
+		} catch(ex){
+		}
+		*/
+		var destUrl = form.attr('action');
+		destUrl = glob.urlAddParamStart(destUrl) + form.serialize();// + submitValue;
+		if (destUrl.substr(0,1) != '.#'){
+			destUrl = glob.urlToHash(destUrl);
+		}
+		location.hash = destUrl;
+		return false;
 	});
 	
 	function submitForm(form, destUrl, submitValue, successFunc){
@@ -836,6 +881,45 @@ jQuery(function($){
 		return false;
 	});
 	
+	//Startpage
+	
+	jQuery('body').undelegate('.startpage .up','click').delegate('.startpage .up','click', function(){
+		nextStartPic(jQuery(this), -1);
+	});
+	
+	jQuery('body').undelegate('.startpage .down','click').delegate('.startpage .down','click', function(){
+		nextStartPic(jQuery(this), 1);
+	});
+	
+	function nextStartPic(elem, change){
+		var parent = elem.parent();
+		var input = parent.find('input.imgIndex');
+		var url = jQuery('#getNextLink').val();
+		var index = parseInt(input.val())+change;
+		url = glob.urlAddParamStart(url) + 'type=' + input.attr('name');
+		url = glob.urlAddParamStart(url) + 'index=' + index;
+		jQuery.ajax({
+			'type':'get',
+			'url':url,
+			'success': function(data){
+				if (data.indexOf('{')===0){
+					eval('var data = ' + data + ';');
+				}
+				var image = parent.find('img');
+				image.attr('src', data.img);
+				image.attr('alt', data.name);
+				image.attr('title', data.name);
+				input.val(data.index);
+				image.parents('a:first').attr('href', data.url);
+				if (data.auth.length != 0){
+					parent.find('.img_auth').text('© by ' + data.auth);
+				} else {
+					parent.find('.img_auth').html('&nbsp;');
+				}
+			},
+		});
+	}
+	
 	//divers functions
 	jQuery('body').undelegate('.closeFancy','click').delegate('.closeFancy','click', function(){
 		jQuery.fancybox.close();
@@ -849,8 +933,8 @@ jQuery(function($){
 	});
 	
 	jQuery('body').undelegate('.browserError .closeButton','click').delegate('.browserError .closeButton','click', function(){
-		jQuery(this).parent().hide();;
-		jQuery('#modal').hide();;
+		jQuery(this).parent().hide();
+		jQuery('#modal').hide();
 		jQuery.ajax({'type':'get', 'url':jQuery('#browserErrorCloseLink').val()});
 	});
 });

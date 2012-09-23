@@ -24,7 +24,7 @@ class ProfilesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'register' action
-				'actions'=>array('register', 'verifyRegistration', 'captcha', 'languageChanged', 'displaySavedImage'),
+				'actions'=>array('register', 'verifyRegistration', 'captcha', 'languageChanged', 'displaySavedImage', 'resendActivationMail'),
 				'users'=>array('*'),
 			),
 			array('allow',  // allow authenticated user to perform 'create' and 'update' actions
@@ -272,6 +272,7 @@ class ProfilesController extends Controller
 		$Session_Profiles_Backup = Yii::app()->session[$this->createBackup];
 		if (isset($Session_Profiles_Backup)){
 			$model = $Session_Profiles_Backup;
+			$model->setScenario('register');
 		} else {
 			$model=new Profiles('register');
 		}
@@ -329,16 +330,10 @@ class ProfilesController extends Controller
 					unset(Yii::app()->session[$this->createBackup]);
 					unset(Yii::app()->session[$this->createBackup.'_Time']);
 					// no errors occured during save, send verification mail & and post message
-					$subject = 'EveryCook Verification Mail';
-					$link = CController::createAbsoluteUrl("Profiles/VerifyRegistration/", array("hash"=>$model->PRF_RND));
-					$body = "Tank you for your registration. Please follow the following link for registration verification.<br>\n" . '<a href="'.$link . '" target="_blank">' . $link . '</a>';
-					$headers="From: {".Yii::app()->params['adminEmail']."}\r\nReply-To: {".Yii::app()->params['adminEmail']."}\r\nContent-Type: text/html";
-					
-					mail($model->PRF_EMAIL . ', wiasmitinow@gmail.com',$subject,$body,$headers);//Yii::app()->params['adminEmail']
 					//mail($model->PRF_EMAIL,$subject,$body,$headers);
 					
-					Yii::app()->user->setFlash('register','Thank you for your registration. A verification mail has been sent to your email address '.$model->PRF_EMAIL.'. Please check your emails for verification of your EveryCook account.');
-					
+					$this->sendVerificationMail($model);
+					Yii::app()->user->setFlash('register', sprintf($this->trans->REGISTER_REGISTER_SUCCESSFULL, $model->PRF_EMAIL));
 					
 					// set the session language to the newly chosen one
 					Yii::app()->session['lang'] = $model->PRF_LANG;
@@ -354,6 +349,34 @@ class ProfilesController extends Controller
 		}
 		//$this->render('register',array('model'=>$model));
 		$this->checkRenderAjax('register',array('model'=>$model,));
+	}
+	
+	public function actionResendActivationMail(){
+		if (isset($_GET['nick']) && $_GET['nick'] != ''){
+			$model=Profiles::model()->findByAttributes(array('PRF_NICK'=>$_GET['nick']));
+			if($model!==null) {
+				$this->sendVerificationMail($model);
+				return;
+			}
+		}
+		if (isset($_GET['mail']) && $_GET['mail'] != ''){
+			$model=Profiles::model()->findByAttributes(array('PRF_EMAIL'=>$_GET['mail']));
+			if($model!==null) {
+				$this->sendVerificationMail($model);
+				return;
+			}
+			$error = 'mail not found!';
+		}
+		//TODO: show nick & e-mail enter fields.
+	}
+	
+	private function sendVerificationMail($model){
+		$subject = $this->trans->REGISTRATION_MAIL_SUBJECT;
+		$link = CController::createAbsoluteUrl("profiles/VerifyRegistration", array("hash"=>$model->PRF_RND));
+		$body = sprintf($this->trans->REGISTRATION_MAIL_CONTENT, $link, $link);
+		$headers="From: {".Yii::app()->params['adminEmail']."}\r\nReply-To: {".Yii::app()->params['adminEmail']."}\r\nContent-Type: text/html";
+		
+		mail($model->PRF_EMAIL . ', wiasmitinow@gmail.com',$subject,$body,$headers);//Yii::app()->params['adminEmail']
 	}
 
    /*

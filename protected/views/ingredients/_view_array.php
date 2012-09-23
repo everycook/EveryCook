@@ -1,11 +1,14 @@
 <div class="resultArea">
+	<div class="list_img">
 	<?php
 	if (!$this->isFancyAjaxRequest){
-		echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$data['ING_IMG_AUTH'], 'title'=>$data['ING_IMG_AUTH'])), array('view', 'id'=>$data['ING_ID']));
+		echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$data['ING_NAME_' . Yii::app()->session['lang']], 'title'=>$data['ING_NAME_' . Yii::app()->session['lang']])), array('view', 'id'=>$data['ING_ID']));
 	} else {
-		echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$data['ING_IMG_AUTH'], 'title'=>$data['ING_IMG_AUTH']));
+		echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$data['ING_NAME_' . Yii::app()->session['lang']], 'title'=>$data['ING_NAME_' . Yii::app()->session['lang']]));
 	}
 	?>
+	<div class="img_auth"><?php if ($data['ING_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $data['ING_IMG_AUTH']; } ?></div>
+	</div>
 	
 	<?php
 	if ($this->isFancyAjaxRequest){

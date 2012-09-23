@@ -401,6 +401,9 @@ class Functions extends CHtml{
 	public static function getImage($modified, $etag, $picture, $id){
 		//Not using default function to have posibility to set Cache control...
 		//Yii::app()->request->sendFile('image.png', $picture, 'image/png');
+		if (!isset($etag) || $etag === '' || !isset($picture) || $picture === ''){
+			Yii::app()->controller->redirect(Yii::app()->request->baseUrl . '/pics/unknown.png', true, 307);
+		}
 		if ($id != 'backup'){
 			if ($modified){
 				if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {

@@ -40,7 +40,64 @@ class SiteController extends Controller
 			$this->useDefaultMainButtons();
 			// renders the view file 'protected/views/site/index.php'
 			// using the default layout 'protected/views/layouts/main.php'
-			$this->checkRenderAjax('index');
+			
+			$index=0;
+			$command = Yii::app()->db->createCommand()
+					->from('recipes')
+					->order('CHANGED_ON desc')
+					->limit(1,$index);
+			$recipe = $command->queryRow();
+			
+			$command = Yii::app()->db->createCommand()
+					->from('ingredients')
+					->order('CHANGED_ON desc')
+					->limit(1,$index);
+			$ingredient = $command->queryRow();
+			
+			$command = Yii::app()->db->createCommand()
+					->from('products')
+					->order('CHANGED_ON desc')
+					->limit(1,$index);
+			$product = $command->queryRow();
+			
+			$this->checkRenderAjax('index', array(
+				'recipe'=>$recipe,
+				'ingredient'=>$ingredient,
+				'product'=>$product,
+			));
+		}
+	}
+	
+	public function actionGetNext($type, $index){
+		if ($type == 'recipe' || $type == 'ingredient' || $type == 'product'){
+			if ($index<0){
+				$command = Yii::app()->db->createCommand()
+					->select('count(*)')
+					->from($type.'s');
+				$amount = $command->queryScalar();
+				$index = $amount-1;
+			}
+			$command = Yii::app()->db->createCommand()
+					->from($type.'s')
+					->order('CHANGED_ON desc')
+					->limit(1,$index);
+			$model = $command->queryRow();
+			if (!isset($model) || $model == null){
+				$index = 0;
+				$command = Yii::app()->db->createCommand()
+						->from($type.'s')
+						->order('CHANGED_ON desc')
+						->limit(1,$index);
+				$model = $command->queryRow();
+			}
+			
+			if ($type == 'recipe'){
+				echo '{img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$model['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$model['REC_ID'])).'", auth:"'.$model['REC_IMG_AUTH'].'", name:"'.$model['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+			} else if ($type == 'ingredient'){
+				echo '{img:"'.$this->createUrl('ingredients/displaySavedImage', array('id'=>$model['ING_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('ingredients/view', array('id'=>$model['ING_ID'])).'", auth:"'.$model['ING_IMG_AUTH'].'", name:"'.$model['ING_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+			} else if ($type == 'product'){
+				echo '{img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$model['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$model['PRO_ID'])).'", auth:"'.$model['PRO_IMG_CR'].'", name:"'.$model['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+			}
 		}
 	}
 

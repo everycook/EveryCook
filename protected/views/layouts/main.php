@@ -43,7 +43,7 @@
 					<div class="nav_button navMenu" id="settings">
 						<span><?php echo $this->trans->GENERAL_SETTINGS; ?></span>
 					</div>
-					<div id="settings_List" class="navMenuList" style="right: 10em; display: none;">
+					<div id="settings_List" class="navMenuList" style="right: 23em; display: none;">
 						<?php echo '<a href="' . Yii::app()->createUrl('profiles/update',array('id'=>Yii::app()->user->id)) . '" class="button navMenuListEntry first">'; ?>
 							<?php echo $this->trans->SETTINGS_PROFILE; ?>
 						</a><br>
@@ -119,6 +119,11 @@
 						}
 						?>
 					</div>
+					<a class="noAjax" href="<?php echo '/cms/' . strtolower(substr(Yii::app()->session['lang'],0,2)) . '/'; ?>">
+						<div class="nav_button" id="about">
+							<span><?php echo $this->trans->GENERAL_ABOUT; ?></span>
+						</div>
+					</a>
 				</div>
 			</div>
 			<?php Functions::browserCheck(); ?>

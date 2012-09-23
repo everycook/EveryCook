@@ -34,6 +34,8 @@ class Controller extends CController
 	public $debug = false;
 	
 	public function useDefaultMainButtons(){
+		$mainButtons = array();
+		/*
 		if (Yii::app()->session['Ingredients'] && Yii::app()->session['Ingredients']['time']){
 			$newIngSearch=array('newSearch'=>Yii::app()->session['Ingredients']['time']);
 		} else {
@@ -50,6 +52,7 @@ class Controller extends CController
 			array('label'=>$this->trans->BOTR_CONTENT, 'link_id'=>'right', 'url'=>$cmsLink),
 			array('label'=>$this->trans->BOTM_CONTENT, 'link_id'=>'middle', 'url'=>array('ingredients/search',$newIngSearch)),
 		);
+		*/
 	}
 	
 	public $isFancyAjaxRequest = false;

@@ -6,6 +6,10 @@ glob.hashToUrl = function(url){
 	return glob.prefix + url;
 };
 
+glob.urlToHash = function(url){
+	return url.substr(glob.prefix.length);
+};
+
 
 glob.lastHash = '';
 

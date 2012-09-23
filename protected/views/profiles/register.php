@@ -1,11 +1,10 @@
-<?php if(Yii::app()->user->hasFlash('register')): ?>
-
+<?php if(Yii::app()->user->hasFlash('register')){ ?>
 <div class="flash-success">
 	<?php echo Yii::app()->user->getFlash('register');?>
-<?php echo '<br />'.CHtml::link($this->trans->LOGIN,array('site/login'), array('class' => 'actionlink')); ?>
+	<?php echo '<br />'.CHtml::link($this->trans->LOGIN,array('site/login'), array('class' => 'actionlink')); ?>
 </div>
 
-<?php else: ?>
+<?php } else { ?>
 <input type="hidden" id="LanguageChangeLink" value="<?php echo CController::createUrl('Profiles/LanguageChanged', array('action'=>$this->route)); ?>"/>
 <input type="hidden" id="uploadImageLink" value="<?php echo $this->createUrl('profiles/uploadImage',array('id'=>$model->PRF_UID)); ?>"/>
 <input type="hidden" id="imageLink" value="<?php echo $this->createUrl('profiles/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
@@ -208,4 +207,4 @@
 
 </div><!-- form -->
 
-<?php endif; ?>
+<?php } ?>

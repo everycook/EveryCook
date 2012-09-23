@@ -21,18 +21,20 @@ $this->mainButtons = array(
 	<?php
 	if (isset(Yii::app()->session['Recipes'])){
 		if (isset(Yii::app()->session['Recipes']['model'])){
-			echo CHtml::link($this->trans->SEARCH_BACK_TO_RESULTS, array('recipes/advancesearch'), array('class'=>'button'));
+			echo CHtml::link($this->trans->SEARCH_BACK_TO_RESULTS, array('recipes/advancesearch'), array('class'=>'button backbutton'));
 		} else {
-			echo CHtml::link($this->trans->SEARCH_BACK_TO_RESULTS, array('recipes/search'), array('class'=>'button'));
+			echo CHtml::link($this->trans->SEARCH_BACK_TO_RESULTS, array('recipes/search'), array('class'=>'button backbutton'));
 		}
 	}
-	?><br>
-	<br>
+	?>
+	
 	<div class="options">
 		<?php
+		echo CHtml::link('&nbsp;', array('delicious', 'id'=>$model->REC_ID), array('class'=>'delicious_big noAjax backpic f-left', 'title'=>$this->trans->GENERAL_DELICIOUS));
 		//echo CHtml::link('+', array('user/addrecipes', 'id'=>$model->REC_ID), array('class'=>'button addRecipe', 'title'=>$this->trans->RECIPES_ADD));
-		echo CHtml::link('&nbsp;', array('meals/mealPlanner', 'rec_id'=>$model->REC_ID), array('class'=>'cookwith_big backpic', 'title'=>$this->trans->RECIPES_MEALPLANNER));
-		?><br>
+		echo CHtml::link('&nbsp;', array('meals/mealPlanner', 'rec_id'=>$model->REC_ID), array('class'=>'cookwith_big backpic f-right', 'title'=>$this->trans->RECIPES_MEALPLANNER));
+		echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$model->REC_ID), array('class'=>'disgusting_big noAjax backpic f-center','title'=>$this->trans->GENERAL_DISGUSTING));
+		?>
 		<div class="ingredients">
 			<?php echo CHtml::encode($this->trans->RECIPES_INGREDIENTS_NEEDED); ?>
 			<ul>
@@ -41,7 +43,15 @@ $this->mainButtons = array(
 			foreach($model->steps as $step){
 				if ($step->ingredient != null){
 					if (!isset($ingredient_printed[$step->ingredient->ING_ID])){
-						echo '<li>' . CHtml::link($step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']), array('ingredients/view', 'id'=>$step->ingredient->ING_ID), array('title'=>$this->trans->RECIPES_TOOLTIP_OPEN_INGREDIENT)) . '</li>';
+						echo '<li>';
+							echo CHtml::link($step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']), array('ingredients/view', 'id'=>$step->ingredient->ING_ID), array('title'=>$this->trans->RECIPES_TOOLTIP_OPEN_INGREDIENT));
+							echo '<div class="small_img">';
+								echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$step->ingredient['ING_ID'], 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$step->ingredient['ING_NAME_' . Yii::app()->session['lang']], 'title'=>$step->ingredient['ING_NAME_' . Yii::app()->session['lang']])), array('ingredients/view', 'id'=>$step->ingredient['ING_ID']));
+								echo '<div class="img_auth">';
+								if ($step->ingredient['ING_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $step->ingredient['ING_IMG_AUTH']; }
+								echo '</div>';
+							echo '</div>';
+						echo '</li>';
 						$ingredient_printed[$step->ingredient->ING_ID] = true;
 					}
 				}
@@ -49,19 +59,19 @@ $this->mainButtons = array(
 			?>
 			</ul>
 		</div>
-		<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$model->REC_ID), array('class'=>'delicious_big noAjax backpic last', 'title'=>$this->trans->GENERAL_DELICIOUS)); ?>
-		<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$model->REC_ID), array('class'=>'disgusting_big noAjax backpic last','title'=>$this->trans->GENERAL_DISGUSTING)); ?>
 	</div>
 	<div class="details">
 		<div class="name">
 			<?php echo CHtml::link(CHtml::encode($model->__get('REC_NAME_' . Yii::app()->session['lang'])), array('view', 'id'=>$model->REC_ID)); ?>
 		</div>
-		<?php echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$model->REC_IMG_AUTH, 'title'=>$model->REC_IMG_AUTH)); ?><br />
+		<div class="detail_img">
+			<?php echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']))); ?>
+			<div class="img_auth"><?php if ($model->REC_IMG_ETAG == '') { echo '&nbsp;'; } else {echo '© by ' . $model->REC_IMG_AUTH; } ?></div>
+		</div>
 		
 		<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>
 		<?php echo CHtml::encode($model->recipeTypes->__get('RET_DESC_' . Yii::app()->session['lang'])); ?>
-		<br /><br />
-		
+				
 		<?php 
 			$i = 1;
 			foreach($model->steps as $step){

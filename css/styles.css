@@ -3,7 +3,9 @@ htm, body {
     /*font-weight:bold;*/
     margin:0;
     padding:0;
+	min-width: 83.5em;
 }
+
 
 input, select {
 	font-size:1em;
@@ -181,9 +183,9 @@ div.form .button {
 }
 
 .f-center {
-	margin-right:auto;
-	margin-left:auto;
-	display:table;
+	margin-right:auto !important;
+	margin-left:auto !important;
+	display:table !important;
 }
 
 a.delicious {
@@ -251,6 +253,26 @@ div.resultArea.noPic {
 	min-height:0;
 }
 
+
+.list_img {
+	float: left;
+}
+
+.img_auth {
+	text-align: right;
+	color: #808080;
+	font-size: 0.8em;
+}
+
+.small_img {
+	width:6em;
+}
+.small_img .img_auth {
+	color: #C0C0C0;
+	font-size: 0.6em;
+}
+
+
 div.resultArea img.ingredient,
 div.resultArea img.recipe,
 div.resultArea img.product,
@@ -258,7 +280,7 @@ div.resultArea img.store,
 div.resultArea img.profile {
 	width:12em;
 	height:12em;
-	float:left;
+/*	float:left;*/
 	border-radius:0.8em;
 }
 
@@ -345,6 +367,9 @@ div.detailView {
 	padding:0.8em;
 	margin-bottom:0.8em;
 }
+div.detailView .backbutton {
+	margin-bottom: 2em;
+}
 
 div.detailView div.name {
 	font-weight:bold;
@@ -353,10 +378,10 @@ div.detailView div.name {
 }
 div.detailView div.options {
 	float:right;
-	width:17em;
+	width:22em;
 }
 
-div.detailView div.options a {
+div.detailView div.options a.backpic {
 	margin-bottom: 0.8em;
 }
 
@@ -369,19 +394,25 @@ div.detailView div.options div.ingredients {
 	padding: 0.8em;
 	margin-bottom: 0.8em;
 	border-radius:0.8em;
-	width:15em;
+	width:20em;
+}
+div.detailView div.options div.ingredients img {
+	width:6em;
+	height:6em;
+	border-radius:0.8em;
+}
+div.detailView div.options div.ingredients ul {
+	padding: 0;
+	margin: 0;
+}
+div.detailView div.options div.ingredients li {
+	float: left;
+	list-style: none outside none;
+	width: 10em;
 }
 
 div.detailView div.details {
-/*	float: left;*/
-}
-
-div.detailView div.options a.disgusting_big {
-	float:right;
-}
-
-div.detailView div.options a.cookwith_big {
-    float: right;
+	padding-bottom: 2em;
 }
 
 div.detailView img.recipe {
@@ -389,10 +420,14 @@ div.detailView img.recipe {
 	height:17em;
 	border-radius:0.8em;
 }
+div.detailView .detail_img  {
+	width:17em;
+	margin-bottom: 1em;
+}
 
 div.search {
 	margin-bottom: 0.8em;
-	width:300px;
+	width:23em;
 }
 
 .search_button {
@@ -516,7 +551,7 @@ div.nutrientDataGroup {
 	width: 26em;
 }
 div.nutrientDataGroup div.nutrient_row {
-	width: 26em;
+	width: 26.01em;
 	border-bottom: 1px solid black;
 }
 
@@ -544,8 +579,8 @@ div.form .hint {
 
 .navMenuList {
 	position: absolute;
-	right: 0;
-	top: 25px;
+	right: 10em;
+	top: 2em;
 	border-radius:1.5em;
 	padding: 0.8em;
 	z-index: 10;
@@ -554,7 +589,7 @@ div.form .hint {
 .navMenuListL2 {
 	position: absolute;
 	right: 16.2em;
-	top: 0px;
+	top: 0;
 	border-radius:1.5em;
 	padding: 0.8em;
 }
@@ -689,10 +724,10 @@ div.mealView span.value {
 	float: right;
 	text-align: center;
 }
-.shoppingList_right .shoppingList_image img {
+.shoppingList_right .shoppingList_image .list_img  {
 	margin-bottom: 0.8em;
+	float: none;
 }
-
 .shoppingList_right .data_right .button {
 	margin-bottom: 0.8em;
 }
@@ -914,5 +949,193 @@ div.mealView span.value {
 }
 
 
+.startpage .slot {
+	position: relative;
+}
+
+.startpage img {
+	width: 22.2em;
+	height: 22.2em;
+	border-radius:1.5em;
+}
+.startpage .up, .startpage .down {
+	/*
+	width: 21.5em;
+	height: 5em;
+	border: 0.25em solid yellow;
+	background-color: #FFFFFF;
+	*/
+	cursor: pointer;
+}
+.startpage .up {
+	position: relative;
+	margin-bottom: 1em;
+}
+.startpage .up1 {
+/*	border-radius: 7em 7em 0 0;*/
+	border-bottom: 5em solid black;
+	border-left: 11.3em solid transparent;
+	border-right: 11.3em solid transparent;
+}
+.startpage .up2{
+/*	border-radius: 7em 7em 0 0;*/
+	border-bottom: 4em solid white;
+	border-left: 9em solid transparent;
+	border-right: 9em solid transparent;
+	position: absolute;
+	left: 2.3em;
+	top: 0.5em;
+}
+.startpage .down {
+	position: relative;
+	margin-top: 1em;
+}
+.startpage .down1 {
+/*	border-radius: 0 0 7em 7em;*/
+	border-top: 5em solid black;
+	border-left: 11.3em solid transparent;
+	border-right: 11.3em solid transparent;
+}
+.startpage .down2 {
+/*	border-radius: 0 0 7em 7em;*/
+	border-top: 4em solid white;
+	border-left: 9em solid transparent;
+	border-right: 9em solid transparent;
+	position: absolute;
+	left: 2.3em;
+	top: 0.5em;
+}
+
+.startpage div.search {
+	width: auto;
+}
+.startpage .f-left {
+	margin-right: 1em;
+}
+.startpage .f-right {
+	margin-left: 1em;
+}
+
+.placeholder
+{
+  color: #808080;
+}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* @group view Size change */
+
+@media all and (orientation:portrait) {
+	body {
+		font-size: 0.8em;
+	}
+}
+
+@media all and (orientation:landscape) {
+	body {
+		font-size: 1em;
+	}
+}
+
+/* Smartphones (portrait and landscape) ----------- */
+@media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
+	body {
+		font-size: 1em;
+	}
+}
+
+/* Smartphones (landscape) ----------- */
+@media only screen and (min-device-width : 321px) {
+	body {
+		font-size: 0.8em;
+	}
+}
+
+/* Smartphones (portrait) ----------- */
+@media only screen and (max-device-width : 320px) {
+	body {
+		font-size: 0.7em;
+	}
+}
+
+@media screen and (max-device-width: 800px) {
+	body {
+		font-size: 1em;
+	}
+}
+
+
+/* change view Size on change of window size */
+@media only screen and (max-width : 2400px) and (min-width : 1901px) { body { font-size: 1.3em; } #page {margin: 0 2em;} }
+@media only screen and (max-width : 1900px) and (min-width : 1681px) { body { font-size: 1.2em; } #page {margin: 0 3em;} }
+@media only screen and (max-width : 1680px) and (min-width : 1451px) { body { font-size: 1.1em; } #page {margin: 0 4em;} }
+@media only screen and (max-width : 1450px) and (min-width : 1301px) { body { font-size: 1.0em; } #page {margin: 0 4em;} }
+@media only screen and (max-width : 1300px) and (min-width : 1181px) { body { font-size: 0.9em; } }
+@media only screen and (max-width : 1180px) and (min-width : 1051px) { body { font-size: 0.8em; } }
+@media only screen and (max-width : 1050px) { body { font-size: 0.7em; } }
+/*
+@media only screen and (max-width : 930px) { body { font-size: 0.6em; } }
+@media only screen and (max-width : 800px) { body { font-size: 0.5em; } }
+@media only screen and (max-width : 660px) { body { font-size: 0.4em; } }
+*/
+
+
+
+/*
+@media handheld and (min-width: 20em), screen and (min-width: 20em) {
+	body {
+		font-size: 1em;
+	}
+}
+
+@media screen and (min-width: 400px) and (max-width: 700px) {
+	body {
+		font-size: 1em;
+	}
+}
+@media screen and (min-height: 400px) and (max-height: 700px) {
+	body {
+		font-size: 1em;
+	}
+}
+
+@media screen and (device-aspect-ratio: 16/9) {
+	body {
+		font-size: 1em;
+	}
+}
+@media screen and (device-aspect-ratio: 32/18) {
+	body {
+		font-size: 1em;
+	}
+}
+@media screen and (device-aspect-ratio: 1280/720) {
+	body {
+		font-size: 1em;
+	}
+}
+@media screen and (device-aspect-ratio: 2560/1440) {
+	body {
+		font-size: 1em;
+	}
+}
+*/
+/* @group end view Size change */

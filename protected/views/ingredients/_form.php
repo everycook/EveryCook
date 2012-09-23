@@ -91,9 +91,9 @@
 	
 	<?php
 		if (isset(Yii::app()->session['Ingredients_Backup']) && isset(Yii::app()->session['Ingredients_Backup']->ING_IMG_ETAG)){
-			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())) , '', array('class'=>'ingredient' .(($model->imagechanged)?' cropable':''), 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
+			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())) , '', array('class'=>'ingredient' .(($model->imagechanged)?' cropable':''), 'alt'=>$model->__get('ING_NAME_' . Yii::app()->session['lang']) 'title'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
 		} else if ($model->ING_ID && isset($model->ING_IMG_ETAG)) {
-			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$model->ING_IMG_AUTH, 'title'=>$model->ING_IMG_AUTH));
+			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$model->__get('ING_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
 		}
 	?>
 	

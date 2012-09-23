@@ -104,12 +104,12 @@
 			<?php echo $form->textField($model,'STO_GPS_LNG', array('class'=>'cord_lng')); ?>
 			<?php echo $form->error($model,'STO_GPS_LNG'); ?>
 		</div>
-
+		
 		<?php
 			if (Yii::app()->session['Stores_Backup'] && Yii::app()->session['Stores_Backup']->STO_IMG_ETAG){
-				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())), '', array('class'=>'store cropable', 'alt'=>$model->STO_IMG_AUTH, 'title'=>$model->STO_IMG_AUTH));
+				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())), '', array('class'=>'store cropable', 'alt'=>$model->__get('STO_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('STO_NAME_' . Yii::app()->session['lang']));
 			} else if ($model->STO_ID) {
-				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>$model->STO_ID, 'ext'=>'.png')), '', array('class'=>'store', 'alt'=>$model->STO_IMG_AUTH, 'title'=>$model->STO_IMG_AUTH));
+				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>$model->STO_ID, 'ext'=>'.png')), '', array('class'=>'store', 'alt'=>$model->__get('STO_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('STO_NAME_' . Yii::app()->session['lang'])));
 			}
 		?>
 		

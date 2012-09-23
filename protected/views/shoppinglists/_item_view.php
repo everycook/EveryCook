@@ -1,8 +1,9 @@
 <div class="resultArea">
 	<div class="shoppingList_left">
-		<!-- STL show image -->
-		<?php echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$data['ING_IMG_AUTH'], 'title'=>$data['ING_IMG_AUTH'])); ?>
-		
+		<div class="list_img">
+			<?php echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$data['ING_NAME'], 'title'=>$data['ING_NAME'])); ?>
+			<div class="img_auth"><?php if ($data['ING_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $data['ING_IMG_AUTH']; } ?></div>
+		</div>
 		<div class="data">
 			<div class="name">
 				<?php echo CHtml::encode($data['ING_NAME']); ?>
@@ -14,7 +15,10 @@
 		<input type="hidden" class="setProductLink" value="<?php echo $this->createUrl('setProduct', array('id'=>$data['SHO_ID'], 'ing_id'=>$data['ING_ID'])); ?>"/>
 		<?php if (isset($data['PRO_ID']) && $data['PRO_ID'] != ''){ ?>
 			<div class="shoppingList_image">
-				<?php echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'.png')), '', array('class'=>'shoppinglist_product', 'alt'=>$data['PRO_IMG_CR'], 'title'=>$data['PRO_IMG_CR'])); ?><br>
+				<div class="list_img">
+					<?php echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'.png')), '', array('class'=>'shoppinglist_product', 'alt'=>$data['PRO_NAME'], 'title'=>$data['PRO_NAME'])); ?>
+					<div class="img_auth"><?php if ($data['PRO_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $data['PRO_IMG_CR']; } ?></div>
+				</div>
 				<?php echo CHtml::link($this->trans->SHOPPINGLIST_HAVE_IT, array('removeFromList', 'id'=>$data['SHO_ID'], 'ing_id'=>$data['ING_ID']), array('class'=>'button noAjax removeFromList')); ?>
 			</div>
 			<div class="data_right">
@@ -76,7 +80,10 @@
 			</div>
 		<?php } else { ?>
 			<div class="shoppingList_image">
-				<?php echo CHtml::image(Yii::app()->request->baseUrl . '/pics/unknown.png', '', array('class'=>'shoppinglist_product', )); ?><br>
+				<div class="list_img">
+					<?php echo CHtml::image(Yii::app()->request->baseUrl . '/pics/unknown.png', '', array('class'=>'shoppinglist_product', )); ?><br>
+					<div class="img_auth">&nbsp;</div>
+				</div>
 				<?php echo CHtml::link($this->trans->SHOPPINGLIST_HAVE_IT, array('removeFromList', 'id'=>$data['SHO_ID'], 'ing_id'=>$data['ING_ID']), array('class'=>'button noAjax removeFromList')); ?>
 			</div>
 			<div class="data_right">

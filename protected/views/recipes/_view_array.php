@@ -1,7 +1,12 @@
 <div class="resultArea">
 	<?php 
 	if ($this->isFancyAjaxRequest){
-		echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$data['REC_IMG_AUTH'], 'title'=>$data['REC_IMG_AUTH']));
+		echo '<div class="list_img">';
+			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$data['REC_NAME_' . Yii::app()->session['lang']], 'title'=>$data['REC_NAME_' . Yii::app()->session['lang']]));
+			echo '<div class="img_auth">';
+			if ($data['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $data['REC_IMG_AUTH']; } 
+			echo '</div>';
+		echo '</div>';
 		
 		if ($this->isTemplateChoose){
 			$class = ' RecipeTemplateSelect';
@@ -10,7 +15,12 @@
 		}
 		echo CHtml::link($this->trans->GENERAL_SELECT, $data['REC_ID'], array('class'=>'f-right button'.$class));
 	} else {
-		echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$data['REC_IMG_AUTH'], 'title'=>$data['REC_IMG_AUTH'])), array('view', 'id'=>$data['REC_ID'])); 
+		echo '<div class="list_img">';
+			echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$data['REC_NAME_' . Yii::app()->session['lang']], 'title'=>$data['REC_NAME_' . Yii::app()->session['lang']])), array('view', 'id'=>$data['REC_ID'])); 
+			echo '<div class="img_auth">';
+			if ($data['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $data['REC_IMG_AUTH']; } 
+			echo '</div>';
+		echo '</div>';
 		echo '<div class="options">';
 			//echo CHtml::link('+', array('user/addrecipes', 'id'=>$data['REC_ID']), array('class'=>'button backpic addRecipe', 'title'=>$this->trans->RECIPES_ADD));
 			echo CHtml::link('&nbsp;', array('meals/mealPlanner', 'rec_id'=>$data['REC_ID']), array('class'=>'cookwith backpic', 'title'=>$this->trans->RECIPES_MEALPLANNER));

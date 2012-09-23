@@ -7,12 +7,12 @@ $this->breadcrumbs=array(
 
 <h1>Login</h1>
 
-<p>Please fill out the following form with your login credentials:</p>
+<p><?php echo $this->trans->LOGIN_FILL_OUT; ?></p>
 
 <div class="form">
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'login-form',
-	'enableClientValidation'=>true,
+	//'enableClientValidation'=>true,
 	'htmlOptions'=>array('class'=>'noAjax'),
 	/*
 	'clientOptions'=>array(
@@ -23,21 +23,21 @@ $this->breadcrumbs=array(
 	<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'username'); ?>
-		<?php echo $form->textField($model,'username', array('autofocus'=>'autofocus')); ?>
-		<?php echo $form->error($model,'username'); ?>
+		<?php echo $form->labelEx($model,'LIF_NICKNAME'); ?>
+		<?php echo $form->textField($model,'LIF_NICKNAME', array('autofocus'=>'autofocus')); ?>
+		<?php echo $form->error($model,'LIF_NICKNAME'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'password'); ?>
-		<?php echo $form->passwordField($model,'password'); ?>
-		<?php echo $form->error($model,'password'); ?>
+		<?php echo $form->labelEx($model,'LIF_PASSWORD'); ?>
+		<?php echo $form->passwordField($model,'LIF_PASSWORD'); ?>
+		<?php echo $form->error($model,'LIF_PASSWORD'); ?>
 	</div>
 
 	<div class="row rememberMe">
-		<?php echo $form->checkBox($model,'rememberMe'); ?>
-		<?php echo $form->label($model,'rememberMe'); ?>
-		<?php echo $form->error($model,'rememberMe'); ?>
+		<?php echo $form->checkBox($model,'LIF_REMEMBER'); ?>
+		<?php echo $form->label($model,'LIF_REMEMBER'); ?>
+		<?php echo $form->error($model,'LIF_REMEMBER'); ?>
 	</div>
 
 	<p>
