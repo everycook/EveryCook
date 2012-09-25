@@ -13,7 +13,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>View RecipeTypes #<?php echo $model->RET_ID; ?></h1>
+<h1><?php printf($this->trans->TITLE_RECIPETYPES_VIEW, $model->RET_ID); ?></h1>
 
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,

@@ -13,6 +13,6 @@ $this->menu=array(
 );
 ?>
 
-<h1>Update Meals <?php echo $model->MEA_ID; ?></h1>
+<h1><?php printf($this->trans->TITLE_MEALS_CREATE, $model->MEA_ID); ?></h1>
 
 <?php echo $this->renderPartial('_form', array('model'=>$model)); ?>

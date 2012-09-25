@@ -13,8 +13,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>Update Stores <?php echo $model->STO_ID; ?></h1>
-
+<h1><?php printf($this->trans->TITLE_STORES_UPDATE, $model->STO_ID); ?></h1>
 
 <?php echo $this->renderPartial('_form', array(
 	'model'=>$model,

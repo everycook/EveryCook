@@ -13,7 +13,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>View Producers #<?php echo $model->PRD_ID; ?></h1>
+<h1><?php printf($this->trans->TITLE_PRODUCERS_VIEW, $model->PRD_ID); ?></h1>
 
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,

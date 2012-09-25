@@ -13,7 +13,8 @@ $this->menu=array(
 );
 ?>
 
-<h1>View Ingredients #<?php echo $model->ING_ID; ?></h1>
+<h1><?php printf($this->trans->TITLE_INGREDIENTS_VIEW, $model->ING_ID); ?></h1>
+
 <?php 
 //TODO: show list result as detail
 //$this->renderPartial('_view_array', array('data'=>$model));

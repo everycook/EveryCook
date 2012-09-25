@@ -28,7 +28,7 @@ class StoresController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','assign','cancel'),
+				'actions'=>array('create','update','uploadImage','assign','cancel'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -100,6 +100,32 @@ class StoresController extends Controller
 		}
 		*/
 		return $duplicates;
+	}
+	
+	public function actionUploadImage(){
+		$this->saveLastAction = false;
+		if (isset($_GET['id'])){
+			$id = $_GET['id'];
+		}
+		
+		$Session_Backup = Yii::app()->session[$this->createBackup];
+		if (isset($Session_Backup)){
+			$oldmodel = $Session_Backup;
+		}
+		if (isset($id)){
+			if (!isset($oldmodel) || $oldmodel->STO_ID != $id){
+				$oldmodel = $this->loadModel($id, true);
+			}
+		}
+		
+		if (isset($oldmodel)){
+			$model = $oldmodel;
+			$oldPicture = $oldmodel->STO_IMG;
+		} else {
+			$model=new Stores;
+			$oldPicture = null;
+		}
+		Functions::uploadImage('Stores', $model, $this->createBackup, 'STO_IMG');
 	}
 	
 	private function prepareCreateOrUpdate($id, $view){
@@ -229,7 +255,6 @@ class StoresController extends Controller
 	public function actionAssign(){
 		$model = new ProToSto;
 		$model2 = new SimpleSearchForm();
-		$model2->query = $this->trans->STORES_ASSIGN_ADDRESS_OR_NAME;
 		
 		if(isset($_POST['ProToSto'])){
 			$model->attributes = $_POST['ProToSto'];
@@ -295,7 +320,6 @@ class StoresController extends Controller
 	public function actionStoreFinder(){
 		$model = new ProToSto;
 		$model2 = new SimpleSearchForm();
-		$model2->query = $this->trans->STORES_ASSIGN_ADDRESS_OR_NAME;
 		
 		if(isset($_POST['ProToSto'])){
 			$model->attributes = $_POST['ProToSto'];

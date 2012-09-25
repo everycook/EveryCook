@@ -10,6 +10,7 @@
 <input type="hidden" id="imageLink" value="<?php echo $this->createUrl('profiles/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
 
 <div class="form">
+<h1><?php echo $this->trans->TITLE_PROFILES_REGISTER; ?></h1>
 
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'profiles-register-form',

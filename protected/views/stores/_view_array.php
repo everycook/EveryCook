@@ -15,7 +15,7 @@
 		<div class="name">
 			<?php
 			//TODO echo CHtml::link(CHtml::encode($data['SUP_NAME'] . ' ' . $data['STO_NAME']), array('view', 'id'=>$data['STO_ID']));
-			echo CHtml::link($data['STO_NAME']), array('view', 'id'=>$data['STO_ID']));
+			echo CHtml::link($data['STO_NAME'], array('view', 'id'=>$data['STO_ID']));
 			?>
 		</div>
 		

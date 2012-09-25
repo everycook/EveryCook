@@ -13,7 +13,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>Update Recipes <?php echo $model->REC_ID; ?></h1>
+<h1><?php printf($this->trans->TITLE_RECIPES_UPDATE, $model->REC_ID); ?></h1>
 
 <?php echo $this->renderPartial('_form', array(
 	'model'=>$model,

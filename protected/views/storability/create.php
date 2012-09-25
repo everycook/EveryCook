@@ -10,6 +10,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>Create Storability</h1>
+<h1><?php echo $this->trans->TITLE_STORABILITY_CREATE; ?></h1>
+
 
 <?php echo $this->renderPartial('_form', array('model'=>$model)); ?>

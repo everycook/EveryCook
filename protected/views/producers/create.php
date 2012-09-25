@@ -10,6 +10,6 @@ $this->menu=array(
 );
 ?>
 
-<h1>Create Producers</h1>
+<h1><?php echo $this->trans->TITLE_PRODUCERS_CREATE; ?></h1>
 
 <?php echo $this->renderPartial('_form', array('model'=>$model)); ?>

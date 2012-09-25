@@ -13,7 +13,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>View Meals #<?php echo $model->MEA_ID; ?></h1>
+<h1><?php printf($this->trans->TITLE_MEALS_VIEW, $model->MEA_ID); ?></h1>
 
 <div class="list-view form">
 	<?php $this->renderPartial('_view',array('data'=>$model)); ?>

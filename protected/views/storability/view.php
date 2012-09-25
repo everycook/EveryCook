@@ -13,7 +13,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>View Storability #<?php echo $model->STB_ID; ?></h1>
+<h1><?php printf($this->trans->TITLE_STORABILITY_VIEW, $model->STB_ID); ?></h1>
 
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,

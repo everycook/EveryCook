@@ -5,7 +5,7 @@ $this->breadcrumbs=array(
 );
 ?>
 
-<h1>Login</h1>
+<h1><?php echo $this->trans->TITLE_SITE_LOGIN; ?></h1>
 
 <p><?php echo $this->trans->LOGIN_FILL_OUT; ?></p>
 

@@ -1,3 +1,4 @@
+<input type="hidden" id="uploadImageLink" value="<?php echo $this->createUrl('stores/uploadImage',array('id'=>$model->STO_ID)); ?>"/>
 <input type="hidden" id="imageLink" value="<?php echo $this->createUrl('stores/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
 <div class="form">
 
@@ -107,9 +108,9 @@
 		
 		<?php
 			if (Yii::app()->session['Stores_Backup'] && Yii::app()->session['Stores_Backup']->STO_IMG_ETAG){
-				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())), '', array('class'=>'store cropable', 'alt'=>$model->__get('STO_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('STO_NAME_' . Yii::app()->session['lang']));
+				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())), '', array('class'=>'store cropable', 'alt'=>$model->STO_NAME, 'title'=>$model->STO_NAME));
 			} else if ($model->STO_ID) {
-				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>$model->STO_ID, 'ext'=>'.png')), '', array('class'=>'store', 'alt'=>$model->__get('STO_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('STO_NAME_' . Yii::app()->session['lang'])));
+				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>$model->STO_ID, 'ext'=>'.png')), '', array('class'=>'store', 'alt'=>$model->STO_NAME, 'title'=>$model->STO_NAME));
 			}
 		?>
 		

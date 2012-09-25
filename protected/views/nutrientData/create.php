@@ -10,6 +10,6 @@ $this->menu=array(
 );
 ?>
 
-<h1>Create NutrientData</h1>
+<h1><?php echo $this->trans->TITLE_MEALS_CREATE; ?></h1>
 
 <?php echo $this->renderPartial('_form', array('model'=>$model)); ?>

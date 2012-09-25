@@ -13,6 +13,6 @@ $this->menu=array(
 );
 ?>
 
-<h1>Update IngredientStates <?php echo $model->IST_ID; ?></h1>
+<h1><?php printf($this->trans->TITLE_INGREDIENTSTATES_UPDATE, $model->IST_ID); ?></h1>
 
 <?php echo $this->renderPartial('_form', array('model'=>$model)); ?>

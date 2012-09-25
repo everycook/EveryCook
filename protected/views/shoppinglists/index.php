@@ -9,7 +9,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>Shoppinglists</h1>
+<h1><?php echo $this->trans->TITLE_SHOPPINGLISTS_LIST; ?></h1>
 <?php
 	//if ($dataProvider->size() > 0){ //TODO: use correct function
 		echo CHtml::link($this->trans->SHOPPINGLISTS_SHOW_ALL_AS_ONE, array('showAllAsOne'), array('class'=>'button f-right'));

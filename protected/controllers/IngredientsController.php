@@ -124,7 +124,7 @@ class IngredientsController extends Controller
 			$model=new Ingredients;
 			$oldPicture = null;
 		}
-		Functions::uploadImage('Ingredients', $model, 'Ingredients_Backup', 'ING_IMG');
+		Functions::uploadImage('Ingredients', $model, $this->createBackup, 'ING_IMG');
 	}
 		
 	private function prepareCreateOrUpdate($id, $view){

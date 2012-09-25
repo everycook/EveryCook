@@ -9,7 +9,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>Ingredient States</h1>
+<h1><?php echo $this->trans->TITLE_INGREDIENTSTATES_LIST; ?></h1>
 
 <?php $this->widget('zii.widgets.CListView', array(
 	'dataProvider'=>$dataProvider,

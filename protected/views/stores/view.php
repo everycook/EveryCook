@@ -13,7 +13,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>View Stores #<?php echo $model->STO_ID; ?></h1>
+<h1><?php printf($this->trans->TITLE_STORES_VIEW, $model->STO_ID); ?></h1>
 
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,

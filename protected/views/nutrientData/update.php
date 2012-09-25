@@ -13,6 +13,6 @@ $this->menu=array(
 );
 ?>
 
-<h1>Update NutrientData <?php echo $model->NUT_ID; ?></h1>
+<h1><?php printf($this->trans->TITLE_NUTRIENTDATA_UPDATE, $model->NUT_ID); ?></h1>
 
 <?php echo $this->renderPartial('_form', array('model'=>$model)); ?>

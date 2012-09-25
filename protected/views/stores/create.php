@@ -10,7 +10,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>Create Stores</h1>
+<h1><?php echo $this->trans->TITLE_STORES_CREATE; ?></h1>
 
 <?php echo $this->renderPartial('_form', array(
 	'model'=>$model,

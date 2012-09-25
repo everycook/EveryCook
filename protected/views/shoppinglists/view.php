@@ -13,7 +13,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>View Shoppinglists #<?php echo $SHO_ID; ?></h1>
+<h1><?php printf($this->trans->TITLE_SHOPPINGLISTS_VIEW, $model->SHO_ID); ?></h1>
 
 <?php
 	if (isset($MEA_ID) && $MEA_ID != 0){

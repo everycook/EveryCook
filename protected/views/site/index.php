@@ -1,7 +1,7 @@
 <?php $this->pageTitle=Yii::app()->name; ?>
 <input type="hidden" id="getNextLink" value="<?php echo $this->createUrl('site/getNext'); ?>"/>
 
-<h1>Welcome to <i><?php echo CHtml::encode(Yii::app()->name); ?></i></h1>
+<h1><?php printf($this->trans->TITLE_SITE_INDEX, CHtml::encode(Yii::app()->name)); ?></h1>
 
 <div class="startpage">
 	<div class="slot f-left">

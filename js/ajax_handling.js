@@ -496,13 +496,14 @@ jQuery(function($){
 			})
 		});
 	});
-	
+
+/*	
 	jQuery('body').undelegate('.emptyOnEnter','click').delegate('.emptyOnEnter','click', function(){
 		var elem = jQuery(this);
 		elem.attr('value','');
 		elem.removeClass('emptyOnEnter');
 	});
-	
+*/	
 	
 	//Profiles
 	jQuery('body').undelegate('#Profiles_PRF_LANG','change').delegate('#Profiles_PRF_LANG','change',function(){

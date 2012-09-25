@@ -13,6 +13,6 @@ $this->menu=array(
 );
 ?>
 
-<h1>Update Profiles <?php echo $model->PRF_UID; ?></h1>
+<h1><?php printf($this->trans->TITLE_PROFILES_UPDATE, $model->PRF_UID); ?></h1>
 
 <?php echo $this->renderPartial('_form', array('model'=>$model)); ?>

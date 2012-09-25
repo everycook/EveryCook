@@ -10,6 +10,6 @@ $this->menu=array(
 );
 ?>
 
-<h1>Create IngredientConveniences</h1>
+<h1><?php echo $this->trans->TITLE_INGREDIENTCONVENIENCES_CREATE; ?></h1>
 
 <?php echo $this->renderPartial('_form', array('model'=>$model)); ?>

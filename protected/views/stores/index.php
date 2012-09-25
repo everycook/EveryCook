@@ -9,7 +9,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>Stores</h1>
+<h1><?php echo $this->trans->TITLE_STORES_LIST; ?></h1>
 
 <?php $this->widget('AjaxPagingListView', array(
 	'dataProvider'=>$dataProvider,

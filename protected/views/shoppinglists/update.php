@@ -13,6 +13,6 @@ $this->menu=array(
 );
 ?>
 
-<h1>Update Shoppinglists <?php echo $model->SHO_ID; ?></h1>
+<h1><?php printf($this->trans->TITLE_SHOPPINGLISTS_UPDATE, $model->SHO_ID); ?></h1>
 
 <?php echo $this->renderPartial('_form', array('model'=>$model)); ?>

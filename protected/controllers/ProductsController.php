@@ -246,6 +246,22 @@ class ProductsController extends Controller
 							unset(Yii::app()->session[$this->createBackup]);
 							unset(Yii::app()->session[$this->createBackup.'_Time']);
 							if (isset($_POST['saveAddAssing'])){
+								//create search with used ingredient, for view after save (if there is not set a search already)
+								$Session_Product = Yii::app()->session[$this->searchBackup];
+								if (isset($Session_Product)){
+									if (!isset($Session_Product['query']) && !isset($Session_Product['ing_id']) && !isset($Session_Product['model'])){
+										$Session_Product = array();
+										$Session_Product['ing_id'] = $model->ING_ID;
+										$Session_Product['time'] = time();
+										Yii::app()->session[$this->searchBackup] = $Session_Product;
+									}
+								} else {
+									$Session_Product = array();
+									$Session_Product['ing_id'] = $model->ING_ID;
+									$Session_Product['time'] = time();
+									Yii::app()->session[$this->searchBackup] = $Session_Product;
+								}
+								
 								$dest = array('stores/assign', 'pro_id'=>$model->PRO_ID);
 							} else {
 								$dest = array('view', 'id'=>$model->PRO_ID);

@@ -13,6 +13,6 @@ $this->menu=array(
 );
 ?>
 
-<h1>Update Storability <?php echo $model->STB_ID; ?></h1>
+<h1><?php printf($this->trans->TITLE_STORABILITY_UPDATE, $model->STB_ID); ?></h1>
 
 <?php echo $this->renderPartial('_form', array('model'=>$model)); ?>

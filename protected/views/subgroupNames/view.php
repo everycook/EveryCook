@@ -13,7 +13,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>View SubgroupNames #<?php echo $model->SGR_ID; ?></h1>
+<h1><?php printf($this->trans->TITLE_SUBGROUPNAMES_VIEW, $model->SGR_ID); ?></h1>
 
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,
