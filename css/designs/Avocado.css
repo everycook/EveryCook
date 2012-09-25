@@ -1,6 +1,5 @@
 body {
-	background: url('../../pics/bg.png') repeat fixed 0 0 transparent;
-	background-size: 100% auto;
+	/*background-color:#FFFFFF;*/
 }
 
 a:link, a:visited, a:hover, a:active, a:focus  {
@@ -17,7 +16,7 @@ span.error {
 }
 
 .nav_button {
-	background-color:#997F7F;
+	background-color:#FF9900;
 }
 
 #logo {
@@ -26,42 +25,42 @@ span.error {
 }
 
 #container {
-	background-color:#99B299;
+	background-color:#99CC00;
 }
 
 .index_button {
-	background-color:#997F7F;
+	background-color:#FF9900;
 }
 
 #footer {
-	border-top: 1px solid #C9E0ED;
+	border-top: 1px solid #BC0000;
 }
 
 div.index_div_login{
-	background-color:#997F7F;
+	background-color:#FF9900;
 }
 
 .button, .buttonSmall, input[type='submit'], input[type='button'] {
-	background-color:#997F7F;
+	background-color:#FF9900;
 }
 
 #ingredientsResult a.nutrientInfo,
 #ingredientsResult a.shopInfo  {
 	background-color: #C0C0C0;
-	border-color: #99B299;
+	border-color: #99CC00;
 }
 
-a.delicious, a.delicious_big {
+a.delicious, a.delicious_big  {
 	background: url('../../pics/delicious.png') no-repeat scroll 0 0 transparent;
 	background-size: contain;
 }
 
-a.disgusting, a.disgusting_big  {
+a.disgusting, a.disgusting_big {
 	background: url('../../pics/disgusting.png') no-repeat scroll 0 0 transparent;
 	background-size: contain;
 }
 
-a.cookwith , a.cookwith_big {
+a.cookwith, a.cookwith_big {
 	background: url('../../pics/cook.png') no-repeat scroll 0 0 transparent;
 	background-size: contain;
 }
@@ -71,18 +70,17 @@ div.resultArea {
 }
 
 div.detailView {
-	background-color:#FFFFFF;
+	background-color:#99CC00;
 }
 
 div.detailView div.options div.ingredients {
-	background-color:#997F7F;
+	background-color:#FF9900;
 }
 
 #fancybox-content{
-	background-color:#99B299;
+	background-color:#99CC00;
 	padding:1em !important;
 }
-
 
 div.nutrientDataGroup {
 	background-color:#FFFFFF;
@@ -95,17 +93,15 @@ div.form .hint {
 .navMenuList,
 .navMenuListL2 {
 	background-color:#FFFFFF;
-	border-color: #99B299;
+	border-color: #99CC00;
 }
-
 
 div.mealOverview {
-	background-color:#99B299;
+	background-color:#99CC00;
 }
 .meal_course {
-	background-color:#99B299;
+	background-color:#99CC00;
 }
-
 .pagingLoading {
 	background: url('../../pics/loading.gif') no-repeat scroll 0 0 transparent;
 	background-size: contain;
@@ -115,11 +111,11 @@ div.mealOverview {
     background-image: url('../../pics/jslider.plastic.png');
 }
 
-
 #fancybox-loading {
 	background: url('../../pics/Please_wait_small.gif') no-repeat scroll 0 0 transparent !important;
 	background-size: 100% auto !important;
 }
+
 
 .browserError {
 	color: red;
@@ -129,10 +125,11 @@ div.mealOverview {
 .browserError .closeButton {
 	background: url('../../pics/close.png') no-repeat scroll 0 0 transparent;
 }
-.cookAssistant .progress{
-	background: url('../../pics/cookassistant_action_aubergine.png') no-repeat scroll left center transparent;
-}
 
+
+.cookAssistant .progress{
+	background: url('../../pics/cookassistant_action_chili.png') no-repeat scroll left center transparent;
+}
 
 .cookAssistant .recipeSteps .recipeStep .stepHeader .finishTime.toLate div {
 	background-color: #FF0000;
@@ -165,9 +162,9 @@ div.mealOverview {
 }
 
 .startpage .up1 {
-	border-bottom-color: #997F7F;
+	border-bottom-color: #FF9900;
 }
 
 .startpage .down1 {
-	border-top-color: #997F7F;
+	border-top-color: #FF9900;
 }

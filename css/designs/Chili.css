@@ -44,6 +44,12 @@ div.index_div_login{
 	background-color:#FF4D02;
 }
 
+#ingredientsResult a.nutrientInfo,
+#ingredientsResult a.shopInfo  {
+	background-color: #C0C0C0;
+	border-color: #FFDB00;
+}
+
 a.delicious, a.delicious_big  {
 	background: url('../../pics/delicious.png') no-repeat scroll 0 0 transparent;
 	background-size: contain;
@@ -87,6 +93,7 @@ div.form .hint {
 .navMenuList,
 .navMenuListL2 {
 	background-color:#FFFFFF;
+	border-color: #FFDB00;
 }
 
 
@@ -153,4 +160,12 @@ div.mealOverview {
 .addRowContainer div.remove {
 	background: url('../../pics/remove.png') no-repeat scroll 0 0 transparent;
 	background-size: contain;
+}
+
+.startpage .up1 {
+	border-bottom-color: #FF4D02;
+}
+
+.startpage .down1 {
+	border-top-color: #FF4D02;
 }

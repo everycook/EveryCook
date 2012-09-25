@@ -1,3 +1,183 @@
+/* reset.css */
+html {margin:0;padding:0;border:0;}
+body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, code, del, dfn, em, img, q, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, dialog, figure, footer, header, hgroup, nav, section {margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline;}
+article, aside, details, figcaption, figure, dialog, footer, header, hgroup, menu, nav, section {display:block;}
+body {line-height:1.5;background:white;}
+table {border-collapse:separate;border-spacing:0;}
+caption, th, td {text-align:left;font-weight:normal;float:none !important;}
+table, th, td {vertical-align:middle;}
+blockquote:before, blockquote:after, q:before, q:after {content:'';}
+blockquote, q {quotes:"" "";}
+a img {border:none;}
+:focus {outline:0;}
+
+/* @group typography.css */
+/*
+html {font-size:100.01%;}
+body {font-size:75%;color:#222;background:#fff;font-family:"Helvetica Neue", Arial, Helvetica, sans-serif;}
+h1, h2, h3, h4, h5, h6 {font-weight:normal;color:#111;}
+h1 {font-size:2em;line-height:1;margin-bottom:0.5em;}
+h2 {font-size:1.6em;margin-bottom:0.75em;}
+h3 {font-size:1.4em;line-height:1;margin-bottom:1em;}
+h4 {font-size:1.2em;line-height:1.25;margin-bottom:1.25em;}
+h5 {font-size:1em;font-weight:bold;margin-bottom:1.5em;}
+h6 {font-size:1em;font-weight:bold;}
+h1 img, h2 img, h3 img, h4 img, h5 img, h6 img {margin:0;}
+p {margin:0 0 1.5em;}
+.left {float:left !important;}
+p .left {margin:1.5em 1.5em 1.5em 0;padding:0;}
+.right {float:right !important;}
+p .right {margin:1.5em 0 1.5em 1.5em;padding:0;}
+a:focus, a:hover {color:#09f;}
+a {color:#06c;text-decoration:underline;}
+blockquote {margin:1.5em;color:#666;font-style:italic;}
+strong, dfn {font-weight:bold;}
+em, dfn {font-style:italic;}
+sup, sub {line-height:0;}
+abbr, acronym {border-bottom:1px dotted #666;}
+address {margin:0 0 1.5em;font-style:italic;}
+del {color:#666;}
+pre {margin:1.5em 0;white-space:pre;}
+pre, code, tt {font:1em 'andale mono', 'lucida console', monospace;line-height:1.5;}
+li ul, li ol {margin:0;}
+ul, ol {margin:0 1.5em 1.5em 0;padding-left:1.5em;}
+ul {list-style-type:disc;}
+ol {list-style-type:decimal;}
+dl {margin:0 0 1.5em 0;}
+dl dt {font-weight:bold;}
+dd {margin-left:1.5em;}
+table {margin-bottom:1.4em;width:100%;}
+th {font-weight:bold;}
+thead th {background:#c3d9ff;}
+th, td, caption {padding:4px 10px 4px 5px;}
+tfoot {font-style:italic;}
+caption {background:#eee;}
+.small {font-size:.8em;margin-bottom:1.875em;line-height:1.875em;}
+.large {font-size:1.2em;line-height:2.5em;margin-bottom:1.25em;}
+.hide {display:none;}
+.quiet {color:#666;}
+.loud {color:#000;}
+.highlight {background:#ff0;}
+.added {background:#060;color:#fff;}
+.removed {background:#900;color:#fff;}
+.first {margin-left:0;padding-left:0;}
+.last {margin-right:0;padding-right:0;}
+.top {margin-top:0;padding-top:0;}
+.bottom {margin-bottom:0;padding-bottom:0;}
+*/
+
+h1, h2, h3  {font-weight:normal;color:#111;}
+h1 {font-size:2em;line-height:1;margin-bottom:0.5em;}
+h2 {font-size:1.6em;margin-bottom:0.75em;}
+h3 {font-size:1.4em;line-height:1;margin-bottom:1em;}
+
+th {font-weight:bold;}
+thead th {background:#C0C0C0;}
+th, td, caption {padding:4px 10px 4px 5px;}
+
+/* @group end typography.css */
+
+
+.clearfix:after{content:"\0020";display:block;height:0;clear:both;visibility:hidden;overflow:hidden;}
+.clearfix {display:block;}
+
+
+
+
+
+
+
+/* @group form */
+
+div.form input,
+div.form textarea,
+div.form select {
+	margin: 0.2em 0 0.5em 0;
+}
+
+div.form label {
+	font-weight: bold;
+	font-size: 0.9em;
+	display: inline-block;
+}
+
+div.form .row {
+	margin: 5px 0;
+}
+
+div.form .hint {
+	margin: 0;
+	padding: 0;
+	color: #999;
+    font-size: 0.8em;
+}
+
+div.form .note {
+	font-style: italic;
+}
+
+div.form span.required {
+	color: red;
+}
+
+div.form div.error label,
+div.form label.error,
+div.form span.error {
+	color: #C00;
+}
+
+div.form div.error input,
+div.form div.error textarea,
+div.form div.error select,
+div.form input.error,
+div.form textarea.error,
+div.form select.error {
+	background: #FEE;
+	border-color: #C00;
+}
+
+div.form div.success input,
+div.form div.success textarea,
+div.form div.success select,
+div.form input.success,
+div.form textarea.success,
+div.form select.success {
+	background: #E6EFC2;
+	border-color: #C6D880;
+}
+
+
+div.form .errorSummary {
+	border: 2px solid #C00;
+	padding: 7px 7px 12px 7px;
+	margin: 0 0 20px 0;
+	background: #FEE;
+	font-size: 0.9em;
+}
+
+div.form .errorMessage {
+	color: red;
+	font-size: 0.9em;
+}
+
+div.form .errorSummary p {
+	margin: 0;
+	padding: 5px;
+}
+
+div.form .errorSummary ul {
+	margin: 0;
+	padding: 0 0 0 20px;
+}
+
+/* @group end form */
+
+
+
+
+
+
+
 htm, body {
     font-family:Arial,sans-serif;
     /*font-weight:bold;*/
@@ -21,7 +201,7 @@ input, select {
 }
 
 #page {
-	position:relative;
+	position:relative;	
 	z-index:1;
 	margin:0 5em;
 }
@@ -32,8 +212,8 @@ input, select {
 
 #metaNav #metaNavButtons {
 	float:right;
-	margin-top:3em;
-	margin-right:3em;
+	margin-top:2.25em;
+	margin-right:1em;
 	position: relative;
 }
 
@@ -45,7 +225,8 @@ input, select {
 	float:left;
 	width:12em;
 	height:1.5em;
-	border-radius:0.5em;
+	border-radius:1.25em;
+	padding: 0.4em 0;
 }
 
 #logo {
@@ -166,14 +347,15 @@ div.index_div_login{
 	/*height:1.7em;*/
 	text-align: center;
 	
-	border-radius:0.8em;
+	border-radius:1.25em;
 	cursor:pointer;
 }
 
 .button, input[type='submit'], input[type='button'] {
-	padding: 0.8em;
+	padding: 0.4em 0.8em;
 	border: none;
 	/*width:8.4em;*/
+	min-width: 12em;
 }
 .buttonSmall {
 	padding: 0.4em;
@@ -329,7 +511,11 @@ div.resultArea div.options {
 #ingredientsResult a.nutrientInfo,
 #ingredientsResult a.shopInfo {
 	display: block;
+	border: 2px solid black;
+	padding: 0.8em;
+	border-radius: 2em;
 }
+
 #ingredientsResult a.shopInfo {
 	margin-top: 0.8em;
 }
@@ -342,6 +528,13 @@ div.resultArea div.options {
 #ingredientsResult div.prodInfo  {
 	line-height:1.5em;
 	margin-top:1em;
+}
+
+#ingredientsResult .data .title {
+}
+
+#ingredientsResult .data .value {
+	font-weight: bold;
 }
 
 
@@ -474,6 +667,10 @@ ul.search_choose li {
 	float:left !important;
 }
 
+.addRowContainer  {
+	margin-bottom: 1em;
+}
+
 .addRowContainer .odd input,
 .addRowContainer .odd select,
 .addRowContainer .even input,
@@ -573,17 +770,14 @@ div.nutrientDataGroup div.nutrient_row span.value {
 div.nutrientDataGroup div.nutrient_row span.unit {
 	width: 8em;
 }
-div.form .hint {
-    font-size: 0.8em;
-}
-
 .navMenuList {
 	position: absolute;
 	right: 10em;
-	top: 2em;
+	top: 2.7em;
 	border-radius:1.5em;
 	padding: 0.8em;
 	z-index: 10;
+	border: 1px solid black;
 }
 
 .navMenuListL2 {
@@ -592,6 +786,7 @@ div.form .hint {
 	top: 0;
 	border-radius:1.5em;
 	padding: 0.8em;
+	border: 1px solid black;
 }
 
 .navMenuList .navMenuListEntry,
@@ -1139,3 +1334,7 @@ div.mealView span.value {
 }
 */
 /* @group end view Size change */
+
+body {
+	font-size: 75%;
+}

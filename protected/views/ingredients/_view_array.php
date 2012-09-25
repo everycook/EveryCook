@@ -30,19 +30,19 @@
 		</div>
 		<?php
 		if (!$this->isFancyAjaxRequest){
-			echo '<a href="' . Yii::app()->createUrl('nutrientData/view',array('id'=>$data['NUT_ID'], 'ing_id'=>$data['ING_ID'])) . '" class="button nutrientInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
+			echo '<a href="' . Yii::app()->createUrl('nutrientData/view',array('id'=>$data['NUT_ID'], 'ing_id'=>$data['ING_ID'])) . '" class="nutrientInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
 		}
 		?>
 			<div class="nutrientInfo">
 				<?php if ($data['NUT_ID']){ ?>
-					<span><strong><?php echo CHtml::encode($this->trans->FIELD_NUT_LIPID); ?>:</strong>
-					<?php echo CHtml::encode($data['NUT_LIPID']); ?> %</span>
+					<span><span class="title"><?php echo CHtml::encode($this->trans->FIELD_NUT_LIPID); ?>:</span>
+					<span class="value"><?php echo CHtml::encode($data['NUT_LIPID']); ?> %</span></span>
 					
-					<span><strong><?php echo CHtml::encode($this->trans->FIELD_NUT_CARB); ?>:</strong>
-					<?php echo CHtml::encode($data['NUT_CARB']); ?> %</span>
+					<span><span class="title"><?php echo CHtml::encode($this->trans->FIELD_NUT_CARB); ?>:</span>
+					<span class="value"><?php echo CHtml::encode($data['NUT_CARB']); ?> %</span>
 					
-					<span><strong><?php echo CHtml::encode($this->trans->FIELD_NUT_PROT); ?>:</strong>
-					<?php echo CHtml::encode($data['NUT_PROT']); ?> %</span>
+					<span><span class="title"><?php echo CHtml::encode($this->trans->FIELD_NUT_PROT); ?>:</span>
+					<span class="value"><?php echo CHtml::encode($data['NUT_PROT']); ?> %</span></span>
 				<?php } else {
 					echo '&nbsp;';
 				} ?>
@@ -52,16 +52,16 @@
 			
 			if($data['pro_count'] != 0){ // || $data['sup_names'] != ''
 				if ($data['distance_to_you_prod'] == -1){
-						echo '<a href="#" class="button shopInfo" id="updateCurrentGPS">';
+						echo '<a href="#" class="shopInfo" id="updateCurrentGPS">';
 						echo '<div class="shopInfo"><span>';
 						echo $this->trans->INGREDIENTS_LOCATE_FOR_STORES;
 				} else {
 					if ($data['distance_to_you_prod'] > 0){
-						echo '<a href="' . Yii::app()->createUrl('products/search',array('ing_id'=>$data['ING_ID'])) . '" class="button shopInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
+						echo '<a href="' . Yii::app()->createUrl('products/search',array('ing_id'=>$data['ING_ID'])) . '" class="shopInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
 						echo '<div class="shopInfo"><span>';
 						printf(CHtml::encode($this->trans->INGREDIENTS_PRODUCTS_IN_SHOPS_FROM_YOU), $data['distance_to_you_prod'], $data['distance_to_you'], Yii::app()->user->view_distance);
 					} else {
-						echo '<a href="' . Yii::app()->createUrl('products/search',array('ing_id'=>$data['ING_ID'])) . '" class="button shopInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
+						echo '<a href="' . Yii::app()->createUrl('products/search',array('ing_id'=>$data['ING_ID'])) . '" class="shopInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
 						echo '<div class="shopInfo"><span>';
 						printf(CHtml::encode($this->trans->INGREDIENTS_PRODUCTS_NO_SHOPS_IN_RANGE_YOU), Yii::app()->user->view_distance);
 					}
@@ -70,21 +70,21 @@
 				
 				if ($data['distance_to_home_prod'] == -1){
 					if (Yii::app()->user->isGuest){
-						echo '<a href="' . Yii::app()->createUrl('site/login') . '" class="button shopInfo">';
+						echo '<a href="' . Yii::app()->createUrl('site/login') . '" class="shopInfo">';
 						echo '<div class="shopInfo"><span>';
 						echo $this->trans->INGREDIENTS_LOGIN_FOR_STORES;
 					} else {
-						echo '<a href="' . Yii::app()->createUrl('profiles/update', array('id'=>Yii::app()->user->id, 'afterSave'=>urlencode($this->createUrl($this->route, $this->getActionParams())))) . '" class="button shopInfo">';
+						echo '<a href="' . Yii::app()->createUrl('profiles/update', array('id'=>Yii::app()->user->id, 'afterSave'=>urlencode($this->createUrl($this->route, $this->getActionParams())))) . '" class="shopInfo">';
 						echo '<div class="shopInfo"><span>';
 						echo $this->trans->INGREDIENTS_SET_HOME_FOR_STORES;
 					}
 				} else {
 					if ($data['distance_to_home_prod'] > 0){				
-						echo '<a href="' . Yii::app()->createUrl('products/search',array('ing_id'=>$data['ING_ID'])) . '" class="button shopInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
+						echo '<a href="' . Yii::app()->createUrl('products/search',array('ing_id'=>$data['ING_ID'])) . '" class="shopInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
 						echo '<div class="shopInfo"><span>';
 						printf(CHtml::encode($this->trans->INGREDIENTS_PRODUCTS_IN_SHOPS_FROM_YOUR_HOME), $data['distance_to_home_prod'], $data['distance_to_home'], Yii::app()->user->view_distance);
 					} else {					
-						echo '<a href="' . Yii::app()->createUrl('products/search',array('ing_id'=>$data['ING_ID'])) . '" class="button shopInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
+						echo '<a href="' . Yii::app()->createUrl('products/search',array('ing_id'=>$data['ING_ID'])) . '" class="shopInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
 						echo '<div class="shopInfo"><span>';
 						printf(CHtml::encode($this->trans->INGREDIENTS_PRODUCTS_NO_SHOPS_IN_RANGE_HOME), Yii::app()->user->view_distance);
 					}
@@ -93,7 +93,7 @@
 				
 				echo '</span></div></a>';
 			} else {
-				echo '<a href="' . Yii::app()->createUrl('products/create',array('ing_id'=>$data['ING_ID'], 'newModel'=>time())) . '" class="button shopInfo" title="' . $this->trans->INGREDIENTS_CREATE_PRODUCTS . '">';
+				echo '<a href="' . Yii::app()->createUrl('products/create',array('ing_id'=>$data['ING_ID'], 'newModel'=>time())) . '" class="shopInfo" title="' . $this->trans->INGREDIENTS_CREATE_PRODUCTS . '">';
 				echo '<div class="shopInfo">' . $this->trans->INGREDIENTS_CREATE_PRODUCTS . '</div>';
 				echo '</a>';
 			}
@@ -114,13 +114,13 @@
 		if (!$this->isFancyAjaxRequest){
 			echo '<a href="' . Yii::app()->createUrl('ingredients/update',array('id'=>$data['ING_ID'])) . '" class="button f-right">' . $this->trans->GENERAL_EDIT . '</a>';
 		}
-		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_GROUP) .':</strong> ' . CHtml::encode($data['GRP_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
+		echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_GROUP) .':</span> <span class="value">' . CHtml::encode($data['GRP_DESC_'.Yii::app()->session['lang']]) ."</span></span>\n";
 		if ($data['SGR_DESC_'.Yii::app()->session['lang']] != ''){
-			echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_SUBGROUP) .':</strong> ' . CHtml::encode($data['SGR_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
+			echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_SUBGROUP) .':</span> <span class="value">' . CHtml::encode($data['SGR_DESC_'.Yii::app()->session['lang']]) ."</span></span>\n";
 		}
-		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_STORABILITY) .':</strong> ' . CHtml::encode($data['STB_DESC_'.Yii::app()->session['lang']]) ."</span><br>\n";
-		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_CONVENIENCE) .':</strong> ' . CHtml::encode($data['ICO_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
-		echo '<span><strong>' . CHtml::encode($this->trans->INGREDIENTS_STATE) .':</strong> ' . CHtml::encode($data['IST_DESC_'.Yii::app()->session['lang']]) ."</span>\n";
+		echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_STORABILITY) .':</span> <span class="value">' . CHtml::encode($data['STB_DESC_'.Yii::app()->session['lang']]) ."</span></span><br>\n";
+		echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_CONVENIENCE) .':</span> <span class="value">' . CHtml::encode($data['ICO_DESC_'.Yii::app()->session['lang']]) ."</span></span>\n";
+		echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_STATE) .':</span> <span class="value">' . CHtml::encode($data['IST_DESC_'.Yii::app()->session['lang']]) ."</span></span>\n";
 		?>
 		</div>
 	</div>
