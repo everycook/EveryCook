@@ -11,7 +11,7 @@ $this->menu=array(
 
 <h1><?php echo $this->trans->TITLE_MEALS_LIST; ?></h1>
 
-<?php $this->widget('zii.widgets.CListView', array(
+<?php $this->widget('AjaxPagingListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view',
 	'htmlOptions'=>array(

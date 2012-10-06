@@ -518,15 +518,80 @@ class Functions extends CHtml{
 		}
 	}
 	
+	private static function uploadFlickrPicture($model, $picFieldName, $link){
+		//http://www.flickr.com/photos/bea_spoli/6931369423) "/sizes/o/" anfügen
+		if (strpos($link, '/sizes/o') === false){
+			$parts = explode('/', $link);
+			if ($parts[0] != 'http:' && $parts[0] != 'https:'){
+				$parts = array_merge(array('http',''), $parts);
+			}
+			if ($parts[2] != 'www.flickr.com'){
+				return -4;
+			}
+			if (count($params) < 6){
+				return -5;
+			}
+			if ($params[3] != 'photos'){
+				return -5;
+			}
+			$params[6]='sizes';
+			$params[7]='o';
+			$params = array_slice($params,0, 8);
+			$link = implode('/', $params);
+		}
+		
+		require_once('remotefileinfo');
+		$content = remote_file($link);
+		if (is_string($content) && strpos($content,"ERROR: ") === 0){
+			return -6;
+		}
+		
+		$autor = array();
+		ereg('<div id="all-sizes-header">.*<a[^>]*>([^<]*)</a>">', $content, $autor);
+		$image = array();
+		ereg('<div id="allsizes-photo">[^<]*<img src="([^"]*)">', $content, $image);
+		
+		$imgData = remote_file($image);
+		if (!is_string($imgData) || strpos($imgData,"ERROR: ") === 0 || strlen($imgData) == 0){
+			return -6;
+		}
+		
+		//TODO products have '_CR' ...
+		$model->__set($pictureFieldName . '_AUTH', $autor[0]);
+		
+		$filename = tempnam('/var/www/imgupload/', $picFieldName);
+		
+			
+			$imginfo = self::changePictureType($filename,$filename, IMAGETYPE_PNG);
+			if ($imginfo !== false){
+				//if ($imginfo[0]>=self::IMG_WIDTH && $imginfo[1]>=self::IMG_HEIGHT){
+				if ($imginfo[0]>=self::IMG_WIDTH || $imginfo[1]>=self::IMG_HEIGHT){
+					$model->__set($picFieldName, file_get_contents($filename));
+					$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
+					$model->imagechanged = true;
+					$model->setScenario('withPic');
+					return true;
+				} else {
+					return -3;
+				}
+			} else {
+				return -2;
+			}
+	}
+	
 	public static function uploadImage($modelName, $model, $sessionBackupName, $pictureFieldName){
-		if(isset($_POST[$modelName])){
+		if (isset($_POST[$modelName]) || isset($_POST['flickr_link'])){
 			$model->attributes=$_POST[$modelName];
-			$sucessfull = Functions::uploadPicture($model, $pictureFieldName);
+			if (isset($_POST['flickr_link']) && $_POST['flickr_link'] != ''){
+				$sucessfull = Functions::uploadFlickrPicture($model, $pictureFieldName, $_POST['flickr_link']);
+			} else {
+				$sucessfull = Functions::uploadPicture($model, $pictureFieldName);
+			}
 			Yii::app()->session[$sessionBackupName] = $model;
 			Yii::app()->session[$sessionBackupName.'_Time'] = time();
 			
 			if ($sucessfull === true){
-				echo '{imageId:"backup"}';
+				echo '{imageId:"backup", author:"' . $model->__get($pictureFieldName . '_AUTH') . '"}';
 				exit;
 			} else if ($sucessfull == -1){
 				//TODO: Yii::app()->controller->trans->
@@ -537,6 +602,15 @@ class Functions extends CHtml{
 				exit;
 			} else if ($sucessfull == -3){
 				echo '{error:"Image must have minimal a width of ' . self::IMG_WIDTH . ' or a height of ' . self::IMG_HEIGHT . '."}';
+				exit;
+			} else if ($sucessfull == -4){
+				echo '{error:"This is not a Flickr link."}';
+				exit;
+			} else if ($sucessfull == -5){
+				echo '{error:"Invalide Flickr link."}';
+				exit;
+			} else if ($sucessfull == -6){
+				echo '{error:"Error while loading Image from Flickr."}';
 				exit;
 			}
 		} else {

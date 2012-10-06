@@ -145,6 +145,16 @@ div.mealOverview {
 	font-weight: bold;
 }
 
+.cookAssistant .recipeSteps .recipeStep .stepInfo .nextStep div {
+	background: url('../../pics/next.png') no-repeat scroll center center white;
+	background-size: contain;
+}
+
+.cookAssistant .recipeSteps .recipeStep .stepInfo .nextStep.startStep div {
+	background: url('../../pics/start.png') no-repeat scroll center center white;
+	background-size: contain;
+}
+
 
 
 .addRowContainer div.up {

@@ -102,13 +102,13 @@
 		<div class="imageTip">
 		<?php
 		echo $this->trans->TIP_OWN_IMAGE . '<br>';
+		echo $form->FileField($model,'filename'). '<br>';
+		echo $form->error($model,'filename');
 		echo $this->trans->TIP_FLICKR_IMAGE . '<br>';
-		printf($this->trans->TIP_LOOK_ON_FLICKR, $model->__get('ING_NAME_EN_GB')); //.Yii::app()->session['lang']
-		echo '<br>';
-		echo $form->FileField($model,'filename');
+		printf($this->trans->TIP_LOOK_ON_FLICKR, $model->__get('ING_NAME_EN_GB'));//'ING_NAME_'.Yii::app()->session['lang']
+		echo '<br>' . $this->trans->TIP_FLICKR_LINK . '<input type="text" name="flickr_link" class="flickr_link"/> <div class="buttonSmall loadFromFlickr">' . $this->trans->TIP_FLICKR_LINK_LOAD . '</div>'
 		?>
 		</div>
-		<?php echo $form->error($model,'filename'); ?>
 	</div>
 
 	<div class="row">

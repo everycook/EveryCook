@@ -5,14 +5,14 @@
 		<input type="hidden" name="finishTime" id="finishTime" value="<?php echo $info->finishedIn ?>"/>
 		<input type="hidden" name="timeDiff" id="timeDiff" value="<?php echo $info->timeDiffMax ?>"/>
 		<input type="hidden" name="started" id="started" value="<?php echo $info->started ?>"/>
-		<div class="f-right"><?php echo CHtml::link('Overview', array('overview')); /*'id'=>$info->meal->MEA_ID)*/ ?></div>
+		<?php echo CHtml::link('<div>'.'overview'.'</div>', array('overview'), array('class'=>'f-right')); ?>
 		<span class="clearfix"></span>
 	</div>
 	<div class="recipeSteps">
 	<?php
 		$i=0;
 		foreach($info->steps as $mealStep){
-			$cookWithEveryCook = ($info->cookWithEveryCook[$i][0]!=CookAssistantController::COOK_WITH_BROWSER)?1:0;
+			$cookWithEveryCook = ($info->cookWithEveryCook[$i][0]!=CookAssistantController::COOK_WITH_PAN)?1:0;
 			echo '<div class="recipeStep">';
 				echo '<input type="hidden" name="withEveryCook" value="' . ($cookWithEveryCook) . '"/>';
 				echo '<div class="stepHeader">';
@@ -44,7 +44,7 @@
 						echo '</div>';
 					echo '</div>';
 					if (!$mealStep->endReached){
-						echo CHtml::link('<div></div>', array('next', 'recipeNr'=>$mealStep->recipeNr, 'step'=>$mealStep->stepNr), array('class'=>'nextStep' . (($mealStep->autoClick)?' autoClick':'') . (($mealStep->mustWait)?' mustWait':'') . (($mealStep->stepType == CookAssistantController::SCALE)?' isWeightStep':'')));
+						echo CHtml::link('<div></div>', array('next', 'recipeNr'=>$mealStep->recipeNr, 'step'=>$mealStep->stepNr), array('class'=>'nextStep' . (($mealStep->stepNr == -1)?' startStep':'') . (($mealStep->autoClick)?' autoClick':'') . (($mealStep->mustWait)?' mustWait':'') . (($mealStep->stepType == CookAssistantController::SCALE)?' isWeightStep':'')));
 					} else  {
 						echo '<div class="nextStep"><span></span></div>';
 					}

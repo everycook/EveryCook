@@ -1133,6 +1133,31 @@ div.mealView span.value {
 	width: 17%;
 }
 
+.recipeConfig input[type=radio] {
+	height: 1.3em;
+	width: 1.3em;
+}
+.recipeConfig input, .recipeConfig label {
+	vertical-align: middle;
+}
+
+
+.stepHeader div {
+	background-color: white;
+}
+
+.stepHeader .title {
+	width:100%;
+}
+.stepHeader .totalTime {
+	width:30%;
+	float: left;
+}
+.stepHeader .finishTime {
+	width:30%;
+	float: left;
+}
+
 
 
 .addRowContainer div.up, .addRowContainer div.down, .addRowContainer div.remove {

@@ -28,7 +28,7 @@ class CookAssistantController extends Controller {
 	const COMMUNICATION_ERROR=53;
 	
 	
-	const COOK_WITH_BROWSER = 0;
+	const COOK_WITH_PAN = 0;
 	const COOK_WITH_LOCAL = 1;
 	const COOK_WITH_IP = 2;
 	
@@ -46,7 +46,7 @@ class CookAssistantController extends Controller {
 			Yii::app()->session['cookingInfo'] = $info;
 			
 			//$this->checkRenderAjax('index', array('info'=>$info));
-			$this->checkRenderAjax('index', array('info'=>$info));
+			$this->checkRenderAjax('overview', array('info'=>$info));
 			//$this->redirect('cookassistant/index');
 		} else {
 			echo "Error: Please select meal to cook.";
@@ -87,9 +87,9 @@ class CookAssistantController extends Controller {
 			$stepNumbers[] = -1;
 			$stepStartTime[] = time();
 			//TODO @Alexis: hier ändern!
-			$cookRecipeWithEveryCook = array(self::COOK_WITH_BROWSER);
-			//$cookRecipeWithEveryCook = ($recipeNr==0)?array(self::COOK_WITH_IP,'10.0.0.1'):array(self::COOK_WITH_BROWSER);
-			//$cookRecipeWithEveryCook = ($recipeNr==0)?array(self::COOK_WITH_LOCAL,self::DEVICE_PATH):array(self::COOK_WITH_BROWSER);
+			$cookRecipeWithEveryCook = array(self::COOK_WITH_PAN);
+			//$cookRecipeWithEveryCook = ($recipeNr==0)?array(self::COOK_WITH_IP,'10.0.0.1'):array(self::COOK_WITH_PAN);
+			//$cookRecipeWithEveryCook = ($recipeNr==0)?array(self::COOK_WITH_LOCAL,self::DEVICE_PATH):array(self::COOK_WITH_PAN);
 			$cookWithEveryCook[] = $cookRecipeWithEveryCook;
 			$totalTime = 0;
 			$recipe = $course->couToRecs[$recipeNr]->recipe;
@@ -319,7 +319,7 @@ class CookAssistantController extends Controller {
 				//$mealStep->inTime = $stepStartTime + $mealStep->nextStepTotal > $currentTime;
 				$mealStep->inTime = $mealStep->finishedIn > $mealStep->lowestFinishedIn;
 				//TODO nur wenn mit everycook gekocht wird?
-				$mealStep->mustWait = $step->STT_ID >= 10 || ($info->cookWithEveryCook[$recipeNr][0]!=self::COOK_WITH_BROWSER && $step->STT_ID == self::SCALE);
+				$mealStep->mustWait = $step->STT_ID >= 10 || ($info->cookWithEveryCook[$recipeNr][0]!=self::COOK_WITH_PAN && $step->STT_ID == self::SCALE);
 				$mealStep->autoClick = false;
 				
 				//$finishedAt = $currentTime + $mealStep->finishedIn;
@@ -330,7 +330,7 @@ class CookAssistantController extends Controller {
 					$mealStep->inTime = true;
 					$mealStep->nextStepIn = 0;
 				}
-				$textType = ($info->cookWithEveryCook[$recipeNr][0]!=self::COOK_WITH_BROWSER)?'AUTO_':'MAN_';
+				$textType = ($info->cookWithEveryCook[$recipeNr][0]!=self::COOK_WITH_PAN)?'AUTO_':'MAN_';
 				$mealStep->actionText = $step->action->__get('ACT_DESC_'.$textType.Yii::app()->session['lang']);
 				if (isset($step->ingredient)){
 					$mealStep->ingredientId = $step->ingredient->ING_ID;
@@ -355,7 +355,7 @@ class CookAssistantController extends Controller {
 					$mealStep->percent = 1;
 				}
 				
-				if (isset($info->cookWithEveryCook[$recipeNr]) && ($info->cookWithEveryCook[$recipeNr][0]!=self::COOK_WITH_BROWSER) && isset($info->steps[$recipeNr])){
+				if (isset($info->cookWithEveryCook[$recipeNr]) && ($info->cookWithEveryCook[$recipeNr][0]!=self::COOK_WITH_PAN) && isset($info->steps[$recipeNr])){
 					$oldMealstep = $info->steps[$recipeNr];
 					if ($oldMealstep->stepNr == $stepNr){
 						//no step change, only update
@@ -385,7 +385,7 @@ class CookAssistantController extends Controller {
 	public function actionUpdateState($recipeNr){
 		$info = Yii::app()->session['cookingInfo'];
 		
-		if (isset($info->cookWithEveryCook[$recipeNr]) && $info->cookWithEveryCook[$recipeNr][0]!=self::COOK_WITH_BROWSER){
+		if (isset($info->cookWithEveryCook[$recipeNr]) && $info->cookWithEveryCook[$recipeNr][0]!=self::COOK_WITH_PAN){
 			$state = $this->readActionFromFirmware($info, $recipeNr);
 			if (is_string($state) && strpos($state,"ERROR: ") !== false){
 				echo '{"error":"' . substr($state, 7) . '"}';
@@ -496,7 +496,7 @@ class CookAssistantController extends Controller {
 	}
 	
 	private function sendActionToFirmware($info, $recipeNr){
-		if (isset($info->cookWithEveryCook[$recipeNr]) && $info->cookWithEveryCook[$recipeNr][0]!=self::COOK_WITH_BROWSER){
+		if (isset($info->cookWithEveryCook[$recipeNr]) && $info->cookWithEveryCook[$recipeNr][0]!=self::COOK_WITH_PAN){
 			if (isset($info->course->couToRecs[$recipeNr]->recipe->steps[$info->stepNumbers[$recipeNr]])){
 				$step = $info->course->couToRecs[$recipeNr]->recipe->steps[$info->stepNumbers[$recipeNr]];
 				if ($info->steps[$recipeNr]->endReached){
@@ -526,8 +526,6 @@ class CookAssistantController extends Controller {
 	}
 	
 	private function readActionFromFirmware($info, $recipeNr){
-		//TODO use everycook ip/info from $info
-		// http://10.0.0.1/db/hw/status
 		require_once("remotefileinfo.php");
 		$inhalt=remote_file("http://10.0.0.1/db/hw/status");
 		
@@ -605,8 +603,22 @@ class CookAssistantController extends Controller {
 	}
 	
 	public function actionOverview() {
-		//TODO create overview
-		$this->checkRenderAjax('overview');
+		$info = Yii::app()->session['cookingInfo'];
+		$this->loadSteps($info);
+		if(isset($_POST['cookwith'])){
+			for($i=0; $i<count($_POST['cookwith']);++$i){
+				if ($_POST['cookwith'][$i] === 'local'){
+					$info->cookWithEveryCook[$i] = array(self::COOK_WITH_LOCAL,self::DEVICE_PATH);
+				} else if ($_POST['cookwith'][$i] === 'remote'){
+					$info->cookWithEveryCook[$i] = array(self::COOK_WITH_IP,$_POST['remoteip'][$i]);
+				} else if ($_POST['cookwith'][$i] === 'pan'){
+					$info->cookWithEveryCook[$i] = array(self::COOK_WITH_PAN);
+				}
+			}
+			
+			Yii::app()->session['cookingInfo'] = $info;
+		}
+		$this->checkRenderAjax('overview', array('info'=>$info));
 	}
 
 	public function actionPrev() {
