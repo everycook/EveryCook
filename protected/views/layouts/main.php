@@ -23,9 +23,9 @@
 				<div id="metaNavButtons">
 					<?php
 					if(Yii::app()->user->isGuest) {
-						echo '<a href="'. Yii::app()->createUrl('site/login',array()) . '">';
+						echo '<a class="nav_entry" href="'. Yii::app()->createUrl('site/login',array()) . '">';
 					} else {
-						echo '<a class="noAjax" href="' . Yii::app()->createUrl('site/logout',array()) . '">';
+						echo '<a class="noAjax nav_entry" href="' . Yii::app()->createUrl('site/logout',array()) . '">';
 					}
 					?>
 						<div class="nav_button">
@@ -35,7 +35,7 @@
 					<?php
 					if(!Yii::app()->user->isGuest) {
 					?>
-					<div class="nav_button navMenu" id="settings">
+					<div class="nav_button nav_entry navMenu" id="settings">
 						<span><?php echo $this->trans->GENERAL_SETTINGS; ?></span>
 					</div>
 					<div id="settings_List" class="navMenuList" style="right: 23em; display: none;">
@@ -92,7 +92,7 @@
 						</div>
 					</div>
 					<?php } ?>
-					<div class="nav_button navMenu" id="JumpTo">
+					<div class="nav_button nav_entry navMenu" id="JumpTo">
 						<span><?php echo $this->trans->GENERAL_JUMPTO; ?></span>
 					</div>
 					<div id="JumpTo_List" class="navMenuList" style="display: none;">
@@ -114,11 +114,12 @@
 						}
 						?>
 					</div>
-					<a class="noAjax" href="<?php echo '/cms/' . strtolower(substr(Yii::app()->session['lang'],0,2)) . '/'; ?>">
+					<a class="nav_entry noAjax" href="<?php echo '/cms/' . strtolower(substr(Yii::app()->session['lang'],0,2)) . '/'; ?>">
 						<div class="nav_button" id="about">
 							<span><?php echo $this->trans->GENERAL_ABOUT; ?></span>
 						</div>
 					</a>
+					<div class="clearfix"></div>
 				</div>
 			</div>
 			<?php Functions::browserCheck(); ?>

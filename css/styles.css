@@ -217,12 +217,16 @@ input, select {
 	position: relative;
 }
 
+.nav_entry {
+	display: block;
+	float: left;
+}
+
 .nav_button {
 	display:table;
 	overflow:hidden;
 	text-align:center;
 	margin-left:0.8em;
-	float:left;
 	width:12em;
 	height:1.5em;
 	border-radius:1.25em;
@@ -889,6 +893,7 @@ div.mealView span.value {
     bottom: 0.8em;
     position: absolute;
     width: 6.4em;
+	min-width: 0em;
 }
 
 #peopleDetailsContent {

@@ -394,8 +394,9 @@ jQuery(function($){
 		var oldField = row.find('[id*=gda_id_kcal_GDA_]:visible');
 		oldField.hide();
 		var oldIndex = oldField.find('option:selected').index();
-		
+		oldField.attr('disabled', 'disabled');
 		var field = row.find('[id$=gda_id_kcal_GDA_' + gender + ']');
+		field.removeAttr('disabled');
 		field.find('option:selected').removeAttr('selected');
 		field.find('option').slice(oldIndex,oldIndex+1).attr('selected','selected');
 		field.show();

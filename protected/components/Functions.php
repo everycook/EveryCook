@@ -662,6 +662,11 @@ class Functions extends CHtml{
 	
 	
 	public static function addLikeInfo($id, $type, $like){
+		if(Yii::app()->user->demo){
+			Yii::app()->controller->errorText = sprintf(Yii::app()->controller->trans->DEMO_USER_CANNOT_CHANGE_DATA, Yii::app()->createUrl("profiles/register"));
+			return false;
+		}
+		
 		$model=Profiles::model()->findByPk(Yii::app()->user->id);
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');

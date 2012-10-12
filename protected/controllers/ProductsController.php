@@ -198,80 +198,88 @@ class ProductsController extends Controller
 					}
 					$this->errorText .= CHtml::label('Ignore possible duplicates','ignoreDuplicates') . CHtml::checkBox('ignoreDuplicates');
 				} else {
-					$transaction=$model->dbConnection->beginTransaction();
-					try {
-						if($model->save()){
-							//Check Producer to add / to remove
-							$producersExist = array();
-							if (isset($model->oldProducers) && $model->oldProducers != null && count($model->oldProducers)>0){
-								$toRemove = array_merge(array(),$model->oldProducers);
-								for($i=0; $i<count($model->producers); $i++){
-									$found = false;
-									$producersStatus[$i] = 'exist';
-									$j=0;
-									foreach($toRemove as $oldProducer){
-										if ($model->producers[$i]->PRD_ID == $oldProducer->PRD_ID){
-											$producersExist[$i] = true;
-											unset($toRemove[$j]);
-											break;
+					if(Yii::app()->user->demo){
+						$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+					} else {
+						$transaction=$model->dbConnection->beginTransaction();
+						try {
+							if($model->save()){
+								//Check Producer to add / to remove
+								$producersExist = array();
+								if (isset($model->oldProducers) && $model->oldProducers != null && count($model->oldProducers)>0){
+									$toRemove = array_merge(array(),$model->oldProducers);
+									for($i=0; $i<count($model->producers); $i++){
+										$found = false;
+										$producersStatus[$i] = 'exist';
+										$j=0;
+										foreach($toRemove as $oldProducer){
+											if ($model->producers[$i]->PRD_ID == $oldProducer->PRD_ID){
+												$producersExist[$i] = true;
+												unset($toRemove[$j]);
+												break;
+											}
+											$j++;
 										}
-										$j++;
 									}
 								}
-							}
-							for($i=0; $i<count($model->producers); $i++){
-								if (!isset($producersExist[$i]) || !$producersExist[$i]){
-									$ProToPrd = new ProToPrd;
-									$ProToPrd->PRO_ID = $model->PRO_ID;
-									$ProToPrd->PRD_ID = $model->producers[$i]->PRD_ID;
-									//try {
-										$ProToPrd->Save();
-									//} catch(Exception $e) {
-									//	$this->errorText .= 'Exception occured: ' . $e . '<br />';
-									//}
-								}
-							}
-							$model->oldProducers = $model->producers;
-							
-							if (isset($toRemove) && $toRemove!=null && count($toRemove)>0){
-								$removeIDs = array();
-								foreach($toRemove as $producer){
-									if (isset($producer)){
-										array_push($removeIDs, $producer->PRD_ID);
+								for($i=0; $i<count($model->producers); $i++){
+									if (!isset($producersExist[$i]) || !$producersExist[$i]){
+										$ProToPrd = new ProToPrd;
+										$ProToPrd->PRO_ID = $model->PRO_ID;
+										$ProToPrd->PRD_ID = $model->producers[$i]->PRD_ID;
+										//try {
+											$ProToPrd->Save();
+										//} catch(Exception $e) {
+										//	$this->errorText .= 'Exception occured: ' . $e . '<br />';
+										//}
 									}
 								}
-								ProToPrd::model()->deleteAllByAttributes(array('PRO_ID'=>$model->PRO_ID, 'PRD_ID'=>$removeIDs));
-							}
-							
-							unset(Yii::app()->session[$this->createBackup]);
-							unset(Yii::app()->session[$this->createBackup.'_Time']);
-							if (isset($_POST['saveAddAssing'])){
-								//create search with used ingredient, for view after save (if there is not set a search already)
-								$Session_Product = Yii::app()->session[$this->searchBackup];
-								if (isset($Session_Product)){
-									if (!isset($Session_Product['query']) && !isset($Session_Product['ing_id']) && !isset($Session_Product['model'])){
+								$model->oldProducers = $model->producers;
+								
+								if (isset($toRemove) && $toRemove!=null && count($toRemove)>0){
+									$removeIDs = array();
+									foreach($toRemove as $producer){
+										if (isset($producer)){
+											array_push($removeIDs, $producer->PRD_ID);
+										}
+									}
+									if(Yii::app()->user->demo){
+										$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+									} else {
+										ProToPrd::model()->deleteAllByAttributes(array('PRO_ID'=>$model->PRO_ID, 'PRD_ID'=>$removeIDs));
+									}
+								}
+								
+								unset(Yii::app()->session[$this->createBackup]);
+								unset(Yii::app()->session[$this->createBackup.'_Time']);
+								if (isset($_POST['saveAddAssing'])){
+									//create search with used ingredient, for view after save (if there is not set a search already)
+									$Session_Product = Yii::app()->session[$this->searchBackup];
+									if (isset($Session_Product)){
+										if (!isset($Session_Product['query']) && !isset($Session_Product['ing_id']) && !isset($Session_Product['model'])){
+											$Session_Product = array();
+											$Session_Product['ing_id'] = $model->ING_ID;
+											$Session_Product['time'] = time();
+											Yii::app()->session[$this->searchBackup] = $Session_Product;
+										}
+									} else {
 										$Session_Product = array();
 										$Session_Product['ing_id'] = $model->ING_ID;
 										$Session_Product['time'] = time();
 										Yii::app()->session[$this->searchBackup] = $Session_Product;
 									}
+									
+									$dest = array('stores/assign', 'pro_id'=>$model->PRO_ID);
 								} else {
-									$Session_Product = array();
-									$Session_Product['ing_id'] = $model->ING_ID;
-									$Session_Product['time'] = time();
-									Yii::app()->session[$this->searchBackup] = $Session_Product;
+									$dest = array('view', 'id'=>$model->PRO_ID);
 								}
-								
-								$dest = array('stores/assign', 'pro_id'=>$model->PRO_ID);
-							} else {
-								$dest = array('view', 'id'=>$model->PRO_ID);
+								$this->forwardAfterSave($dest);
+								return;
 							}
-							$this->forwardAfterSave($dest);
-							return;
+						} catch(Exception $e) {
+							$this->errorText .= 'Exception occured -&gt; rollback. Exception was: ' . $e . '<br />';
+							$transaction->rollBack();
 						}
-					} catch(Exception $e) {
-						$this->errorText .= 'Exception occured -&gt; rollback. Exception was: ' . $e . '<br />';
-						$transaction->rollBack();
 					}
 				}
 			}
@@ -325,7 +333,11 @@ class ProductsController extends Controller
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
-			$this->loadModel($id)->delete();
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				$this->loadModel($id)->delete();
+			}
 
 			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 			if(!isset($_GET['ajax']))

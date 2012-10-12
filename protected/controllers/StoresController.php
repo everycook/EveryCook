@@ -186,11 +186,16 @@ class StoresController extends Controller
 					} else {
 						$model->STO_GPS_POINT = null;
 					}
-					if($model->save()){
-						unset(Yii::app()->session[$this->createBackup]);
-						unset(Yii::app()->session[$this->createBackup.'_Time']);
-						$this->forwardAfterSave(array('view', 'id'=>$model->STO_ID));
-						return;
+					
+					if(Yii::app()->user->demo){
+						$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+					} else {
+						if($model->save()){
+							unset(Yii::app()->session[$this->createBackup]);
+							unset(Yii::app()->session[$this->createBackup.'_Time']);
+							$this->forwardAfterSave(array('view', 'id'=>$model->STO_ID));
+							return;
+						}
 					}
 				}
 			}
@@ -283,15 +288,19 @@ class StoresController extends Controller
 						}*/
 					}
 				} else {
-					try {
-						if($model->save()){
-							if(!isset($_POST['saveAddNext'])){
-								$this->forwardAfterSave(array('products/search'));
-								return;
+					if(Yii::app()->user->demo){
+						$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+					} else {
+						try {
+							if($model->save()){
+								if(!isset($_POST['saveAddNext'])){
+									$this->forwardAfterSave(array('products/search'));
+									return;
+								}
 							}
+						} catch (Exception $e) {
+							$this->errorText = 'Caught exception: ' .$e->getMessage() . "\n";
 						}
-					} catch (Exception $e) {
-						$this->errorText = 'Caught exception: ' .$e->getMessage() . "\n";
 					}
 				}
 			}
@@ -365,7 +374,11 @@ class StoresController extends Controller
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
-			$this->loadModel($id)->delete();
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				$this->loadModel($id)->delete();
+			}
 
 			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 			if(!isset($_GET['ajax']))

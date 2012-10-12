@@ -258,54 +258,61 @@ class RecipesController extends Controller
 			
 			Yii::app()->session[$this->createBackup] = $model;
 			Yii::app()->session[$this->createBackup.'_Time'] = time();
-			if ($stepsOK){
-				$transaction=$model->dbConnection->beginTransaction();
-				try {
-					if($model->save()){
-						$saveOK = true;
-						Yii::app()->db->createCommand()->delete(Steps::model()->tableName(), 'REC_ID = :id', array(':id'=>$model->REC_ID));
-						$stepNo = 0;
-						//foreach($steps as $step){
-						foreach($model->steps as $step){
-							$step->REC_ID = $model->REC_ID;
-							$step->STE_STEP_NO = $stepNo;
-							$step->setIsNewRecord(true);
-							if(!$step->save()){
-								$saveOK = false;
-								if ($this->debug) echo 'error on save Step: errors:'; print_r($step->getErrors());
+			
+			
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+				$model->validate();
+			} else {
+				if ($stepsOK){
+					$transaction=$model->dbConnection->beginTransaction();
+					try {
+						if($model->save()){
+							$saveOK = true;
+							Yii::app()->db->createCommand()->delete(Steps::model()->tableName(), 'REC_ID = :id', array(':id'=>$model->REC_ID));
+							$stepNo = 0;
+							//foreach($steps as $step){
+							foreach($model->steps as $step){
+								$step->REC_ID = $model->REC_ID;
+								$step->STE_STEP_NO = $stepNo;
+								$step->setIsNewRecord(true);
+								if(!$step->save()){
+									$saveOK = false;
+									if ($this->debug) echo 'error on save Step: errors:'; print_r($step->getErrors());
+								}
+								++$stepNo;
 							}
-							++$stepNo;
-						}
-						/*
-						foreach($stepsToDelete as $step){
-							if(!$step->delete()){
-								$saveOK = false;
-								if ($this->debug) echo 'error on delete Step: '; print_r($step->getErrors());
+							/*
+							foreach($stepsToDelete as $step){
+								if(!$step->delete()){
+									$saveOK = false;
+									if ($this->debug) echo 'error on delete Step: '; print_r($step->getErrors());
+								}
 							}
-						}
-						*/
-						if ($saveOK){
-							$this->updateKCal($model->REC_ID);
-							$transaction->commit();
-							unset(Yii::app()->session[$this->createBackup]);
-							unset(Yii::app()->session[$this->createBackup.'_Time']);
-							$this->forwardAfterSave(array('view', 'id'=>$model->REC_ID));
-							return;
+							*/
+							if ($saveOK){
+								$this->updateKCal($model->REC_ID);
+								$transaction->commit();
+								unset(Yii::app()->session[$this->createBackup]);
+								unset(Yii::app()->session[$this->createBackup.'_Time']);
+								$this->forwardAfterSave(array('view', 'id'=>$model->REC_ID));
+								return;
+							} else {
+								if ($this->debug) echo 'any errors occured, rollback';
+								$transaction->rollBack();
+							}
 						} else {
-							if ($this->debug) echo 'any errors occured, rollback';
+							if ($this->debug) echo 'error on save: ';  print_r($model->getErrors());
 							$transaction->rollBack();
 						}
-					} else {
-						if ($this->debug) echo 'error on save: ';  print_r($model->getErrors());
+					} catch(Exception $e) {
+						if ($this->debug) echo 'Exception occured -&gt; rollback. Exeption was: ' . $e;
 						$transaction->rollBack();
 					}
-				} catch(Exception $e) {
-					if ($this->debug) echo 'Exception occured -&gt; rollback. Exeption was: ' . $e;
-					$transaction->rollBack();
+				} else {
+					//To show Recipe errors also
+					$model->validate();
 				}
-			} else {
-				//To show Recipe errors also
-				$model->validate();
 			}
 		}
 		
@@ -454,7 +461,12 @@ class RecipesController extends Controller
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
-			$this->loadModel($id)->delete();
+			
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				$this->loadModel($id)->delete();
+			}
 
 			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 			if(!isset($_GET['ajax']))

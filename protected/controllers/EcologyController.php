@@ -63,8 +63,13 @@ class EcologyController extends Controller
 		if(isset($_POST['Ecology']))
 		{
 			$model->attributes=$_POST['Ecology'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->ECO_ID));
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				if($model->save()){
+					$this->redirect(array('view','id'=>$model->ECO_ID));
+				}
+			}
 		}
 
 		$this->checkRenderAjax('create',array(
@@ -87,8 +92,13 @@ class EcologyController extends Controller
 		if(isset($_POST['Ecology']))
 		{
 			$model->attributes=$_POST['Ecology'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->ECO_ID));
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				if($model->save()){
+					$this->redirect(array('view','id'=>$model->ECO_ID));
+				}
+			}
 		}
 
 		$this->checkRenderAjax('update',array(
@@ -106,7 +116,11 @@ class EcologyController extends Controller
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
-			$this->loadModel($id)->delete();
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				$this->loadModel($id)->delete();
+			}
 
 			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 			if(!isset($_GET['ajax']))

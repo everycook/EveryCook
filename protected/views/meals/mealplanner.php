@@ -15,7 +15,14 @@
 
 	<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
 
-	<?php echo $form->errorSummary($model); ?>
+	<?php 
+		echo $form->errorSummary($model);
+		if ($this->errorText){
+			echo '<div class="errorSummary">';
+			echo $this->errorText;
+			echo '</div>';
+		}
+	?>
 	
 	<div class="row buttons" <?php if(!$model->isNewRecord){echo 'style="display:none"';} ?>>
 		<div><?php echo $this->trans->MEALPLANNER_COOK_DATE; ?></div>

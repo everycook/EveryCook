@@ -181,12 +181,16 @@ class IngredientsController extends Controller
 					}
 					$this->errorText .= CHtml::label('Ignore possible duplicates','ignoreDuplicates') . CHtml::checkBox('ignoreDuplicates');
 				} else {
-					if($model->save()){
-						unset(Yii::app()->session[$this->createBackup]);
-						unset(Yii::app()->session[$this->createBackup.'_Time']);
-						//$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
-						$this->forwardAfterSave(array('search', 'query'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
-						return;
+					if(Yii::app()->user->demo){
+						$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+					} else {
+						if($model->save()){
+							unset(Yii::app()->session[$this->createBackup]);
+							unset(Yii::app()->session[$this->createBackup.'_Time']);
+							//$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
+							$this->forwardAfterSave(array('search', 'query'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
+							return;
+						}
 					}
 				}
 			}
@@ -252,7 +256,11 @@ class IngredientsController extends Controller
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
-			$this->loadModel($id)->delete();
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				$this->loadModel($id)->delete();
+			}
 
 			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 			if(!isset($_GET['ajax']))

@@ -93,7 +93,11 @@ class MealsController extends Controller
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
-			$this->loadModel($id)->delete();
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				$this->loadModel($id)->delete();
+			}
 
 			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 			if(!isset($_GET['ajax']))
@@ -219,78 +223,82 @@ class MealsController extends Controller
 			return;
 			*/
 			
-			$transaction2=Yii::app()->db->beginTransaction();
-			$transaction=Yii::app()->dbp->beginTransaction();
-			try {
-				if($model->save()){
-					$saveOK = true;
-					$meaToCouIndex = 0;
-					$meaToCous = $model->meaToCous;
-					Yii::app()->dbp->createCommand()->delete(MeaToCou::model()->tableName(), 'MEA_ID = :id', array(':id'=>$model->MEA_ID));
-					foreach($meaToCous as $meaToCou){
-						$meaToCou->MEA_ID = $model->MEA_ID;
-						$meaToCou->setIsNewRecord(true);
-						if($meaToCou->course->save()){
-							$meaToCou->COU_ID = $meaToCou->course->COU_ID;
-							$meaToCou->MTC_ORDER = $meaToCouIndex;
-							++$meaToCouIndex;
-							if($meaToCou->save()){
-								$CouToRecIndex = 0;
-								$couToRecs = $meaToCou->course->couToRecs;
-								Yii::app()->db->createCommand()->delete(CouToRec::model()->tableName(), 'COU_ID = :id', array(':id'=>$meaToCou->course->COU_ID));
-								foreach($couToRecs as $couToRec){
-									$couToRec->COU_ID = $meaToCou->course->COU_ID;
-									$couToRec->CTR_ORDER = $CouToRecIndex;
-									$couToRec->setIsNewRecord(true);
-									++$CouToRecIndex;
-									if(!$couToRec->save()){
-										$saveOK = false;
-										echo 'error on save couToRec: errors:<pre>'; print_r($couToRec->getErrors()); echo '</pre>';
-										break 2;
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				$transaction2=Yii::app()->db->beginTransaction();
+				$transaction=Yii::app()->dbp->beginTransaction();
+				try {
+					if($model->save()){
+						$saveOK = true;
+						$meaToCouIndex = 0;
+						$meaToCous = $model->meaToCous;
+						Yii::app()->dbp->createCommand()->delete(MeaToCou::model()->tableName(), 'MEA_ID = :id', array(':id'=>$model->MEA_ID));
+						foreach($meaToCous as $meaToCou){
+							$meaToCou->MEA_ID = $model->MEA_ID;
+							$meaToCou->setIsNewRecord(true);
+							if($meaToCou->course->save()){
+								$meaToCou->COU_ID = $meaToCou->course->COU_ID;
+								$meaToCou->MTC_ORDER = $meaToCouIndex;
+								++$meaToCouIndex;
+								if($meaToCou->save()){
+									$CouToRecIndex = 0;
+									$couToRecs = $meaToCou->course->couToRecs;
+									Yii::app()->db->createCommand()->delete(CouToRec::model()->tableName(), 'COU_ID = :id', array(':id'=>$meaToCou->course->COU_ID));
+									foreach($couToRecs as $couToRec){
+										$couToRec->COU_ID = $meaToCou->course->COU_ID;
+										$couToRec->CTR_ORDER = $CouToRecIndex;
+										$couToRec->setIsNewRecord(true);
+										++$CouToRecIndex;
+										if(!$couToRec->save()){
+											$saveOK = false;
+											echo 'error on save couToRec: errors:<pre>'; print_r($couToRec->getErrors()); echo '</pre>';
+											break 2;
+										}
 									}
+								} else {
+									echo 'error on save meaToCou: errors:<pre>'; print_r($meaToCou->getErrors()); echo '</pre>';
+									$saveOK = false;
+									break 1;
 								}
 							} else {
-								echo 'error on save meaToCou: errors:<pre>'; print_r($meaToCou->getErrors()); echo '</pre>';
+								echo 'error on save course: errors:<pre>'; print_r($course->getErrors()); echo '</pre>';
 								$saveOK = false;
 								break 1;
 							}
-						} else {
-							echo 'error on save course: errors:<pre>'; print_r($course->getErrors()); echo '</pre>';
-							$saveOK = false;
-							break 1;
 						}
-					}
-					if ($saveOK){
-						$transaction2->commit();
-						$transaction->commit();
-						unset(Yii::app()->session[$this->createBackup]);
-						unset(Yii::app()->session[$this->createBackup.'_Time']);
-						if (isset($_POST['saveToShoppingList'])){
-							if (isset($model->SHO_ID) && $model->SHO_ID != 0){
-								$this->forwardAfterSave(array('shoppinglists/view', 'id'=>$model->SHO_ID));
+						if ($saveOK){
+							$transaction2->commit();
+							$transaction->commit();
+							unset(Yii::app()->session[$this->createBackup]);
+							unset(Yii::app()->session[$this->createBackup.'_Time']);
+							if (isset($_POST['saveToShoppingList'])){
+								if (isset($model->SHO_ID) && $model->SHO_ID != 0){
+									$this->forwardAfterSave(array('shoppinglists/view', 'id'=>$model->SHO_ID));
+								} else {
+									$this->forwardAfterSave(array('createShoppingList', 'id'=>$model->MEA_ID));
+								}
 							} else {
-								$this->forwardAfterSave(array('createShoppingList', 'id'=>$model->MEA_ID));
+								$this->forwardAfterSave(array('mealList', 'id'=>$model->MEA_ID));
 							}
+							return;
 						} else {
-							$this->forwardAfterSave(array('mealList', 'id'=>$model->MEA_ID));
+							//TODO: Remove ID's...?
+							echo 'rollback because of previous errors.';
+							//echo 'any errors occured, rollback';
+							$transaction2->rollBack();
+							$transaction->rollBack();
 						}
-						return;
 					} else {
-						//TODO: Remove ID's...?
-						echo 'rollback because of previous errors.';
-						//echo 'any errors occured, rollback';
+						echo 'error on save meal: errors:<pre>'; print_r($model->getErrors()); echo '</pre>';
 						$transaction2->rollBack();
 						$transaction->rollBack();
 					}
-				} else {
-					echo 'error on save meal: errors:<pre>'; print_r($model->getErrors()); echo '</pre>';
+				} catch(Exception $e) {
+					echo 'Exception occured -&gt; rollback. Exeption was: ' . $e;
 					$transaction2->rollBack();
 					$transaction->rollBack();
 				}
-			} catch(Exception $e) {
-				echo 'Exception occured -&gt; rollback. Exeption was: ' . $e;
-				$transaction2->rollBack();
-				$transaction->rollBack();
 			}
 		}
 
@@ -493,30 +501,35 @@ class MealsController extends Controller
 		$shoppingList->SHO_WEIGHTS = $ing_weight_text;
 		$shoppingList->SHO_PRODUCTS = $pro_id_text;
 		$shoppingList->SHO_QUANTITIES = $amount_text;
-		if ($shoppingList->save()){		
-			Yii::app()->dbp->createCommand()->update(Meals::model()->tableName(), array('SHO_ID'=>$shoppingList->SHO_ID), 'MEA_ID = :id', array(':id'=>$id));
-			
-			$shoppinglists = Yii::app()->user->shoppinglists;
-			if (!isset($shoppinglists) || $shoppinglists == null || count($shoppinglists) == 0){
-				$shoppinglists = $shoppingList->SHO_ID;
-				$values = array($shoppingList->SHO_ID);
-			} else {
-				//no dupplicates
-				$values = $shoppinglists;
-				$values[] = $shoppingList->SHO_ID;
-				$values = array_unique($values);
-				//sort($values, SORT_NUMERIC);
-				$shoppinglists = implode(';', $values);
-			}
-			
-			Yii::app()->dbp->createCommand()->update(Profiles::model()->tableName(), array('PRF_SHOPLISTS'=>$shoppinglists), 'PRF_UID = :id', array(':id'=>Yii::app()->user->id));
-			Yii::app()->user->shoppinglists = $values;
-			
-			$this->forwardAfterSave(array('shoppinglists/view', 'id'=>$shoppingList->SHO_ID));
+		
+		if(Yii::app()->user->demo){
+			$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
 		} else {
-			echo '<pre>';
-			print_r($shoppingList->getErrors());
-			echo '</pre>';
+			if ($shoppingList->save()){		
+				Yii::app()->dbp->createCommand()->update(Meals::model()->tableName(), array('SHO_ID'=>$shoppingList->SHO_ID), 'MEA_ID = :id', array(':id'=>$id));
+				
+				$shoppinglists = Yii::app()->user->shoppinglists;
+				if (!isset($shoppinglists) || $shoppinglists == null || count($shoppinglists) == 0){
+					$shoppinglists = $shoppingList->SHO_ID;
+					$values = array($shoppingList->SHO_ID);
+				} else {
+					//no dupplicates
+					$values = $shoppinglists;
+					$values[] = $shoppingList->SHO_ID;
+					$values = array_unique($values);
+					//sort($values, SORT_NUMERIC);
+					$shoppinglists = implode(';', $values);
+				}
+				
+				Yii::app()->dbp->createCommand()->update(Profiles::model()->tableName(), array('PRF_SHOPLISTS'=>$shoppinglists), 'PRF_UID = :id', array(':id'=>Yii::app()->user->id));
+				Yii::app()->user->shoppinglists = $values;
+				
+				$this->forwardAfterSave(array('shoppinglists/view', 'id'=>$shoppingList->SHO_ID));
+			} else {
+				echo '<pre>';
+				print_r($shoppingList->getErrors());
+				echo '</pre>';
+			}
 		}
 	}
 	

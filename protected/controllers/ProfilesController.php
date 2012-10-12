@@ -159,17 +159,28 @@ class ProfilesController extends Controller
 				if ($model->PRF_VIEW_DISTANCE == '' || $model->PRF_VIEW_DISTANCE < 1){
 					$model->PRF_VIEW_DISTANCE = 1;
 				}
-				
-				if($model->save(false)){
+
+
+				if(Yii::app()->user->demo){
+					//$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+					
 					$home_gps = array($model->PRF_LOC_GPS_LAT, $model->PRF_LOC_GPS_LNG, $model->PRF_LOC_GPS_POINT);
 					Yii::app()->user->home_gps = $home_gps;
 					Yii::app()->user->view_distance = $model->PRF_VIEW_DISTANCE;
-					
-					unset(Yii::app()->session[$this->createBackup]);
-					unset(Yii::app()->session[$this->createBackup.'_Time']);
-					
 					$this->forwardAfterSave(array('view', 'id'=>$model->PRF_UID));
 					return;
+				} else {				
+					if($model->save(false)){
+						$home_gps = array($model->PRF_LOC_GPS_LAT, $model->PRF_LOC_GPS_LNG, $model->PRF_LOC_GPS_POINT);
+						Yii::app()->user->home_gps = $home_gps;
+						Yii::app()->user->view_distance = $model->PRF_VIEW_DISTANCE;
+						
+						unset(Yii::app()->session[$this->createBackup]);
+						unset(Yii::app()->session[$this->createBackup.'_Time']);
+						
+						$this->forwardAfterSave(array('view', 'id'=>$model->PRF_UID));
+						return;
+					}
 				}
 			}
 		} else {
@@ -219,7 +230,11 @@ class ProfilesController extends Controller
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
-			$this->loadModel($id)->delete();
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				$this->loadModel($id)->delete();
+			}
 
 			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 			if(!isset($_GET['ajax']))
@@ -326,6 +341,7 @@ class ProfilesController extends Controller
 				//for($i = 1; $i < $iterations; $i++) {
 				//	$hash = crypt($hash . $password, $salt);
 				//}
+				
 				if($model->save(false)) { //false = not validate again
 					unset(Yii::app()->session[$this->createBackup]);
 					unset(Yii::app()->session[$this->createBackup.'_Time']);
@@ -440,9 +456,11 @@ class ProfilesController extends Controller
 		}
 		self::$trans=new Translations($_GET['lang']);
 		
-		$model = $this->loadModel(Yii::app()->user->id);
-		$model->PRF_LANG = $_GET['lang'];
-		$model->save();
+		if(!Yii::app()->user->demo){
+			$model = $this->loadModel(Yii::app()->user->id);	
+			$model->PRF_LANG = $_GET['lang'];	
+			$model->save();
+		}
 		
 		$this->showLastAction();
 	}
@@ -450,9 +468,12 @@ class ProfilesController extends Controller
 	public function actionChangeDesignMenu() {
 		$this->saveLastAction = false;
 		Yii::app()->user->design = $_GET['design'];
-		$model = $this->loadModel(Yii::app()->user->id);
-		$model->PRF_DESIGN = $_GET['design'];
-		$model->save();
+		
+		if(!Yii::app()->user->demo){
+			$model = $this->loadModel(Yii::app()->user->id);
+			$model->PRF_DESIGN = $_GET['design'];
+			$model->save();
+		}
 	}
 
 	/**
@@ -465,10 +486,26 @@ class ProfilesController extends Controller
 		if ($id == 'backup'){
 			$model=Yii::app()->session[$this->createBackup];
 		} else {
-			if ($id != Yii::app()->user->id){
-				throw new CHttpException(403,'It\'s not allowed to open profile of other user.');
+			if(Yii::app()->user->demo){
+				$model=new Profiles;
+				$model->PRF_UID = 0;
+				$model->PRF_FIRSTNAME = 'Demo';
+				$model->PRF_LASTNAME = 'Demo';
+				$model->PRF_NICK = 'Demo';
+				$model->PRF_EMAIL = 'demo@demo.ch';
+				$model->PRF_LANG = Yii::app()->user->lang;
+				$model->PRF_LOC_GPS_LAT = Yii::app()->user->home_gps[0];
+				$model->PRF_LOC_GPS_LNG = Yii::app()->user->home_gps[1];
+				$model->PRF_LOC_GPS_POINT = Yii::app()->user->home_gps[2];
+				$model->PRF_VIEW_DISTANCE = Yii::app()->user->view_distance;
+				$model->PRF_PW = 'demo';
+				$model->isNewRecord = false;
+			} else {
+				if ($id != Yii::app()->user->id){
+					throw new CHttpException(403,'It\'s not allowed to open profile of other user.');
+				}
+				$model=Profiles::model()->findByPk($id);
 			}
-			$model=Profiles::model()->findByPk($id);
 		}
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');

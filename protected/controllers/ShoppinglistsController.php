@@ -72,12 +72,16 @@ class ShoppinglistsController extends Controller
 		$model->SHO_PRODUCTS = implode(';',$pro_ids);
 		$model->SHO_QUANTITIES = implode(';',$gramm_values);
 		
-		if($model->save()){
-			echo '{"sucessfull":true}';
+		if(Yii::app()->user->demo){
+			echo '{"sucessfull":false, "error":"' . sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
 		} else {
-			echo '{"sucessfull":false, "error":"';
-			print_r($model->getErrors());
-			echo '"}';
+			if($model->save()){
+				echo '{"sucessfull":true}';
+			} else {
+				echo '{"sucessfull":false, "error":"';
+				print_r($model->getErrors());
+				echo '"}';
+			}
 		}
 	}
 	
@@ -113,12 +117,16 @@ class ShoppinglistsController extends Controller
 		$model->SHO_PRODUCTS = implode(';',$pro_ids);
 		$model->SHO_QUANTITIES = implode(';',$gramm_values);
 		
-		if($model->save()){
-			echo '{"sucessfull":true}';
+		if(Yii::app()->user->demo){
+			echo '{"sucessfull":false, "error":"' . sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
 		} else {
-			echo '{"sucessfull":false, "error":"';
-			print_r($model->getErrors());
-			echo '"}';
+			if($model->save()){
+				echo '{"sucessfull":true}';
+			} else {
+				echo '{"sucessfull":false, "error":"';
+				print_r($model->getErrors());
+				echo '"}';
+			}
 		}
 	}
 
@@ -155,7 +163,6 @@ class ShoppinglistsController extends Controller
 			$MEA_ID = $meal['MEA_ID'];
 			$changed = (isset($meal['CHANGED_ON']) && $meal['CHANGED_ON'] > $model->CHANGED_ON);
 		}
-		
 		
 		$this->viewList($ing_ids, $ing_weights, $pro_ids, $gramm_values, $model->SHO_ID, $MEA_ID, $changed);
 	}
@@ -409,8 +416,14 @@ class ShoppinglistsController extends Controller
 		if(isset($_POST['Shoppinglists']))
 		{
 			$model->attributes=$_POST['Shoppinglists'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->SHO_ID));
+			
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				if($model->save()){
+					$this->redirect(array('view','id'=>$model->SHO_ID));
+				}
+			}
 		}
 
 		$this->checkRenderAjax('create',array(
@@ -433,8 +446,14 @@ class ShoppinglistsController extends Controller
 		if(isset($_POST['Shoppinglists']))
 		{
 			$model->attributes=$_POST['Shoppinglists'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->SHO_ID));
+			
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				if($model->save()) {
+					$this->redirect(array('view','id'=>$model->SHO_ID));
+				}
+			}
 		}
 
 		$this->checkRenderAjax('update',array(
@@ -452,7 +471,12 @@ class ShoppinglistsController extends Controller
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
-			$this->loadModel($id)->delete();
+			
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				$this->loadModel($id)->delete();
+			}
 
 			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 			if(!isset($_GET['ajax']))

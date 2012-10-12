@@ -6,9 +6,16 @@
 )); ?>
 
 	<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
-
-	<?php echo $form->errorSummary($model); ?>
-
+	
+	<?php
+	echo $form->errorSummary($model);
+	if ($this->errorText){
+		echo '<div class="errorSummary">';
+		echo $this->errorText;
+		echo '</div>';
+	}
+	?>
+	
 	<div class="row">
 		<?php echo $form->labelEx($model,'ECO_DESC_EN'); ?>
 		<?php echo $form->textField($model,'ECO_DESC_EN',array('size'=>60,'maxlength'=>100)); ?>

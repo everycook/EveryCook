@@ -7,7 +7,14 @@
 
 	<p class="note">Fields with <span class="required">*</span> are required.</p>
 
-	<?php echo $form->errorSummary($model); ?>
+	<?php
+	echo $form->errorSummary($model);
+	if ($this->errorText){
+		echo '<div class="errorSummary">';
+		echo $this->errorText;
+		echo '</div>';
+	}
+	?>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'SHO_DATE'); ?>

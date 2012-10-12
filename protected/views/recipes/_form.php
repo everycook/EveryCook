@@ -24,9 +24,15 @@
 	<?php
 		echo $form->errorSummary($model);
 		if ($this->errorText != ''){
-			echo '<div class="errorSummary"><p>Please fix the following input errors on Steps:</p><ul>';
-			echo $this->errorText;
-			echo '</ul></div>';
+			if (strpos($this->errorText, '<li>')){
+				echo '<div class="errorSummary"><p>Please fix the following input errors on Steps:</p><ul>';
+				echo $this->errorText;
+				echo '</ul></div>';
+			} else {
+				echo '<div class="errorSummary">';
+				echo $this->errorText;
+				echo '</div>';
+			}
 		}
 	?>
 	

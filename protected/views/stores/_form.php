@@ -14,9 +14,9 @@
 		<?php
 		echo $form->errorSummary($model);
 		if ($this->errorText){
-				echo '<div class="errorSummary">';
-				echo $this->errorText;
-				echo '</div>';
+			echo '<div class="errorSummary">';
+			echo $this->errorText;
+			echo '</div>';
 		}
 		
 		$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);

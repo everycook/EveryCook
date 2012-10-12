@@ -61,8 +61,13 @@ class StepsController extends Controller
 		
 		if(isset($_POST['Steps'])) {
 			$model->attributes=$_POST['Steps'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->REC_ID,'id2'=>$model->STE_STEP_NO));
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				if($model->save()){
+					$this->redirect(array('view','id'=>$model->REC_ID,'id2'=>$model->STE_STEP_NO));
+				}
+			}
 		}
 		
 		$stepTypes = Yii::app()->db->createCommand()->select('STT_ID,STT_DESC_'.Yii::app()->session['lang'])->from('step_types')->queryAll();
@@ -112,7 +117,11 @@ class StepsController extends Controller
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
-			$this->loadModel($id,$id2)->delete();
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				$this->loadModel($id,$id2)->delete();
+			}
 
 			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 			if(!isset($_GET['ajax']))
