@@ -13,6 +13,9 @@ class IngredientsController extends Controller
 	
 	protected $createBackup = 'Ingredients_Backup';
 	protected $searchBackup = 'Ingredients';
+	protected $getNextAmountBackup = 'Ingredients_GetNextAmount';
+	const RECIPES_AMOUNT = 2;
+	const PRODUCTS_AMOUNT = 2;
 	
 	/**
 	 * Specifies the access control rules.
@@ -23,7 +26,7 @@ class IngredientsController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','getSubGroupSearch','getSubGroupForm','chooseIngredient','advanceChooseIngredient'),
+				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','getSubGroupSearch','getSubGroupForm','chooseIngredient','advanceChooseIngredient','getNext'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -60,11 +63,85 @@ class IngredientsController extends Controller
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionView($id)
-	{
+	public function actionView($id) {
+		$model = $this->loadModel($id);
+		if ($model->NUT_ID >0){
+			$nutrientData = NutrientData::model()->findByPk($model->NUT_ID);
+		} else {
+			$nutrientData = null;
+		}
+		
+		//read max amount
+		$ing_id = $model->ING_ID;
+		$otherItemsAmount = array();
+		$sql = 'SELECT count(*) FROM (SELECT recipes.REC_ID FROM recipes JOIN steps ON recipes.REC_ID = steps.REC_ID WHERE steps.ING_ID = :id GROUP BY recipes.REC_ID) as recipesView';
+		$command = Yii::app()->db->createCommand($sql)
+			->bindParam(':id', $ing_id);
+		$otherItemsAmount['recipes'] = $command->queryScalar();
+		
+		$command = Yii::app()->db->createCommand()
+			->select('count(*)')
+			->from('products')
+			->where('ING_ID = :id', array(':id'=>$ing_id));
+		$otherItemsAmount['products'] = $command->queryScalar();
+		
+		Yii::app()->session[$this->getNextAmountBackup] = $otherItemsAmount;
+		
+		//read current shown
+		$recipes = Yii::app()->db->createCommand()->select('recipes.*')->from('recipes')->join('steps', 'recipes.REC_ID = steps.REC_ID')->where('steps.ING_ID = :id', array(':id'=>$model->ING_ID))->order('CHANGED_ON desc')->group('recipes.REC_ID')->limit(self::RECIPES_AMOUNT,0)->queryAll();
+		$products = Yii::app()->db->createCommand()->from('products')->where('ING_ID = :id', array(':id'=>$model->ING_ID))->order('CHANGED_ON desc')->limit(self::PRODUCTS_AMOUNT,0)->queryAll();
+		
 		$this->checkRenderAjax('view', array(
-			'model'=>$this->loadModel($id),
+			'model'=>$model,
+			'nutrientData'=>$nutrientData,
+			'recipes'=>$recipes,
+			'products'=>$products,
+			'otherItemsAmount'=>$otherItemsAmount,
 		));
+	}
+	
+	public function actionGetNext($type, $index, $ing_id){
+		if ($type == 'recipe' || $type == 'product'){
+			if ($index<0){
+				$otherItemsAmount = Yii::app()->session[$this->getNextAmountBackup];
+				$index = $otherItemsAmount[$type.'s'] + $index;
+			}
+			$command = Yii::app()->db->createCommand()
+				->from($type.'s');
+			if ($type == 'recipe'){
+				$command->join('steps', 'recipes.REC_ID = steps.REC_ID')
+					->where('steps.ING_ID = :id', array(':id'=>$ing_id))
+					->group('recipes.REC_ID');
+			} else {
+				$command->where('ING_ID = :id', array(':id'=>$ing_id));
+			}
+			$command->order($type.'s.CHANGED_ON desc')
+				->limit(1,$index);
+			$model = $command->queryRow();
+			if (!isset($model) || $model == null){
+				$otherItemsAmount = Yii::app()->session[$this->getNextAmountBackup];
+				$index = $index - $otherItemsAmount[$type.'s'];
+				
+				$command = Yii::app()->db->createCommand()
+					->from($type.'s');
+				if ($type == 'recipe'){
+					$command->join('steps', 'recipes.REC_ID = steps.REC_ID')
+						->where('steps.ING_ID = :id', array(':id'=>$ing_id))
+						->group('recipes.REC_ID');
+				} else {
+					$command->where('ING_ID = :id', array(':id'=>$ing_id));
+				}
+				$command->order($type.'s.CHANGED_ON desc')
+					->limit(1,$index);
+				$model = $command->queryRow();
+			}
+			
+			if ($type == 'recipe'){
+				echo '{img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$model['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$model['REC_ID'])).'", auth:"'.$model['REC_IMG_AUTH'].'", name:"'.$model['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+			} else if ($type == 'product'){
+				echo '{img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$model['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$model['PRO_ID'])).'", auth:"'.$model['PRO_IMG_CR'].'", name:"'.$model['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+			}
+		}
 	}
 	
 	private function checkDuplicate($model){
@@ -187,8 +264,8 @@ class IngredientsController extends Controller
 						if($model->save()){
 							unset(Yii::app()->session[$this->createBackup]);
 							unset(Yii::app()->session[$this->createBackup.'_Time']);
-							//$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
-							$this->forwardAfterSave(array('search', 'query'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
+							$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
+							//$this->forwardAfterSave(array('search', 'query'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
 							return;
 						}
 					}

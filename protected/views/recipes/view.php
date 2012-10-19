@@ -35,7 +35,7 @@ $this->mainButtons = array(
 		echo CHtml::link('&nbsp;', array('meals/mealPlanner', 'rec_id'=>$model->REC_ID), array('class'=>'cookwith_big backpic f-right', 'title'=>$this->trans->RECIPES_MEALPLANNER));
 		echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$model->REC_ID), array('class'=>'disgusting_big noAjax backpic f-center','title'=>$this->trans->GENERAL_DISGUSTING));
 		?>
-		<div class="ingredients">
+		<div class="otherItems ingredients">
 			<?php echo CHtml::encode($this->trans->RECIPES_INGREDIENTS_NEEDED); ?>
 			<ul>
 			<?php
@@ -221,6 +221,7 @@ $this->mainButtons = array(
 			'µg',
 		);
 		
+		echo '<div class="nutrientTable">';
 		echo '<div class="f-left">';
 		for($group=0; $group<count($fields); $group++){
 			if ($group == 3){
@@ -238,6 +239,7 @@ $this->mainButtons = array(
 				}
 			echo '</div>';
 		}
+		echo '</div>';
 		echo '</div>';
 	}
 ?>

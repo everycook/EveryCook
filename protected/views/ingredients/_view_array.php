@@ -109,7 +109,7 @@
 		*/
 		}
 		?>
-		<div class="prodInfo">
+		<div class="ingInfo">
 		<?php
 		if (!$this->isFancyAjaxRequest){
 			echo '<a href="' . Yii::app()->createUrl('ingredients/update',array('id'=>$data['ING_ID'])) . '" class="button f-right">' . $this->trans->GENERAL_EDIT . '</a>';

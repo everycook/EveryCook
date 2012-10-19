@@ -1,6 +1,7 @@
 <?php
 class SiteController extends Controller
 {
+	protected $getNextAmountBackup = 'Site_GetNextAmount';
 	/**
 	 * Declares class-based actions.
 	 */
@@ -40,6 +41,27 @@ class SiteController extends Controller
 			// renders the view file 'protected/views/site/index.php'
 			// using the default layout 'protected/views/layouts/main.php'
 			
+				
+			//read max amount
+			$otherItemsAmount = array();
+			$command = Yii::app()->db->createCommand()
+				->select('count(*)')
+				->from('recipes');
+			$otherItemsAmount['recipes'] = $command->queryScalar();
+			
+			$command = Yii::app()->db->createCommand()
+				->select('count(*)')
+				->from('ingredients');
+			$otherItemsAmount['ingredients'] = $command->queryScalar();
+			
+			$command = Yii::app()->db->createCommand()
+				->select('count(*)')
+				->from('products');
+			$otherItemsAmount['products'] = $command->queryScalar();
+			
+			Yii::app()->session[$this->getNextAmountBackup] = $otherItemsAmount;
+			
+			//read current shown
 			$index=0;
 			$command = Yii::app()->db->createCommand()
 					->from('recipes')
@@ -70,11 +92,8 @@ class SiteController extends Controller
 	public function actionGetNext($type, $index){
 		if ($type == 'recipe' || $type == 'ingredient' || $type == 'product'){
 			if ($index<0){
-				$command = Yii::app()->db->createCommand()
-					->select('count(*)')
-					->from($type.'s');
-				$amount = $command->queryScalar();
-				$index = $amount-1;
+				$otherItemsAmount = Yii::app()->session[$this->getNextAmountBackup];
+				$index = $otherItemsAmount[$type.'s'] + $index;
 			}
 			$command = Yii::app()->db->createCommand()
 					->from($type.'s')
@@ -82,7 +101,9 @@ class SiteController extends Controller
 					->limit(1,$index);
 			$model = $command->queryRow();
 			if (!isset($model) || $model == null){
-				$index = 0;
+				$otherItemsAmount = Yii::app()->session[$this->getNextAmountBackup];
+				$index = $index - $otherItemsAmount[$type.'s'];
+				
 				$command = Yii::app()->db->createCommand()
 						->from($type.'s')
 						->order('CHANGED_ON desc')

@@ -74,8 +74,12 @@ div.detailView {
 	background-color:#FFFFFF;
 }
 
-div.detailView div.options div.ingredients {
+div.detailView div.options div.otherItems{
 	background-color:#997F7F;
+}
+
+div.detailView div.ingInfo {
+	background-color:#FFFFFF;
 }
 
 #fancybox-content{
@@ -178,6 +182,7 @@ div.mealOverview {
 	border-bottom-color: #997F7F;
 }
 
+.startpage .down1 {
 .startpage .down1 {
 	border-top-color: #997F7F;
 }

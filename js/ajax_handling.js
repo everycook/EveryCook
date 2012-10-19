@@ -371,22 +371,31 @@ jQuery(function($){
 		elem.parent().remove();
 	});
 	
-	jQuery('body').undelegate('#productsResult .showOnMap','click').delegate('#productsResult .showOnMap','click', function(){
-		jQuery('.selectedProduct').removeClass('selectedProduct');
-		var elem = jQuery(this);
-		elem.parents('.data:first').find('.productId').addClass('selectedProduct');
+	function openProductMap(elem){
+		var isCurrent;
 		if (elem.hasClass('centerGPSYou')){
 			cord = jQuery('#centerGPSYou').val().split(',');
-			var isCurrent = true;
+			isCurrent = true;
 		} else {
 			cord = jQuery('#centerGPSHome').val().split(',');
-			var isCurrent = false;
+			isCurrent = false;
 		}
 		var distInput = elem.prev('input.viewDistance');
 		if (distInput.length == 0){
 			distInput = jQuery('#viewDistance');
 		}
 		reinitialize(cord[0], cord[1], undefined, distInput.val(), loadDataProduct, isCurrent);
+	}
+	
+	jQuery('body').undelegate('#productsResult .showOnMap','click').delegate('#productsResult .showOnMap','click', function(){
+		jQuery('.selectedProduct').removeClass('selectedProduct');
+		var elem = jQuery(this);
+		elem.parents('.data:first').find('.productId').addClass('selectedProduct');
+		openProductMap(elem);
+	});
+	
+	jQuery('body').undelegate('#products.detailView .showOnMap','click').delegate('#products.detailView .showOnMap','click', function(){
+		openProductMap(jQuery(this));
 	});
 	
 	/*
@@ -883,7 +892,6 @@ jQuery(function($){
 	});
 	
 	//Startpage
-	
 	jQuery('body').undelegate('.startpage .up','click').delegate('.startpage .up','click', function(){
 		nextStartPic(jQuery(this), -1);
 	});
@@ -916,6 +924,81 @@ jQuery(function($){
 					parent.find('.img_auth').text('© by ' + data.auth);
 				} else {
 					parent.find('.img_auth').html('&nbsp;');
+				}
+			},
+		});
+	}
+	
+	//ingredientDetail
+	jQuery('body').undelegate('.up-arrow','click').delegate('.up-arrow','click', function(){
+		nextPic(jQuery(this), -1);
+	});
+	
+	jQuery('body').undelegate('.down-arrow','click').delegate('.down-arrow','click', function(){
+		nextPic(jQuery(this), 1);
+	});
+	
+	function nextPic(elem, change){
+		var parent = elem.parent();
+		var item = parent.find('.item:first');
+		var input = parent.find('input.imgIndex');
+		var amountInput = parent.find('input.imgIndexAmount');
+		var amount=0;
+		if (amountInput.length>0){
+			amount = parseInt(amountInput.val());
+			if (change>0){
+				change = change + amount-1;
+			}
+		}
+		var url = jQuery('#getNextLink').val();
+		var currentIndex = parseInt(input.val());
+		var index = currentIndex+change;
+		url = glob.urlAddParamStart(url) + 'type=' + input.attr('name');
+		url = glob.urlAddParamStart(url) + 'index=' + index;
+		jQuery.ajax({
+			'type':'get',
+			'url':url,
+			'success': function(data){
+				if (data.indexOf('{')===0){
+					eval('var data = ' + data + ';');
+				}
+				if (amount>0){
+					if (change>0){
+						item.insertAfter(parent.find('.item:last'));
+						//item = parent.find('.item:last'); //is already last
+					} else {
+						item = parent.find('.item:last')
+						item.insertBefore(parent.find('.item:first'));
+						//item = parent.find('.item:first'); //is already first
+					}
+				}
+				
+				var title = item.find('.title');
+				title.text(data.name);
+				title.attr('href', data.url);
+				var image = item.find('img');
+				image.attr('src', data.img);
+				image.attr('alt', data.name);
+				image.attr('title', data.name);
+				if (amount>0 && change>0){
+					if (data.index<currentIndex){
+						//end reached
+						if (data.index<amount){
+							input.val(currentIndex+1);
+						} else {
+							input.val(data.index-amount+1);
+						}
+					} else {
+						input.val(data.index - amount+1);
+					}
+				} else {
+					input.val(data.index);
+				}
+				image.parents('a:first').attr('href', data.url);
+				if (data.auth.length != 0){
+					item.find('.img_auth').text('© by ' + data.auth);
+				} else {
+					item.find('.img_auth').html('&nbsp;');
 				}
 			},
 		});

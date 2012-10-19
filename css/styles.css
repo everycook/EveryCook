@@ -458,6 +458,10 @@ div.resultArea.noPic {
 	font-size: 0.6em;
 }
 
+.small_img img {
+	width:6em !important;
+	height:6em !important;
+}
 
 div.resultArea img.ingredient,
 div.resultArea img.recipe,
@@ -529,15 +533,15 @@ div.resultArea div.options {
 	line-height:inherit;
 }
 
-#ingredientsResult div.prodInfo  {
+#ingredientsResult div.ingInfo  {
 	line-height:1.5em;
 	margin-top:1em;
 }
 
-#ingredientsResult .data .title {
+div.ingInfo .title {
 }
 
-#ingredientsResult .data .value {
+div.ingInfo .value {
 	font-weight: bold;
 }
 
@@ -575,7 +579,25 @@ div.detailView div.name {
 }
 div.detailView div.options {
 	float:right;
-	width:22em;
+	width:21.6em;
+}
+
+div.detailView div.options div.otherItems {
+	display: inline-block;
+	padding: 0.8em;
+	margin-bottom: 0.8em;
+	border-radius:0.8em;
+	width:20em;
+}
+
+div#ingredients.detailView div.options,
+div#products.detailView div.options {
+	width:11.6em;
+}
+
+div#ingredients.detailView div.options div.otherItems,
+div#products.detailView div.options div.otherItems {
+	width:10em;
 }
 
 div.detailView div.options a.backpic {
@@ -586,23 +608,16 @@ div.detailView div.options a.last {
 	margin-bottom: 0 !important;
 }
 
-div.detailView div.options div.ingredients {
-	display: inline-block;
-	padding: 0.8em;
-	margin-bottom: 0.8em;
-	border-radius:0.8em;
-	width:20em;
-}
-div.detailView div.options div.ingredients img {
+div.detailView div.options div.otherItems img {
 	width:6em;
 	height:6em;
 	border-radius:0.8em;
 }
-div.detailView div.options div.ingredients ul {
+div.detailView div.options div.otherItems ul {
 	padding: 0;
 	margin: 0;
 }
-div.detailView div.options div.ingredients li {
+div.detailView div.options div.otherItems li {
 	float: left;
 	list-style: none outside none;
 	width: 10em;
@@ -612,13 +627,37 @@ div.detailView div.details {
 	padding-bottom: 2em;
 }
 
-div.detailView img.recipe {
+div.detailView img.recipe,
+div.detailView img.ingredient,
+div.detailView img.product {
 	width:17em;
 	height:17em;
 	border-radius:0.8em;
 }
 div.detailView .detail_img  {
 	width:17em;
+	margin-bottom: 1em;
+}
+
+
+div.detailView  div.ingInfo  {
+	padding: 0.8em;
+	margin-left: 2em;
+	border-radius:0.8em;
+	width:22em;
+	line-height:1.5em;
+}
+
+div.detailView  div.proInfo {
+	margin-left: 18em;
+	margin-right: 13em;
+}
+
+div#ingredients.detailView div.nutrientTable {
+	float:left;
+}
+
+.detailView #map_canvas {
 	margin-bottom: 1em;
 }
 
@@ -982,17 +1021,18 @@ div.mealView span.value {
 }
 
 .browserError {
-	position: absolute;
+	font-size: 1.5em;
+	position: fixed;
 	top: 50%;
 	left: 50%;
-	width: 440px;
-	height: 150px;
-	margin-left: -240px;
-	margin-top: -95px;
+	width: 17em;
+	min-height: 10em;
+	margin-left: -8.5em;
+	margin-top: -5em;
 	padding: 20px;
-	font-size: 1.5em;
 	z-index: 101;
 }
+
 
 .browserError .browserName {
 	font-style: italic;
@@ -1003,8 +1043,9 @@ div.mealView span.value {
 	position: absolute;
 	right: 5px;
 	top: 5px;
-	height: 10px;
-	width: 10px;
+	height: 30px;
+	width: 30px;
+	cursor: pointer;
 }
 
 #modal {
@@ -1183,7 +1224,7 @@ div.mealView span.value {
 	height: 22.2em;
 	border-radius:1.5em;
 }
-.startpage .up, .startpage .down {
+.up-arrow, .down-arrow {
 	/*
 	width: 21.5em;
 	height: 5em;
@@ -1192,17 +1233,21 @@ div.mealView span.value {
 	*/
 	cursor: pointer;
 }
-.startpage .up {
+.otherItems .up-arrow, .otherItems .down-arrow {
+	font-size: 0.45em;
+    width: 22.5em;
+}
+.up-arrow {
 	position: relative;
 	margin-bottom: 1em;
 }
-.startpage .up1 {
+.up1 {
 /*	border-radius: 7em 7em 0 0;*/
 	border-bottom: 5em solid black;
 	border-left: 11.3em solid transparent;
 	border-right: 11.3em solid transparent;
 }
-.startpage .up2{
+.up2{
 /*	border-radius: 7em 7em 0 0;*/
 	border-bottom: 4em solid white;
 	border-left: 9em solid transparent;
@@ -1211,17 +1256,17 @@ div.mealView span.value {
 	left: 2.3em;
 	top: 0.5em;
 }
-.startpage .down {
+.down-arrow {
 	position: relative;
 	margin-top: 1em;
 }
-.startpage .down1 {
+.down1 {
 /*	border-radius: 0 0 7em 7em;*/
 	border-top: 5em solid black;
 	border-left: 11.3em solid transparent;
 	border-right: 11.3em solid transparent;
 }
-.startpage .down2 {
+.down2 {
 /*	border-radius: 0 0 7em 7em;*/
 	border-top: 4em solid white;
 	border-left: 9em solid transparent;
@@ -1246,6 +1291,36 @@ div.mealView span.value {
   color: #808080;
 }
 
+
+
+#placesQuery {
+	width: 30em;
+}
+#places_search {
+	margin-bottom: 1em;
+}
+#places_results {
+	overflow: auto;
+	max-height: 30em;
+	margin-top: 1em;
+}
+.places_infoblock {
+	font-size: 0.8em;
+}
+.places_infoblock img {
+}
+.places_infoblock .places_info {
+	float: right;
+/*	padding-left: 0.8em;*/
+}
+
+.places_infoblock .places_openTimes {
+	margin-top: 1em;
+}
+
+.places_infoblock .places_openTimes .timeLine {
+	display:block;
+}
 
 
 

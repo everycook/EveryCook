@@ -73,8 +73,12 @@ div.detailView {
 	background-color:#FFDB00;
 }
 
-div.detailView div.options div.ingredients {
+div.detailView div.options div.otherItems {
 	background-color:#FF4D02;
+}
+
+div.detailView div.ingInfo {
+	background-color:#FFFFFF;
 }
 
 #fancybox-content{

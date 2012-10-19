@@ -80,7 +80,7 @@ class Ingredients extends ActiveRecordEC
 			'subgroupNames' => array(self::BELONGS_TO, 'SubgroupNames', 'SGR_ID'),
 			'ingredientConveniences' => array(self::BELONGS_TO, 'IngredientConveniences', 'ICO_ID'),
 			'storability' => array(self::BELONGS_TO, 'Storability', 'STB_ID'),
-			'ingredientStates' => array(self::BELONGS_TO, 'ingredientStates', 'IST_ID'),
+			'ingredientStates' => array(self::BELONGS_TO, 'IngredientStates', 'IST_ID'),
 		);
 	}
 

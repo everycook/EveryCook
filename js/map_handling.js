@@ -10,6 +10,7 @@ var map;
 var doLoadStores = false;
 var doPlaceMarker = false;
 var doInitialize = false;
+var doLoadPlaces = false;
 
 var markerList = new Array();
 var markerIcons = new Array();
@@ -37,11 +38,21 @@ var geocodeTitle = 'geocode / change Marker (draggable)';
 var geocoder;
 var lastGeocodeMarker;
 
+var placesService;
+var infowindow;
+var placesResult = [];
+var placesLastDetail;
+var placesDetailRequestStartedFor;
+var weekdayNames = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+var autocomplete;
+var searchBox;
+
 //Initialize functions
-function loadScript(sensor, region, https, loadStores, placeMarker, runInitialize) {
+function loadScript(sensor, region, https, loadStores, placeMarker, runInitialize, loadPlaces) {
 	doLoadStores = loadStores;
 	doPlaceMarker = placeMarker;
 	doInitialize = runInitialize;
+	doLoadPlaces = loadPlaces;
 	
 	var url;
 	if (https){
@@ -49,7 +60,7 @@ function loadScript(sensor, region, https, loadStores, placeMarker, runInitializ
 	} else {
 		url = "https://maps.google.com/maps/api/js";
 	}
-	url = url + "?sensor="+((sensor)?"true":"false") + ((region)?"&region="+region:"") + "&callback=initialize"; //"&language=" + lang
+	url = url + "?sensor="+((sensor)?"true":"false") + ((region)?"&region="+region:"") + "&libraries=places" + "&callback=initialize"; //"&language=" + lang
 	var check = jQuery('script[src="' + url + '"]');
 	if(check.length == 0){
 		var script = document.createElement("script");
@@ -70,7 +81,7 @@ function loadScript(sensor, region, https, loadStores, placeMarker, runInitializ
 		initialize();
 	}
 }
-
+	
 function addRelocateButton(){
 	var controlDiv = document.createElement('div');
 	controlDivJ = jQuery(controlDiv);
@@ -156,6 +167,7 @@ function initialize() {
 		}
 	}
 	initializeGeocoder();
+	initializePlaces();
 }
 
 function destinationPoint(start, brng, dist) {
@@ -973,6 +985,214 @@ function UpdateCurrentGPSCallback(status){
 	}
 }
 
+
+function initializePlaces(){
+	if (typeof(google) === 'undefined'){
+		return;
+	}
+	if (doLoadPlaces){
+		infowindow = new google.maps.InfoWindow();
+		placesService = new google.maps.places.PlacesService(map);
+		
+		/*
+		var input = document.getElementById('placesQuery');
+		var options = {
+			types: ['establishment'],
+		};
+
+		autocomplete = new google.maps.places.Autocomplete(input, options);
+		autocomplete.bindTo('bounds', map);
+		
+		google.maps.event.addListener(autocomplete, 'place_changed', function() {
+          infowindow.close();
+          //marker.setVisible(false);
+          input.className = '';
+          var place = autocomplete.getPlace();
+          if (!place.geometry) {
+            // Inform the user that the place was not found and return.
+            input.className = 'notfound';
+            return;
+          }
+
+          // If the place has a geometry, then present it on a map.
+          if (place.geometry.viewport) {
+            map.fitBounds(place.geometry.viewport);
+          } else {
+            map.setCenter(place.geometry.location);
+            map.setZoom(17);  // Why 17? Because it looks good.
+          }
+          var image = new google.maps.MarkerImage(
+              place.icon,
+              new google.maps.Size(71, 71),
+              new google.maps.Point(0, 0),
+              new google.maps.Point(17, 34),
+              new google.maps.Size(35, 35));
+          marker.setIcon(image);
+          marker.setPosition(place.geometry.location);
+
+          var address = '';
+          if (place.address_components) {
+            address = [
+              (place.address_components[0] && place.address_components[0].short_name || ''),
+              (place.address_components[1] && place.address_components[1].short_name || ''),
+              (place.address_components[2] && place.address_components[2].short_name || '')
+            ].join(' ');
+          }
+
+          infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
+          infowindow.open(map, marker);
+        });
+		*/
+		
+		/* //error google.maps.places.SearchBox is undefined...
+		var input = document.getElementById('placesQuery');
+		
+		var searchBox = new google.maps.places.SearchBox(input);x
+		searchBox.bindTo('bounds', map);
+		
+		google.maps.event.addListener(searchbox, 'places_changed', function() {
+		  var places = searchbox.getPlaces();
+
+		  for (var i = 0, marker; marker = markers[i]; i++) {
+			marker.setMap(null);
+		  }
+
+		  markers = [];
+		  var bounds = new google.maps.LatLngBounds();
+		  for (var i = 0, place; place = places[i]; i++) {
+			var image = new google.maps.MarkerImage(
+				place.icon, new google.maps.Size(71, 71),
+				new google.maps.Point(0, 0), new google.maps.Point(17, 34),
+				new google.maps.Size(25, 25));
+
+			var marker = new google.maps.Marker({
+			  map: map,
+			  icon: image,
+			  title: place.name,
+			  position: place.geometry.location
+			});
+
+			markers.push(marker);
+
+			bounds.extend(place.geometry.location);
+		  }
+
+		  map.fitBounds(bounds);
+		});
+		*/
+	}
+}
+
+function placesSearchBounds(){
+	var request = {
+		/*location: pyrmont,
+		radius: '500',*/
+		bounds: map.getBounds(),
+		types: ['store', 'grocery_or_supermarket', 'shopping_mall'] //, 'establishment'
+	};
+	placesService.search(request, showPlacesCallback);
+}
+
+function placesSearchQuery(queryString){
+	var request = {
+		/*location: pyrmont,
+		radius: '500',*/
+		bounds: map.getBounds(),
+		query: queryString
+	};
+	placesService.textSearch(request, showPlacesCallback);
+}
+
+function showPlacesCallback(results, status, pagination) {
+	jQuery('#places_results').get(0).scrollTop = 0;
+	for(var i=0; i< placesResult.length; ++i){
+		placesResult[i].marker.setMap(null);
+		placesResult[i].searchResult.remove();
+		placesResult[i].marker = undefined;
+	}
+	placesResult = [];
+	if (status == google.maps.places.PlacesServiceStatus.OK) {
+		for (var i = 0; i < results.length; ++i) {
+			showPlacesResult(results[i]);
+		}
+	}
+	/* //dont work... why???
+	if (pagination.hasNextPage) {
+		var nextResults = jQuery('<div class="places_moreResult"><div class="button">show next results</div></div>');
+		jQuery('#places_results').append(nextResults);
+		nextResults.find('.button').get(0).onClick = pagination.nextPage;
+	}
+	*/
+}
+
+function showPlacesResult(place) {
+	var placeLoc = place.geometry.location;
+	var marker = new google.maps.Marker({
+		map: map,
+		position: placeLoc,
+		icon: new google.maps.MarkerImage(
+              place.icon,
+              new google.maps.Size(71, 71),
+              new google.maps.Point(0, 0),
+              new google.maps.Point(17, 34),
+              new google.maps.Size(35, 35)),
+	});
+	var searchResult = jQuery('<div class="places_result"><img src="' + place.icon + '" style="float:left"/><div class="details"><div class="name">' + place.name + '</div><div class="address">' + ((place.formatted_address)?place.formatted_address:place.vicinity) + '</div><a href="' + placesResult.length + '" class="button">show on Map</a></div><div class="clearfix"></div></div>');
+	jQuery('#places_results').append(searchResult);
+	place.marker = marker;
+	place.searchResult = searchResult;
+	placesResult.push(place);
+
+	google.maps.event.addListener(marker, 'click', function() {
+		showPlacesDetails(place);
+	});
+}
+
+function showPlacesDetails(place){
+	//var html = '<div class="places_infoblock"><img src="' + place.icon + '" />' + '<div class="places_info">' + place.name + '<br>' + ((place.formatted_address)?place.formatted_address:place.vicinity) + '</div>';
+	//infowindow.setContent(html);
+	//infowindow.open(map, place.marker);
+		
+	var request = {
+		reference: place.reference
+	};
+	placesDetailRequestStartedFor = place;
+	placesService.getDetails(request, showPlaceDetailCallback);	
+}
+
+function showPlaceDetailCallback(place, status) {
+	if (status == google.maps.places.PlacesServiceStatus.OK) {
+		if (placesDetailRequestStartedFor.id != place.id){
+			var placeLoc = place.geometry.location;
+			var marker = new google.maps.Marker({
+				map: map,
+				position: placeLoc
+			});
+			place.marker = marker;
+		} else {
+			place.marker = placesDetailRequestStartedFor.marker;
+		}
+		
+		placesLastDetail = place;
+		
+		var openTimes="";
+		if (place.opening_hours){
+			var periods = place.opening_hours.periods;
+			openTimes+= '<div class="places_openTimes">';
+			for(var i=0; i<periods.length; ++i){
+				openTimes += '<span class="timeLine">' + weekdayNames[periods[i].open.day] + ": " + periods[i].open.time +  " - " + periods[i].close.time + "</span>";
+			}
+			openTimes+= '</div>';
+		}
+		
+		var html = '<div class="places_infoblock"><img src="' + place.icon + '" />' + '<div class="places_info"><div class="name">' + place.name + '</div><div class="address">' + ((place.formatted_address)?place.formatted_address:place.vicinity) + '</div>' + openTimes + '<div class="button">use address for new Store</div></div>';
+		infowindow.setContent(html);
+		infowindow.open(map, place.marker);
+	} else {
+		placesLastDetail = undefined;
+	}
+}
+
 jQuery(function($){
 	jQuery('body').undelegate('#setMarkerCurrentGPS','click').delegate('#setMarkerCurrentGPS','click',function(){
 		locateUser(MarkerCurrentGPSCallback, undefined, false);
@@ -1000,6 +1220,87 @@ jQuery(function($){
 			}
 		}
 		jQuery.fancybox.close();
+		return false;
+	});
+	
+	jQuery('body').undelegate('#placesByQuery','click').delegate('#placesByQuery','click', function(){
+		placesSearchQuery(jQuery('#placesQuery').val());
+		return false;
+	});
+	jQuery('body').undelegate('#placesQuery','keyup').delegate('#placesQuery','keyup', function(event){
+		if(event.keyCode == 13){
+			placesSearchQuery(jQuery('#placesQuery').val());
+		}
+	});
+	jQuery('body').undelegate('#placesByRange','click').delegate('#placesByRange','click', function(){
+		placesSearchBounds();
+		return false;
+	});
+	
+	jQuery('body').undelegate('#places_results .places_result .button','click').delegate('#places_results .places_result .button','click', function(){
+		var index = jQuery(this).attr('href');
+		map.setCenter(placesResult[index].geometry.location);
+		showPlacesDetails(placesResult[index]);
+		return false;
+	});
+	
+	jQuery('body').undelegate('.places_infoblock .button','click').delegate('.places_infoblock .button','click', function(){
+		parts = placesLastDetail.address_components;
+		
+		var form = jQuery('#address-form');
+		if (form.length == 0){
+			form = jQuery('#stores-form');
+		}
+		
+		var nameField = form.find('#Stores_STO_NAME');
+		nameField.val(placesLastDetail.name);
+		
+		var telField = form.find('#Stores_STO_PHONE');
+		if (placesLastDetail.international_phone_number){
+			telField.val(placesLastDetail.international_phone_number);
+		} else if (placesLastDetail.formatted_phone_number){
+			telField.val(placesLastDetail.formatted_phone_number);
+		} else {
+			telField.val('');
+		}
+		
+		var latField = form.find('#Stores_STO_GPS_LAT');
+		var lngField = form.find('#Stores_STO_GPS_LNG');
+		setGeocodeMarker(placesLastDetail.geometry.location, latField, lngField);
+		
+		
+		var streetField = form.find('#Stores_STO_STREET');
+		var noField = form.find('#Stores_STO_HOUSE_NO');
+		var zipField = form.find('#Stores_STO_ZIP');
+		var cityField = form.find('#Stores_STO_CITY');
+		var stateField = form.find('#Stores_STO_STATE');
+		var countryField = form.find('#Stores_STO_COUNTRY');
+		
+		streetField.val('');
+		noField.val('');
+		zipField.val('');
+		cityField.val('');
+		stateField.val('');
+		countryField.val('');
+		
+		for(var i=0; i<parts.length; ++i){
+			for (var j=0; j<parts[i].types.length; ++j){
+				if (parts[i].types[j] == 'route'){
+					streetField.val(parts[i].long_name);
+				} else if (parts[i].types[j] == 'street_number'){
+					noField.val(parts[i].long_name);
+				} else if (parts[i].types[j] == 'postal_code'){
+					zipField.val(parts[i].long_name);
+				} else if (parts[i].types[j] == 'locality'){
+					cityField.val(parts[i].long_name);
+				} else if (parts[i].types[j] == 'administrative_area_level_1'){
+					stateField.val(parts[i].long_name);
+				} else if (parts[i].types[j] == 'country'){
+					countryField.find('option :selected').removeAttr('selected');
+					countryField.find('option[value=' + parts[i].short_name + ']').attr('selected','selected');
+				}
+			}
+		}
 		return false;
 	});
 });

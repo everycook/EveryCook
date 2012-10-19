@@ -642,6 +642,7 @@ class StoresController extends Controller
 	
 	
 	public function actionAddressInput(){
+		$this->isFancyAjaxRequest = true;
 		$this->saveLastAction = false;
 		$model=new Stores;
 		$countrys = Yii::app()->db->createCommand()->select('CRY_ID,CRY_NAME_'.Yii::app()->session['lang'])->from('countrys')->order('CRY_NAME_'.Yii::app()->session['lang'])->queryAll();

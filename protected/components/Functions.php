@@ -752,31 +752,40 @@ class Functions extends CHtml{
 	}
 	
 	public static function browserCheck(){
-		$userAgent = $_SERVER['HTTP_USER_AGENT'];
-		$type = explode('|', stat_func::browser_detection($userAgent, 'unknown'));
-		if (count($type)>1){
-			$type[1] = $type[1]+0;
-		} else {
-			$type[1] = 0;
-		}
-		$browserOK = false;
-		if (strtolower($type[0]) == 'firefox'){
-			if ($type[1]>=12){
-				$browserOK = true;
+		if (!isset(Yii::app()->session['browserErrorClosed']) || !Yii::app()->session['browserErrorClosed']){
+			$userAgent = $_SERVER['HTTP_USER_AGENT'];
+			$type = explode('|', stat_func::browser_detection($userAgent, 'unknown'));
+			if (count($type)>1){
+				$type[1] = $type[1]+0;
+			} else {
+				$type[1] = 0;
 			}
-		} else if (strtolower($type[0]) == 'chrome'){
-			if ($type[1]>=20){
-				$browserOK = true;
+			$browserOK = false;
+			if (strtolower($type[0]) == 'firefox'){
+				if ($type[1]>=12){
+					$browserOK = true;
+				}
+			} else if (strtolower($type[0]) == 'chrome'){
+				if ($type[1]>=20){
+					$browserOK = true;
+				}
+			} else if (strtolower($type[0]) == 'internetexplorer'){
+				if ($type[1]>=9){
+					$browserOK = true;
+				}
 			}
-		}
-		if (!$browserOK && (!isset(Yii::app()->session['browserErrorClosed']) || !Yii::app()->session['browserErrorClosed'])){
-			//echo 'browser type:' . $type[0] . ' version:'  . $type[1] ;
-			echo '<div class="browserError">';
-			echo '<div class="closeButton"></div>';
-			echo 'Sorry but we have not tested our platform with <span class="browserName">' . $type[0] . ' '  . $type[1] . '</span> yet. you can proceed but there may be some functions not working properly. please give us a <a class="actionlink" href="mailto:alexis@everycook.org"> feedback </a> when you try it. we strongly recommend using chrome>20 or firefox>12 for best compatibility.';
-			echo '<input type="hidden" id="browserErrorCloseLink" value="' . Yii::app()->createUrl("site/closeBrowserError") . '"/>';
-			echo '</div>';
-			echo '<div id="modal" style="display:block;"></div>';
+			if (!$browserOK){
+				//echo 'browser type:' . $type[0] . ' version:'  . $type[1] ;
+				echo '<div class="browserError">';
+				echo '<div class="closeButton"></div>';
+				
+				//$os = stat_func::os_detection($userAgent, 'unknown');
+				//  ' on ' . $os .
+				echo 'Sorry but we have not tested our platform with <span class="browserName">' . $type[0] . ' '  . $type[1] . '</span> yet. you can proceed but there may be some functions not working properly. please give us a <a class="actionlink" href="mailto:alexis@everycook.org"> feedback </a> when you try it. we strongly recommend using chrome>20 or firefox>12 for best compatibility.';
+				echo '<input type="hidden" id="browserErrorCloseLink" value="' . Yii::app()->createUrl("site/closeBrowserError") . '"/>';
+				echo '</div>';
+				echo '<div id="modal" style="display:block;"></div>';
+			}
 		}
 	}
 }

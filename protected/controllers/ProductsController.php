@@ -14,6 +14,42 @@ class ProductsController extends Controller
 	
 	protected $createBackup = 'Products_Backup';
 	protected $searchBackup = 'Products';
+	protected $getNextAmountBackup = 'Products_GetNextAmount';
+	const RECIPES_AMOUNT = 2;
+	
+	protected $distanceForGroupSQL = 'SELECT
+		theView.PRO_ID,
+		MAX(min_dist) as min_dist,
+		MAX(dist) as dist,
+		SUM(amount) as amount,
+		SUM(amount_range) as amount_range
+		FROM (
+			(SELECT
+				@count := 0,
+				@oldId := 0 AS PRO_ID,
+				0 AS min_dist,
+				0 AS dist,
+				0 AS amount,
+				0 As amount_range)
+			UNION
+			(SELECT
+				@count := if(@oldId = id, @count+1, 0),
+				@oldId := id,
+				if(@count = 0, value, 0),
+				if(@count < :count, value, 0),
+				if(@count < :count, 1, 0),
+				if(value < :view_distance, 1, 0)
+			FROM
+				(SELECT products.PRO_ID as id, cosines_distance(stores.STO_GPS_POINT, GeomFromText(\':point\')) as value
+				FROM products
+				LEFT JOIN pro_to_sto ON pro_to_sto.PRO_ID=products.PRO_ID 
+				LEFT JOIN stores ON pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID
+				WHERE stores.STO_GPS_POINT IS NOT NULL
+				ORDER BY products.PRO_ID, value ASC) AS theTable
+			)
+		) AS theView
+		WHERE theView.PRO_ID != 0 AND (dist != 0 OR amount_range != 0)
+		GROUP BY theView.PRO_ID;';
 	
 	/**
 	 * Specifies the access control rules.
@@ -24,7 +60,7 @@ class ProductsController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','displaySavedImage','chooseProduct'),
+				'actions'=>array('index','view','search','displaySavedImage','chooseProduct','getNext'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -59,13 +95,119 @@ class ProductsController extends Controller
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionView($id)
-	{
-		$this->checkRenderAjax('view',array(
-			'model'=>$this->loadModel($id),
+	public function actionView($id) {
+		$model = $this->loadModel($id);
+		
+		//read max amount
+		$ing_id = $model->ING_ID;
+		$otherItemsAmount = array();
+		$sql = 'SELECT count(*) FROM (SELECT recipes.REC_ID FROM recipes JOIN steps ON recipes.REC_ID = steps.REC_ID WHERE steps.ING_ID = :id GROUP BY recipes.REC_ID) as recipesView';
+		$command = Yii::app()->db->createCommand($sql)
+			->bindParam(':id', $ing_id);
+		$otherItemsAmount['recipes'] = $command->queryScalar();
+		
+		Yii::app()->session[$this->getNextAmountBackup] = $otherItemsAmount;
+		
+		
+		$recipes = Yii::app()->db->createCommand()->select('recipes.*')->from('recipes')->join('steps', 'recipes.REC_ID = steps.REC_ID')->where('steps.ING_ID = :id', array(':id'=>$model->ING_ID))->order('CHANGED_ON desc')->group('recipes.REC_ID')->limit(self::RECIPES_AMOUNT,0)->queryAll();
+		
+		//Store distance
+		$data = array();
+		if (isset(Yii::app()->session['current_gps']) && isset(Yii::app()->session['current_gps'][2])) {
+			$point = Yii::app()->session['current_gps'][2];
+			$count = 5;
+			$youDistanceForGroupSQL = str_replace(':point', $point, $this->distanceForGroupSQL);
+			$youDistanceForGroupSQL = str_replace(':count', $count, $youDistanceForGroupSQL);
+			$youDistanceForGroupSQL = str_replace(':view_distance', Yii::app()->user->view_distance, $youDistanceForGroupSQL);
+			$youDistCommand = Yii::app()->db->createCommand($youDistanceForGroupSQL);
+			/*
+			$youDistCommand = Yii::app()->db->createCommand($this->distanceForGroupSQL);
+			$youDistCommand->bindParam(':point',$point);
+			$youDistCommand->bindParam(':count1',$count);
+			$youDistCommand->bindParam(':count2',$count);
+			*/
+			$youDistCommand->where('products.PRO_ID=:id', array(':id'=>$id));
+			$row = $youDistCommand->queryRow();
+			if ($row === false){
+				$data['distance_to_you'] = -2;
+			} else {
+				$data['distance_to_you'] = array($row['dist'], $row['amount'], $row['min_dist'], $row['amount_range']);
+			}
+			$hasYouDist = true;
+		} else {
+			$hasYouDist = false;
+			$data['distance_to_you'] = -1;
+		}
+		
+		if (!Yii::app()->user->isGuest && isset(Yii::app()->user->home_gps) && isset(Yii::app()->user->home_gps[2])){
+			$point = Yii::app()->user->home_gps[2];
+			$count = 5;
+			$homeDistanceForGroupSQL = str_replace(':point', $point, $this->distanceForGroupSQL);
+			$homeDistanceForGroupSQL = str_replace(':count', $count, $homeDistanceForGroupSQL);
+			$homeDistanceForGroupSQL = str_replace(':view_distance', Yii::app()->user->view_distance, $homeDistanceForGroupSQL);
+			$HomeDistCommand = Yii::app()->db->createCommand($homeDistanceForGroupSQL);
+			/*
+			$HomeDistCommand = Yii::app()->db->createCommand($this->distanceForGroupSQL);
+			$HomeDistCommand->bindParam(':point',$point);
+			$HomeDistCommand->bindParam(':count',$count);
+			*/
+			$HomeDistCommand->where('products.PRO_ID=:id', array(':id'=>$id));
+			$row = $HomeDistCommand->queryRow();
+			if ($row === false){
+				$data['distance_to_home'] = -2;
+			} else {
+				$data['distance_to_home'] = array($row['dist'], $row['amount'], $row['min_dist'], $row['amount_range']);
+			}
+			$hasHomeDist = true;
+		} else {
+			$hasHomeDist = false;
+			$data['distance_to_home'] = -1;
+		}
+		$this->checkRenderAjax('view', array(
+			'model'=>$model,
+			'recipes'=>$recipes,
+			'otherItemsAmount'=>$otherItemsAmount,
+			'data'=>$data,
 		));
 	}
-
+	
+	public function actionGetNext($index, $ing_id){
+		if ($type == 'recipe' || $type == 'ingredient' || $type == 'product'){
+			if ($index<0){
+				$command = Yii::app()->db->createCommand()
+					->select('count(*)')
+					->from($type.'s')
+					->join('steps', 'recipes.REC_ID = steps.REC_ID')
+					->where('steps.ING_ID = :id', array(':id'=>$ing_id))
+					->group('recipes.REC_ID');
+				$amount = $command->queryScalar();
+				$index = $amount-1;
+			}
+			$command = Yii::app()->db->createCommand()
+				->from('recipes')
+				->join('steps', 'recipes.REC_ID = steps.REC_ID')
+				->where('steps.ING_ID = :id', array(':id'=>$ing_id))
+				->group('recipes.REC_ID')
+				->order('CHANGED_ON desc')
+				->limit(1,$index);
+			$model = $command->queryRow();
+			
+			if (!isset($model) || $model == null){
+				$index = 0;
+				$command = Yii::app()->db->createCommand()
+					->from('recipes')
+					->join('steps', 'recipes.REC_ID = steps.REC_ID')
+					->where('steps.ING_ID = :id', array(':id'=>$ing_id))
+					->group('recipes.REC_ID')
+					->order('CHANGED_ON desc')
+					->limit(1,$index);
+				$model = $command->queryRow();
+			}
+			
+			echo '{img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$model['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$model['REC_ID'])).'", auth:"'.$model['REC_IMG_AUTH'].'", name:"'.$model['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+		}
+	}
+	
 	private function checkDuplicate($model){
 		$duplicates = array();
 		$command = Yii::app()->db->createCommand()
@@ -412,49 +554,15 @@ class ProductsController extends Controller
 			}
 		}
 		if ($criteria != ''){
-			$distanceForGroupSQL = 'SELECT
-				theView.PRO_ID,
-				MAX(min_dist) as min_dist,
-				MAX(dist) as dist,
-				SUM(amount) as amount,
-				SUM(amount_range) as amount_range
-				FROM (
-					(SELECT
-						@count := 0,
-						@oldId := 0 AS PRO_ID,
-						0 AS min_dist,
-						0 AS dist,
-						0 AS amount,
-						0 As amount_range)
-					UNION
-					(SELECT
-						@count := if(@oldId = id, @count+1, 0),
-						@oldId := id,
-						if(@count = 0, value, 0),
-						if(@count < :count, value, 0),
-						if(@count < :count, 1, 0),
-						if(value < :view_distance, 1, 0)
-					FROM
-						(SELECT products.PRO_ID as id, cosines_distance(stores.STO_GPS_POINT, GeomFromText(\':point\')) as value
-						FROM products
-						LEFT JOIN pro_to_sto ON pro_to_sto.PRO_ID=products.PRO_ID 
-						LEFT JOIN stores ON pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID
-						WHERE stores.STO_GPS_POINT IS NOT NULL
-						ORDER BY products.PRO_ID, value ASC) AS theTable
-					)
-				) AS theView
-				WHERE theView.PRO_ID != 0 AND (dist != 0 OR amount_range != 0)
-				GROUP BY theView.PRO_ID;';
-			
 			if (isset(Yii::app()->session['current_gps']) && isset(Yii::app()->session['current_gps'][2])) {
 				$point = Yii::app()->session['current_gps'][2];
 				$count = 5;
-				$youDistanceForGroupSQL = str_replace(':point', $point, $distanceForGroupSQL);
+				$youDistanceForGroupSQL = str_replace(':point', $point, $this->distanceForGroupSQL);
 				$youDistanceForGroupSQL = str_replace(':count', $count, $youDistanceForGroupSQL);
 				$youDistanceForGroupSQL = str_replace(':view_distance', Yii::app()->user->view_distance, $youDistanceForGroupSQL);
 				$youDistCommand = Yii::app()->db->createCommand($youDistanceForGroupSQL);
 				/*
-				$youDistCommand = Yii::app()->db->createCommand($distanceForGroupSQL);
+				$youDistCommand = Yii::app()->db->createCommand($this->distanceForGroupSQL);
 				$youDistCommand->bindParam(':point',$point);
 				$youDistCommand->bindParam(':count1',$count);
 				$youDistCommand->bindParam(':count2',$count);
@@ -467,12 +575,12 @@ class ProductsController extends Controller
 			if (!Yii::app()->user->isGuest && isset(Yii::app()->user->home_gps) && isset(Yii::app()->user->home_gps[2])){
 				$point = Yii::app()->user->home_gps[2];
 				$count = 5;
-				$homeDistanceForGroupSQL = str_replace(':point', $point, $distanceForGroupSQL);
+				$homeDistanceForGroupSQL = str_replace(':point', $point, $this->distanceForGroupSQL);
 				$homeDistanceForGroupSQL = str_replace(':count', $count, $homeDistanceForGroupSQL);
 				$homeDistanceForGroupSQL = str_replace(':view_distance', Yii::app()->user->view_distance, $homeDistanceForGroupSQL);
 				$HomeDistCommand = Yii::app()->db->createCommand($homeDistanceForGroupSQL);
 				/*
-				$HomeDistCommand = Yii::app()->db->createCommand($distanceForGroupSQL);
+				$HomeDistCommand = Yii::app()->db->createCommand($this->distanceForGroupSQL);
 				$HomeDistCommand->bindParam(':point',$point);
 				$HomeDistCommand->bindParam(':count',$count);
 				*/

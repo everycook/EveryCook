@@ -147,6 +147,7 @@ $this->menu=array(
 		'μg/100 g',
 	);
 	
+	echo '<div class="nutrientTable">';
 	echo '<div class="f-left">';
 	for($group=0; $group<count($fields); $group++){
 		if ($group == 3){
@@ -164,6 +165,7 @@ $this->menu=array(
 			}
 		echo '</div>';
 	}
+	echo '</div>';
 	echo '</div>';
 ?>
 <div class="clearfix"></div>

@@ -63,6 +63,7 @@ class stat_func {
 		elseif (preg_match("/SonyEricsson([^ ;]+)/i",$var,$treffer)) $temp = 'SonyEricsson: ' . $treffer[1];
 		elseif (preg_match("/(MOT[^ ;]+)/i",$var,$treffer)) $temp = 'Motorola: ' . $treffer[1];
 		elseif (preg_match("/SymbianOS(\/[0-9.]*);[^;]*;?(Series[^;)]*)/i",$var,$treffer)) $temp = 'SymbianOS: ' . $treffer[1] . ' ' . $treffer[2];
+		elseif (preg_match("/BlackBerry;[^;]*;? ?BlackBerry ([0-9.]*)/i",$var,$treffer)) $temp = 'BlackBerry: ' . $treffer[1];
 		
 		elseif (preg_match("/(Googlebot\/[0-9.]*)/i",$var,$treffer)) $temp = 'Webcrawler: ' . $treffer[1];
 		elseif (preg_match("/(Yahoo! Slurp\/[0-9.]*)/i",$var,$treffer)) $temp = 'Webcrawler: ' . $treffer[1];
@@ -100,6 +101,7 @@ class stat_func {
 		elseif (preg_match("/(Gecko\/[0-9]+)(.*)$/i",$var,$treffer)) $temp = $treffer[1] . ' ' . $treffer[2];	//Irgend ein Gecko Browser
 		
 		//elseif (preg_match("/\(KHTML, like Gecko\) Version\/([0-9.]*) ([^\/]*)\/([0-9.]*)/i",$var,$treffer)) $temp = $treffer[2] . '|' . $treffer[1].", Build: " . $treffer[3];    //KHTML Browser
+		elseif (preg_match("/\(KHTML, like Gecko\) Version\/([0-9.]*) (Mobile\/?[^ ]*) ([^\/]*)\/([0-9.]*)/i",$var,$treffer)) $temp = $treffer[3] . ' ' . 'Mobile'  . '|' . $treffer[1];    //KHTML Browser
 		elseif (preg_match("/\(KHTML, like Gecko\) Version\/([0-9.]*) ([^\/]*)\/([0-9.]*)/i",$var,$treffer)) $temp = $treffer[2] . '|' . $treffer[3];    //KHTML Browser
 		elseif (preg_match("/\(KHTML, like Gecko\) ([^\/]*)\/v?([0-9.]*)/i",$var,$treffer)) $temp = $treffer[1] . "|" . $treffer[2];    //KHTML Browser
 		
@@ -142,7 +144,7 @@ class stat_func {
 		elseif (preg_match("/Konqueror/i",$var)) $temp = 'Konqueror';
 		
 		elseif (preg_match("/AOL 9.0/i",$var)) $temp = 'AOL|9.0';
-		elseif (preg_match("/\(AppleWebKit)\/?([0-9.]*)/i",$var,$treffer)) $temp = $treffer[1] . "|" . $treffer[2];    //AppleWebKit
+		elseif (preg_match("/(AppleWebKit)\/?([0-9.]*)/i",$var,$treffer)) $temp = $treffer[1] . "|" . $treffer[2];    //AppleWebKit
 		
 		elseif (preg_match("/(Googlebot\/[0-9.]*)/i",$var,$treffer)) $temp = 'Webcrawler: ' . $treffer[1];
 		elseif (preg_match("/(Yahoo! Slurp\/[0-9.]*)/i",$var,$treffer)) $temp = 'Webcrawler: ' . $treffer[1];

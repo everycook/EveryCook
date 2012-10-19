@@ -1,3 +1,8 @@
+<?php
+if ($this->route != 'site/index'){
+	Functions::browserCheck();
+}
+?>
 <div id="container">
 	<div id="content">
 		<?php echo $content; ?>

@@ -2,13 +2,14 @@
 <input type="hidden" id="imageLink" value="<?php echo $this->createUrl('stores/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
 <div class="form">
 
-<?php $form=$this->beginWidget('CActiveForm', array(
-	'id'=>'stores-form',
-	'enableAjaxValidation'=>false,
-	'action'=>Yii::app()->createUrl($this->route, array_merge($this->getActionParams(), array('ajaxform'=>true))),
-    'htmlOptions'=>array('enctype' => 'multipart/form-data', 'class'=>'ajaxupload'),
-)); ?>
-	<div class="mapDetails">
+
+<div class="mapDetails">
+	<?php $form=$this->beginWidget('CActiveForm', array(
+		'id'=>'stores-form',
+		'enableAjaxValidation'=>false,
+		'action'=>Yii::app()->createUrl($this->route, array_merge($this->getActionParams(), array('ajaxform'=>true))),
+		'htmlOptions'=>array('enctype' => 'multipart/form-data', 'class'=>'ajaxupload'),
+	)); ?>
 		<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
 		
 		<?php
@@ -153,18 +154,28 @@
 		</div>
 		*/ ?> 
 		<div class="buttons">
-			<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE, array('name'=>'save', 'class'=>'button')); ?>
 			<?php echo CHtml::button('Address to GPS', array('id'=>'Address_to_GPS', 'class'=>'button')); ?>
 			<?php echo CHtml::button('GPS to Address', array('id'=>'GPS_to_Address', 'class'=>'button')); ?>
+		</div>
+		<div class="buttons">
+			<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE, array('name'=>'save', 'class'=>'button')); ?>
 			<?php echo CHtml::link($this->trans->GENERAL_CANCEL, array('cancel'), array('class'=>'button', 'id'=>'cancel')); ?>
 		</div>
+	<?php $this->endWidget(); ?>
+</div>
+<div id="map_container">
+	<div id="places_search">
+		<input type="text" name="placesQuery" id="placesQuery"/><br>
+		<div class="button" id="placesByQuery">search places by query</div>
+		<div class="button" id="placesByRange">search all places in map range</div>
 	</div>
-	<div id="map_canvas" style="height:300px; width:300px;"></div>
-	<div class="clearfix"></div>
-<?php $this->endWidget(); ?>
+	<div id="map_canvas" style="height:30em; width:30em;"></div>
+	<div id="places_results"></div>
+</div>
+<div class="clearfix"></div>
 
 <script type="text/javascript">
-	loadScript(false, "CH", false, false, true, true);
+	loadScript(false, "CH", false, false, true, true, true);
 </script>
 
 </div><!-- form -->
