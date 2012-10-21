@@ -26,12 +26,26 @@ $this->mainButtons = array(
 
 <div class="detailView" id="products">
 	<?php
-	if (isset(Yii::app()->session['products']) && isset(Yii::app()->session['products']['model'])){
-		$back_url = array('products/advanceSearch');
-	} else {
-		$back_url = array('products/search');
+	if (isset(Yii::app()->session['Products']) || isset(Yii::app()->session['Ingredients'])){
+		echo '<div class="f-center">';
+		if (isset(Yii::app()->session['Products'])){
+			if (isset(Yii::app()->session['Products']['model'])){
+				$back_url = array('products/advanceSearch');
+			} else {
+				$back_url = array('products/search');
+			}
+			echo CHtml::link(CHtml::encode($this->trans->PRODUCTS_BACK_TO_PRODUCTS), $back_url, array('class'=>'button')); 
+		}
+		if (isset(Yii::app()->session['Ingredients'])){
+			if (isset(Yii::app()->session['Ingredients']['model'])){
+				$back_url = array('ingredients/advanceSearch');
+			} else {
+				$back_url = array('ingredients/search');
+			}
+			echo CHtml::link(CHtml::encode($this->trans->PRODUCTS_BACK_TO_INGREDIENTS), $back_url, array('class'=>'button')); 
+		}
+		echo '</div>';
 	}
-	echo CHtml::link(CHtml::encode($this->trans->PRODUCTS_BACK_TO_INGREDIENTS), $back_url, array('class'=>'button f-center')); 
 	$productName = $model->__get('PRO_NAME_'.Yii::app()->session['lang']);
 	?>
 	<div class="clearfix"></div>

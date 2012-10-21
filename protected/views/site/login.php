@@ -41,6 +41,9 @@ $this->breadcrumbs=array(
 	</div>
 
 	<p>
+	<?php echo $this->trans->LOGIN_DEMO; ?>
+	</p>
+	<p>
 	<?php echo $this->trans->REGISTER_NOT_REGISTERED; ?>
 	<?php echo CHtml::link($this->trans->REGISTER_REGISTER_NOW,array('profiles/register'), array('class'=>'actionlink')); ?>
 	</p>

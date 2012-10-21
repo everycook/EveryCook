@@ -113,6 +113,10 @@ class RecipesController extends Controller
 	 */
 	public function actionView($id)
 	{
+		if (isset($_GET['nosearch']) && $_GET['nosearch'] == 'true'){
+			unset(Yii::app()->session[$this->searchBackup]);
+		}
+		
 		$this->checkRenderAjax('view',array(
 			'model'=>$this->loadModel($id),
 			'nutrientData'=>$this->calculateNutrientData($id),
@@ -536,6 +540,7 @@ class RecipesController extends Controller
 			if (isset($Session_Recipe)){
 				if (isset($Session_Recipe['query'])){
 					$query = $Session_Recipe['query'];
+					$model2->query = $query;
 					//echo "query from session\n";
 				}
 				if (isset($Session_Recipe['ing_id'])){

@@ -65,6 +65,11 @@ class IngredientsController extends Controller
 	 */
 	public function actionView($id) {
 		$model = $this->loadModel($id);
+		
+		if (isset($_GET['nosearch']) && $_GET['nosearch'] == 'true'){
+			unset(Yii::app()->session[$this->searchBackup]);
+		}
+		
 		if ($model->NUT_ID >0){
 			$nutrientData = NutrientData::model()->findByPk($model->NUT_ID);
 		} else {
@@ -408,6 +413,7 @@ class IngredientsController extends Controller
 			if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Ingredients']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_Ingredient['time'])){
 				if (isset($Session_Ingredient['query'])){
 					$query = $Session_Ingredient['query'];
+					$model2->query = $query;
 					//echo "query from session\n";
 				}
 				if (isset($Session_Ingredient['model'])){

@@ -98,6 +98,11 @@ class ProductsController extends Controller
 	public function actionView($id) {
 		$model = $this->loadModel($id);
 		
+		if (isset($_GET['nosearch']) && $_GET['nosearch'] == 'true'){
+			unset(Yii::app()->session[$this->searchBackup]);
+			unset(Yii::app()->session['Ingredients']);
+		}
+		
 		//read max amount
 		$ing_id = $model->ING_ID;
 		$otherItemsAmount = array();
@@ -515,6 +520,7 @@ class ProductsController extends Controller
 			if (isset($Session_Product)){
 				if (isset($Session_Product['query'])){
 					$query = $Session_Product['query'];
+					$model2->query = $query;
 					//echo "query from session\n";
 				}
 				if (isset($Session_Product['ing_id'])){

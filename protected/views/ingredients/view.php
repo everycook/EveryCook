@@ -20,12 +20,14 @@ $this->mainButtons = array(
 
 <div class="detailView" id="ingredients">
 <?php
-	if (isset(Yii::app()->session['Ingredients']) && isset(Yii::app()->session['Ingredients']['model'])){
-		$back_url = array('ingredients/advanceSearch');
-	} else {
-		$back_url = array('ingredients/search');
+	if (isset(Yii::app()->session['Ingredients'])){
+		if (isset(Yii::app()->session['Ingredients']['model'])){
+			$back_url = array('ingredients/advanceSearch');
+		} else {
+			$back_url = array('ingredients/search');
+		}
+		echo CHtml::link(CHtml::encode($this->trans->INGREDIENTS_BACK_TO_INGREDIENTS), $back_url, array('class'=>'button f-center')); 
 	}
-	echo CHtml::link(CHtml::encode($this->trans->INGREDIENTS_BACK_TO_INGREDIENTS), $back_url, array('class'=>'button f-center')); 
 	$ingredientName = $model->__get('ING_NAME_'.Yii::app()->session['lang']);
 	?>
 	<div class="clearfix"></div>

@@ -26,7 +26,7 @@
 	
 	<div class="data">
 		<div class="name">
-			<?php echo CHtml::encode($data['ING_NAME_'.Yii::app()->session['lang']]); ?>&nbsp;
+			<?php echo CHtml::link(CHtml::encode($data['ING_NAME_' . Yii::app()->session['lang']]), array('view', 'id'=>$data['ING_ID'])); ?>&nbsp;
 		</div>
 		<?php
 		if (!$this->isFancyAjaxRequest){

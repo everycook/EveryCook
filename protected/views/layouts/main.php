@@ -35,9 +35,9 @@
 					<?php
 					if(!Yii::app()->user->isGuest) {
 					?>
-					<div class="nav_button nav_entry navMenu" id="settings">
+					<a href="#" class="nav_button nav_entry navMenu" id="settings">
 						<span><?php echo $this->trans->GENERAL_SETTINGS; ?></span>
-					</div>
+					</a>
 					<div id="settings_List" class="navMenuList" style="right: 23em; display: none;">
 						<?php echo '<a href="' . Yii::app()->createUrl('profiles/update',array('id'=>Yii::app()->user->id)) . '" class="button navMenuListEntry first">'; ?>
 							<?php echo $this->trans->SETTINGS_PROFILE; ?>
@@ -92,9 +92,9 @@
 						</div>
 					</div>
 					<?php } ?>
-					<div class="nav_button nav_entry navMenu" id="JumpTo">
+					<a href="#" class="nav_button nav_entry navMenu" id="JumpTo">
 						<span><?php echo $this->trans->GENERAL_JUMPTO; ?></span>
-					</div>
+					</a>
 					<div id="JumpTo_List" class="navMenuList" style="display: none;">
 						<?php
 						$first = true;

@@ -23,8 +23,7 @@
 	<div class="data">
 		<input type="hidden" class="productId" value="<?php echo $data['PRO_ID']; ?>"/>
 		<div class="name">
-			<?php //echo CHtml::link(CHtml::encode($data['PRO_NAME_' . Yii::app()->session['lang']]), array('view', 'id'=>$data['PRO_ID'])); ?>
-			<?php echo CHtml::encode($data['PRO_NAME_' . Yii::app()->session['lang']]); ?>
+			<?php echo CHtml::link(CHtml::encode($data['PRO_NAME_' . Yii::app()->session['lang']]), array('view', 'id'=>$data['PRO_ID'])); ?>
 		</div>
 		
 		<?php

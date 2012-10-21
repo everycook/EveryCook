@@ -104,8 +104,6 @@ jQuery(function($){
 	ajaxpaging.next = [];
 	ajaxpaging.prev = [];
 	
-	
-	
 	function initAjaxUpload(type, contentParent){
 		if (typeof(contentParent) === 'undefined') return;
 		contentParent.find('form.ajaxupload:not([target='+$.fn.iframePostForm.defaults.iframeID+'])').iframePostForm({
@@ -546,17 +544,37 @@ jQuery(function($){
 	
 	
 	//NavMenu L1
+	/*
 	jQuery('body').undelegate('.navMenu','mouseover').delegate('.navMenu','mouseover',function(){
 		var listId = jQuery(this).attr('id') + '_List';
 		window.clearTimeout(navMenuTiemout[listId]);
 		jQuery(".navMenuList").hide();
 		jQuery('#'+listId).show();
 	});
+	*/
+	
+	jQuery('body').undelegate('.navMenu','click').delegate('.navMenu','click',function(){
+		var listId = jQuery(this).attr('id') + '_List';
+		window.clearTimeout(navMenuTiemout[listId]);
+		var elem = jQuery('#'+listId);
+		var others = jQuery(".navMenuList").not(elem)
+		others.hide();
+		others.removeClass('navMenuClickOpen');
+		if (elem.hasClass('navMenuClickOpen')){
+			elem.hide();
+			elem.removeClass('navMenuClickOpen');
+		} else {
+			elem.show();
+			elem.addClass('navMenuClickOpen');
+		}
+		return false;
+	});
+	
 	
 	jQuery('body').undelegate('.navMenu','mouseout').delegate('.navMenu','mouseout',function(){
 		var listId = jQuery(this).attr('id') + '_List';
 		window.clearTimeout(navMenuTiemout[listId]);
-		navMenuTiemout[listId] = window.setTimeout('jQuery("#' + listId + '").hide();', 1000);
+		navMenuTiemout[listId] = window.setTimeout('jQuery("#' + listId + '").hide().removeClass("navMenuClickOpen");', 1000);
 	});
 	
 	jQuery('body').undelegate('.navMenuList','mouseover').delegate('.navMenuList','mouseover',function(){
@@ -567,10 +585,11 @@ jQuery(function($){
 	jQuery('body').undelegate('.navMenuList','mouseout').delegate('.navMenuList','mouseout',function(){
 		var listId = jQuery(this).attr('id');
 		window.clearTimeout(navMenuTiemout[listId]);
-		navMenuTiemout[listId] = window.setTimeout('jQuery("#' + listId + '").hide();', 1000);
+		navMenuTiemout[listId] = window.setTimeout('jQuery("#' + listId + '").hide().removeClass("navMenuClickOpen");', 1000);
 	});
 	
 	//NavMenu L2
+	/*
 	jQuery('body').undelegate('.navMenuL2','mouseover').delegate('.navMenuL2','mouseover',function(){
 		var listId = jQuery(this).attr('id') + '_List';
 		window.clearTimeout(navMenuTiemout[listId]);
@@ -583,11 +602,34 @@ jQuery(function($){
 			window.clearTimeout(navMenuTiemout[parentListId]);
 		}
 	});
+	*/
+	
+	jQuery('body').undelegate('.navMenuL2','click').delegate('.navMenuL2','click',function(){
+		var listId = jQuery(this).attr('id') + '_List';
+		window.clearTimeout(navMenuTiemout[listId]);
+		var elem = jQuery('#'+listId);
+		var others = jQuery(".navMenuListL2").not(elem)
+		others.hide();
+		others.removeClass('navMenuClickOpen');
+		if (elem.hasClass('navMenuClickOpen')){
+			elem.hide();
+			elem.removeClass('navMenuClickOpen');
+		} else {
+			elem.show();
+			elem.addClass('navMenuClickOpen');
+		}
+		
+		var parent = jQuery(this).parent();
+		if (parent.hasClass('navMenuList')){
+			var parentListId = parent.attr('id');
+			window.clearTimeout(navMenuTiemout[parentListId]);
+		}
+	});
 	
 	jQuery('body').undelegate('.navMenuL2','mouseout').delegate('.navMenuL2','mouseout',function(){
 		var listId = jQuery(this).attr('id') + '_List';
 		window.clearTimeout(navMenuTiemout[listId]);
-		navMenuTiemout[listId] = window.setTimeout('jQuery("#' + listId + '").hide();', 1000);
+		navMenuTiemout[listId] = window.setTimeout('jQuery("#' + listId + '").hide().removeClass("navMenuClickOpen");', 1000);
 	});
 	
 	jQuery('body').undelegate('.navMenuListL2','mouseover').delegate('.navMenuListL2','mouseover',function(){
@@ -604,13 +646,13 @@ jQuery(function($){
 	jQuery('body').undelegate('.navMenuListL2','mouseout').delegate('.navMenuListL2','mouseout',function(){
 		var listId = jQuery(this).attr('id');
 		window.clearTimeout(navMenuTiemout[listId]);
-		navMenuTiemout[listId] = window.setTimeout('jQuery("#' + listId + '").hide();', 1000);
+		navMenuTiemout[listId] = window.setTimeout('jQuery("#' + listId + '").hide().removeClass("navMenuClickOpen");', 1000);
 		
 		var parent = jQuery(this).parent();
 		if (parent.hasClass('navMenuList')){
 			var parentListId = parent.attr('id');
 			window.clearTimeout(navMenuTiemout[parentListId]);
-			navMenuTiemout[parentListId] = window.setTimeout('jQuery("#' + parentListId + '").hide();', 1000);
+			navMenuTiemout[parentListId] = window.setTimeout('jQuery("#' + parentListId + '").hide().removeClass("navMenuClickOpen");', 1000);
 		}
 	});
 	
