@@ -389,10 +389,31 @@ class ProfilesController extends Controller
 	private function sendVerificationMail($model){
 		$subject = $this->trans->REGISTRATION_MAIL_SUBJECT;
 		$link = CController::createAbsoluteUrl("profiles/VerifyRegistration", array("hash"=>$model->PRF_RND));
-		$body = sprintf($this->trans->REGISTRATION_MAIL_CONTENT, $link, $link);
-		$headers="From: {".Yii::app()->params['adminEmail']."}\r\nReply-To: {".Yii::app()->params['adminEmail']."}\r\nContent-Type: text/html";
+		$body = sprintf($this->trans->REGISTRATION_MAIL_CONTENT, $link, $link, Yii::app()->params['verificationRegardsName']);
+		$body = 
+			sprintf($this->trans->REGISTRATION_MAIL_CONTENT_MESSAGE, '') . "<br>\r\n" . //here could be ' <anrede> <name>'.
+			sprintf($this->trans->REGISTRATION_MAIL_CONTENT_LINK, $link, $link) . "<br>\r\n" .
+			$this->trans->REGISTRATION_MAIL_CONTENT_CONTAKT . "<br>\r\n" .
+			sprintf($this->trans->REGISTRATION_MAIL_CONTENT_REGARDS, Yii::app()->params['verificationRegardsName']) . "<br><br><br>\r\n";
 		
-		mail($model->PRF_EMAIL . ', wiasmitinow@gmail.com',$subject,$body,$headers);//Yii::app()->params['adminEmail']
+		if (Yii::app()->session['lang'] == 'EN_GB'){
+			$otherLanguage = 'DE_CH';
+		} else {
+			$otherLanguage = 'EN_GB';
+		}
+		$result = Yii::app()->db->createCommand()->select('TXT_NAME,'.$otherLanguage)->from('textes')->where("TXT_NAME like 'REGISTRATION_MAIL_CONTENT%'")->queryAll();
+		$otherLanguageTexts = CHtml::listData($result,'TXT_NAME',$otherLanguage);
+		$body .= 
+			sprintf($otherLanguageTexts['REGISTRATION_MAIL_CONTENT_MESSAGE'], '') . "<br>\r\n" . //here could be ' <anrede> <name>'.
+			sprintf($otherLanguageTexts['REGISTRATION_MAIL_CONTENT_LINK'], $link, $link) . "<br>\r\n" .
+			$otherLanguageTexts['REGISTRATION_MAIL_CONTENT_CONTAKT'] . "<br>\r\n" .
+			sprintf($otherLanguageTexts['REGISTRATION_MAIL_CONTENT_REGARDS'], Yii::app()->params['verificationRegardsName']) . "<br>\r\n";
+		
+		$headers="From: <".Yii::app()->params['verificationEmail'].">\r\nReply-To: <".Yii::app()->params['verificationEmail'].">\r\nReturn-Path: <".Yii::app()->params['verificationEmail'].">\r\nBcc: <".Yii::app()->params['verificationBCCEmail'].">\r\nContent-Type: text/html";
+		$programmParam = "-f".Yii::app()->params['verificationEmail'];
+		
+		ini_set('sendmail_from', Yii::app()->params['verificationEmail']); 
+		mail($model->PRF_EMAIL, $subject, $body, $headers, $programmParam);
 	}
 
    /*
@@ -527,12 +548,17 @@ class ProfilesController extends Controller
 	
     public function actionDisplaySavedImage($id, $ext)
     {
+		if (isset($_GET['size'])) {
+			$size = $_GET['size'];
+		} else {
+			$size = 0;
+		}
 		$this->saveLastAction = false;
 		$model=$this->loadModel($id, true);
 		$modified = $model->CHANGED_ON;
 		if (!$modified){
 			$modified = $model->CREATED_ON;
 		}
-		return Functions::getImage($modified, $model->PRF_IMG_ETAG, $model->PRF_IMG, $id);
+		return Functions::getImage($modified, $model->PRF_IMG_ETAG, $model->PRF_IMG, $id, 'Profiles', $size);
     }
 }

@@ -562,13 +562,18 @@ class StoresController extends Controller
 	
     public function actionDisplaySavedImage($id, $ext)
     {
+		if (isset($_GET['size'])) {
+			$size = $_GET['size'];
+		} else {
+			$size = 0;
+		}
 		$this->saveLastAction = false;
 		$model=$this->loadModel($id, true);
 		$modified = $model->CREATED_ON;
 		if (!$modified){
 			$modified = $model->CHANGED_ON;
 		}
-		return Functions::getImage($modified, $model->STO_IMG_ETAG, $model->STO_IMG, $id);
+		return Functions::getImage($modified, $model->STO_IMG_ETAG, $model->STO_IMG, $id, 'Stores', $size);
     }
 	
 	public function actionGetStoresInRange(){

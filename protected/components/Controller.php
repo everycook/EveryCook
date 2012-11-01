@@ -287,6 +287,10 @@ class Controller extends CController
 				Yii::app()->clientscript->registerCssFile($baseurl . '/jui/css/base/jquery.ui.theme.css');
 				Yii::app()->clientscript->registerCssFile($baseurl . '/jui/css/base/jquery.ui.datepicker.css');
 				Yii::app()->clientscript->registerCoreScript('yii');
+				
+				$transScript = Yii::app()->createUrl('site/trans', array('lang'=>Yii::app()->session['lang']));
+				Yii::app()->clientscript->registerScriptFile($transScript, CClientScript::POS_HEAD);
+				
 				$fancyBox = new EFancyBox();
 				$fancyBox->publishAssets();
 				$request_baseurl = Yii::app()->request->baseUrl ;

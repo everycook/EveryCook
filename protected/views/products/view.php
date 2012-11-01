@@ -15,6 +15,7 @@ $this->menu=array(
 $this->mainButtons = array(
 	array('label'=>$this->trans->GENERAL_EDIT, 'link_id'=>'middle_single', 'url'=>array('products/update',$this->getActionParams())),
 );
+$preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preloadedInfo = {};';
 ?>
 <input type="hidden" id="getNextLink" value="<?php echo $this->createUrl('products/getNext', array('ing_id'=>$model->ING_ID)); ?>"/>
 <input type="hidden" id="ProductStoreLocationsLink" value="<?php echo $this->createUrl('stores/getStoresInRangeWithProduct'); ?>"/>
@@ -68,20 +69,32 @@ $this->mainButtons = array(
 						<input name="recipe" class="imgIndex" type="hidden" value="0" />
 						<input name="amount" class="imgIndexAmount" type="hidden" value="<?php echo ProductsController::RECIPES_AMOUNT; ?>" />
 						<div class="up-arrow"><div class="up1"></div><div class="up2"></div></div>
-					<?php
+						<?php
+						$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe = {};';
 					}
+					$index = 0;
 					foreach($recipes as $recipe){
-						echo '<div class="item">';
-							echo CHtml::link($recipe['REC_NAME_' . Yii::app()->session['lang']], array('recipes/view', 'id'=>$recipe['REC_ID']), array('class'=>'title'));
-							echo '<div class="small_img">';
-								echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$recipe['REC_NAME_' . Yii::app()->session['lang']], 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']])), array('recipes/view', 'id'=>$recipe['REC_ID']));
-								echo '<div class="img_auth">';
-								if ($recipe['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $recipe['REC_IMG_AUTH']; }
+						if ($index < ProductsController::RECIPES_AMOUNT){
+							echo '<div class="item">';
+								echo CHtml::link($recipe['REC_NAME_' . Yii::app()->session['lang']], array('recipes/view', 'id'=>$recipe['REC_ID']), array('class'=>'title'));
+								echo '<div class="small_img">';
+									echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$recipe['REC_NAME_' . Yii::app()->session['lang']], 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']])), array('recipes/view', 'id'=>$recipe['REC_ID']));
+									echo '<div class="img_auth">';
+									if ($recipe['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $recipe['REC_IMG_AUTH']; }
+									echo '</div>';
 								echo '</div>';
 							echo '</div>';
-						echo '</div>';
+							if ($otherItemsAmount['recipes'] > ProductsController::RECIPES_AMOUNT){
+								$preloadedInfoResetScript .= '"\r\n".glob.preloadedInfo.recipe.idx' . $index . ' = {img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$recipe['REC_ID'])).'", auth:"'.$recipe['REC_IMG_AUTH'].'", name:"'.$recipe['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
+							}
+						} else {
+							$preloadedInfoResetScript .= '"\r\n".glob.preloadedInfo.recipe.idx' . $index . ' = {img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$recipe['REC_ID'])).'", auth:"'.$recipe['REC_IMG_AUTH'].'", name:"'.$recipe['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
+						}
+						++$index;
 					}
-					if ($otherItemsAmount['recipes'] > 2){
+					if ($otherItemsAmount['recipes'] > ProductsController::RECIPES_AMOUNT){
+						$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.nextPreloadIndex = '.$index.';';
+						$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.prevPreloadIndex = -1;';
 						echo '<div class="down-arrow"><div class="down1"></div><div class="down2"></div></div>';
 					}
 				}
@@ -177,3 +190,4 @@ $this->mainButtons = array(
 		loadScript(false, "CH", false, true, false, false);
 	</script>
 </div>
+<?php echo '<script>' . $preloadedInfoResetScript . "\r\n".'</script>'; ?>

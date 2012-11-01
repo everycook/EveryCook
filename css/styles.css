@@ -503,11 +503,11 @@ div.resultArea div.options {
 	float:right;
 }
 
-#ingredientsResult div.resultArea div.options a {
+div.resultArea div.options a {
 	margin-right: 2.8em;
 }
 
-#ingredientsResult div.resultArea div.options a.last {
+div.resultArea div.options a.last {
 	margin-right: 0;
 }
 
@@ -545,15 +545,6 @@ div.ingInfo .value {
 	font-weight: bold;
 }
 
-
-
-#recipesResult div.resultArea div.options a.disgusting {
-	float:right;
-}
-
-#recipesResult div.resultArea div.options a.cookwith  {
-	float:right;
-}
 
 #recipesResult div.resultArea div.options a {
 	margin-bottom: 0.8em;
@@ -598,6 +589,10 @@ div#products.detailView div.options {
 div#ingredients.detailView div.options div.otherItems,
 div#products.detailView div.options div.otherItems {
 	width:10em;
+}
+
+.options .otherItems .noItems {
+	font-size: 0.8em;
 }
 
 div.detailView div.options a.backpic {
@@ -1179,6 +1174,13 @@ div.mealView span.value {
 	width: 17%;
 }
 
+.recipeConfig {
+	background-color: white;
+	border-radius: 1.5em;
+	padding: 0.8em;
+	margin-bottom: 1em;
+}
+
 .recipeConfig input[type=radio] {
 	height: 1.3em;
 	width: 1.3em;
@@ -1321,8 +1323,6 @@ div.mealView span.value {
 .places_infoblock .places_openTimes .timeLine {
 	display:block;
 }
-
-
 
 
 

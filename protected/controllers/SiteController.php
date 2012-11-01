@@ -2,6 +2,8 @@
 class SiteController extends Controller
 {
 	protected $getNextAmountBackup = 'Site_GetNextAmount';
+	const PRELOAD_AMOUNT = 3;
+	
 	/**
 	 * Declares class-based actions.
 	 */
@@ -66,25 +68,25 @@ class SiteController extends Controller
 			$command = Yii::app()->db->createCommand()
 					->from('recipes')
 					->order('CHANGED_ON desc')
-					->limit(1,$index);
-			$recipe = $command->queryRow();
+					->limit(1+self::PRELOAD_AMOUNT,$index);
+			$recipes = $command->queryAll();
 			
 			$command = Yii::app()->db->createCommand()
 					->from('ingredients')
 					->order('CHANGED_ON desc')
-					->limit(1,$index);
-			$ingredient = $command->queryRow();
+					->limit(1+self::PRELOAD_AMOUNT,$index);
+			$ingredients = $command->queryAll();
 			
 			$command = Yii::app()->db->createCommand()
 					->from('products')
 					->order('CHANGED_ON desc')
-					->limit(1,$index);
-			$product = $command->queryRow();
+					->limit(1+self::PRELOAD_AMOUNT,$index);
+			$products = $command->queryAll();
 			
 			$this->checkRenderAjax('index', array(
-				'recipe'=>$recipe,
-				'ingredient'=>$ingredient,
-				'product'=>$product,
+				'recipes'=>$recipes,
+				'ingredients'=>$ingredients,
+				'products'=>$products,
 			));
 		}
 	}
@@ -93,31 +95,36 @@ class SiteController extends Controller
 		if ($type == 'recipe' || $type == 'ingredient' || $type == 'product'){
 			if ($index<0){
 				$otherItemsAmount = Yii::app()->session[$this->getNextAmountBackup];
-				$index = $otherItemsAmount[$type.'s'] + $index;
+				$index = $otherItemsAmount[$type.'s'] + $index - self::PRELOAD_AMOUNT + 1;
 			}
 			$command = Yii::app()->db->createCommand()
 					->from($type.'s')
 					->order('CHANGED_ON desc')
-					->limit(1,$index);
-			$model = $command->queryRow();
-			if (!isset($model) || $model == null){
+					->limit(self::PRELOAD_AMOUNT,$index);
+			$rows = $command->queryAll();
+			if (!isset($rows) || $rows == null || count($rows) == 0){
 				$otherItemsAmount = Yii::app()->session[$this->getNextAmountBackup];
 				$index = $index - $otherItemsAmount[$type.'s'];
 				
 				$command = Yii::app()->db->createCommand()
 						->from($type.'s')
 						->order('CHANGED_ON desc')
-						->limit(1,$index);
-				$model = $command->queryRow();
+						->limit(self::PRELOAD_AMOUNT,$index);
+				$rows = $command->queryAll();
 			}
-			
-			if ($type == 'recipe'){
-				echo '{img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$model['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$model['REC_ID'])).'", auth:"'.$model['REC_IMG_AUTH'].'", name:"'.$model['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
-			} else if ($type == 'ingredient'){
-				echo '{img:"'.$this->createUrl('ingredients/displaySavedImage', array('id'=>$model['ING_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('ingredients/view', array('id'=>$model['ING_ID'])).'", auth:"'.$model['ING_IMG_AUTH'].'", name:"'.$model['ING_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
-			} else if ($type == 'product'){
-				echo '{img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$model['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$model['PRO_ID'])).'", auth:"'.$model['PRO_IMG_CR'].'", name:"'.$model['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+			echo '{"preloadAmount": '.self::PRELOAD_AMOUNT.', "datas": [';
+			foreach($rows as $model){
+				if ($type == 'recipe'){
+					echo '{img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$model['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$model['REC_ID'])).'", auth:"'.$model['REC_IMG_AUTH'].'", name:"'.$model['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+				} else if ($type == 'ingredient'){
+					echo '{img:"'.$this->createUrl('ingredients/displaySavedImage', array('id'=>$model['ING_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('ingredients/view', array('id'=>$model['ING_ID'])).'", auth:"'.$model['ING_IMG_AUTH'].'", name:"'.$model['ING_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+				} else if ($type == 'product'){
+					echo '{img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$model['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$model['PRO_ID'])).'", auth:"'.$model['PRO_IMG_CR'].'", name:"'.$model['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+				}
+				echo ',';
+				++$index;
 			}
+			echo ']}';
 		}
 	}
 
@@ -200,6 +207,12 @@ class SiteController extends Controller
 	{
 		Yii::app()->user->logout();
 		$this->redirect(Yii::app()->homeUrl);
+	}
+	
+	public function actionTrans($lang){
+		self::$trans=new Translations($lang);
+		//$this->renderAjax('trans', null, '');
+		$this->renderPartial('trans',null);
 	}
 	
 }

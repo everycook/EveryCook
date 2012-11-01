@@ -278,7 +278,7 @@ class Functions extends CHtml{
 		} elseif($info[2] == IMAGETYPE_PNG) {
 			$image = imagecreatefrompng($file);
 		} else  {
-				return false;
+			return false;
 		}
 		if ($destType == -1){
 			$destType = $info[2];
@@ -398,7 +398,7 @@ class Functions extends CHtml{
 		return $info;
 	}
 	
-	public static function getImage($modified, $etag, $picture, $id){
+	public static function getImage($modified, $etag, $picture, $id, $type, $size){
 		//Not using default function to have posibility to set Cache control...
 		//Yii::app()->request->sendFile('image.png', $picture, 'image/png');
 		if (!isset($etag) || $etag === '' || !isset($picture) || $picture === ''){
@@ -442,6 +442,35 @@ class Functions extends CHtml{
 			header('Etag: ' . $etag);
 		}
 		header("Content-type: image/png");
+		if ($size > 0 && $size < self::IMG_HEIGHT){
+			$filepath = Yii::app()->getBasePath() . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . $type;
+			$filename = $filepath . DIRECTORY_SEPARATOR . $id . '-' . $size . '.png';
+			
+			/*
+			echo $filename ."\r\n<br>";
+			echo file_exists($filepath) ."-path\r\n<br>";
+			echo file_exists($filename) ."-file\r\n<br>";
+			if (file_exists($filename)){
+				echo filectime($filename) ."-time\r\n<br>";
+			}
+			echo $modified ."\r\n<br>";
+			*/
+			
+			if(file_exists($filename) && filectime($filename) >= $modified){
+				$picture = file_get_contents($filename);
+			} else {
+				if (!file_exists($filepath)){
+					$success = mkdir($filepath, 0777, true);
+					if (!$success){
+						$filename = tempnam(sys_get_temp_dir(), 'img');
+					}
+				}
+				$result = file_put_contents($filename, $picture);
+				self::resizePicture($filename, $filename, $size, $size, 0.8, IMAGETYPE_PNG);
+				$picture = file_get_contents($filename);
+			}
+		}
+		
 		if(ini_get("output_handler")=='')
 			header('Content-Length: '.(function_exists('mb_strlen') ? mb_strlen($picture,'8bit') : strlen($picture)));
 		//header("Content-Disposition: attachment; filename=\"image_" . $id . ".png\"");
@@ -752,7 +781,7 @@ class Functions extends CHtml{
 	}
 	
 	public static function browserCheck(){
-		if (!isset(Yii::app()->session['browserErrorClosed']) || !Yii::app()->session['browserErrorClosed']){
+		if (!isset(Yii::app()->session['browserErrorClosed']) || !Yii::app()->session['browserErrorClosed'] && isset($_SERVER['HTTP_USER_AGENT'])){
 			$userAgent = $_SERVER['HTTP_USER_AGENT'];
 			$type = explode('|', stat_func::browser_detection($userAgent, 'unknown'));
 			if (count($type)>1){

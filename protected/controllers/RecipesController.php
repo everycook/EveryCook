@@ -717,13 +717,18 @@ class RecipesController extends Controller
 	
     public function actionDisplaySavedImage($id, $ext)
     {
+		if (isset($_GET['size'])) {
+			$size = $_GET['size'];
+		} else {
+			$size = 0;
+		}
 		$this->saveLastAction = false;
 		$model=$this->loadModel($id, true);
 		$modified = $model->CHANGED_ON;
 		if (!isset($modified)){
 			$modified = $model->CREATED_ON;
 		}
-		return Functions::getImage($modified, $model->REC_IMG_ETAG, $model->REC_IMG, $id);
+		return Functions::getImage($modified, $model->REC_IMG_ETAG, $model->REC_IMG, $id, 'Recipes', $size);
     }
 	
 	public function actionDelicious($id){

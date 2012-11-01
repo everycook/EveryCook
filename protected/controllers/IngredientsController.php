@@ -16,6 +16,7 @@ class IngredientsController extends Controller
 	protected $getNextAmountBackup = 'Ingredients_GetNextAmount';
 	const RECIPES_AMOUNT = 2;
 	const PRODUCTS_AMOUNT = 2;
+	const PRELOAD_AMOUNT = 3;
 	
 	/**
 	 * Specifies the access control rules.
@@ -93,8 +94,8 @@ class IngredientsController extends Controller
 		Yii::app()->session[$this->getNextAmountBackup] = $otherItemsAmount;
 		
 		//read current shown
-		$recipes = Yii::app()->db->createCommand()->select('recipes.*')->from('recipes')->join('steps', 'recipes.REC_ID = steps.REC_ID')->where('steps.ING_ID = :id', array(':id'=>$model->ING_ID))->order('CHANGED_ON desc')->group('recipes.REC_ID')->limit(self::RECIPES_AMOUNT,0)->queryAll();
-		$products = Yii::app()->db->createCommand()->from('products')->where('ING_ID = :id', array(':id'=>$model->ING_ID))->order('CHANGED_ON desc')->limit(self::PRODUCTS_AMOUNT,0)->queryAll();
+		$recipes = Yii::app()->db->createCommand()->select('recipes.*')->from('recipes')->join('steps', 'recipes.REC_ID = steps.REC_ID')->where('steps.ING_ID = :id', array(':id'=>$model->ING_ID))->order('CHANGED_ON desc')->group('recipes.REC_ID')->limit(self::RECIPES_AMOUNT * 2,0)->queryAll();
+		$products = Yii::app()->db->createCommand()->from('products')->where('ING_ID = :id', array(':id'=>$model->ING_ID))->order('CHANGED_ON desc')->limit(self::PRODUCTS_AMOUNT * 2,0)->queryAll();
 		
 		$this->checkRenderAjax('view', array(
 			'model'=>$model,
@@ -121,9 +122,9 @@ class IngredientsController extends Controller
 				$command->where('ING_ID = :id', array(':id'=>$ing_id));
 			}
 			$command->order($type.'s.CHANGED_ON desc')
-				->limit(1,$index);
-			$model = $command->queryRow();
-			if (!isset($model) || $model == null){
+				->limit(self::PRELOAD_AMOUNT,$index);
+			$rows = $command->queryAll();
+			if (!isset($rows) || $rows == null || count($rows) == 0){
 				$otherItemsAmount = Yii::app()->session[$this->getNextAmountBackup];
 				$index = $index - $otherItemsAmount[$type.'s'];
 				
@@ -137,15 +138,21 @@ class IngredientsController extends Controller
 					$command->where('ING_ID = :id', array(':id'=>$ing_id));
 				}
 				$command->order($type.'s.CHANGED_ON desc')
-					->limit(1,$index);
-				$model = $command->queryRow();
+					->limit(self::PRELOAD_AMOUNT,$index);
+				$rows = $command->queryAll();
 			}
 			
-			if ($type == 'recipe'){
-				echo '{img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$model['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$model['REC_ID'])).'", auth:"'.$model['REC_IMG_AUTH'].'", name:"'.$model['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
-			} else if ($type == 'product'){
-				echo '{img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$model['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$model['PRO_ID'])).'", auth:"'.$model['PRO_IMG_CR'].'", name:"'.$model['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+			echo '{"preloadAmount": '.self::PRELOAD_AMOUNT.', "datas": [';
+			foreach($rows as $model){
+				if ($type == 'recipe'){
+					echo '{img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$model['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$model['REC_ID'])).'", auth:"'.$model['REC_IMG_AUTH'].'", name:"'.$model['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+				} else if ($type == 'product'){
+					echo '{img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$model['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$model['PRO_ID'])).'", auth:"'.$model['PRO_IMG_CR'].'", name:"'.$model['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+				}
+				echo ',';
+				++$index;
 			}
+			echo ']}';
 		}
 	}
 	
@@ -880,13 +887,18 @@ class IngredientsController extends Controller
 	
     public function actionDisplaySavedImage($id, $ext)
     {
+		if (isset($_GET['size'])) {
+			$size = $_GET['size'];
+		} else {
+			$size = 0;
+		}
 		$this->saveLastAction = false;
 		$model=$this->loadModel($id, true);
 		$modified = $model->CHANGED_ON;
 		if (!$modified){
 			$modified = $model->CREATED_ON;
 		}
-		return Functions::getImage($modified, $model->ING_IMG_ETAG, $model->ING_IMG, $id);
+		return Functions::getImage($modified, $model->ING_IMG_ETAG, $model->ING_IMG, $id, 'Ingredients', $size);
     }
 	
 	public function actionDelicious($id){

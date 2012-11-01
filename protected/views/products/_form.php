@@ -104,7 +104,7 @@
 	
 	<div class="row">
 		<?php
-		echo $form->labelEx($model,'filename');
+		echo $form->labelEx($model,'filename') . "\r\n";
 		/*
 		echo '<div class="imageTip">';
 		echo $this->trans->TIP_OWN_IMAGE . '<br>';
@@ -112,7 +112,7 @@
 		printf($this->trans->TIP_LOOK_ON_FLICKR, $model->__get('PRO_NAME_EN_GB')); //.Yii::app()->session['lang']
 		echo '<br>';
 		*/
-		echo $form->FileField($model,'filename');
+		echo $form->FileField($model,'filename') . "\r\n";
 		//e3cho '</div>';
 		echo $form->error($model,'filename');
 		?>

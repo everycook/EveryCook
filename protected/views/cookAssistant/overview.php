@@ -43,17 +43,17 @@
 							echo '<div>';
 							echo CHtml::label('cook with machine','cookwith_'.$i.'_local',array());
 							echo CHtml::radioButton('cookwith['.$i.']', $info->cookWithEveryCook[$i][0]==CookAssistantController::COOK_WITH_LOCAL, array('value'=>'local', 'id'=>'cookwith_'.$i.'_local'));
-							echo '<div>';
+							echo '</div>';
 						}
 						echo '<div>';
 						echo CHtml::label('cook with remote machine','cookwith_'.$i.'_remote',array());
 						echo CHtml::radioButton('cookwith['.$i.']', $info->cookWithEveryCook[$i][0]==CookAssistantController::COOK_WITH_IP, array('value'=>'remote', 'id'=>'cookwith_'.$i.'_remote'));
 						echo CHtml::textField('remoteip['.$i.']', ($info->cookWithEveryCook[$i][0]==CookAssistantController::COOK_WITH_IP)?$info->cookWithEveryCook[$i][1]:'10.0.0.1', array());
-						echo '<div>';
+						echo '</div>';
 						echo '<div>';
 						echo CHtml::label('cook with normal pan','cookwith_'.$i.'_pan',array());
 						echo CHtml::radioButton('cookwith['.$i.']', $info->cookWithEveryCook[$i][0]==CookAssistantController::COOK_WITH_PAN, array('value'=>'pan', 'id'=>'cookwith_'.$i.'_pan'));
-						echo '<div>';
+						echo '</div>';
 					echo '</div>';
 					echo '<input type="hidden" name="withEveryCook" value="' . ($cookWithEveryCook) . '"/>';
 				} else {

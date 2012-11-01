@@ -98,6 +98,8 @@ function ajaxResponceHandler(data, type, asFancy){
 jQuery(function($){
 	var navMenuTiemout = new Array();
 	
+	glob.preloadedInfo = glob.preloadedInfo || {};
+	
 	//AjaxPaging
 	var ajaxpaging = {};
 	ajaxpaging.doScrollTop = true;
@@ -992,58 +994,143 @@ jQuery(function($){
 				change = change + amount-1;
 			}
 		}
-		var url = jQuery('#getNextLink').val();
 		var currentIndex = parseInt(input.val());
 		var index = currentIndex+change;
-		url = glob.urlAddParamStart(url) + 'type=' + input.attr('name');
-		url = glob.urlAddParamStart(url) + 'index=' + index;
-		jQuery.ajax({
-			'type':'get',
-			'url':url,
-			'success': function(data){
-				if (data.indexOf('{')===0){
-					eval('var data = ' + data + ';');
+		var type = input.attr('name');
+		
+		
+		var processFunction = function(data){
+			if (amount>0){
+				if (change>0){
+					item.insertAfter(parent.find('.item:last'));
+					//item = parent.find('.item:last'); //is already last
+				} else {
+					item = parent.find('.item:last')
+					item.insertBefore(parent.find('.item:first'));
+					//item = parent.find('.item:first'); //is already first
 				}
-				if (amount>0){
-					if (change>0){
-						item.insertAfter(parent.find('.item:last'));
-						//item = parent.find('.item:last'); //is already last
+			}
+			
+			var title = item.find('.title');
+			title.text(data.name);
+			title.attr('href', data.url);
+			var image = item.find('img');
+			image.attr('src', data.img);
+			image.attr('alt', data.name);
+			image.attr('title', data.name);
+			if (amount>0 && change>0){
+				if (data.index<currentIndex){
+					//end reached
+					if (data.index<amount){
+						input.val(currentIndex+1);
 					} else {
-						item = parent.find('.item:last')
-						item.insertBefore(parent.find('.item:first'));
-						//item = parent.find('.item:first'); //is already first
+						input.val(data.index-amount+1);
+					}
+				} else {
+					input.val(data.index - amount+1);
+				}
+			} else {
+				input.val(data.index);
+			}
+			image.parents('a:first').attr('href', data.url);
+			if (data.auth.length != 0){
+				item.find('.img_auth').text('© by ' + data.auth);
+			} else {
+				item.find('.img_auth').html('&nbsp;');
+			}
+		};
+		
+		var updatePreloadedValues = function(preloaded, loadedIndex, result){
+			var data;
+			for (var i=0; i<result.datas.length;++i){
+				data = result.datas[i];
+				preloaded['idx'+data.index] = data;$
+				var preloadImg = new Image();
+				preloadImg.src = data.img;
+			}
+			if (change>0){
+				data = result.datas[0];
+				if (data.index == 0 && preloaded['nextPreloadIndex'] != data.index){
+					if (preloaded['idx'+(preloaded['nextPreloadIndex']-1)] != undefined){
+						preloaded['idx-1'] = preloaded['idx'+(preloaded['nextPreloadIndex']-1)];
 					}
 				}
-				
-				var title = item.find('.title');
-				title.text(data.name);
-				title.attr('href', data.url);
-				var image = item.find('img');
-				image.attr('src', data.img);
-				image.attr('alt', data.name);
-				image.attr('title', data.name);
-				if (amount>0 && change>0){
-					if (data.index<currentIndex){
-						//end reached
-						if (data.index<amount){
-							input.val(currentIndex+1);
-						} else {
-							input.val(data.index-amount+1);
+				preloaded['nextPreloadIndex'] = result.datas[result.datas.length-1].index+1;
+			} else {
+				data = result.datas[result.datas.length-1];
+				if (loadedIndex == -1 /*&& preloaded['prevPreloadIndex'] != data.index*/){
+					if (preloaded['idx0'] != undefined){
+						preloaded['idx'+(data.index+1)] = preloaded['idx0'];
+					}
+				}
+				preloaded['prevPreloadIndex'] = result.datas[0].index-result.preloadAmount;
+				preloaded['prevPreloadCheck'] = result.datas[0].index-1;
+			}
+			
+			index = data.index;
+			if (preloaded['idx'+loadedIndex] == undefined){
+				preloaded['idx'+loadedIndex] = result.datas[0];
+			}
+		};
+		
+		var preLoadFunction = function(preloaded){
+			if (change>0){
+				var indexToCheck = preloaded['nextPreloadIndex'];
+				var indexToCheckAgainst = index+1;
+				var indexToLoad = preloaded['nextPreloadIndex'];
+			} else {
+				var indexToCheck = preloaded['prevPreloadCheck'];
+				var indexToCheckAgainst = index-1;
+				var indexToLoad = preloaded['prevPreloadIndex'];
+			}
+			if (indexToCheck == indexToCheckAgainst && preloaded['idx'+indexToCheck] == undefined){
+				var url = jQuery('#getNextLink').val();
+				url = glob.urlAddParamStart(url) + 'type=' + type;
+				url = glob.urlAddParamStart(url) + 'index=' + indexToLoad;
+				jQuery.ajax({
+					'type':'get',
+					'url':url,
+					'success': function(result){
+						if (result.indexOf('{')===0){
+							eval('var result = ' + result + ';');
 						}
-					} else {
-						input.val(data.index - amount+1);
+						updatePreloadedValues(preloaded, indexToLoad, result);
+					},
+				});
+			}
+		};
+		
+		var preloaded = glob.preloadedInfo[type];
+		if (preloaded['idx'+index] != undefined){
+			processFunction(preloaded['idx'+index]);
+			
+			//preload if needed
+			preLoadFunction(preloaded);
+		} else {
+			var url = jQuery('#getNextLink').val();
+			url = glob.urlAddParamStart(url) + 'type=' + type;
+			url = glob.urlAddParamStart(url) + 'index=' + index;
+			jQuery.ajax({
+				'type':'get',
+				'url':url,
+				'success': function(result){
+					if (result.indexOf('{')===0){
+						eval('var result = ' + result + ';');
 					}
-				} else {
-					input.val(data.index);
-				}
-				image.parents('a:first').attr('href', data.url);
-				if (data.auth.length != 0){
-					item.find('.img_auth').text('© by ' + data.auth);
-				} else {
-					item.find('.img_auth').html('&nbsp;');
-				}
-			},
-		});
+					
+					if (change>0){
+						processFunction(result.datas[0]);
+					} else {
+						processFunction(result.datas[result.datas.length-1]);
+					}
+					
+					updatePreloadedValues(preloaded, index, result);
+					
+					//preload if needed
+					preLoadFunction(preloaded);
+				},
+			});
+		}
 	}
 	
 	//divers functions

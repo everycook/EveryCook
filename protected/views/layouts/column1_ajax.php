@@ -3,6 +3,7 @@ if ($this->route != 'site/index'){
 	Functions::browserCheck();
 }
 ?>
+<input type="hidden" id="route" name="route" value="<?php echo $this->route; ?>"/>
 <div id="container">
 	<div id="content">
 		<?php echo $content; ?>

@@ -67,7 +67,7 @@ return array(
 		'db'=>array(
 			'class'=>'CDbConnection',
 			'driverMap'=>array('mysql'=>'MysqlGeomSchema'),
-			'connectionString' => 'mysql:host=localhost;dbname=30608_everycook',
+			'connectionString' => 'mysql:host=localhost;dbname=ec',
 			'emulatePrepare' => true,
 			'username' => 'root',
 			'password' => '',
@@ -80,7 +80,7 @@ return array(
 		'dbp'=>array(
 			'class'=>'CDbConnection',
 			'driverMap'=>array('mysql'=>'MysqlGeomSchema'),
-			'connectionString' => 'mysql:host=localhost;dbname=30608_ecprivate',
+			'connectionString' => 'mysql:host=localhost;dbname=ec_priv',
 			'emulatePrepare' => true,
 			'username' => 'root',
 			'password' => '',
@@ -107,7 +107,7 @@ return array(
 					'class'=>'CProfileLogRoute', 
 					'report'=>'callstack',  /" summary or callstack
 				),
-				*/				
+				*/
 				// uncomment the following to show log messages on web pages
 				/*
 				array(
@@ -130,6 +130,9 @@ return array(
 	// using Yii::app()->params['paramName']
 	'params'=>array(
 		// this is used in contact page
-		'adminEmail'=>'webmaster@example.com',
+		'adminEmail'=>'webmaster@everycook.org',
+		'verificationEmail'=>'alexis@everycook.org',
+		'verificationBCCEmail'=>'wiasmitinow@gmail.com',
+		'verificationRegardsName'=>'Alexis',
 	),
 );

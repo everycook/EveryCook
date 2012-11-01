@@ -965,12 +965,14 @@ function UpdateCurrentGPSCallback(status){
 		
 		UpdateSessionLocation();
 		if (typeof(lastLocation) === 'undefined' || lastLocation.lat()  != initialLocation.lat() || lastLocation.lng()  != initialLocation.lng()){
+			/*
 			if (lastCords != null){
 				alert('DEBUG: geolocation sucessfull (accuracy: ' + lastCords.accuracy + 'm), press F5 to reload data (will be done automatically in future...)'); //TODO
 			} else {
 				alert('DEBUG: setting address GPS  sucessfull , press F5 to reload data (will be done automatically in future...)'); //TODO
 			}
-			//TODO: reload page
+			*/
+			glob.reloadPage();
 		} else {
 			if (typeof(currentMarker) !== 'undefined'){
 				currentMarker.setMap(null);
