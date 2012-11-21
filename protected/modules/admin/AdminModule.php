@@ -18,7 +18,12 @@ class AdminModule extends CWebModule {
 			// you may place customized code here
 			
 			//TODO Check is admin
-			return true;
+			if (Yii::app()->user->checkAccess('admin')){
+				return true;
+			} else {
+				throw new CHttpException(403, 'You need admin privileges to do this.');
+				//return false;
+			}
 		} else {
 			return false;
 		}
