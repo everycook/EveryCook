@@ -212,12 +212,16 @@ class Functions extends CHtml{
 			$new->unsetAttributes(); // clear any default values
 			unset($options['new']);
 		}
+		if (isset($options['newNotClean'])){
+			$new = $options['newNotClean'];
+			unset($options['newNotClean']);
+		}
+		
 		$showTitles = true;
 		if (isset($options['noTitle'])){
 			$showTitles = !$options['noTitle'];
 			unset($options['noTitle']);
 		}
-			
 		
 		$html = '<table class="addRowContainer">';
 		if ($showTitles){
@@ -250,7 +254,6 @@ class Functions extends CHtml{
 		
 		if ($new){
 			$newhtml = self::inputTableRow('%class%', $fieldOptions, '%index%', $new, $texts);
-			
 			$html .= '<tr id="newLine">';
 			$html .= '<td colspan="'.$visibleFields.'"><div class="buttonSmall add">' . $texts['add'] . '</div>'. self::hiddenField('addContent', $newhtml, array('disabled'=>'disabled')).self::hiddenField('lastIndex', $i, array('disabled'=>'disabled')).'</td>';
 			$html .= '</tr>';
@@ -314,6 +317,9 @@ class Functions extends CHtml{
 		} else {
 			$imagetc = imagecreatetruecolor($width, $height);
 		}
+		
+		imagealphablending($imagetc, false);
+		imagesavealpha($imagetc, true);
 		if (($info[0] > $width) or ($info[1] > $height) or ($width != $src_w) or ($height != $src_h) or ($src_x != 0) or ($src_y != 0)){
 			if ($fillWhite){
 				$xmove=0;
@@ -338,9 +344,10 @@ class Functions extends CHtml{
 				$imagetc = $image;
 			}
 		}
-		
+		/*
 		$transparent=imagecolortransparent($image);
 		imagecolortransparent($imagetc,$transparent);
+		*/
 		
 		if($destType == IMAGETYPE_GIF){
 			imagegif($imagetc, $file_new);  
@@ -402,7 +409,11 @@ class Functions extends CHtml{
 		//Not using default function to have posibility to set Cache control...
 		//Yii::app()->request->sendFile('image.png', $picture, 'image/png');
 		if (!isset($etag) || $etag === '' || !isset($picture) || $picture === ''){
-			Yii::app()->controller->redirect(Yii::app()->request->baseUrl . '/pics/unknown.png', true, 307);
+			if ($size > 0 && $size < self::IMG_HEIGHT){
+				Yii::app()->controller->redirect(Yii::app()->request->baseUrl . '/pics/unknown.png?size='.$size, true, 307);
+			} else {
+				Yii::app()->controller->redirect(Yii::app()->request->baseUrl . '/pics/unknown.png', true, 307);
+			}
 		}
 		if ($id != 'backup'){
 			if ($modified){

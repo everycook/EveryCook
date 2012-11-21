@@ -215,4 +215,16 @@ class SiteController extends Controller
 		$this->renderPartial('trans',null);
 	}
 	
+	public function actionImagesize($img, $size){
+		$id=str_replace('/','_',$img);
+		//$img = '../'.$img;
+		$modified=filectime($img);
+		$picture=file_get_contents($img);
+		//$etag=null;
+		$etag = md5($picture);
+		$type='pic';
+		//$size=200;
+		Functions::getImage($modified, $etag, $picture, $id, $type, $size);
+	}
+	
 }

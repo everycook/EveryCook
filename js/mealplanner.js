@@ -229,15 +229,14 @@ jQuery(function($){
 		glob.rowContainer.clear(container);
 		glob.rowContainer.MealplannerPeopleInit(container, rowsJSON, '[]');
 		
-		jQuery.fancybox({
-			'href':elem.attr('href'),
-			'autoScale':true,
-			'autoDimensions':true,
-			'centerOnScroll':true,
-			'onComplete': function(){
-				jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );
-			}
-		});
+		jQuery.ajax({'type':'get', 'url':elem.attr('href'),'cache':false,'success':function(data){
+			glob.setContentWithImageChangeToFancy(data, {
+				'autoScale':true,
+				'autoDimensions':true,
+				'centerOnScroll':true
+			});
+		}});
+		
 		return false;
 	});
 	
@@ -277,15 +276,14 @@ jQuery(function($){
 			var option = '<option value="' + i + '">' + jQuery(recipes.get(i)).text() + '</option>';
 			select.append(jQuery(option));
 		}
-		jQuery.fancybox({
-			'href':elem.attr('href'),
-			'autoScale':true,
-			'autoDimensions':true,
-			'centerOnScroll':true,
-			'onComplete': function(){
-				jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );
-			}
-		});
+		
+		jQuery.ajax({'type':'get', 'url':elem.attr('href'),'cache':false,'success':function(data){
+			glob.setContentWithImageChangeToFancy(data, {
+				'autoScale':true,
+				'autoDimensions':true,
+				'centerOnScroll':true
+			});
+		}});
 		return false;
 	});
 	

@@ -20,6 +20,7 @@ return array(
 	),
 
 	'modules'=>array(
+		'admin',
 		// uncomment the following to enable the Gii tool
 		
 		'gii'=>array(
@@ -49,7 +50,7 @@ return array(
 				'gii'=>'gii',
 				'gii/<controller:\w+>'=>'gii/<controller>',
 				'gii/<controller:\w+>/<action:\w+>'=>'gii/<controller>/<action>',
-
+				'admin'=>'admin',
 				'<controller:\w+>'=>'<controller>/index',
 				'<controller:\w+>/<id:\d+>'=>'<controller>/view',
 				'<controller:\w+>/<action:\w+>/<id:\w+><ext:\.\w+>'=>'<controller>/<action>',
@@ -130,7 +131,7 @@ return array(
 	// using Yii::app()->params['paramName']
 	'params'=>array(
 		// this is used in contact page
-		'adminEmail'=>'webmaster@everycook.org',
+		'adminEmail'=>'alexis@everycook.org',
 		'verificationEmail'=>'alexis@everycook.org',
 		'verificationBCCEmail'=>'wiasmitinow@gmail.com',
 		'verificationRegardsName'=>'Alexis',

@@ -2,6 +2,12 @@
 #IndexIgnore */*
 
 RewriteEngine On
+
+# Check if is image with size param
+RewriteCond %{REQUEST_FILENAME} (.*pics/.*)$
+RewriteCond %{QUERY_STRING} (size=.*)$
+#RewriteRule (.*pics/.*).(png)$ /db/imagesize.php?img=$1.$2&%1 [R,L]
+RewriteRule (.*pics/.*).(png)$ /db/site/imagesize?img=$1.$2&%1 [R,L]
      
 # if a directory or a file exists, use it directly
 RewriteCond %{REQUEST_FILENAME} !-f

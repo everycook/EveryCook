@@ -94,6 +94,11 @@ div.form textarea,
 div.form select {
 	margin: 0.2em 0 0.5em 0;
 }
+div.form input[type="radio"] {
+/*	width: 1em;
+	height: 1em;*/
+	margin: 0;
+}
 
 div.form label {
 	font-weight: bold;
@@ -957,11 +962,16 @@ div.mealView span.value {
 .shoppingList_right .shoppingList_image {
 	float: right;
 	text-align: center;
+	max-width: 10em;
 }
 .shoppingList_right .shoppingList_image .list_img  {
 	margin-bottom: 0.8em;
 	float: none;
 }
+.shoppingList_right .shoppingList_image .button {
+	min-width: 0;
+}
+
 .shoppingList_right .data_right .button {
 	margin-bottom: 0.8em;
 }
@@ -1324,7 +1334,23 @@ div.mealView span.value {
 	display:block;
 }
 
+.actionOutOverview {
+	margin-bottom: 2em;
+}
 
+.adminOverview .buttons .button {
+	margin-bottom: 0.4em;
+}
+
+#actionsList_form #actionsIns,
+#actionsList_form #cookIns,
+#actionsGenerator_form #actionsIns,
+#actionsGenerator_form #cookIns,
+#actions-out-form #stepTypes,
+#actions-out-form #tools,
+#cook-in-form #tools{
+	min-height: 2.6em;
+}
 
 
 
@@ -1384,10 +1410,10 @@ div.mealView span.value {
 
 
 /* change view Size on change of window size */
-@media only screen and (max-width : 2400px) and (min-width : 1901px) { body { font-size: 1.3em; } #page {margin: 0 2em;} }
-@media only screen and (max-width : 1900px) and (min-width : 1681px) { body { font-size: 1.2em; } #page {margin: 0 3em;} }
-@media only screen and (max-width : 1680px) and (min-width : 1451px) { body { font-size: 1.1em; } #page {margin: 0 4em;} }
-@media only screen and (max-width : 1450px) and (min-width : 1301px) { body { font-size: 1.0em; } #page {margin: 0 4em;} }
+@media only screen and (min-width : 1901px) { body { font-size: 1.3em; } div.form input[type="radio"] { width:28px; height:28px;} #page {margin: 0 2em;} }
+@media only screen and (max-width : 1900px) and (min-width : 1681px) { body { font-size: 1.2em; } div.form input[type="radio"] { width:24px; height:24px;} #page {margin: 0 3em;} }
+@media only screen and (max-width : 1680px) and (min-width : 1451px) { body { font-size: 1.1em; } div.form input[type="radio"] { width:20px; height:20px;} #page {margin: 0 4em;} }
+@media only screen and (max-width : 1450px) and (min-width : 1301px) { body { font-size: 1.0em; } div.form input[type="radio"] { width:16px; height:16px;} #page {margin: 0 4em;} }
 @media only screen and (max-width : 1300px) and (min-width : 1181px) { body { font-size: 0.9em; } }
 @media only screen and (max-width : 1180px) and (min-width : 1051px) { body { font-size: 0.8em; } }
 @media only screen and (max-width : 1050px) { body { font-size: 0.7em; } }

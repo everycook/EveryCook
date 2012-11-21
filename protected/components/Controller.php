@@ -76,14 +76,14 @@ class Controller extends CController
 	
 	public function getJumpTos(){
 		return array(
-			$this->trans->JUMPTO_SHOP_CREATOR => array(Yii::app()->createUrl('stores/create',array('newModel'=>time())), ' newModelTime'),
-			$this->trans->JUMPTO_SHOP_FINDER => array(Yii::app()->createUrl('stores/storeFinder',array())),
-			$this->trans->JUMPTO_LIKE_INGREDIENT => array(Yii::app()->createUrl('ingredients/showLike',array())),
-			$this->trans->JUMPTO_LIKE_PRODUCTS => array(Yii::app()->createUrl('products/showLike',array())),
-			$this->trans->JUMPTO_LIKE_RECIPES => array(Yii::app()->createUrl('recipes/showLike',array())),
-			$this->trans->JUMPTO_MEALLIST => array(Yii::app()->createUrl('meals/mealList',array())),
-			$this->trans->JUMPTO_MEALPLANNER => array(Yii::app()->createUrl('meals/mealPlanner',array('newModel'=>time())), ' newModelTime'),
-			$this->trans->JUMPTO_SHOPPINGLISTS => array(Yii::app()->createUrl('shoppinglists/index',array())),
+			$this->trans->JUMPTO_SHOP_CREATOR => array(Yii::app()->createUrl('/stores/create',array('newModel'=>time())), ' newModelTime'),
+			$this->trans->JUMPTO_SHOP_FINDER => array(Yii::app()->createUrl('/stores/storeFinder',array())),
+			$this->trans->JUMPTO_LIKE_INGREDIENT => array(Yii::app()->createUrl('/ingredients/showLike',array())),
+			$this->trans->JUMPTO_LIKE_PRODUCTS => array(Yii::app()->createUrl('/products/showLike',array())),
+			$this->trans->JUMPTO_LIKE_RECIPES => array(Yii::app()->createUrl('/recipes/showLike',array())),
+			$this->trans->JUMPTO_MEALLIST => array(Yii::app()->createUrl('/meals/mealList',array())),
+			$this->trans->JUMPTO_MEALPLANNER => array(Yii::app()->createUrl('/meals/mealPlanner',array('newModel'=>time())), ' newModelTime'),
+			$this->trans->JUMPTO_SHOPPINGLISTS => array(Yii::app()->createUrl('/shoppinglists/index',array())),
 		);
 	}
 	
@@ -183,7 +183,7 @@ class Controller extends CController
 	 */
 	public function forwardAfterSave($url){
 		if (isset(Yii::app()->session['AFTER_SAVE_FOR']) && Yii::app()->session['AFTER_SAVE_FOR'] == $this->route){
-			$url = Yii::app()->session['AFTER_SAVE_ACTION'];
+			$url = '/' . Yii::app()->session['AFTER_SAVE_ACTION'];
 			unset(Yii::app()->session['AFTER_SAVE_ACTION']);
 			unset(Yii::app()->session['AFTER_SAVE_FOR']);
 			
@@ -216,15 +216,15 @@ class Controller extends CController
 		} else if (isset(Yii::app()->session['LAST_ACTION']) && isset(Yii::app()->session['LAST_ACTION_PARAMS'])){
 			$this->forwardTo(array(Yii::app()->session['LAST_ACTION']));
 		} else {
-			$this->forwardTo(array('site/index'));
+			$this->forwardTo(array('/site/index'));
 		}
 	}
-	
+
 	public function showLastNotCreateAction(){
 		if (isset(Yii::app()->session['LAST_ACTION_NOT_CREATE']) && isset(Yii::app()->session['LAST_ACTION_NOT_CREATE_PARAMS'])){
-			$this->forwardTo(array_merge(array(Yii::app()->session['LAST_ACTION_NOT_CREATE']), Yii::app()->session['LAST_ACTION_NOT_CREATE_PARAMS']));
-		} else if (isset(Yii::app()->session['LAST_ACTION_NOT_CREATE']) && isset(Yii::app()->session['LAST_ACTION_NOT_CREATE_PARAMS'])){
-			$this->forwardTo(array(Yii::app()->session['LAST_ACTION_NOT_CREATE']));
+			$this->forwardTo(array_merge(array('/' . Yii::app()->session['LAST_ACTION_NOT_CREATE']), Yii::app()->session['LAST_ACTION_NOT_CREATE_PARAMS']));
+		} else if (isset(Yii::app()->session['LAST_ACTION_NOT_CREATE'])){
+			$this->forwardTo(array('/' . Yii::app()->session['LAST_ACTION_NOT_CREATE']));
 		} else {
 			$this->forwardTo(array('site/index'));
 		}

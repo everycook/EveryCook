@@ -304,7 +304,7 @@ jQuery(function($){
 				
 				var fields = fieldParents.find('[name]'+excludingFieldQuery); //All non hidden input fields
 				var withUnit = fields.filter('.withUnit');
-				fields = fields.filter('[type!=hidden]');
+				//fields = fields.filter('[type!=hidden]');
 				fields = fields.add(withUnit);
 				for(var fieldId=0; fieldId<fields.length; fieldId++){
 					var field = jQuery(fields[fieldId]);
@@ -718,13 +718,96 @@ jQuery(function($){
 		return false;
 	});
 	
+	
+	//##################################################################################
+	//AinToAou functions
+	function initAinToAouRowContainer(type, contentParent){
+		if (typeof(contentParent) === 'undefined') return;
+		var container = contentParent.find('.actions .addRowContainer');
+		var data = contentParent.find('#rowsJSON').attr('value');
+		var errors = contentParent.find('#errorJSON').attr('value');
+		initAinToAouRowContainerDoIt(container, data, errors);
+	}
+	
+	function initAinToAouRowContainerDoIt(container, data, errors){
+		if (!container.is('.actions .addRowContainer')){
+			return;
+		}
+		if (container.find('.rowContainerInitialized').length > 0){
+			return;
+		}
+		initRowContainer(container, data, errors, '', undefined, undefined, function(fieldParents,data_row){
+		
+		});
+	}
+	glob.rowContainer.AinToAouRowInit = initAinToAouRowContainerDoIt;
+	
+	
+	jQuery('body').undelegate('.actions .addRowContainer .add','click').delegate('.actions .addRowContainer .add','click',function(){
+		addEmptyRow(jQuery(this).parents('tr:first'));
+	});
+	
+	jQuery('body').undelegate('.actions .addRowContainer [id*=AOU_ID]','change').delegate('.actions .addRowContainer [id*=AOU_ID]','change',function(){
+		var elem = jQuery(this);
+		var index = elem.find(':selected').index();
+		var next = elem.next();
+		if (next.length>0){
+			next.remove();
+		}
+		var details = jQuery('#actionsOutDetails').children().get(index);
+		details = jQuery('<div>'+jQuery(details).html() + '</div>');
+		details.insertAfter(elem);
+	});
+	
+	
+	
+	/*
+	jQuery('body').undelegate('.actions .addRowContainer [id$=gender]','change').delegate('.actions .addRowContainer [id$=gender]','change',function(){
+		updateFieldsPeople(jQuery(this));
+	});
+	
+	jQuery('body').undelegate('.actions .addRowContainer [id*=gda_id_kcal_GDA_]','change').delegate('.actions .addRowContainer [id*=gda_id_kcal_GDA_]','change',function(){
+		updatePeopleText(jQuery(this).parents('tr:first'));
+	});
+	
+	jQuery('body').undelegate('.actions .addRowContainer [id$=amount]','change').delegate('.actions .addRowContainer [id$=amount]','change',function(){
+		updatePeopleText(jQuery(this).parents('tr:first'));
+	});
+	
+	function updateFieldsPeople(elem){
+		var row = elem.parents('tr:first');
+		var gender = elem.val();
+		var oldField = row.find('[id*=gda_id_kcal_GDA_]:visible');
+		oldField.hide();
+		var oldIndex = oldField.find('option:selected').index();
+		oldField.attr('disabled', 'disabled');
+		var field = row.find('[id$=gda_id_kcal_GDA_' + gender + ']');
+		field.removeAttr('disabled');
+		field.find('option:selected').removeAttr('selected');
+		field.find('option').slice(oldIndex,oldIndex+1).attr('selected','selected');
+		field.show();
+		updatePeopleText(row);
+	}
+	
+	function updatePeopleText(row){
+		var amount = row.find('[id$=amount]').val();
+		var gender = row.find('[id$=gender]').val();
+		var gda = row.find('[id$=gda_id_kcal_GDA_' + gender + '] option:selected').val();
+		var pos = gda.indexOf('_');
+		gda = gda.substr(pos+1);
+		row.find('.value').text(amount*gda);
+	}
+	*/
+	
 	//----------------------------------------------
 
 
 	$('#page').bind('newContent.rowcontainer_handling', function(e, type, contentParent) {
 		initRecipeStepsRowContainer(type, contentParent);
 		initMealplannerPeopleRowContainer(type, contentParent);
+		initAinToAouRowContainer(type, contentParent);
 	});
 	initRecipeStepsRowContainer('initial', jQuery('#page'));
 	initMealplannerPeopleRowContainer('initial', jQuery('#page'));
+	initAinToAouRowContainer('initial', jQuery('#page'));
 });
