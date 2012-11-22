@@ -13,41 +13,15 @@
 		
 		<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/jquery.Jcrop.css"/>
 		<title><?php echo CHtml::encode($this->pageTitle); ?></title>
-		
-		<script>
-			console.log('run script_head');
-			
-			jQuery(function($){
-				var bodyContent = jQuery("body");
-				var bodyImages = bodyContent.find('img');
-				var bodyImgPath = [];
-				bodyImages.each(function(index){
-					var elem = jQuery(this);
-					bodyImgPath.push(elem.attr('src'));
-					elem.attr('src', '');
-				});
-				console.log('anzahl: ' + bodyImages.length)
-				console.log('run script in function');
-				bodyImages.each(function(index){
-					var elem = jQuery(this);
-					var url = glob.urlAddParamStart(bodyImgPath[index]) + 'size=' + elem.width();
-					elem.attr('src', url)
-				});
-			});
-		</script>
 	</head>
 	<body class="backpic">
-		<script>
-			console.log('run script_body');
-		</script>
 		<?php /*<img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/bg.png" alt="Background" id="index_pic_bg">*/ ?>
 		<div id="page">
 			<div id="metaNav">
 				<a href="<?php echo Yii::app()->createUrl('site/index',array()); ?>"><div id="logo" class="backpic" alt="EveryCook Logo"></div></a>
 				<div id="metaNavButtons">
 					<?php
-					//if(!Yii::app()->user->isGuest) { //is admin
-					if(false) {
+					if (Yii::app()->user->checkAccess('admin')){
 					?>
 					<a class="nav_entry" href="<?php echo Yii::app()->createUrl('admin/index',array()); ?>">
 						<div class="nav_button" id="admin">
@@ -190,9 +164,6 @@
 			var s = document.getElementsByTagName('script')[0];
 			s.parentNode.insertBefore(ga, s);
 		})();
-		</script>
-		<script>
-			console.log('run script_bottom');
 		</script>
 	</body>
 </html>
