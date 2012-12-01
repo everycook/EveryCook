@@ -23,7 +23,7 @@ $this->breadcrumbs=array(
 		echo $form->errorSummary($model);
 		if ($this->errorText != ''){
 			if (strpos($this->errorText, '<li>')){
-				echo '<div class="errorSummary"><p>Please fix the following input errors on Steps:</p><ul>';
+				echo '<div class="errorSummary"><p>'.$this->trans->ACTIONSGENERATOR_FIX_STEPS.'</p><ul>';
 				echo $this->errorText;
 				echo '</ul></div>';
 			} else {
@@ -51,7 +51,8 @@ $this->breadcrumbs=array(
 	<div id="actionsOutDetails" style="display:none;">
 		<span></span>
 		<?php foreach ($actionsOuts as $actionsOut){
-			echo '<span>StepType: ' . ((isset($stepTypes[$actionsOut['STT_ID']]))?$stepTypes[$actionsOut['STT_ID']]:$actionsOut['STT_ID']) . ', Tool: ' . ((isset($tools[$actionsOut['TOO_ID']] ))?$tools[$actionsOut['TOO_ID']]:$actionsOut['TOO_ID'])  . ', Prep: ' . $actionsOut['AOU_PREP'] . ', Dauer: ' . $actionsOut['AOU_DURATION'] . ', Dauer pro: ' . $actionsOut['AOU_DUR_PRO'] . ', CookIn Change: ' . $actionsOut['AOU_CIS_CHANGE'] . '</span>'."\r\n";
+//					$desc .= $toolDescPart . $this->trans->FIELD_AOU_DURATION.': ' . $actionsOut['AOU_DURATION'] . ', '.$this->trans->FIELD_AOU_DUR_PRO.': ' . $actionsOut['AOU_DUR_PRO'] . ', '.$this->trans->FIELD_AOU_PREP.': ' . $actionsOut['AOU_PREP'] . ', '.$this->trans->FIELD_ATA_COI_PREP.': ' . $actionsOut['ATA_COI_PREP'] . ', '.$this->trans->FIELD_AOU_CIS_CHANGE.': ' . $actionsOut['AOU_CIS_CHANGE'] . ')</span></span>'."\r\n";
+			echo '<div>'.$this->trans->FIELD_STT_ID.': ' . ((isset($stepTypes[$actionsOut['STT_ID']]))?$stepTypes[$actionsOut['STT_ID']]:$actionsOut['STT_ID']) . ', '.$this->trans->FIELD_TOO_ID.': ' . ((isset($tools[$actionsOut['TOO_ID']] ))?$tools[$actionsOut['TOO_ID']]:$actionsOut['TOO_ID'])  . ', '.$this->trans->FIELD_AOU_PREP.': ' . $actionsOut['AOU_PREP'] . ', '.$this->trans->FIELD_AOU_DURATION.': ' . $actionsOut['AOU_DURATION'] . ', '.$this->trans->FIELD_AOU_DUR_PRO.': ' . $actionsOut['AOU_DUR_PRO'] . ', '.$this->trans->FIELD_AOU_CIS_CHANGE.': ' . $actionsOut['AOU_CIS_CHANGE'] . '</div>'."\r\n";
 		}?>
 	</div>
 	<div class="actions">

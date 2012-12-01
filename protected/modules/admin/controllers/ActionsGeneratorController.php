@@ -99,8 +99,22 @@ class ActionsGeneratorController extends Controller
 		$cookIns = Yii::app()->db->createCommand()->select('COI_ID,COI_DESC_'.Yii::app()->session['lang'])->from('cook_in')->queryAll();
 		$cookIns = CHtml::listData($cookIns,'COI_ID','COI_DESC_'.Yii::app()->session['lang']);
 		
-		$actionsOuts = Yii::app()->db->createCommand()->select('AOU_ID,AOU_DESC_'.Yii::app()->session['lang'])->from('actions_out')->order('AOU_DESC_'.Yii::app()->session['lang'])->queryAll();
-		$actionsOuts = CHtml::listData($actionsOuts,'AOU_ID','AOU_DESC_'.Yii::app()->session['lang']);
+		$tools = Yii::app()->db->createCommand()->select('TOO_ID,TOO_DESC_'.Yii::app()->session['lang'])->from('tools')->order('TOO_DESC_'.Yii::app()->session['lang'])->queryAll();
+		$tools = CHtml::listData($tools,'TOO_ID','TOO_DESC_'.Yii::app()->session['lang']);
+		
+		$actionsOuts = Yii::app()->db->createCommand()/*->select('AOU_ID,AOU_DESC_'.Yii::app()->session['lang'])*/->from('actions_out')->order('AOU_DESC_'.Yii::app()->session['lang'])->queryAll();
+		//$actionsOutsList = CHtml::listData($actionsOuts,'AOU_ID','AOU_DESC_'.Yii::app()->session['lang']);
+		$actionsOutsList = array();
+		foreach($actionsOuts as $actionsOut){
+			$actionText = $actionsOut['AOU_DESC_'.Yii::app()->session['lang']];
+			if (isset($tools[$actionsOut['TOO_ID']])){
+				$tool = $tools[$actionsOut['TOO_ID']];
+				$actionText = str_replace('#tool',$tool, $actionText);
+			} else if ($actionsOut['TOO_ID'] > 0){
+				$actionText = str_replace('#tool','ToolId-' . $actionsOut['TOO_ID'], $actionText);
+			}
+			$actionsOutsList[$actionsOut['AOU_ID']] = $actionText;
+		}
 		
 		$cookInPreps = Yii::app()->db->createCommand()->select('COI_PREP,COI_PREP_DESC')->from('cook_in_prep')->order('COI_PREP_DESC')->queryAll();
 		$cookInPreps = CHtml::listData($cookInPreps,'COI_PREP','COI_PREP_DESC');
@@ -110,7 +124,7 @@ class ActionsGeneratorController extends Controller
 			'model'=>$model,
 			'actionsIns'=>$actionsIns,
 			'cookIns'=>$cookIns,
-			'actionsOuts'=>$actionsOuts,
+			'actionsOuts'=>$actionsOutsList,
 			'cookInPreps'=>$cookInPreps,
 		));
 	}
@@ -220,8 +234,22 @@ class ActionsGeneratorController extends Controller
 			}
 		}
 		
+		$tools = Yii::app()->db->createCommand()->select('TOO_ID,TOO_DESC_'.Yii::app()->session['lang'])->from('tools')->order('TOO_DESC_'.Yii::app()->session['lang'])->queryAll();
+		$tools = CHtml::listData($tools,'TOO_ID','TOO_DESC_'.Yii::app()->session['lang']);
+		
 		$actionsOuts = Yii::app()->db->createCommand()/*->select('AOU_ID,AOU_DESC_'.Yii::app()->session['lang'])*/->from('actions_out')->order('AOU_DESC_'.Yii::app()->session['lang'])->queryAll();
-		$actionsOutsList = CHtml::listData($actionsOuts,'AOU_ID','AOU_DESC_'.Yii::app()->session['lang']);
+		//$actionsOutsList = CHtml::listData($actionsOuts,'AOU_ID','AOU_DESC_'.Yii::app()->session['lang']);
+		$actionsOutsList = array();
+		foreach($actionsOuts as $actionsOut){
+			$actionText = $actionsOut['AOU_DESC_'.Yii::app()->session['lang']];
+			if (isset($tools[$actionsOut['TOO_ID']])){
+				$tool = $tools[$actionsOut['TOO_ID']];
+				$actionText = str_replace('#tool',$tool, $actionText);
+			} else if ($actionsOut['TOO_ID'] > 0){
+				$actionText = str_replace('#tool','ToolId-' . $actionsOut['TOO_ID'], $actionText);
+			}
+			$actionsOutsList[$actionsOut['AOU_ID']] = $actionText;
+		}
 		
 		$cookInPreps = Yii::app()->db->createCommand()->select('COI_PREP,COI_PREP_DESC')->from('cook_in_prep')/*->order('COI_PREP_DESC')*/->queryAll();
 		$cookInPreps = CHtml::listData($cookInPreps,'COI_PREP','COI_PREP_DESC');
@@ -230,8 +258,6 @@ class ActionsGeneratorController extends Controller
 		$stepTypeConfig = Yii::app()->db->createCommand()->select('STT_ID,STT_DESC_'.Yii::app()->session['lang'])->from('step_types')->order('STT_ID')->queryAll();
 		$stepTypes = CHtml::listData($stepTypeConfig,'STT_ID','STT_DESC_'.Yii::app()->session['lang']);
 		
-		$tools = Yii::app()->db->createCommand()->select('TOO_ID,TOO_DESC_'.Yii::app()->session['lang'])->from('tools')->order('TOO_DESC_'.Yii::app()->session['lang'])->queryAll();
-		$tools = CHtml::listData($tools,'TOO_ID','TOO_DESC_'.Yii::app()->session['lang']);
 		
 		$stepsJSON = CJSON::encode($model->ainToAous);
 		

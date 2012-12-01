@@ -5,7 +5,6 @@
 
 <div class="hidden" id="stepConfig">
 <?php
-	echo CHtml::hiddenField('stepConfigValues', $stepTypeConfig);
 	echo CHtml::hiddenField('rowsJSON', $stepsJSON);
 	echo CHtml::hiddenField('ingredientsJSON', CJSON::encode($ingredients));
 	echo CHtml::hiddenField('errorJSON', CJSON::encode($this->errorFields));	
@@ -25,7 +24,7 @@
 		echo $form->errorSummary($model);
 		if ($this->errorText != ''){
 			if (strpos($this->errorText, '<li>')){
-				echo '<div class="errorSummary"><p>Please fix the following input errors on Steps:</p><ul>';
+				echo '<div class="errorSummary"><p>'.$this->trans->RECIPES_FIX_STEPS.'</p><ul>';
 				echo $this->errorText;
 				echo '</ul></div>';
 			} else {
@@ -37,7 +36,7 @@
 	?>
 	
 	<div class="row">
-		<label class="required" for="Recipes_Template"><?php echo $this->trans->RECIPE_SELECT_TEMPLATE; ?></label>
+		<label for="Recipes_Template"><?php echo $this->trans->RECIPE_SELECT_TEMPLATE; ?></label>
 		<?php echo CHtml::link($this->trans->GENERAL_CHOOSE, array('recipes/chooseTemplateRecipe'), array('class'=>'fancyChoose RecipeTemplateSelect buttonSmall', 'id'=>'Recipes_Template')) ?>
 	</div>
 	
@@ -82,19 +81,61 @@
 		<?php echo $form->error($model,'REC_IMG_AUTH'); ?>
 	</div>
 	
-	<div class="row">
-		<label class="required" for="Recipes_Template"><?php echo $this->trans->RECIPE_ACTION_VARIANTS; ?></label>
-		<div id="RecipeAuto" class="button"><?php echo $this->trans->RECIPE_AUTO; ?></div><div id="RecipeMan" class="button"><?php echo $this->trans->RECIPE_MAN; ?></div>
-		<?php echo CHtml::hiddenField('CookVariant', $_POST['CookVariant'], array('id'=>'CookVariant')); ?>
+	<div class="row" id="cookIns">
+		<?php
+		$coi_ids = array();
+		foreach ($model->recToCois as $recToCoi){
+			if (isset($recToCoi->COI_ID) && $recToCoi->COI_ID > 0){
+				$coi_ids[] = $recToCoi->COI_ID;
+			}
+		}
+		$htmlOptions_type2 = array('empty'=>$this->trans->GENERAL_CHOOSE, 'size'=>8, 'multiple'=>true);
+		//echo Functions::createInput(null, $model->recToCois, 'COI_ID', $cookIns, Functions::MULTI_LIST, 'cookIns', $htmlOptions_type2, $form);
+		
+		echo CHtml::label($this->trans->RECIPE_COOKINS,'COI_ID') . "\r\n";
+		//echo CHtml::listBox('COI_ID', $coi_ids, $cookIns, $htmlOptions_type2) . "\r\n";
+		
+		echo '<ul class="options_choose">';
+		echo CHtml::checkBoxList('COI_ID', $coi_ids, $cookIns, $htmlOptions_type2); 
+		echo '</ul>';
+		echo '<div class="clearfix"></div>';
+		//echo $form->error($model,'REC_IMG_AUTH') . "\r\n";
+		?>
+	</div>
+	<div class="buttons">
+		<?php echo CHtml::submitButton($this->trans->RECIPES_UPDATE, array('class'=>'button', 'name'=>'updateCookIn')); ?>
 	</div>
 	
+	<?php
+	if (count($coi_ids)>0){
+		echo '<div id="actionsInDetails" style="display:none;">';
+		foreach ($actionsInDetails as $details){
+			echo $details['desc'];
+		}
+		echo '</div>';
+	?>
+	<div class="row">
+	<?php
+		echo CHtml::label($this->trans->RECIPE_COOKIN_DISPLAY,'COI_ID') . "\r\n";
+		$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
+		$first = 0;
+		foreach ($cookInsSelected as $key=>$val){
+			if ($first == 0){
+				$first = $key;
+				break;
+			}
+		}
+		
+		echo CHtml::dropDownList('cookInDisplay', $first, $cookInsSelected, $htmlOptions_type0) . "\r\n";
+	?>
+	</div>
 	<div class="steps">
 	<?php
 		$fieldOptions = array(
 			array('REC_ID', null, null, array('hidden'=>true)),
 			array('STE_STEP_NO', null, null, array('hidden'=>true)),
-			array('STT_ID', $this->trans->RECIPES_STEP_TYPE, $stepTypes, null),
-			array('ACT_ID', $this->trans->RECIPES_ACTION, $actions, array('empty'=>$this->trans->GENERAL_CHOOSE, 'multiple_selects'=>$_POST['CookVariant'])),
+			array('AIN_ID', $this->trans->RECIPES_ACTION, $actionsIn, array('empty'=>$this->trans->GENERAL_CHOOSE)),
+			array('TOO_ID', $this->trans->RECIPES_TOOL, $tools, array('empty'=>$this->trans->GENERAL_CHOOSE)),
 			//array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('empty'=>$this->trans->GENERAL_CHOOSE)),
 			//array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('fancy'=>true, 'empty'=>$this->trans->GENERAL_CHOOSE, 'url'=>'#'.$this->createUrlHash('ingredients/chooseIngredient',array()), 'htmlOptions'=>array('class'=>'fancyChoose IngredientSelect'))),
 			array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('fancy'=>true, 'empty'=>$this->trans->GENERAL_CHOOSE, 'url'=>array('ingredients/chooseIngredient'), 'htmlOptions'=>array('class'=>'fancyChoose IngredientSelect buttonSmall'))),
@@ -111,6 +152,7 @@
 		<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE, array('class'=>'button')); ?>
 		<?php echo CHtml::link($this->trans->GENERAL_CANCEL, array('cancel'), array('class'=>'button', 'id'=>'cancel')); ?>
 	</div>
+	<?php } ?>
 
 <?php $this->endWidget(); ?>
 

@@ -3,6 +3,7 @@ class Functions extends CHtml{
 	
 	const DROP_DOWN_LIST = 0;
 	const CHECK_BOX_LIST = 1;
+	const MULTI_LIST = 2;
 	
 	const IMG_HEIGHT = 400;
 	const IMG_WIDTH = 400;
@@ -38,13 +39,15 @@ class Functions extends CHtml{
 		$html = '<div class="row" id="'.$id.'">';
 		$html .= self::activeLabelEx($model, $fieldName, array('label'=>$label));
 		$html .= ' ';
-		if ($type == 0){
+		if ($type == self::DROP_DOWN_LIST){
 			$html .= self::dropDownList(self::resolveName($model,$fieldName), $model->__get($fieldName), $dataList, $htmlOptions); 
-		} else if ($type == 1){
+		} else if ($type == self::CHECK_BOX_LIST){
 			$html .= '<ul class="search_choose">';
 			$html .= self::checkBoxList(self::resolveName($model,$fieldName), $model->__get($fieldName), $dataList, $htmlOptions); 
 			$html .= '</ul>';
 			$html .= '<div class="clearfix"></div>';
+		} else if ($type == self::MULTI_LIST){
+			$html .= self::listBox(self::resolveName($model,$fieldName), $model->__get($fieldName), $dataList, $htmlOptions); 
 		}
 		if ($form){
 			$html .= $form->error($model, $fieldName);
@@ -755,6 +758,7 @@ class Functions extends CHtml{
 					} else {
 						$newModel = new $relation->className;
 					}
+					$newModel->unsetAttributes();
 					$newModel->attributes = $data[$relation->name];
 					$model->$relationName = self::arrayToRelatedObjects($newModel, $data[$relation->name]);
 				} else if(($relation instanceof CManyManyRelation) || ($relation instanceof CHasManyRelation)){
@@ -771,6 +775,7 @@ class Functions extends CHtml{
 						} else {
 							$newModel = new $relation->className;
 						}
+						$newModel->unsetAttributes();
 						$newModel->attributes = $entry;
 						$newArray[$i] = self::arrayToRelatedObjects($newModel, $entry);
 						++$i;

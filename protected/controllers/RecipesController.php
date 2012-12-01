@@ -148,6 +148,513 @@ class RecipesController extends Controller
 		Functions::uploadImage('Recipes', $model, 'Recipes_Backup', 'REC_IMG');
 	}
 	
+	private function readActionsInDetails($coi_ids, $tools, $stepTypeConfig){
+		if (count($coi_ids) == 0){
+			return array(array(),array());
+		}
+		//evaluate valid actionsIn id's
+		$actionsInAllowedCommand = Yii::app()->db->createCommand();
+		$firstCOI = true;
+		$lastcoi_id = -1;
+		foreach($coi_ids as $coi_id){
+			if ($firstCOI){
+				$actionsInAllowedCommand->select('coi'.$coi_id.'.AIN_ID')->from('ain_to_coi coi'.$coi_id)->where('coi'.$coi_id.'.coi_id = '.$coi_id);
+				$firstCOI = false;
+				$lastcoi_id = $coi_id;
+			} else {
+				$actionsInAllowedCommand->join('ain_to_coi coi'.$coi_id, 'coi'.$coi_id.'.ain_id = coi'.$lastcoi_id.'.ain_id and coi'.$coi_id.'.coi_id = '.$coi_id);
+				$lastcoi_id = $coi_id;
+			}
+		}
+		//Example: SELECT coi1.ain_id FROM `ain_to_coi` coi1 join `ain_to_coi` coi2 ON coi1.ain_id = coi2.ain_id and coi2.coi_id = 2 where coi1.coi_id = 1;
+		$ain_ids = $actionsInAllowedCommand->queryColumn();
+		
+		//read actionsIn data
+		$actionsCriteria=new CDbCriteria;
+		$actionsCriteria->compare('AIN_ID', $ain_ids);
+		$actionsInCommand = Yii::app()->db->createCommand()->select('AIN_ID,AIN_DESC_'.Yii::app()->session['lang'])->from('actions_in');
+		$actionsInCommand->where($actionsCriteria->condition, $actionsCriteria->params);
+		$actionsIn = $actionsInCommand->queryAll();
+		$actionsIn = CHtml::listData($actionsIn,'AIN_ID','AIN_DESC_'.Yii::app()->session['lang']);
+		
+		
+		//read all actionsOuts
+		$actionsOuts = Yii::app()->db->createCommand()->from('actions_out')->order('AOU_ID')->queryAll();
+		$actionsOutsIndexedArray = array();
+		foreach($actionsOuts as $actionsOut){
+			$actionsOutsIndexedArray[$actionsOut['AOU_ID']] = $actionsOut;
+		}
+		
+		//read all matching ainToAou entrys, orderd by keys.
+		$actionsCriteria->compare('COI_ID', $coi_ids);
+		$ainToAous = Yii::app()->db->createCommand()->from('ain_to_aou')->order('AIN_ID, COI_ID, ATA_NO')->where($actionsCriteria->condition, $actionsCriteria->params)->queryAll();
+		
+		$textKeys=array('ING_ID'=>'#ingredient',
+			'TOO_ID'=>'#tool',
+			'STE_GRAMS'=>'#weight',
+			'STE_STEP_DURATION'=>'#time',
+			'STE_CELSIUS'=>'#temp',
+			'STE_KPA'=>'#pressure',
+			);
+		
+		//loop thru ainToAou, collect all data for actionsIn and prepare details text to show.
+		$actionsInDetails = array();
+		$last_ain_id = -1;
+		$last_coi_id = -1;
+		foreach($ainToAous as $ainToAou){
+			$ain_id = $ainToAou['AIN_ID'];
+			$coi_id = $ainToAou['COI_ID'];
+			if ($last_ain_id != $ain_id){
+				if ($last_ain_id != -1){
+					if ($last_coi_id != -1){
+						$actionText = $actionsIn[$last_ain_id];
+						foreach($textKeys as $field=>$textKey){
+							if (strpos($actionText, $textKey) !== false){
+								$required[$field]=true;
+								$requiredAction[$field]=true;
+							}
+						}
+						$requiredNew = array();
+						foreach($required as $key=>$val){
+							$requiredNew[] = $key;
+						}
+						$defaultNew = array();
+						foreach($default as $key=>$val){
+							$defaultNew[] = $key . '='.$val;
+						}
+						$coiInfos['aou'] = $aous;
+						$coiInfos['required'] = $requiredNew;
+						$coiInfos['default'] = $defaultNew;
+						$coiInfos['desc'] = '<span class="ain_coi_desc" id="ain_coi_desc_'.$last_ain_id.'_'.$last_coi_id.'">'.$desc.'</span>';
+						$cois[$last_coi_id] = $coiInfos;
+						$ain_desc .= $coiInfos['desc'];
+					}
+					
+					$requiredNew = array();
+					foreach($requiredAction as $key=>$val){
+						$requiredNew[] = $key;
+					}
+					$defaultNew = array();
+					foreach($defaultAction as $key=>$val){
+						$defaultNew[] = $key.'='.$val;
+					}
+					$details['cookIns'] = $cois;
+					$details['required'] = $requiredNew;
+					$details['default'] = $defaultNew;
+					$details['desc'] = '<span class="ain_desc" id="ain_desc_'.$last_ain_id.'"><input type="hidden" class="actionRequireds" value="'.CHtml::encode(CJSON::encode($requiredNew)).'"/><input type="hidden" class="actionDefaults" value="'.CHtml::encode(CJSON::encode($defaultNew)).'"/>'.$ain_desc.'</span>';
+					$actionsInDetails[$last_ain_id] = $details;
+				}
+				$last_coi_id = -1;
+				$cois=array();
+				$ain_desc = '';
+				$requiredAction = array();
+				$defaultAction = array();
+			}
+			if ($last_coi_id != $coi_id){
+				if ($last_coi_id != -1){
+					$actionText = $actionsIn[$ain_id];
+					foreach($textKeys as $field=>$textKey){
+						if (strpos($actionText, $textKey) !== false){
+							$required[$field]=true;
+							$requiredAction[$field]=true;
+						}
+					}
+					$requiredNew = array();
+					foreach($required as $key=>$val){
+						$requiredNew[] = $key;
+					}
+					$defaultNew = array();
+					foreach($default as $key=>$val){
+						$defaultNew[] = $key.'='.$val;
+					}
+					$coiInfos['aou'] = $aous;
+					$coiInfos['required'] = $requiredNew;
+					$coiInfos['default'] = $defaultNew;
+					$coiInfos['desc'] = '<span class="ain_coi_desc" id="ain_coi_desc_'.$ain_id.'_'.$last_coi_id.'">'.$desc.'</span>';
+					$cois[$last_coi_id] = $coiInfos;
+					$ain_desc .= $coiInfos['desc'];
+				}
+				$aous = array();
+				$required = array();
+				$default = array();
+				$desc = '';
+			}
+			
+			$actionsOut = $actionsOutsIndexedArray[$ainToAou['AOU_ID']];
+			$actionsOut['ATA_COI_PREP'] = $ainToAou['ATA_COI_PREP'];
+			$desc .= '<span class="aouLine"><span style="font-weight:bold;">'.$this->trans->RECIPES_DETAILSTEP.' '.$ainToAou['ATA_NO'].':</span> ';
+			
+			$actionText = $actionsOut['AOU_DESC_'.Yii::app()->session['lang']];
+			$toolDescPart = '';
+			if (isset($tools[$actionsOut['TOO_ID']])){
+				$tool = $tools[$actionsOut['TOO_ID']];
+				$actionsOut['tool'] = $tool;
+				$toolDescPart = 'Tool: ' . $tool . ', ';
+				$actionText = str_replace('#tool',$tool, $actionText);
+			} else if ($actionsOut['TOO_ID'] > 0){
+				$toolDescPart = 'Tool: id-' . $actionsOut['TOO_ID'] . ', ';
+				$actionText = str_replace('#tool','ToolId-' . $actionsOut['TOO_ID'], $actionText);
+			}
+			foreach($textKeys as $field=>$textKey){
+				if (strpos($actionText, $textKey) !== false){
+					$required[$field]=true;
+					$requiredAction[$field]=true;
+				}
+			}
+			
+			$desc .= $actionText . ' <span class="smallDetails">(';
+			if (isset($stepTypeConfig[$actionsOut['STT_ID']])){
+				$stepType = $stepTypeConfig[$actionsOut['STT_ID']];
+				$actionsOut['stepType'] = $stepType;
+				$desc .= $this->trans->FIELD_STT_ID.': ' . $stepType['STT_DESC_'.Yii::app()->session['lang']] . ', ';
+				
+				$requiredFields = explode(';', $stepType['STT_REQUIRED']);
+				foreach($requiredFields as $requiredField){
+					if($requiredField != ''){
+						$required[$requiredField] = true;
+						$requiredAction[$requiredField] = true;
+					}
+				}
+				$defaultValues = explode(';', $stepType['STT_DEFAULT']);
+				foreach($defaultValues as $keyvalue){
+					$keyvalue = trim($keyvalue);
+					if($keyvalue != ''){
+						list($field,$value) = explode('=', $keyvalue, 2);
+						$field = trim($field);
+						$value = trim($value);
+						$default[$field] = $value;
+						$defaultAction[$field] = $value;
+					}
+				}
+			} else if ($actionsOut['STT_ID'] > 0){
+				$desc .= $this->trans->FIELD_STT_ID . ': id-' . $actionsOut['STT_ID'] . ', ';
+			}
+			$desc .= $toolDescPart . $this->trans->FIELD_AOU_DURATION.': ' . $actionsOut['AOU_DURATION'] . ', '.$this->trans->FIELD_AOU_DUR_PRO.': ' . $actionsOut['AOU_DUR_PRO'] . ', '.$this->trans->FIELD_AOU_PREP.': ' . $actionsOut['AOU_PREP'] . ', '.$this->trans->FIELD_ATA_COI_PREP.': ' . $actionsOut['ATA_COI_PREP'] . ', '.$this->trans->FIELD_AOU_CIS_CHANGE.': ' . $actionsOut['AOU_CIS_CHANGE'] . ')</span></span>'."\r\n";
+			
+			$aous[$ainToAou['ATA_NO']] = $actionsOut;
+			
+			$last_ain_id = $ain_id;
+			$last_coi_id = $coi_id;
+		}
+		if ($last_ain_id != -1){
+			if ($last_coi_id != -1){
+				$actionText = $actionsIn[$last_ain_id];
+				foreach($textKeys as $field=>$textKey){
+					if (strpos($actionText, $textKey !== false)){
+						$required[$field]=true;
+						$requiredAction[$field]=true;
+					}
+				}
+				$requiredNew = array();
+				foreach($required as $key=>$val){
+					$requiredNew[] = $key;
+				}
+				$defaultNew = array();
+				foreach($default as $key=>$val){
+					$defaultNew[] = $key . '='.$val;
+				}
+				$coiInfos['aou'] = $aous;
+				$coiInfos['required'] = $requiredNew;
+				$coiInfos['default'] = $defaultNew;
+				$coiInfos['desc'] = '<span class="ain_coi_desc" id="ain_coi_desc_'.$last_ain_id.'_'.$last_coi_id.'">'.$desc.'</span>';
+				$cois[$last_coi_id] = $coiInfos;
+				$ain_desc .= $coiInfos['desc'];
+			}
+			$requiredNew = array();
+			foreach($requiredAction as $key=>$val){
+				$requiredNew[] = $key;
+			}
+			$defaultNew = array();
+			foreach($defaultAction as $key=>$val){
+				$defaultNew[] = $key . '='.$val;
+			}
+			$details['cookIns'] = $cois;
+			$details['required'] = $requiredNew;
+			$details['default'] = $defaultNew;
+			$details['desc'] = '<span class="ain_desc" id="ain_desc_'.$last_ain_id.'"><input type="hidden" class="actionRequireds" value="'.CHtml::encode(CJSON::encode($requiredNew)).'"/><input type="hidden" class="actionDefaults" value="'.CHtml::encode(CJSON::encode($defaultNew)).'"/>'.$ain_desc.'</span>';
+			$actionsInDetails[$last_ain_id] = $details;
+		}
+		return array($actionsInDetails, $actionsIn);
+	}
+	
+	private function prepareCreateOrUpdate($id, $view){
+		// Uncomment the following line if AJAX validation is needed
+		// $this->performAjaxValidation($model);
+		
+		$Session_Recipes_Backup = Yii::app()->session[$this->createBackup];
+		if (isset($Session_Recipes_Backup)){
+			$oldmodel = $Session_Recipes_Backup;
+		}
+		if (isset($id)){
+			if (!isset($oldmodel) || $oldmodel->REC_ID != $id){
+				$oldmodel = $this->loadModel($id, true);
+			}
+		}
+		
+		if (isset($oldmodel)){
+			$model = $oldmodel;
+			$oldPicture = $oldmodel->REC_IMG;
+			$oldAmount = count($oldmodel->steps);
+		} else {
+			$model=new Recipes;
+			$oldPicture = null;
+			$oldAmount = 0;
+		}
+		if (isset($model->REC_IMG) && $model->REC_IMG != ''){
+			$model->setScenario('withPic');
+		}
+		
+		$recToCois = array();
+		if(isset($_POST['COI_ID'])){
+			foreach($_POST['COI_ID'] as $coi_id){
+				if (isset($coi_id) && $coi_id>0){
+					$recToCoi = new RecToCoi;
+					$recToCoi->REC_ID = $model->REC_ID;
+					$recToCoi->COI_ID = $coi_id;
+					$recToCois[] = $recToCoi;
+				}
+			}
+		} else {
+			$recToCois = $model->recToCois;
+		}
+		$coi_ids = array();
+		foreach($recToCois as $recToCoi){
+			$coi_ids[] = $recToCoi->COI_ID;
+		}
+		
+		//read StepType config and create indexed details List
+		$stepTypeConfig = Yii::app()->db->createCommand()->select('STT_ID,STT_DEFAULT,STT_REQUIRED,STT_DESC_'.Yii::app()->session['lang'])->from('step_types')->order('STT_ID')->queryAll();
+		$stepTypeConfigIndexed = array();
+		foreach($stepTypeConfig as $stepType){
+			$stepTypeConfigIndexed[$stepType['STT_ID']] = $stepType;
+		}
+		
+		//read all Tools and create indexed nameList
+		$tools = Yii::app()->db->createCommand()->select('TOO_ID,TOO_DESC_'.Yii::app()->session['lang'])->from('tools')->order('TOO_DESC_'.Yii::app()->session['lang'])->queryAll();
+		$tools = CHtml::listData($tools,'TOO_ID','TOO_DESC_'.Yii::app()->session['lang']);
+		
+		list($actionsInDetails, $actionsIn) = $this->readActionsInDetails($coi_ids, $tools, $stepTypeConfigIndexed);
+		
+		$updateCookInOK = false;
+		if(isset($_POST['updateCookIn'])){
+			//Check if all actionsIn are still possible
+			if (isset($_POST['Steps'])){
+				$index=1;
+				foreach($_POST['Steps'] as $step){
+					$ain_id = $step['AIN_ID'];
+					if ($ain_id >0 && !isset($actionsIn[$ain_id])){
+						array_push($this->errorFields, 'Steps_'.$index.'_AIN_ID');
+					}
+					++$index;
+				}
+			} else {
+				$index=1;
+				foreach($model->steps as $step){
+					$ain_id = $step['AIN_ID'];
+					if ($ain_id >0 && !isset($actionsIn[$ain_id])){
+						array_push($this->errorFields, 'Steps_'.$index.'_AIN_ID');
+					}
+					++$index;
+				}
+			}
+			
+			if(count($this->errorFields)==0){
+				$model->recToCois = $recToCois;
+				$updateCookInOK = true;
+			} else {
+				$this->errorText = $this->trans->RECIPES_COOKIN_CHANGE_ERROR;
+				$recToCois = $model->recToCois;
+				$coi_ids = array();
+				foreach($model->recToCois as $recToCoi){
+					$coi_ids[] = $recToCoi->COI_ID;
+				}
+				
+				list($actionsInDetails, $actionsIn) = $this->readActionsInDetails($coi_ids, $tools, $stepTypeConfigIndexed);
+			}
+		} else {
+			$updateCookInOK = true;
+		}
+		
+		if(isset($_POST['Recipes'])){
+			$model->attributes=$_POST['Recipes'];
+			$steps = array();
+			$stepsOK = true;
+			if (isset($_POST['Steps'])){
+				$model = Functions::arrayToRelatedObjects($model, array('steps'=> $_POST['Steps']));
+				$model->recToCois = $recToCois;
+				
+				$index = 1;
+				foreach($model->steps as $step){
+					$required = array();
+					if (isset($actionsInDetails[$step['AIN_ID']])){
+						$ainDetails = $actionsInDetails[$step['AIN_ID']];
+						$required = $ainDetails['required'];
+					}
+					if (isset($required) &&  count($required)>0){
+						foreach($required as $requiredField){
+							if (!isset($step[$requiredField]) || $step[$requiredField] == null || $step[$requiredField] == ''){
+								$this->errorText .= '<li>Value of required field ' . $requiredField . ' of Step' . $index . ' is empty.</li>';
+								array_push($this->errorFields, 'Steps_'.$index.'_'.$requiredField);
+								$stepsOK = false;
+							}
+						}
+					}
+					/*
+					foreach($step->getAttributes(false) as $key=>$value){
+						if ($value === '' && $key != 'REC_ID' && $key != 'STE_STEP_NO'){
+							$this->errorText .= '<li>Value ' . $key . ' of Step' . $index . ' is empty.</li>';
+							array_push($this->errorFields, 'Steps_'.$index.'_'.$key);
+							$stepsOK = false;
+						}
+					}
+					*/
+					++$index;
+				}
+			} else {
+				if(!isset($_POST['updateCookIn'])){
+					$this->errorText .= '<li>No Steps defined!</li>';
+				}
+				$stepsOK = false;
+			}
+			if (isset($oldPicture)){
+				Functions::updatePicture($model,'REC_IMG', $oldPicture);
+			}
+			
+			Yii::app()->session[$this->createBackup] = $model;
+			Yii::app()->session[$this->createBackup.'_Time'] = time();
+			
+			if(!isset($_POST['updateCookIn'])){
+				if(Yii::app()->user->demo){
+					$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+					$model->validate();
+				} else {
+					if ($stepsOK){
+						$transaction=$model->dbConnection->beginTransaction();
+						try {
+							if($model->save()){
+								$saveOK = true;
+								//Rec To Coi
+								Yii::app()->db->createCommand()->delete(RecToCoi::model()->tableName(), 'REC_ID = :id', array(':id'=>$model->REC_ID));
+								foreach($model->recToCois as $recToCoi){
+									$recToCoi->REC_ID = $model->REC_ID;
+									$recToCoi->setIsNewRecord(true);
+									if(!$recToCoi->save()){
+										$saveOK = false;
+										if ($this->debug) {echo 'error on save recToCoi: errors:'; print_r($recToCoi->getErrors());}
+									}
+								}
+								
+								//Steps
+								if ($saveOK){
+									Yii::app()->db->createCommand()->delete(Steps::model()->tableName(), 'REC_ID = :id', array(':id'=>$model->REC_ID));
+									$stepNo = 0;
+									foreach($model->steps as $step){
+										$step->REC_ID = $model->REC_ID;
+										$step->STE_STEP_NO = $stepNo;
+										$step->setIsNewRecord(true);
+										if(!$step->save()){
+											$saveOK = false;
+											if ($this->debug) {echo 'error on save Step: errors:'; print_r($step->getErrors());}
+										}
+										++$stepNo;
+									}
+								}
+								
+								//finish save
+								if ($saveOK){
+									$this->updateKCal($model->REC_ID);
+									$transaction->commit();
+									unset(Yii::app()->session[$this->createBackup]);
+									unset(Yii::app()->session[$this->createBackup.'_Time']);
+									$this->forwardAfterSave(array('view', 'id'=>$model->REC_ID));
+									return;
+								} else {
+									if ($this->debug) echo 'any errors occured, rollback';
+									$transaction->rollBack();
+								}
+							} else {
+								if ($this->debug) {echo 'error on save: ';  print_r($model->getErrors());}
+								$transaction->rollBack();
+							}
+						} catch(Exception $e) {
+							if ($this->debug) echo 'Exception occured -&gt; rollback. Exeption was: ' . $e;
+							$transaction->rollBack();
+						}
+					} else {
+						//To show Recipe errors also
+						$model->validate();
+					}
+				}
+			}
+		}
+		
+		$recipeTypes = Yii::app()->db->createCommand()->select('RET_ID,RET_DESC_'.Yii::app()->session['lang'])->from('recipe_types')->queryAll();
+		$recipeTypes = CHtml::listData($recipeTypes,'RET_ID','RET_DESC_'.Yii::app()->session['lang']);
+		
+		$stepTypes = CHtml::listData($stepTypeConfig,'STT_ID','STT_DESC_'.Yii::app()->session['lang']);
+		//$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
+		//$ingredients = CHtml::listData($ingredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
+		
+		if (isset($model->steps) && isset($model->steps[0])/* && !isset($model->steps[0]->ingredient)*/){
+			/*
+			$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
+			$ingredients = CHtml::listData($ingredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
+			$usedIngredients = array();
+			foreach($model->steps as $step){
+				foreach($ingredients as $row_key=>$row_val){
+					if($row_key == $val){
+						$usedIngredients = array_merge($usedIngredients,array($row_key=>$row_val));
+						break;
+					}
+				}
+			}
+			*/
+			$neededIngredients = array();
+			foreach($model->steps as $step){
+				array_push($neededIngredients,$step->ING_ID);
+			}
+			if (count($neededIngredients)>0){
+				$criteria=new CDbCriteria;
+				$criteria->select = 'ING_ID,ING_NAME_'.Yii::app()->session['lang'];
+				$criteria->compare('ING_ID',$neededIngredients);
+				$usedIngredients = Yii::app()->db->commandBuilder->createFindCommand('ingredients', $criteria, '')->queryAll();
+				$usedIngredients = CHtml::listData($usedIngredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
+			} else {
+				$usedIngredients=array();
+			}
+		} else {
+			$usedIngredients=array();
+		}
+		
+		$cookIns = Yii::app()->db->createCommand()->select('COI_ID,COI_DESC_'.Yii::app()->session['lang'])->from('cook_in')->queryAll();
+		$cookIns = CHtml::listData($cookIns,'COI_ID','COI_DESC_'.Yii::app()->session['lang']);
+		
+		$cookInsSelected = array();
+		foreach($coi_ids as $coiId){
+			$cookInsSelected[$coiId]=$cookIns[$coiId];
+		}
+		
+		$stepsJSON = CJSON::encode($model->steps);
+		$stepTypeConfig = CJSON::encode($stepTypeConfig);
+		
+		if (!isset($_POST['CookVariant']) || $_POST['CookVariant'] == ''){
+			$_POST['CookVariant'] = 0;
+		}
+		
+		$this->checkRenderAjax($view,array(
+			'model'=>$model,
+			'recipeTypes'=>$recipeTypes,
+			'actionsIn'=>$actionsIn,
+			'cookIns'=>$cookIns,
+			'cookInsSelected'=>$cookInsSelected,
+			'tools'=>$tools,
+			'ingredients'=>$usedIngredients,
+			'stepTypeConfig'=>$stepTypeConfig,
+			'stepsJSON'=>$stepsJSON,
+			'actionsInDetails'=>$actionsInDetails,
+		));
+	}
+	/* old
 	private function prepareCreateOrUpdate($id, $view){
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
@@ -238,7 +745,7 @@ class RecipesController extends Controller
 					//$steps[$index] = $newStep;
 					array_push($steps, $newStep);
 				}
-				*/
+				* /
 			} else {
 				$this->errorText .= '<li>No Steps defined!</li>';
 				$stepsOK = false;
@@ -255,7 +762,7 @@ class RecipesController extends Controller
 			}
 			
 			$model->steps = $steps;
-			*/
+			* /
 			if (isset($oldPicture)){
 				Functions::updatePicture($model,'REC_IMG', $oldPicture);
 			}
@@ -293,7 +800,7 @@ class RecipesController extends Controller
 									if ($this->debug) echo 'error on delete Step: '; print_r($step->getErrors());
 								}
 							}
-							*/
+							* /
 							if ($saveOK){
 								$this->updateKCal($model->REC_ID);
 								$transaction->commit();
@@ -327,7 +834,7 @@ class RecipesController extends Controller
 		//$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
 		//$ingredients = CHtml::listData($ingredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
 		
-		if (isset($model->steps) && isset($model->steps[0])/* && !isset($model->steps[0]->ingredient)*/){
+		if (isset($model->steps) && isset($model->steps[0])/* && !isset($model->steps[0]->ingredient)* /){
 			/*
 			$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
 			$ingredients = CHtml::listData($ingredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
@@ -340,7 +847,7 @@ class RecipesController extends Controller
 					}
 				}
 			}
-			*/
+			* /
 			$neededIngredients = array();
 			foreach($model->steps as $step){
 				array_push($neededIngredients,$step->ING_ID);
@@ -375,6 +882,7 @@ class RecipesController extends Controller
 			'stepsJSON'=>$stepsJSON,
 		));
 	}
+	*/
 	
 	public function actionGetRecipeInfos($id){
 		$this->saveLastAction = false;
@@ -425,9 +933,10 @@ class RecipesController extends Controller
 		}
 		
 		$stepsJSON = CJSON::encode($model->steps);
+		$recToCoisJSON = CJSON::encode($model->recToCois);
 		$ingredientsJSON = CJSON::encode($usedIngredients);
 		$modelJSON = CJSON::encode($model);
-		echo '{steps:'.$stepsJSON.', ingredients:'.$ingredientsJSON.', model:'.$modelJSON.'}';
+		echo '{steps:'.$stepsJSON.', ingredients:'.$ingredientsJSON.', model:'.$modelJSON.', recToCois:'.$recToCoisJSON.'}';
 	}
 	
 	

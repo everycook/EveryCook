@@ -1,0 +1,21 @@
+INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('RECIPES_UPDATE', 'Update Recipe', 'Rezept aktualisieren', ''),
+('RECIPES_TOOL', 'Tool', 'Hilfsmittel', '');
+
+DELETE FROM `tools` WHERE `tools`.`TOO_ID` = 10;
+UPDATE `tools` SET `TOO_ID` = '10' WHERE `tools`.`TOO_ID` =9;
+UPDATE `tools` SET `TOO_ID` = '9' WHERE `tools`.`TOO_ID` =8;
+UPDATE `tools` SET `TOO_ID` = '8' WHERE `tools`.`TOO_ID` =7;
+UPDATE `tools` SET `TOO_ID` = '7' WHERE `tools`.`TOO_ID` =6;
+UPDATE `tools` SET `TOO_ID` = '6' WHERE `tools`.`TOO_ID` =5;
+
+INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('RECIPE_COOKINS', 'Cook in', 'Kochen in', ''),
+('RECIPE_COOKIN_DISPLAY', 'Display action details for', 'Aktion Details anzeigen für', ''),
+('GENERAL_NO', 'No', 'Nein', 'No'),
+('GENERAL_YES', 'Yes', 'ja', 'Oui'),
+('RECIPES_DETAILSTEP', 'DetailStep', 'Detail Schritt', ''),
+('FIELD_ATA_COI_PREP', 'CookIn Prep.', 'Kochen In Prep.', ''),
+('RECIPES_FIX_STEPS', 'Please fix the following input errors on Steps:', 'Bitte korrigieren sie folgende Eingabefehler auf den Steps:', ''),
+('ACTIONSGENERATOR_FIX_STEPS', 'Please fix the following input errors on Steps:', 'Bitte korrigieren sie folgende Eingabefehler auf den Steps:', ''),
+('RECIPES_COOKIN_CHANGE_ERROR', 'Change of Cook Ins not possible, there are actions/steps that are not possible for all new selected Cook Ins, coresponding actions are marked.', 'Ändern der Kochen In Auswahl nicht möglich, es gibt Aktionen/Steps welche für die neue Selektion nicht möglich sind. Die betroffenen Aktionen sind markiert.', '');

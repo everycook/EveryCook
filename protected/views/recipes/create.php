@@ -15,9 +15,11 @@ $this->menu=array(
 <?php echo $this->renderPartial('_form', array(
 	'model'=>$model,
 	'recipeTypes'=>$recipeTypes,
-	'stepTypes'=>$stepTypes,
-	'actions'=>$actions,
+	'actionsIn'=>$actionsIn,
+	'cookIns'=>$cookIns,
+	'cookInsSelected'=>$cookInsSelected,
+	'tools'=>$tools,
 	'ingredients'=>$ingredients,
-	'stepTypeConfig'=>$stepTypeConfig,
 	'stepsJSON'=>$stepsJSON,
+	'actionsInDetails'=>$actionsInDetails,
 	)); ?>

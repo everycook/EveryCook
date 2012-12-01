@@ -127,7 +127,9 @@ div.form span.required {
 
 div.form div.error label,
 div.form label.error,
-div.form span.error {
+div.form span.error,
+div.form .buttonSmall.error,
+div.form .button.error {
 	color: #C00;
 }
 
@@ -681,12 +683,14 @@ div.search  input.search_query{
 ul.search_choose {
 	padding-left:0;
 }
-
-ul.search_choose label{
+ul.options_choose  {
+	margin-left: 13em;
+}
+ul.search_choose label, ul.options_choose label {
 	width: 17em;
 	text-align: left;
 }
-ul.search_choose li {
+ul.search_choose li, ul.options_choose li {
 	width: 20em;
 	float: left;
 	list-style: none;
@@ -721,6 +725,30 @@ ul.search_choose li {
 	width:100%
 }
 
+.addRowContainer select.unit {
+	width:4em;
+	margin-left: 0.25em;
+}
+
+.addRowContainer div.up, .addRowContainer div.down, .addRowContainer div.remove {
+	width: 2.4em;
+	height: 2.4em;
+	float:left;
+	margin-left: 0.8em;
+	cursor: pointer;
+}
+
+.addRowContainer .addFields input {
+	width: 11.5em;
+}
+
+.addRowContainer .addFields input.viewWithUnit {
+	width: 7.25em;
+}
+
+.addRowContainer .addFields .noWrap{
+	white-space: nowrap;	
+}
 
 body > .backpicfix {
 	position:fixed;
@@ -948,10 +976,7 @@ div.mealView span.value {
 	display: inline-block;
 }
 
-.addRowContainer select.unit {
-	width:4em;
-	margin-left: 0.25em;
-}
+
 
 .shoppingList_left {
 	float: left;
@@ -1218,15 +1243,6 @@ div.mealView span.value {
 
 
 
-.addRowContainer div.up, .addRowContainer div.down, .addRowContainer div.remove {
-	width: 2.4em;
-	height: 2.4em;
-	float:left;
-	margin-left: 0.8em;
-	cursor: pointer;
-}
-
-
 .startpage .slot {
 	position: relative;
 }
@@ -1354,9 +1370,24 @@ div.mealView span.value {
 
 
 
+.ain_desc {
+	display: block;
+}
 
+.ain_coi_desc {
+	display: block;
+}
 
+.aouLine {
+	display: block;
+}
+.smallDetails {
+	font-size: 0.7em;
+}
 
+.errorSummary li{
+	list-style: none;
+}
 
 
 
