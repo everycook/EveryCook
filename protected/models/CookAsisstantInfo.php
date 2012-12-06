@@ -5,11 +5,13 @@ class CookAsisstantInfo extends CModel
 	public $meal = null;
 	public $courseNr = 0;
 	public $course =  null;
+	public $recipeSteps = array();
 	public $stepNumbers = array();
 	public $steps = array();
+	public $totalWeight = array();
 	public $stepStartTime = array();
 	public $recipeStartTime = array();
-	public $cookWithEveryCook = array();
+	public $cookWith = array();
 	public $totalTime = array();
 	public $usedTime = array();
 	public $recipeUsedTime = array();
@@ -17,9 +19,10 @@ class CookAsisstantInfo extends CModel
 	public $finishedIn = 0;
 	public $timeDiffMax = 0;
 	public $started = false;
+	public $cookInState = array();
 	
 	public function attributeNames(){
-		return array('meal', 'courseNr', 'course', 'stepNumbers', 'steps', 'stepStartTime', 'recipeStartTime', 'cookWithEveryCook', 'totalTime', 'usedTime', 'recipeUsedTime', 'timeDiff', 'finishedIn', 'timeDiffMax', '$started');
+		return array('meal', 'courseNr', 'course', 'recipeSteps', 'stepNumbers', 'steps', 'totalWeight', 'stepStartTime', 'recipeStartTime', 'cookWith', 'totalTime', 'usedTime', 'recipeUsedTime', 'timeDiff', 'finishedIn', 'timeDiffMax', '$started', 'cookInState');
 	}	
 	
 	public function __get($name) {

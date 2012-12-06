@@ -21,7 +21,7 @@
 		$i=0;
 		echo '<form id="cookassistant-form" method="post" action="' . $this->createUrl('overview') . '">';
 		foreach($info->steps as $mealStep){
-			$cookWithEveryCook = ($info->cookWithEveryCook[$i][0]!=CookAssistantController::COOK_WITH_PAN)?1:0;
+			$cookWith = (count($info->cookWith[$i])>1 && $info->cookWith[$i][0]!=CookAssistantController::COOK_WITH_OTHER)?1:0;
 			echo '<div class="recipeConfig">';
 				echo '<div class="stepHeader">';
 					echo '<div class="title"><div>' . $mealStep->recipeName . '</div></div>';
@@ -39,34 +39,36 @@
 				
 				if (!$info->started){
 					echo '<div class="stepHeader">';
-						if (CookAssistantController::DEVICE_PATH != ''){
+						$recipe = $info->course->couToRecs[$mealStep->recipeNr]->recipe;
+						foreach($recipe->recToCois as $recToCoi){
 							echo '<div>';
-							echo CHtml::label('cook with machine','cookwith_'.$i.'_local',array());
-							echo CHtml::radioButton('cookwith['.$i.']', $info->cookWithEveryCook[$i][0]==CookAssistantController::COOK_WITH_LOCAL, array('value'=>'local', 'id'=>'cookwith_'.$i.'_local'));
+							echo CHtml::label($this->trans->__GET('COOKASISSTANT_COOK_WITH_'.$recToCoi->COI_ID),'cookwith_'.$i.'_local',array());
+							$isSelected = count($info->cookWith[$i])>1 && $info->cookWith[$i][1] == $recToCoi->COI_ID;
+							echo CHtml::radioButton('cookwith['.$i.']', $isSelected, array('value'=>$recToCoi->COI_ID, 'id'=>'cookwith_'.$i.'_'.$recToCoi->COI_ID));
 							echo '</div>';
+							if ($recToCoi->COI_ID == CookAssistantController::COOK_WITH_EVERYCOOK_COI){
+								if (CookAssistantController::DEVICE_PATH != ''){
+									echo '<div>';
+									echo CHtml::label($this->trans->COOKASISSTANT_COOK_WITH_REMOTE_MACHINE,'cookwith_'.$i.'_remote',array());
+									echo CHtml::radioButton('cookwith['.$i.']', count($info->cookWith[$i])>1 && $info->cookWith[$i][0]==CookAssistantController::COOK_WITH_IP, array('value'=>'remote', 'id'=>'cookwith_'.$i.'_remote'));
+									echo CHtml::textField('remoteip['.$i.']', (count($info->cookWith[$i])>1 && $info->cookWith[$i][0]==CookAssistantController::COOK_WITH_IP)?$info->cookWith[$i][1]:'10.0.0.1', array());
+									echo '</div>';
+								}
+							}
 						}
-						echo '<div>';
-						echo CHtml::label('cook with remote machine','cookwith_'.$i.'_remote',array());
-						echo CHtml::radioButton('cookwith['.$i.']', $info->cookWithEveryCook[$i][0]==CookAssistantController::COOK_WITH_IP, array('value'=>'remote', 'id'=>'cookwith_'.$i.'_remote'));
-						echo CHtml::textField('remoteip['.$i.']', ($info->cookWithEveryCook[$i][0]==CookAssistantController::COOK_WITH_IP)?$info->cookWithEveryCook[$i][1]:'10.0.0.1', array());
-						echo '</div>';
-						echo '<div>';
-						echo CHtml::label('cook with normal pan','cookwith_'.$i.'_pan',array());
-						echo CHtml::radioButton('cookwith['.$i.']', $info->cookWithEveryCook[$i][0]==CookAssistantController::COOK_WITH_PAN, array('value'=>'pan', 'id'=>'cookwith_'.$i.'_pan'));
-						echo '</div>';
 					echo '</div>';
-					echo '<input type="hidden" name="withEveryCook" value="' . ($cookWithEveryCook) . '"/>';
+					echo '<input type="hidden" name="withEveryCook" value="' . ($cookWith) . '"/>';
 				} else {
 					echo '<div class="stepHeader">';
-						if ($info->cookWithEveryCook[$i][0]==CookAssistantController::COOK_WITH_LOCAL){
+						if ($info->cookWith[$i][0]==CookAssistantController::COOK_WITH_LOCAL){
 							echo '<div>' . 'cook with this everycook' .  '</div>';
-						} else if ($info->cookWithEveryCook[$i][0]==CookAssistantController::COOK_WITH_IP){
-							echo '<div>' . sprintf('cook with remote everycook at ip: %s', $info->cookWithEveryCook[$i][1]) .  '</div>';
-						} else if ($info->cookWithEveryCook[$i][0]==CookAssistantController::COOK_WITH_PAN){
+						} else if ($info->cookWith[$i][0]==CookAssistantController::COOK_WITH_IP){
+							echo '<div>' . sprintf('cook with remote everycook at ip: %s', $info->cookWith[$i][1]) .  '</div>';
+						} else if ($info->cookWith[$i][0]==CookAssistantController::COOK_WITH_OTHER){
 							echo '<div>' . 'cook with pan' .  '</div>';
 						}
 					echo '</div>';
-					echo '<input type="hidden" name="withEveryCook" value="' . ($cookWithEveryCook) . '"/>';
+					echo '<input type="hidden" name="withEveryCook" value="' . ($cookWith) . '"/>';
 				
 					//if ($mealStep->stepNr != -1 ){
 						echo '<div class="actionText">' . 'Current step: ' . $mealStep->actionText . '</div>';

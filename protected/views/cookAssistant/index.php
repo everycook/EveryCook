@@ -10,17 +10,17 @@
 	</div>
 	<div class="recipeSteps">
 	<?php
-		$i=0;
+		$i=0; 
 		foreach($info->steps as $mealStep){
-			$cookWithEveryCook = ($info->cookWithEveryCook[$i][0]!=CookAssistantController::COOK_WITH_PAN)?1:0;
+			$cookWith = ($info->cookWith[$i][0]!=CookAssistantController::COOK_WITH_OTHER)?1:0;
 			echo '<div class="recipeStep">';
-				echo '<input type="hidden" name="withEveryCook" value="' . ($cookWithEveryCook) . '"/>';
+				echo '<input type="hidden" name="cookWith" value="' . ($cookWith) . '"/>';
 				echo '<div class="stepHeader">';
 					echo '<div class="title"><div>' . $mealStep->recipeName . '</div></div>';
 					echo '<div class="finishTime' . (($mealStep->inTime)?'':' toLate') . '"><div>' . (($mealStep->stepNr != -1)?'Finished at:':'Start at:') . ' <span>'  .  '</span></div></div>'; // $mealStep->finishedAt .
 					echo '<input type="hidden" name="finishTime" value="' . $mealStep->finishedIn . '"/>';
 					echo '<input type="hidden" name="lowestFinishTime" value="' . $mealStep->lowestFinishedIn . '"/>';
-					if ($cookWithEveryCook!=0){
+					if ($cookWith!=0){
 						echo '<div class="temp"><div><div>Temperature: <span class="temp">'.$mealStep->currentTemp.'</span>°C</div><div>Pressure: <span class="press">'.$mealStep->currentPress.'</span>pa</div></div></div>';
 					}
 					if (!$mealStep->endReached){
@@ -39,6 +39,7 @@
 							echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$mealStep->ingredientId, 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$mealStep->ingredientCopyright, 'title'=>$mealStep->ingredientCopyright));
 						}
 						echo '<div class="actionInner' . (($mealStep->ingredientId != 0)?' withPic':'') . '">';
+							echo '<div class="actionMainText">' . $mealStep->mainActionText . '</div>';
 							echo '<div class="actionText">' . $mealStep->actionText . '</div>';
 							echo '<span class="clearfix"></span>';
 						echo '</div>';

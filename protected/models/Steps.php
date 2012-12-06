@@ -5,7 +5,6 @@
  *
  * The followings are the available columns in table 'steps':
  * @property integer $REC_ID
- * @property integer $ACT_ID
  * @property integer $AIN_ID
  * @property integer $ING_ID
  * @property integer $STE_STEP_NO
@@ -18,7 +17,6 @@
  * @property integer $STE_STIR_PAUSE
  * @property integer $STE_STEP_DURATION
  * @property integer $TOO_ID
- * @property integer $STT_ID
  * @property integer $CREATED_BY
  * @property integer $CREATED_ON
  * @property integer $CHANGED_BY
@@ -52,11 +50,11 @@ class Steps extends ActiveRecordEC
 		// will receive user inputs.
 		return array(
 			array('REC_ID, STE_STEP_NO, AIN_ID, CREATED_BY, CREATED_ON', 'required'),
-			array('REC_ID, AIN_ID, ING_ID, STE_STEP_NO, STE_GRAMS, STE_CELSIUS, STE_KPA, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, TOO_ID, STT_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
-			array('AIN_ID, ING_ID, STE_GRAMS, STE_CELSIUS, STE_KPA, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, TOO_ID, STT_ID, recipe, ingredient, action, stepType', 'safe'),
+			array('REC_ID, AIN_ID, ING_ID, STE_STEP_NO, STE_GRAMS, STE_CELSIUS, STE_KPA, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, TOO_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('AIN_ID, ING_ID, STE_GRAMS, STE_CELSIUS, STE_KPA, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, TOO_ID, recipe, ingredient, action, stepType', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('REC_ID, ACT_ID, AIN_ID, ING_ID, STE_STEP_NO, STE_GRAMS, STE_CELSIUS, STE_KPA, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, TOO_ID, STT_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('REC_ID, AIN_ID, ING_ID, STE_STEP_NO, STE_GRAMS, STE_CELSIUS, STE_KPA, STE_RPM, STE_CLOCKWISE, STE_STIR_RUN, STE_STIR_PAUSE, STE_STEP_DURATION, TOO_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -68,9 +66,9 @@ class Steps extends ActiveRecordEC
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			/*'recipe' => array(self::BELONGS_TO, 'Recipes', 'REC_ID'),*/
+			/*'recipe' => array(self::BELONGS_TO, 'Recipes', 'REC_ID'),
 			'action' => array(self::BELONGS_TO, 'Actions', 'ACT_ID'),
-			'stepType' => array(self::BELONGS_TO, 'StepTypes', 'STT_ID'),
+			'stepType' => array(self::BELONGS_TO, 'StepTypes', 'STT_ID'),*/
 			'ingredient' => array(self::BELONGS_TO, 'Ingredients', 'ING_ID'),
 			'actionIn' => array(self::BELONGS_TO, 'ActionsIn', 'AIN_ID'),
 			'tool' => array(self::BELONGS_TO, 'Tools', 'TOO_ID'),
@@ -84,7 +82,7 @@ class Steps extends ActiveRecordEC
 	{
 		return array(
 			'REC_ID' => 'Rec',
-			'ACT_ID' => 'Act',
+			//'ACT_ID' => 'Act',
 			'AIN_ID' => 'Ain',
 			'ING_ID' => 'Ing',
 			'STE_STEP_NO' => 'Ste Step No',
@@ -97,7 +95,7 @@ class Steps extends ActiveRecordEC
 			'STE_STIR_PAUSE' => 'Ste Stir Pause',
 			'STE_STEP_DURATION' => 'Ste Step Duration',
 			'TOO_ID' => 'Too',
-			'STT_ID' => 'Stt',
+			//'STT_ID' => 'Stt',
 			'CREATED_BY' => 'Created By',
 			'CREATED_ON' => 'Created On',
 			'CHANGED_BY' => 'Changed By',
@@ -114,7 +112,6 @@ class Steps extends ActiveRecordEC
 		$criteria=new CDbCriteria;
 		
 		$criteria->compare($this->tableName().'.REC_ID',$this->REC_ID);
-		$criteria->compare($this->tableName().'.ACT_ID',$this->ACT_ID);
 		$criteria->compare($this->tableName().'.AIN_ID',$this->AIN_ID);
 		$criteria->compare($this->tableName().'.ING_ID',$this->ING_ID);
 		$criteria->compare($this->tableName().'.STE_STEP_NO',$this->STE_STEP_NO);
@@ -127,14 +124,12 @@ class Steps extends ActiveRecordEC
 		$criteria->compare($this->tableName().'.STE_STIR_PAUSE',$this->STE_STIR_PAUSE);
 		$criteria->compare($this->tableName().'.STE_STEP_DURATION',$this->STE_STEP_DURATION);
 		$criteria->compare($this->tableName().'.TOO_ID',$this->TOO_ID);
-		$criteria->compare($this->tableName().'.STT_ID',$this->STT_ID);
 	}
 	
 	public function getCriteria(){
 		$criteria=new CDbCriteria;
 		
 		$criteria->compare('REC_ID',$this->REC_ID);
-		$criteria->compare('ACT_ID',$this->ACT_ID);
 		$criteria->compare('AIN_ID',$this->AIN_ID);
 		$criteria->compare('ING_ID',$this->ING_ID);
 		$criteria->compare('STE_STEP_NO',$this->STE_STEP_NO);
@@ -147,7 +142,6 @@ class Steps extends ActiveRecordEC
 		$criteria->compare('STE_STIR_PAUSE',$this->STE_STIR_PAUSE);
 		$criteria->compare('STE_STEP_DURATION',$this->STE_STEP_DURATION);
 		$criteria->compare('TOO_ID',$this->TOO_ID);
-		$criteria->compare('STT_ID',$this->STT_ID);
 		
 		//$criteria->with = array('recipe' => array());
 		$criteria->with = array('ingredient' => array('nutrientData'));
@@ -157,9 +151,7 @@ class Steps extends ActiveRecordEC
 		
 		$criteria->compare('REC_ID',$this->recipe,true);
 		$criteria->compare('ING_ID',$this->ingredient,true);
-		$criteria->compare('ACT_ID',$this->action,true);
 		$criteria->compare('AIN_ID',$this->actionsIn,true);
-		$criteria->compare('STT_ID',$this->stepType,true);
 		
 		$criteria->order('STE_STEP_NO');
 		
