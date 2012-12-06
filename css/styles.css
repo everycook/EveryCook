@@ -446,6 +446,11 @@ div.resultArea.noPic {
 	min-height:0;
 }
 
+div.resultArea.adminArea {
+	min-height:0;
+	padding: 0 0 0 1.5em;
+}
+
 
 .list_img {
 	float: left;
@@ -499,12 +504,20 @@ div.resultArea div.data_right {
 div.resultArea.noPic div.data {
 	margin-left:0;
 }
+
+div.resultArea.adminArea  div.data {
+	margin-left:0;
+}
+
 div.resultArea div.name {
 	font-weight:bold;
 	font-size:2em;
 	margin-bottom:0.2em;
 }
 
+div.resultArea.adminArea div.name {
+	margin-bottom: 0;
+}
 
 div.resultArea div.options {
 	float:right;

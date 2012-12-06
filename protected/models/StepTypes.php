@@ -70,13 +70,23 @@ class StepTypes extends ActiveRecordEC
 			'STT_DESC_DE_CH' => 'Stt Desc De Ch',
 		);
 	}
-
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
-	 */
-	public function search()
-	{
+	
+	public function getSearchFields(){
+		return array('STT_ID', 'STT_DESC_' . Yii::app()->session['lang']);
+	}
+	
+	
+	public function getCriteriaString(){
+		$criteria=new CDbCriteria;
+		
+		$criteria->compare($this->tableName().'.STT_ID',$this->STT_ID);
+		$criteria->compare($this->tableName().'.STT_DEFAULT',$this->STT_DEFAULT,true);
+		$criteria->compare($this->tableName().'.STT_REQUIRED',$this->STT_REQUIRED,true);
+		$criteria->compare($this->tableName().'.STT_DESC_EN_GB',$this->STT_DESC_EN_GB,true);
+		$criteria->compare($this->tableName().'.STT_DESC_DE_CH',$this->STT_DESC_DE_CH,true);
+	}
+	
+	public function getCriteria(){
 		// Warning: Please modify the following code to remove attributes that
 		// should not be searched.
 
@@ -87,9 +97,32 @@ class StepTypes extends ActiveRecordEC
 		$criteria->compare('STT_REQUIRED',$this->STT_REQUIRED,true);
 		$criteria->compare('STT_DESC_EN_GB',$this->STT_DESC_EN_GB,true);
 		$criteria->compare('STT_DESC_DE_CH',$this->STT_DESC_DE_CH,true);
-
+		//Add with conditions for relations
+		//$criteria->with = array('???relationName???' => array());
+	}
+	
+	public function getSort(){
+		$sort = new CSort;
+		$sort->attributes = array(
+		/*
+			'sortId' => array(
+				'asc' => 'COI_ID',
+				'desc' => 'COI_ID DESC',
+			),
+		*/
+			'*',
+		);
+		return $sort;
+	}
+	
+	/**
+	 * Retrieves a list of models based on the current search/filter conditions.
+	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+	 */
+	public function search(){
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria'=>$this->getCriteria(),
+			'sort'=>$this->getSort(),
 		));
 	}
 }

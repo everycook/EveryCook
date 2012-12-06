@@ -16,9 +16,9 @@ if (!$this->isFancyAjaxRequest){
 	//}
 }
 
-$advanceSearch = array(($this->isFancyAjaxRequest)?'advanceChooseIngredient':'advanceSearch');
+$simpleSearch = array(($this->isFancyAjaxRequest)?'chooseActionsIn':'search');
 if (isset(Yii::app()->session['ActionsIn']) && isset(Yii::app()->session['ActionsIn']['time'])){
-	$advanceSearch=array_merge($advanceSearch,array('newSearch'=>Yii::app()->session['ActionsIn']['time']));
+	$simpleSearch=array_merge($simpleSearch,array('newSearch'=>Yii::app()->session['ActionsIn']['time']));
 }
 
 if ($this->isFancyAjaxRequest){ ?>
@@ -42,10 +42,17 @@ if ($this->isFancyAjaxRequest){ ?>
 		} ?>
 		<?php  echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
 	</div>
+	<div class="f-right">
+		<?php  echo CHtml::link($this->trans->GENERAL_SIMPLE_SEARCH, $simpleSearch, array('class'=>'button', 'id'=>'simpleSearch')); ?><br>
+	</div>
+	<div class="f-center">
+		<?php  echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('create','newModel'=>time()), array('class'=>'button', 'id'=>'create')); ?><br>
+	</div>
 	
 	<div class="clearfix"></div>
 	
 <?php
+	/*
 	$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
 	$htmlOptions_type1 = array('template'=>'<li>{input} {label}</li>', 'separator'=>"\n", 'checkAll'=>$this->trans->INGREDIENTS_SEARCH_CHECK_ALL, 'checkAllLast'=>false);
 	
@@ -55,7 +62,7 @@ if ($this->isFancyAjaxRequest){ ?>
 	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_CONVENIENCE, $model, 'ICO_ID', $ingredientConveniences, Functions::DROP_DOWN_LIST, 'ingredientConveniences', $htmlOptions_type0);
 	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_STATE, $model, 'IST_ID', $ingredientStates, Functions::DROP_DOWN_LIST, 'ingredientStates', $htmlOptions_type0);
 	//echo searchCriteriaInput($this->trans->INGREDIENTS_NUTRIENT, $model, 'NUT_ID', $nutrientData, Functions::DROP_DOWN_LIST, 'nutrientData', $htmlOptions_type0);
-	
+	*/
 	/* //example FancyCoose
 	?>
 	

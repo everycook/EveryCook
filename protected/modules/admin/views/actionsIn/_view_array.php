@@ -1,14 +1,16 @@
 
-<div class="resultArea">
+<div class="resultArea adminArea">
 <?php
 	if ($this->isFancyAjaxRequest){
 		echo CHtml::link($this->trans->GENERAL_SELECT, $data['AIN_ID'], array('class'=>'f-right button ActionsInSelect'));
 	} else {
+		/*
 		echo '<div class="options">';
 			echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data['AIN_ID']), array('class'=>'delicious noAjax backpic', 'title'=>$this->trans->GENERAL_DELICIOUS));
 			//echo CHtml::link('&nbsp;', array('<controller>/<page>', 'AIN_ID'=>$data['AIN_ID']), array('class'=>'cookwith backpic', 'title'=>$this->trans->???));
 			echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['AIN_ID']), array('class'=>'disgusting noAjax backpic last','title'=>$this->trans->GENERAL_DISGUSTING));
 		echo '</div>';
+		*/
 	}
 	?>
 	

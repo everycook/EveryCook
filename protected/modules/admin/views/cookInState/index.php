@@ -18,6 +18,11 @@ if (!$this->isFancyAjaxRequest){
 ?>
 
 <h1><?php echo $this->trans->TITLE_COOKINSTATE_LIST; ?></h1>
+
+<div class="f-center">
+	<?php  echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('create','newModel'=>time()), array('class'=>'button', 'id'=>'create')); ?><br>
+</div>
+
 <?php $this->widget('AjaxPagingListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',

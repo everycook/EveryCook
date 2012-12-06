@@ -1,14 +1,16 @@
 
-<div class="resultArea">
+<div class="resultArea adminArea">
 <?php
 	if ($this->isFancyAjaxRequest){
 		echo CHtml::link($this->trans->GENERAL_SELECT, $data['COI_PREP'], array('class'=>'f-right button CookInPrepSelect'));
 	} else {
+		/*
 		echo '<div class="options">';
 			echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data['COI_PREP']), array('class'=>'delicious noAjax backpic', 'title'=>$this->trans->GENERAL_DELICIOUS));
 			//echo CHtml::link('&nbsp;', array('<controller>/<page>', 'COI_PREP'=>$data['COI_PREP']), array('class'=>'cookwith backpic', 'title'=>$this->trans->???));
 			echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['COI_PREP']), array('class'=>'disgusting noAjax backpic last','title'=>$this->trans->GENERAL_DISGUSTING));
 		echo '</div>';
+		*/
 	}
 	?>
 	

@@ -44,8 +44,14 @@ if ($this->isFancyAjaxRequest){ ?>
 		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
 	</div>
 	
+	<?php /*
 	<div class="f-right">
 		<?php  echo CHtml::link($this->trans->GENERAL_ADVANCE_SEARCH, $advanceSearch, array('class'=>'button', 'id'=>'advanceSearch')); ?><br>
+	</div>
+	*/ ?>
+	
+	<div class="f-center">
+		<?php  echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('create','newModel'=>time()), array('class'=>'button', 'id'=>'create')); ?><br>
 	</div>
 	
 	<div class="clearfix"></div>

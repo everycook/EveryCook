@@ -201,7 +201,8 @@ class ActionsOutController extends Controller
 		}
 		
 		$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(), $model->getSearchFields(), $query, $model->tableName() . '.');
-		if ($modelAvailable || $criteriaString != '' || $criteria != null){
+		//if there is no search criteria, show all
+		//if ($modelAvailable || $criteriaString != '' || $criteria != null){
 			$command = Yii::app()->db->createCommand()
 					->from($model->tableName());
 				//Add aditional conditions, and joins here...
@@ -245,10 +246,10 @@ class ActionsOutController extends Controller
 				unset(Yii::app()->session[$this->searchBackup]);
 			}
 			$rows = $command->queryAll();
-		} else {
+		/*} else {
 			$rows = array();
 			unset(Yii::app()->session[$this->searchBackup]);
-		}
+		}*/
 		
 		$dataProvider=new CArrayDataProvider($rows, array(
 			'id'=>'AOU_ID',
