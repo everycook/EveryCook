@@ -1142,7 +1142,7 @@ div.mealView span.value {
 }
 .cookAssistant .recipeSteps .recipeStep .stepHeader div.temp {
 	margin-left: 0.8em;
-	width: 15%;
+	width: 18%;
 	float:left;
 }
 .cookAssistant .recipeSteps .recipeStep .stepHeader div div div {
@@ -1245,12 +1245,17 @@ div.mealView span.value {
 .stepHeader .title {
 	width:100%;
 }
-.stepHeader .totalTime {
+.stepHeader .totalTime,
+.stepHeader .finishTime {
 	width:30%;
 	float: left;
 }
-.stepHeader .finishTime {
-	width:30%;
+
+.recipeConfig .stepHeader .totalTime,
+.recipeConfig .stepHeader .prepareTime,
+.recipeConfig .stepHeader .cookTime,
+.recipeConfig .stepHeader .finishTime {
+	width:25%;
 	float: left;
 }
 

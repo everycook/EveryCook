@@ -17,12 +17,16 @@ class AdminModule extends CWebModule {
 			// this method is called before any module controller action is performed
 			// you may place customized code here
 			
-			//TODO Check is admin
-			if (Yii::app()->user->checkAccess('admin')){
-				return true;
+			if (Yii::app()->user->isGuest){
+				Yii::app()->user->loginRequired();
+				return false;
 			} else {
-				throw new CHttpException(403, 'You need admin privileges to do this.');
-				//return false;
+				if (Yii::app()->user->checkAccess('admin')){
+					return true;
+				} else {
+					throw new CHttpException(403, 'You need admin privileges to do this.');
+					//return false;
+				}
 			}
 		} else {
 			return false;

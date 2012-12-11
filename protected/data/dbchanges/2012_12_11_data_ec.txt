@@ -1,0 +1,41 @@
+UPDATE `actions_out` SET `AOU_CIS_CHANGE` = '' WHERE `AOU_CIS_CHANGE` = '0';
+UPDATE `actions_out` SET `AOU_CIS_CHANGE` = '{"1":{"cutter":"#tool"}}' WHERE `actions_out`.`AOU_ID` =3;
+UPDATE `actions_out` SET `AOU_CIS_CHANGE` = '{"1":{"cutter":"#tool"}}' WHERE `actions_out`.`AOU_ID` =13;
+UPDATE `actions_out` SET `AOU_CIS_CHANGE` = '{"1":{"lid":false, "lidcrew":false}}' WHERE `actions_out`.`AOU_ID` =15;
+UPDATE `actions_out` SET `AOU_CIS_CHANGE` = '{"1":{"lid":true}}' WHERE `actions_out`.`AOU_ID` =16;
+UPDATE `actions_out` SET `AOU_CIS_CHANGE` = '{"1":{"scalpot":true}}' WHERE `actions_out`.`AOU_ID` =19;
+UPDATE `actions_out` SET `AOU_CIS_CHANGE` = '{"1":{"scalpot":false}}' WHERE `actions_out`.`AOU_ID` =20;
+UPDATE `actions_out` SET `AOU_CIS_CHANGE` = '{"1":{"lidcrew":true}}' WHERE `actions_out`.`AOU_ID` =21;
+UPDATE `actions_out` SET `AOU_CIS_CHANGE` = '{"6":{"content":"#tool"}}' WHERE `actions_out`.`AOU_ID` =28;
+
+INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('COOKASISSTANT_COOK_WITH_1', 'cook with machine', 'mit Maschine kochen', ''),
+('COOKASISSTANT_COOK_WITH_REMOTE_MACHINE', 'cook with remote machine', 'mit anderer Maschine kochen', ''),
+('COOKASISSTANT_COOK_WITH_2', 'cook in Skillet', 'in Bratpfanne kochen', ''),
+('COOKASISSTANT_COOK_WITH_3', 'cook in Cooking pot', 'in Kochtopf kochen', ''),
+('COOKASISSTANT_COOK_WITH_4', 'cook in Pressure Cooker', 'in Dampfkochtopf kochen', ''),
+('COOKASISSTANT_COOK_WITH_5', 'cook in Deep Fryer', 'in Friteuse kochen', ''),
+('COOKASISSTANT_COOK_WITH_6', 'cook in Oven', 'in Backofen kochen', ''),
+('COOKASISSTANT_START_COOKING', 'Please start cooking.', 'Bitte beginnen sie mit Kochen', ''),
+('COOKASISSTANT_WAIT_UNTIL_STARTTIME', 'Please wait until start time.', 'Bitte warten sie den Startzeitpunkt ab.', '');
+
+INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('GENERAL_SIMPLE_SEARCH', 'Simple Search', 'Einfache Suche', ''),
+('COOKASISSTANT_RECIPE_END_REACED', 'Recipe end Reached.', 'Rezept Ende erreicht.', ''),
+('COOKASISSTANT_FINISHED_AT', 'Finished at:', 'Fertig um:', ''),
+('COOKASISSTANT_START_AT', 'Start at:', 'Beginnen am:', ''),
+('COOKASISSTANT_TOTAL_TIME', 'Total time:', 'Total Zeit:', ''),
+('COOKASISSTANT_PREPARE_TIME', 'Prepare Time:', 'Vorbereitungs Zeit:', ''),
+('COOKASISSTANT_COOK_TIME', 'Cook Time:', 'Koch Zeit:', ''),
+('COOKASISSTANT_OVERVIEW_CURRENT_STEP', 'Current step:', 'Aktueller Schritt:', ''),
+('COOKASISSTANT_COOK_WITH_1_REMOTE', 'cook with remote everycook at ip: %s', 'mit anderer Maschine auf ip %s kochen.', ''),
+('COOKASISSTANT_COURSE_RECIPES', 'Course %d<br/>%d Recipes', 'Gang %d<br />%d Rezepte', '');
+
+INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('COOKASISSTANT_TEMPERATURE', 'Temperature:', 'Temperatur:', ''),
+('COOKASISSTANT_PRESSURE', 'Pressure:', 'Druck:', ''),
+('COOKASISSTANT_NEXT_STEP_IN', 'Next Step in:', 'Nächster Step in:', ''),
+('COOKASISSTANT_OVERVIEW', 'overview', 'Übersicht', ''),
+('COOKASISSTANT_START', 'start', 'Beginnen', ''),
+('COOKASISSTANT_CONTINUE', 'continue', 'Weiter kochen', ''),
+('COOKASISSTANT_CHANGE_COOK_WITH', 'change CookWith Setting', 'Kochen mit Einstellung speichern', '');

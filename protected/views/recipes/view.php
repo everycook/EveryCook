@@ -87,6 +87,7 @@ $this->mainButtons = array(
 						$replText = '<span class="weight">' . $step->STE_GRAMS . 'g</span> ';
 						$text = str_replace('#weight', $replText, $text);
 					}
+					
 					if (isset($step->tool) && $step->tool != null){
 						$replText = '<span class="tool">' . $step->tool->__get('TOO_DESC_' . Yii::app()->session['lang']) . '</span> ';
 						$text = str_replace('#tool', $replText, $text);
