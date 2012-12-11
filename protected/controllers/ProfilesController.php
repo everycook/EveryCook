@@ -408,12 +408,27 @@ class ProfilesController extends Controller
 			sprintf($otherLanguageTexts['REGISTRATION_MAIL_CONTENT_LINK'], $link, $link) . "<br>\r\n" .
 			$otherLanguageTexts['REGISTRATION_MAIL_CONTENT_CONTAKT'] . "<br>\r\n" .
 			sprintf($otherLanguageTexts['REGISTRATION_MAIL_CONTENT_REGARDS'], Yii::app()->params['verificationRegardsName']) . "<br>\r\n";
-		
+		/*
 		$headers="From: <".Yii::app()->params['verificationEmail'].">\r\nReply-To: <".Yii::app()->params['verificationEmail'].">\r\nReturn-Path: <".Yii::app()->params['verificationEmail'].">\r\nBcc: <".Yii::app()->params['verificationBCCEmail'].">\r\nContent-Type: text/html";
 		$programmParam = "-f".Yii::app()->params['verificationEmail'];
 		
 		ini_set('sendmail_from', Yii::app()->params['verificationEmail']); 
 		mail($model->PRF_EMAIL, $subject, $body, $headers, $programmParam);
+		*/
+		
+		Yii::import('application.extensions.phpmailer.JPhpMailer');
+		$mail = new JPhpMailer;
+		$mail->IsSMTP();
+		$mail->Host = Yii::app()->params['SMTPMailHost'];
+		$mail->SMTPAuth = true;
+		$mail->Username = Yii::app()->params['SMTPMailUser'];
+		$mail->Password = Yii::app()->params['SMTPMailPW'];
+		$mail->SetFrom(Yii::app()->params['verificationEmail'], Yii::app()->params['verificationEmailName']);
+		$mail->Subject = $subject;
+		//$mail->AltBody = 'To view the message, please use an HTML compatible email viewer!';
+		$mail->MsgHTML($body);
+		$mail->AddAddress($model->PRF_EMAIL, $model->PRF_NICK);
+		$mail->Send();
 	}
 
    /*

@@ -14,6 +14,7 @@ class CookAsisstantStep extends CModel
 	public $lowestFinishedIn = 0;
 	public $mustWait = true;
 	public $autoClick = false;
+	public $mainActionText = null;
 	public $actionText = null;
 	public $ingredientId = null;
 	public $ingredientCopyright = null;
@@ -25,7 +26,7 @@ class CookAsisstantStep extends CModel
 	public $currentPress = 0;
 	
 	public function attributeNames(){
-		return array('recipeNr', 'stepNr', 'recipeName', 'stepDuration', 'finishedIn', 'finishedAt', 'inTime', 'nextStepIn', 'nextStepTotal', 'lowestFinishedIn', 'mustWait', 'autoClick', 'actionText', 'ingredientId', 'percent', 'endReached', 'weightReachedTime', 'stepType', 'currentTemp', 'currentPress');
+		return array('recipeNr', 'stepNr', 'recipeName', 'stepDuration', 'finishedIn', 'finishedAt', 'inTime', 'nextStepIn', 'nextStepTotal', 'lowestFinishedIn', 'mustWait', 'autoClick', 'mainActionText', 'actionText', 'ingredientId', 'percent', 'endReached', 'weightReachedTime', 'stepType', 'currentTemp', 'currentPress');
 	}	
 	
 	public function __get($name) {

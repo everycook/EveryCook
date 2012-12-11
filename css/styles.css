@@ -1,4 +1,4 @@
-/* reset.css */
+recipe/* reset.css */
 html {margin:0;padding:0;border:0;}
 body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, code, del, dfn, em, img, q, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, dialog, figure, footer, header, hgroup, nav, section {margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline;}
 article, aside, details, figcaption, figure, dialog, footer, header, hgroup, menu, nav, section {display:block;}
@@ -959,6 +959,10 @@ div.cou_recipe img.cou_recipe {
 	width:8em;
 	height:8em;
 }
+div.cou_recipe  .title {
+	clear: both;
+    display: block;
+}
 
 div.mealView input.input_range {
 	margin-right: 0.5em;
@@ -1151,7 +1155,7 @@ div.mealView span.value {
 }
 .cookAssistant .recipeSteps .recipeStep .stepHeader div.temp {
 	margin-left: 0.8em;
-	width: 15%;
+	width: 18%;
 	float:left;
 }
 .cookAssistant .recipeSteps .recipeStep .stepHeader div div div {
@@ -1195,6 +1199,15 @@ div.mealView span.value {
 .cookAssistant .recipeSteps .recipeStep .stepInfo .action .actionText {
 	font-size: 1.2em;
 	min-height: 2.5em;
+}
+.cookAssistant .recipeSteps .recipeStep .stepInfo .action .actionMainText {
+	font-size: 0.8em;
+	line-height: 1em;
+	margin-bottom: 0.3em;
+	margin-top: -1.5em;
+	max-height: 1em;
+	overflow: hidden;
+	padding-bottom: 0.2em;
 }
 
 .cookAssistant .recipeSteps .recipeStep .stepInfo .action img {
@@ -1245,12 +1258,17 @@ div.mealView span.value {
 .stepHeader .title {
 	width:100%;
 }
-.stepHeader .totalTime {
+.stepHeader .totalTime,
+.stepHeader .finishTime {
 	width:30%;
 	float: left;
 }
-.stepHeader .finishTime {
-	width:30%;
+
+.recipeConfig .stepHeader .totalTime,
+.recipeConfig .stepHeader .prepareTime,
+.recipeConfig .stepHeader .cookTime,
+.recipeConfig .stepHeader .finishTime {
+	width:25%;
 	float: left;
 }
 

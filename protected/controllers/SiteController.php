@@ -156,8 +156,25 @@ class SiteController extends Controller
 			$model->attributes=$_POST['ContactForm'];
 			if($model->validate())
 			{
+				/*
 				$headers="From: {$model->email}\r\nReply-To: {$model->email}";
 				mail(Yii::app()->params['adminEmail'],$model->subject,$model->body,$headers);
+				*/
+				
+				Yii::import('application.extensions.phpmailer.JPhpMailer');
+				$mail = new JPhpMailer;
+				$mail->IsSMTP();
+				$mail->Host = Yii::app()->params['SMTPMailHost'];
+				$mail->SMTPAuth = true;
+				$mail->Username = Yii::app()->params['SMTPMailUser'];
+				$mail->Password = Yii::app()->params['SMTPMailPW'];
+				$mail->SetFrom($model->email, $model->name);
+				$mail->Subject = $model->subject;
+				$mail->AltBody = $model->body;
+				//$mail->MsgHTML($model->body);
+				$mail->AddAddress(Yii::app()->params['adminEmail'], Yii::app()->params['adminEmailName']);
+				$mail->Send();
+				
 				Yii::app()->user->setFlash('contact','Thank you for contacting us. We will respond to you as soon as possible.');
 				$this->refresh();
 			}

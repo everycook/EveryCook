@@ -87,12 +87,14 @@ $this->mainButtons = array(
 						$replText = '<span class="weight">' . $step->STE_GRAMS . 'g</span> ';
 						$text = str_replace('#weight', $replText, $text);
 					}
+					
 					if (isset($step->tool) && $step->tool != null){
 						$replText = '<span class="tool">' . $step->tool->__get('TOO_DESC_' . Yii::app()->session['lang']) . '</span> ';
 						$text = str_replace('#tool', $replText, $text);
 					}
 					if ($step->STE_STEP_DURATION){
-						$replText = '<span class="time">' . $step->STE_STEP_DURATION . 's</span> ';
+						$time = date('H:i:s', $step['STE_STEP_DURATION']-3600);
+						$replText = '<span class="time">' . $time . 'h</span> ';
 						$text = str_replace('#time', $replText, $text);
 					}
 					if ($step->STE_CELSIUS){

@@ -703,6 +703,9 @@ jQuery(function($){
 					field.parent().remove();
 				} else {
 					next.find('[for='+field.attr('id')+']').remove();
+					if (field.hasClass('fancyValue')){
+						fieldParents.find('#'+field.attr('id')+'_DESC').remove();
+					}
 					field.remove();
 				}
 			}

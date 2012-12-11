@@ -362,6 +362,18 @@ jQuery(function($){
 	});
 	newContentFunction('initial', jQuery('#page'));
 	
+	jQuery('body').undelegate('form .submit','click').delegate('form .submit','click',function(){
+		var submitButton = jQuery(this);
+		var form = submitButton.parents('form:first');
+		try {
+			if (typeof(submitButton.attr('id')) !== 'undefined'){
+				var input = jQuery('<input name="' + submitButton.attr('id') + '" value="' + submitButton.text() + '" />');
+				form.append(input);
+			}
+			form.submit();
+			input.remove();
+		} catch(ex){}
+	});
 	
 	jQuery('body').undelegate('form:not(.ajaxupload):not(.fancyForm):not(.noAjax):not(.submitToUrl)','submit').delegate('form:not(.ajaxupload):not(.fancyForm):not(.noAjax):not(.submitToUrl)','submit',function(){
 		var form = jQuery(this);
@@ -1275,6 +1287,7 @@ jQuery(function($){
 	}
 	
 	//admin
+	/*
 	function loadActionGeneratorDetails(){
 		var url = glob.urlAddParamStart(jQuery('#actionDetailsLink').attr('value')) + 'ain_id=' + jQuery('#actionsIns select#AIN_ID').attr('value');
 		url = glob.urlAddParamStart(url) + 'coi_id=' + jQuery('#cookIns select#COI_ID').attr('value');
@@ -1311,7 +1324,7 @@ jQuery(function($){
 			},
 		});
 	});
-	
+	*/
 	jQuery('body').undelegate('#actionsList_form select','change').delegate('#actionsList_form select','change',function(){
 		jQuery(this).parents('form:first').submit();
 	});
@@ -1323,6 +1336,8 @@ jQuery(function($){
 		}
 	});
 	*/
+	
+	
 	//divers functions
 	jQuery('body').undelegate('.closeFancy','click').delegate('.closeFancy','click', function(){
 		jQuery.fancybox.close();

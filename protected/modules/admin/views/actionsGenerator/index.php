@@ -49,7 +49,7 @@ $this->breadcrumbs=array(
 		echo CHtml::link($this->trans->ACTIONSGENERATOR_ACTIONS_CHANGE, array('change', 'ain_id'=>$model->AIN_ID, 'coi_id'=>$coi_id), array('class'=>'button'));
 		echo CHtml::link($this->trans->ACTIONSGENERATOR_ACTIONS_COPY, array('copy', 'ain_id'=>$model->AIN_ID, 'coi_id'=>$coi_id), array('class'=>'button'));
 		echo '</div>'."\r\n";
-	} else if (isset($model->AIN_ID) && isset($model->COI_ID)){
+	} else if (isset($model->AIN_ID) && isset($model->COI_ID) && $model->COI_ID != null){
 		echo '<div class="actionOutOverview">'."\r\n";
 		echo CHtml::link($this->trans->ACTIONSGENERATOR_ACTIONS_CREATE, array('change', 'ain_id'=>$model->AIN_ID, 'coi_id'=>$model->COI_ID), array('class'=>'button'/*, 'id'=>'CreatNewAinToAou'*/));
 		echo '</div>'."\r\n";

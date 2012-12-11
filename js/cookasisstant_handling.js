@@ -72,7 +72,7 @@ jQuery(function($){
 		//jQuery('.finishTime').add('.nextTime').each(function(){
 		jQuery('.recipeStep').each(function(index){
 			var recipeStep = jQuery(this);
-			var cookWithEveryCook = recipeStep.find('input[name=withEveryCook]:first').val()!=0;
+			var cookWith = recipeStep.find('input[name=cookWith]:first').val()!=0;
 			if (started == ''){
 				var nextTime = recipeStep.find('.nextTime:first span');
 				var input = nextTime.parents('.nextTime:first').next();
@@ -96,7 +96,7 @@ jQuery(function($){
 					}
 				}
 			} else
-			if (cookWithEveryCook && !initialize){
+			if (cookWith && !initialize){
 				//load state
 				//console.log('do update');
 				glob.ShowActivity = false;
@@ -225,7 +225,7 @@ jQuery(function($){
 					//nextTime.text(restTime);
 					showTime(nextTime, restTime*1000 -3600000);
 					if (restTime<0){
-						if (!cookWithEveryCook){
+						if (!cookWith){
 							recipeStep.find('.nextStep.mustWait').removeClass('mustWait');
 						}
 						nextTime.parents('.nextTime:first').addClass('toLate');
@@ -238,7 +238,7 @@ jQuery(function($){
 						percent=1;
 					}
 					var elem = recipeStep.find('.action .progress');
-					if (!cookWithEveryCook || recipeStep.find('.nextStep.isWeightStep').length == 0){
+					if (!cookWith || recipeStep.find('.nextStep.isWeightStep').length == 0){
 						elem.css('width', (percent*100) + '%');
 					}
 					

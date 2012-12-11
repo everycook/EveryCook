@@ -229,14 +229,15 @@ jQuery(function($){
 		glob.rowContainer.clear(container);
 		glob.rowContainer.MealplannerPeopleInit(container, rowsJSON, '[]');
 		
-		jQuery.ajax({'type':'get', 'url':elem.attr('href'),'cache':false,'success':function(data){
-			glob.setContentWithImageChangeToFancy(data, {
-				'autoScale':true,
-				'autoDimensions':true,
-				'centerOnScroll':true
-			});
-		}});
-		
+		jQuery.fancybox({
+			'href':elem.attr('href'),
+			'autoScale':true,
+			'autoDimensions':true,
+			'centerOnScroll':true,
+			'onComplete': function(){
+				jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );
+			}
+		});
 		return false;
 	});
 	
@@ -277,13 +278,15 @@ jQuery(function($){
 			select.append(jQuery(option));
 		}
 		
-		jQuery.ajax({'type':'get', 'url':elem.attr('href'),'cache':false,'success':function(data){
-			glob.setContentWithImageChangeToFancy(data, {
-				'autoScale':true,
-				'autoDimensions':true,
-				'centerOnScroll':true
-			});
-		}});
+		jQuery.fancybox({
+			'href':elem.attr('href'),
+			'autoScale':true,
+			'autoDimensions':true,
+			'centerOnScroll':true,
+			'onComplete': function(){
+				jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );
+			}
+		});
 		return false;
 	});
 	
