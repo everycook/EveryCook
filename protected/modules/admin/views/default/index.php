@@ -6,7 +6,7 @@ $this->breadcrumbs=array(
 <h1>Admin</h1>
 <div class="adminOverview">
 	<div class="buttons">
-	<?php echo CHtml::link('ActionsGenerator', array('actionsGenerator/search'), array('class'=>'button')); ?><br />
+	<?php echo CHtml::link('ActionsGenerator', array('actionsGenerator/index'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('Actions In', array('actionsIn/search'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('Actions Out', array('actionsOut/search'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('Tools', array('tools/search'), array('class'=>'button')); ?><br />

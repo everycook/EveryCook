@@ -163,11 +163,13 @@ class SiteController extends Controller
 				
 				Yii::import('application.extensions.phpmailer.JPhpMailer');
 				$mail = new JPhpMailer;
+				//$mail->SMTPDebug = true;
 				$mail->IsSMTP();
 				$mail->Host = Yii::app()->params['SMTPMailHost'];
 				$mail->SMTPAuth = true;
 				$mail->Username = Yii::app()->params['SMTPMailUser'];
 				$mail->Password = Yii::app()->params['SMTPMailPW'];
+				$mail->SMTPSecure = "tls";
 				$mail->SetFrom($model->email, $model->name);
 				$mail->Subject = $model->subject;
 				$mail->AltBody = $model->body;

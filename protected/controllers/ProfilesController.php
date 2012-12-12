@@ -418,11 +418,13 @@ class ProfilesController extends Controller
 		
 		Yii::import('application.extensions.phpmailer.JPhpMailer');
 		$mail = new JPhpMailer;
+		//$mail->SMTPDebug = true;
 		$mail->IsSMTP();
 		$mail->Host = Yii::app()->params['SMTPMailHost'];
 		$mail->SMTPAuth = true;
 		$mail->Username = Yii::app()->params['SMTPMailUser'];
 		$mail->Password = Yii::app()->params['SMTPMailPW'];
+		$mail->SMTPSecure = "tls";
 		$mail->SetFrom(Yii::app()->params['verificationEmail'], Yii::app()->params['verificationEmailName']);
 		$mail->Subject = $subject;
 		//$mail->AltBody = 'To view the message, please use an HTML compatible email viewer!';
