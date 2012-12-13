@@ -45,28 +45,66 @@
 				if (!$info->started){
 					echo '<div class="stepHeader">';
 						$recipe = $info->course->couToRecs[$mealStep->recipeNr]->recipe;
+						$everycookAvailable = false;
+						$optionShown = false;
+						
 						foreach($recipe->recToCois as $recToCoi){
 							if ($recToCoi->COI_ID == CookAssistantController::COOK_WITH_EVERYCOOK_COI){
-								if (CookAssistantController::DEVICE_PATH != ''){
+								$everycookAvailable = true;
+								$activ = isset(Yii::app()->params['isDevice']) && Yii::app()->params['isDevice'] === true;
+								//if (isset(Yii::app()->params['isDevice']) && Yii::app()->params['isDevice'] === true){
 									echo '<div>';
 									echo CHtml::label($this->trans->__GET('COOKASISSTANT_COOK_WITH_'.$recToCoi->COI_ID),'cookwith_'.$i.'_local',array());
 									$isSelected = count($info->cookWith[$i])>1 && $info->cookWith[$i][1] == $recToCoi->COI_ID;
-									echo CHtml::radioButton('cookwith['.$i.']', $isSelected, array('value'=>$recToCoi->COI_ID, 'id'=>'cookwith_'.$i.'_'.$recToCoi->COI_ID));
+									if ($activ){
+										$optionShown = true;
+										echo CHtml::radioButton('cookwith['.$i.']', $isSelected, array('value'=>$recToCoi->COI_ID, 'id'=>'cookwith_'.$i.'_'.$recToCoi->COI_ID));
+									} else {
+										echo CHtml::radioButton('cookwith['.$i.']', $isSelected, array('value'=>$recToCoi->COI_ID, 'id'=>'cookwith_'.$i.'_'.$recToCoi->COI_ID, 'disabled'=>'disabled'));
+									}
 									echo '</div>';
-								}
-								if (CookAssistantController::GET_STATUS_URL != ''){
+								//}
+								$activ = isset(Yii::app()->params['localNetwork']) && Yii::app()->params['localNetwork'] === true;
+								//if (isset(Yii::app()->params['localNetwork']) && Yii::app()->params['localNetwork'] === true){
 									echo '<div>';
 									echo CHtml::label($this->trans->COOKASISSTANT_COOK_WITH_REMOTE_MACHINE,'cookwith_'.$i.'_remote',array());
-									echo CHtml::radioButton('cookwith['.$i.']', count($info->cookWith[$i])>1 && $info->cookWith[$i][0]==CookAssistantController::COOK_WITH_IP, array('value'=>'remote', 'id'=>'cookwith_'.$i.'_remote'));
-									echo CHtml::textField('remoteip['.$i.']', (count($info->cookWith[$i])>2 && $info->cookWith[$i][0]==CookAssistantController::COOK_WITH_IP)?$info->cookWith[$i][2]:CookAssistantController::COOK_WITH_IP_DEFAULT, array());
+									
+									if ($activ){
+										$optionShown = true;
+										echo CHtml::radioButton('cookwith['.$i.']', count($info->cookWith[$i])>1 && $info->cookWith[$i][0]==CookAssistantController::COOK_WITH_IP, array('value'=>'remote', 'id'=>'cookwith_'.$i.'_remote'));
+										echo CHtml::textField('remoteip['.$i.']', (count($info->cookWith[$i])>2 && $info->cookWith[$i][0]==CookAssistantController::COOK_WITH_IP)?$info->cookWith[$i][2]:CookAssistantController::COOK_WITH_IP_DEFAULT, array());
+									} else {
+										echo CHtml::radioButton('cookwith['.$i.']', count($info->cookWith[$i])>1 && $info->cookWith[$i][0]==CookAssistantController::COOK_WITH_IP, array('value'=>'remote', 'id'=>'cookwith_'.$i.'_remote', 'disabled'=>'disabled'));
+										echo CHtml::textField('remoteip['.$i.']', (count($info->cookWith[$i])>2 && $info->cookWith[$i][0]==CookAssistantController::COOK_WITH_IP)?$info->cookWith[$i][2]:CookAssistantController::COOK_WITH_IP_DEFAULT, array('disabled'=>'disabled'));
+									}
 									echo '</div>';
-								}
+								//}
 							} else {
 								echo '<div>';
 								echo CHtml::label($this->trans->__GET('COOKASISSTANT_COOK_WITH_'.$recToCoi->COI_ID),'cookwith_'.$i.'_local',array());
 								$isSelected = count($info->cookWith[$i])>1 && $info->cookWith[$i][1] == $recToCoi->COI_ID;
 								echo CHtml::radioButton('cookwith['.$i.']', $isSelected, array('value'=>$recToCoi->COI_ID, 'id'=>'cookwith_'.$i.'_'.$recToCoi->COI_ID));
 								echo '</div>';
+								$optionShown = true;
+							}
+						}
+						if ($optionShown === false){
+							echo '<div>';
+							if ($everycookAvailable === true){
+								echo $this->trans->COOKASISSTANT_COOK_WITH_NONE_NOT_DEVICE;
+							} else {
+								echo $this->trans->COOKASISSTANT_COOK_WITH_NONE;
+							}
+							echo '</div>';
+						} else if ($everycookAvailable === true){
+							if (!isset(Yii::app()->params['isDevice']) || Yii::app()->params['isDevice'] === false){
+								echo '<div>';
+								echo $this->trans->COOKASISSTANT_COOK_WITH_NOT_DEVICE;
+								echo '</div>';
+							/*} else if (!isset(Yii::app()->params['localNetwork']) || Yii::app()->params['localNetwork'] === false){
+								echo '<div>';
+								echo $this->trans->COOKASISSTANT_COOK_WITH_NOT_DEVICE;
+								echo '</div>';*/
 							}
 						}
 					echo '</div>';

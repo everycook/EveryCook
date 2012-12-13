@@ -2,3 +2,6 @@ src/db/db.php
 assets/*
 protected/runtime/*
 cache/*
+protected/config/*
+!protected/config/entw.php
+index.php

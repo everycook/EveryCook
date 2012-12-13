@@ -143,5 +143,12 @@ return array(
 		'SMTPMailUser'=>'support@everycook.org',
 		'SMTPMailPW'=>'5upp0r77e4m',
 		'POPHost'=>'pop.gmail.com',
+		'PageType'=>'homepage',
+		'isDevice'=>true,
+		'localNetwork'=>true,
+		'deviceWritePath'=>'/dev/ttyACM0',
+		'deviceReadPath'=>'/var/www/db/hw/status',
+		'deviceWriteUrl'=>'/EveryCook/sendcommand.php?command=',
+		'deviceReadUrl'=>'db/hw/status',
 	),
 );

@@ -34,11 +34,6 @@ class CookAssistantController extends Controller {
 	const COOK_WITH_IP_DEFAULT = '10.0.0.1';
 	const COOK_WITH_EVERYCOOK_COI = 1;
 	
-	const DEVICE_PATH = '/dev/ttyACM0'; //''; //Is empty on web...//    //"/dev/ttyUSB0" => arduino  //"/dev/ttyACM0" =>leaflabs maple board
-	const GET_STATUS_PATH = '/var/www/db/hw/status';
-	const SEND_COMMAND_URL = '/EveryCook/sendcommand.php?command=';
-	const GET_STATUS_URL = '/db/hw/status'; //''; //Is empty on web...//
-	
 	public function actionStart(){
 		if (isset($_GET['id'])){
 			$meal = $this->loadModel($_GET['id'], true);
@@ -91,10 +86,7 @@ class CookAssistantController extends Controller {
 		for ($recipeNr=0; $recipeNr<count($course->couToRecs); ++$recipeNr){
 			$stepNumbers[] = -1;
 			$stepStartTime[] = time();
-			//$cookRecipeWith = array(self::COOK_WITH_OTHER, 3); //3 = Cooking pot
-			//$cookRecipeWith = ($recipeNr==0)?array(self::COOK_WITH_IP,self::COOK_WITH_EVERYCOOK_COI,'10.0.0.1'):array(self::COOK_WITH_OTHER);
-			//$cookRecipeWith = ($recipeNr==0)?array(self::COOK_WITH_LOCAL,self::COOK_WITH_EVERYCOOK_COI,self::DEVICE_PATH):array(self::COOK_WITH_OTHER);
-			$cookWith[] = array(); //$cookRecipeWith;
+			$cookWith[] = array();
 			$totalTime = 0;
 			$recipe = $course->couToRecs[$recipeNr]->recipe;
 			$recipe->REC_IMG = NULL;
@@ -845,7 +837,7 @@ class CookAssistantController extends Controller {
 					$dest = $info->cookWith[$recipeNr];
 					
 					if ($dest[0] == self::COOK_WITH_LOCAL){
-						$fw = fopen($dest[1], "w");
+						$fw = fopen(Yii::app()->params['deviceWritePath'], "w");
 						if (fwrite($fw, $command)) {
 						} else {
 							//TODO error an send command...
@@ -853,7 +845,7 @@ class CookAssistantController extends Controller {
 						fclose($fw);
 					} else if ($dest[0] == self::COOK_WITH_IP){
 						require_once("remotefileinfo.php");
-						$inhalt=remote_fileheader('http://'.$dest[1].self::SEND_COMMAND_URL.$command); //remote_file
+						$inhalt=remote_fileheader('http://'.$dest[2].Yii::app()->params['deviceWriteUrl'].$command); //remote_file
 						if (is_string($inhalt) && strpos($inhalt, 'ERROR: ') !== false){
 							//TODO error an send command...
 						}
@@ -872,7 +864,7 @@ class CookAssistantController extends Controller {
 		$dest = $info->cookWith[$recipeNr];
 		$inhalt = '';
 		if ($dest[0] == self::COOK_WITH_LOCAL){
-			$fw = fopen(self::GET_STATUS_PATH, "r");
+			$fw = fopen(Yii::app()->params['deviceReadPath'], "r");
 			if ($fw !== false){
 				while (!feof($fw)) {
 					$inhalt .= fread($fw, 128);
@@ -884,7 +876,7 @@ class CookAssistantController extends Controller {
 			}
 		} else if ($dest[0] == self::COOK_WITH_IP){
 			require_once("remotefileinfo.php");
-			$inhalt=remote_file('http://'.$dest[1].self::GET_STATUS_URL);
+			$inhalt=remote_file('http://'.$dest[2].Yii::app()->params['deviceReadUrl']);
 		}
 		
 		//$inhalt='{"T0":100,"P0":0,"M0RPM":0,"M0ON":0,"M0OFF":0,"W0":0,"STIME":5,"SMODE":1,"SID":0}';
@@ -907,7 +899,7 @@ class CookAssistantController extends Controller {
 				$dest = $info->cookWith[$recipeNr];
 				
 				if ($dest[0] == self::COOK_WITH_LOCAL){
-					$fw = fopen($dest[1], "w");
+					$fw = fopen(Yii::app()->params['deviceWritePath'], "w");
 					if (fwrite($fw, $command)) {
 					} else {
 						//TODO error an send command...
@@ -915,7 +907,7 @@ class CookAssistantController extends Controller {
 					fclose($fw);
 				} else if ($dest[0] == self::COOK_WITH_IP){
 					require_once("remotefileinfo.php");
-					$inhalt=remote_fileheader('http://'.$dest[1].self::SEND_COMMAND_URL.$command); //remote_file
+					$inhalt=remote_fileheader('http://'.$dest[2].Yii::app()->params['deviceWriteUrl'].$command); //remote_file
 					if (strpos($inhalt, 'ERROR: ') !== false){
 						//TODO error an send command...
 					}
@@ -949,7 +941,7 @@ class CookAssistantController extends Controller {
 				if ($_POST['cookwith'][$i] === 'remote'){
 					$info->cookWith[$i] = array(self::COOK_WITH_IP,self::COOK_WITH_EVERYCOOK_COI,$_POST['remoteip'][$i]);
 				} else if ($_POST['cookwith'][$i] == self::COOK_WITH_EVERYCOOK_COI){
-					$info->cookWith[$i] = array(self::COOK_WITH_LOCAL,self::COOK_WITH_EVERYCOOK_COI,self::DEVICE_PATH);
+					$info->cookWith[$i] = array(self::COOK_WITH_LOCAL,self::COOK_WITH_EVERYCOOK_COI);
 				} else {
 					$info->cookWith[$i] = array(self::COOK_WITH_OTHER, $_POST['cookwith'][$i]);
 				}

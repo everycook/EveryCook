@@ -1,0 +1,6 @@
+	'params'=>array(
+...
+		'PageType'=>'homepage',
+		'isDevice'=>false,
+		'localNetwork'=>false,
+	),
