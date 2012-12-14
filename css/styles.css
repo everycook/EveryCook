@@ -286,10 +286,10 @@ input, select {
 	float:left;
 }
 
-#middle .index_button , #middle_single .index_button  {
+#middle, #middle_single {
 	margin-right:auto;
 	margin-left:auto;
-	/*float:left;*/
+	display:table;
 }
 
 #middle_single .index_button  {
@@ -451,6 +451,9 @@ div.resultArea.adminArea {
 	padding: 0 0 0 1.5em;
 }
 
+div.resultArea.adminArea .name a {
+	display: block;
+}
 
 .list_img {
 	float: left;
