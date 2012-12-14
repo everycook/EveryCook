@@ -38,7 +38,20 @@
 	*/
 	?>
 	
-	
+	<div class="row">
+		<?php echo $form->labelEx($model,'AIN_DEFAULT'); ?>
+		<?php echo $form->textField($model,'AIN_DEFAULT',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->error($model,'AIN_DEFAULT'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'AIN_PREP'); ?>
+		<?php
+			echo $this->trans->GENERAL_NO . ' ' . $form->radioButton($model,'AIN_PREP',array('uncheckValue'=>null,'value'=>'N'));
+			echo  '&nbsp;&nbsp;&nbsp;';
+			echo $this->trans->GENERAL_YES . ' ' . $form->radioButton($model,'AIN_PREP',array('uncheckValue'=>null,'value'=>'Y')); ?>
+		<?php echo $form->error($model,'AIN_PREP'); ?>
+	</div>
 
 	<div class="buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE); ?>

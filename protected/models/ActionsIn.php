@@ -5,6 +5,8 @@
  *
  * The followings are the available columns in table 'actions_in':
  * @property integer $AIN_ID
+ * @property string $AIN_DEFAULT
+ * @property string $AIN_PREP
  * @property string $AIN_DESC_DE_CH
  * @property string $AIN_DESC_EN_GB
  */
@@ -34,10 +36,11 @@ class ActionsIn extends ActiveRecordECSimple
 		return array(
 			array('AIN_DESC_DE_CH, AIN_DESC_EN_GB', 'required'),
 			array('AIN_ID', 'numerical', 'integerOnly'=>true),
-			array('AIN_DESC_DE_CH, AIN_DESC_EN_GB', 'length', 'max'=>100),
+			array('AIN_DEFAULT, AIN_DESC_DE_CH, AIN_DESC_EN_GB', 'length', 'max'=>100),
+			array('AIN_PREP', 'length', 'max'=>1),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('AIN_ID, AIN_DESC_DE_CH, AIN_DESC_EN_GB', 'safe', 'on'=>'search'),
+			array('AIN_ID, AIN_DEFAULT, AIN_PREP, AIN_DESC_DE_CH, AIN_DESC_EN_GB', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -59,6 +62,8 @@ class ActionsIn extends ActiveRecordECSimple
 	public function attributeLabels(){
 		return array(
 			'AIN_ID' => 'Ain',
+			'AIN_DEFAULT' => 'Ain Default',
+			'AIN_PREP' => 'Ain Prep',
 			'AIN_DESC_DE_CH' => 'Ain Desc De Ch',
 			'AIN_DESC_EN_GB' => 'Ain Desc En Gb',
 		);
@@ -73,6 +78,8 @@ class ActionsIn extends ActiveRecordECSimple
 		$criteria=new CDbCriteria;
 		
 		$criteria->compare($this->tableName().'.AIN_ID',$this->AIN_ID);
+		$criteria->compare($this->tableName().'.AIN_DEFAULT',$this->AIN_DEFAULT,true);
+		$criteria->compare($this->tableName().'.AIN_PREP',$this->AIN_PREP,true);
 		$criteria->compare($this->tableName().'.AIN_DESC_DE_CH',$this->AIN_DESC_DE_CH,true);
 		$criteria->compare($this->tableName().'.AIN_DESC_EN_GB',$this->AIN_DESC_EN_GB,true);
 	}
@@ -84,6 +91,8 @@ class ActionsIn extends ActiveRecordECSimple
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('AIN_ID',$this->AIN_ID);
+		$criteria->compare('AIN_DEFAULT',$this->AIN_DEFAULT,true);
+		$criteria->compare('AIN_PREP',$this->AIN_PREP,true);
 		$criteria->compare('AIN_DESC_DE_CH',$this->AIN_DESC_DE_CH,true);
 		$criteria->compare('AIN_DESC_EN_GB',$this->AIN_DESC_EN_GB,true);
 		//Add with conditions for relations

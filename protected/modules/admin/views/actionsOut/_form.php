@@ -33,6 +33,7 @@
 		<?php echo $form->labelEx($model,'AOU_PREP'); ?>
 		<?php
 			echo $this->trans->GENERAL_NO . ' ' . $form->radioButton($model,'AOU_PREP',array('uncheckValue'=>null,'value'=>'N'));
+			echo  '&nbsp;&nbsp;&nbsp;';
 			echo $this->trans->GENERAL_YES . ' ' . $form->radioButton($model,'AOU_PREP',array('uncheckValue'=>null,'value'=>'Y')); ?>
 		<?php echo $form->error($model,'AOU_PREP'); ?>
 	</div>

@@ -30,6 +30,14 @@
 		<?php echo CHtml::link(CHtml::encode($data->AIN_ID), array('view', 'id'=>$data->AIN_ID)); ?>
 		<br />
 
+		<b><?php echo CHtml::encode($data->getAttributeLabel('AIN_DEFAULT')); ?>:</b>
+		<?php echo CHtml::encode($data->AIN_DEFAULT); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('AIN_PREP')); ?>:</b>
+		<?php echo CHtml::encode($data->AIN_PREP); ?>
+		<br />
+
 		<b><?php echo CHtml::encode($data->getAttributeLabel('AIN_DESC_DE_CH')); ?>:</b>
 		<?php echo CHtml::encode($data->AIN_DESC_DE_CH); ?>
 		<br />

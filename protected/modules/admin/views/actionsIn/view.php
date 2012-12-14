@@ -22,6 +22,8 @@ $this->mainButtons = array(
 	'data'=>$model,
 	'attributes'=>array(
 		'AIN_ID',
+		'AIN_DEFAULT',
+		'AIN_PREP',
 		'AIN_DESC_DE_CH',
 		'AIN_DESC_EN_GB',
 	),

@@ -83,6 +83,16 @@ if ($this->isFancyAjaxRequest){ ?>
 	</div>
 
 	<div class="row">
+		<?php echo $form->label($model,'AIN_DEFAULT'); ?>
+		<?php echo $form->textField($model,'AIN_DEFAULT',array('size'=>60,'maxlength'=>100)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'AIN_PREP'); ?>
+		<?php echo $form->textField($model,'AIN_PREP',array('size'=>1,'maxlength'=>1)); ?>
+	</div>
+
+	<div class="row">
 		<?php echo $form->label($model,'AIN_DESC_DE_CH'); ?>
 		<?php echo $form->textField($model,'AIN_DESC_DE_CH',array('size'=>60,'maxlength'=>100)); ?>
 	</div>

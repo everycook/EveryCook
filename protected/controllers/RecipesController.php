@@ -172,11 +172,25 @@ class RecipesController extends Controller
 		//read actionsIn data
 		$actionsCriteria=new CDbCriteria;
 		$actionsCriteria->compare('AIN_ID', $ain_ids);
-		$actionsInCommand = Yii::app()->db->createCommand()->select('AIN_ID,AIN_DESC_'.Yii::app()->session['lang'])->from('actions_in');
+		$actionsInCommand = Yii::app()->db->createCommand()->from('actions_in');
 		$actionsInCommand->where($actionsCriteria->condition, $actionsCriteria->params);
-		$actionsIn = $actionsInCommand->queryAll();
-		$actionsIn = CHtml::listData($actionsIn,'AIN_ID','AIN_DESC_'.Yii::app()->session['lang']);
-		
+		$actionsInsList = $actionsInCommand->queryAll();
+		$actionsIn = CHtml::listData($actionsInsList,'AIN_ID','AIN_DESC_'.Yii::app()->session['lang']);
+		$actionsIns = array();
+		$actionsInsIndexed = array();
+		$actionsInsPrep = array();
+		$actionsInsNormal = array();
+		$ainTextField = 'AIN_DESC_'.Yii::app()->session['lang'];
+		foreach($actionsInsList as $actionsIn) {
+			$actionsIns[$actionsIn['AIN_ID']] = $actionsIn[$ainTextField];
+			$actionsInsIndexed[$actionsIn['AIN_ID']] = $actionsIn;
+			if ($actionsIn['AIN_PREP'] == 'Y'){
+				$actionsInsPrep[$actionsIn['AIN_ID']] = $actionsIn[$ainTextField];
+			} else {
+				$actionsInsNormal[$actionsIn['AIN_ID']] = $actionsIn[$ainTextField];
+			}
+		}
+		$actionsIn = $actionsIns;
 		
 		//read all actionsOuts
 		$actionsOuts = Yii::app()->db->createCommand()->from('actions_out')->order('AOU_ID')->queryAll();
@@ -228,6 +242,21 @@ class RecipesController extends Controller
 						$coiInfos['desc'] = '<span class="ain_coi_desc" id="ain_coi_desc_'.$last_ain_id.'_'.$last_coi_id.'">'.$desc.'</span>';
 						$cois[$last_coi_id] = $coiInfos;
 						$ain_desc .= $coiInfos['desc'];
+					}
+					
+					if (isset($actionsInsIndexed[$last_ain_id])){
+						$stepType = $actionsInsIndexed[$last_ain_id];
+						
+						$defaultValues = explode(';', $actionsInsIndexed[$last_ain_id]['AIN_DEFAULT']);
+						foreach($defaultValues as $keyvalue){
+							$keyvalue = trim($keyvalue);
+							if($keyvalue != ''){
+								list($field,$value) = explode('=', $keyvalue, 2);
+								$field = trim($field);
+								$value = trim($value);
+								$defaultAction[$field] = $value;
+							}
+						}
 					}
 					
 					$requiredNew = array();
