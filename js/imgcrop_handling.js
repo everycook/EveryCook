@@ -35,6 +35,7 @@ jQuery(function($){
 			boxHeight: maxHeight,
 			//onChange: checkSelectionValide,
 			onRelease: releaseCheck,
+			handleOffset: 10,
 		},function(){
 			jcrop_api = this;
 			var imgWidth = jcrop_api.getBounds()[0];

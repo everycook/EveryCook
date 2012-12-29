@@ -13,8 +13,8 @@
 .jcrop-hline.bottom { bottom: 0px; }
 .jcrop-handle {
 	font-size: 1px;
-	width: 7px !important;
-	height: 7px !important;
+	width: 17px !important;
+	height: 17px !important;
 	border: 1px #eee solid;
 	background-color: #333;
 }
