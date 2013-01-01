@@ -130,6 +130,20 @@ return array(
 	// using Yii::app()->params['paramName']
 	'params'=>array(
 		// this is used in contact page
-		'adminEmail'=>'webmaster@example.com',
+		'adminEmail'=>'alexis@everycook.org',
+		'adminEmailName'=>'Alexis Wiasmitinow',
+		//'verificationEmail'=>'alexis@everycook.org',
+		//'verificationEmailName'=>'Alexis Wiasmitinow',
+		'verificationEmail'=>'support@everycook.org',
+		'verificationEmailName'=>'Support',
+		'verificationBCCEmail'=>''/*'wiasmitinow@gmail.com'*/,
+		'verificationRegardsName'=>'Alexis',
+		'SMTPMailHost'=>'smtp.gmail.com',
+		'SMTPMailUser'=>'support@everycook.org',
+		'SMTPMailPW'=>'5upp0r77e4m',
+		'POPHost'=>'pop.gmail.com',
+		'PageType'=>'homepage',
+		'isDevice'=>false,
+		'localNetwork'=>false,
 	),
 );
