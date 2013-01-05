@@ -445,7 +445,7 @@ class ProfilesController extends Controller
       if($model!==null){
         $model->PRF_ACTIVE = '1';
         $model->save();
-		Yii::app()->user->setFlash('register','Thank you for your verification. You can now login using the following link.');
+		Yii::app()->user->setFlash('register','Thank you for your verification. You can now login.');
 //$this->refresh();
       } else {
 		Yii::app()->user->setFlash('register','Hash value invalid, cannot verification user.');

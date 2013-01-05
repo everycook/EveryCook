@@ -805,7 +805,7 @@ jQuery(function($){
 		}
 		var details = jQuery('#actionsOutDetails').children().get(index);
 		//clone = details = jQuery('<div>'+jQuery(details).html() + '</div>');
-		 jQuery(details).clone().insertAfter(elem);
+		jQuery(details).clone().insertAfter(elem);
 	});
 	
 	//----------------------------------------------

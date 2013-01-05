@@ -579,8 +579,18 @@ class RecipesController extends Controller
 								if ($saveOK){
 									Yii::app()->db->createCommand()->delete(Steps::model()->tableName(), 'REC_ID = :id', array(':id'=>$model->REC_ID));
 									$stepNo = 0;
+									$stepAmount = count($model->steps) -1;
+									$hasFinished = false;
 									foreach($model->steps as $step){
 										$step->REC_ID = $model->REC_ID;
+										if ($step->AIN_ID == Yii::app()->params['FinishedActionId']){
+											if ($stepNo < $stepAmount){
+												continue;
+											} else {
+												$step->STE_STEP_DURATION = 0;
+												$hasFinished = true;
+											}
+										}
 										$step->STE_STEP_NO = $stepNo;
 										$step->setIsNewRecord(true);
 										if(!$step->save()){
@@ -588,6 +598,17 @@ class RecipesController extends Controller
 											if ($this->debug) {echo 'error on save Step: errors:'; print_r($step->getErrors());}
 										}
 										++$stepNo;
+									}
+									if (!$hasFinished){
+										$step = new Steps();
+										$step->REC_ID = $model->REC_ID;
+										$step->STE_STEP_NO = $stepNo;
+										$step->AIN_ID = Yii::app()->params['FinishedActionId'];
+										$step->STE_STEP_DURATION = 0;
+										if(!$step->save()){
+											$saveOK = false;
+											if ($this->debug) {echo 'error on save Step: errors:'; print_r($step->getErrors());}
+										}
 									}
 								}
 								
