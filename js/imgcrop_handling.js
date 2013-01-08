@@ -137,12 +137,7 @@ jQuery(function($){
 			
 			if (!isJSON){
 				//Show error in fancy
-				jQuery.fancybox({
-					'content':data,
-					'onComplete': function(){
-						jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );
-					}
-				});
+				glob.setContentWithImageChangeToFancy(data, {});
 			}
 		}
 	};

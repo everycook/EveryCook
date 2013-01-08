@@ -4,7 +4,6 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta name="language" content="<?php echo strtolower(substr(Yii::app()->session['lang'],0,2)) . substr(Yii::app()->session['lang'],2); ?>" />
 		
-		
 		<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/styles.css"/>
 		<!--[if lt IE 8]>
 		<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/ie.css" media="screen, projection" />
@@ -22,6 +21,15 @@
 				<a href="<?php echo Yii::app()->createUrl('site/index',array()); ?>"><div id="logo" class="backpic" alt="EveryCook Logo"></div></a>
 				<div id="metaNavButtons">
 					<?php
+					if (Yii::app()->user->checkAccess('admin')){
+					?>
+					<a class="nav_entry" href="<?php echo Yii::app()->createUrl('admin/index',array()); ?>">
+						<div class="nav_button" id="admin">
+							<span><?php echo $this->trans->GENERAL_ADMIN; ?></span>
+						</div>
+					</a>
+					<?php
+					}
 					if(Yii::app()->user->isGuest) {
 						echo '<a class="nav_entry" href="'. Yii::app()->createUrl('site/login',array()) . '">';
 					} else {

@@ -1,0 +1,2 @@
+UPDATE `profiles` SET `PRF_ROLES` = 'admin' WHERE `profiles`.`PRF_UID` =3;
+UPDATE `profiles` SET `PRF_ROLES` = 'admin' WHERE `profiles`.`PRF_UID` =5;

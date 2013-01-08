@@ -44,6 +44,11 @@ glob.changeHash = function(newParamName, newParamValue, noSubmit){
 	location.hash = newHash;
 };
 
+glob.reloadPage = function(){
+	glob.lastHash = '';
+	jQuery(window).trigger( 'hashchange' );
+}
+
 glob.ShowActivity = true;
 
 jQuery(function($){

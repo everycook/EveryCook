@@ -277,6 +277,7 @@ jQuery(function($){
 			var option = '<option value="' + i + '">' + jQuery(recipes.get(i)).text() + '</option>';
 			select.append(jQuery(option));
 		}
+		
 		jQuery.fancybox({
 			'href':elem.attr('href'),
 			'autoScale':true,
@@ -478,11 +479,12 @@ jQuery(function($){
 	jQuery('body').undelegate('#addCourse','click').delegate('#addCourse','click', function(){
 		var elem = jQuery(this);
 		var courseIndex = elem.index();
-		var addRecipeText = 'Add recipe';
-		var gdaMealText = '<span class="value">100</span>% meal GDA.';
-		var peopleEatingText = '0 adults eating';
+		var addRecipeText = glob.trans.MEALPLANNER_ADD_RECIPE; //'Add recipe';
+		var gdaMealText = glob.trans.MEALPLANNER_COURSE_GDA; //'<span class="value">100</span>% meal GDA.';
+		//printf($this->trans->MEALPLANNER_COURSE_GDA,'<span class="value">' . $meaToCou->MTC_PERC_MEAL . '</span>');
+		var peopleEatingText = glob.trans.MEALPLANNER_EATING_PEOPLE_ADULT; //'0 adults eating';
 		var courseNameText = 'Course Description';
-		var removeRecipeText = 'Remove Recipe';
+		var removeRecipeText = glob.trans.MEALPLANNER_REMOVE_RECIPE;//'Remove Recipe';
 		//' + courseNameText + ': <input type="text" id="Meals_meaToCous_' + courseIndex + '_course_COU_DESC" name="Meals[meaToCous][' + courseIndex + '][course][COU_DESC]" value="" style="width: 20em;"><br>
 		var newCourse = jQuery('<div class="meal_course"><div><div class="slider_holder"><input type="range" id="Meals_meaToCous_' + courseIndex + '_MTC_PERC_MEAL" name="Meals[meaToCous][' + courseIndex + '][MTC_PERC_MEAL]" value="100" class="input_range" max="100" min="0"></div>' + gdaMealText + '<input type="hidden" id="Meals_meaToCous_' + courseIndex + '_course_COU_ID" name="Meals[meaToCous][' + courseIndex + '][course][COU_ID]" value=""><input type="hidden" id="Meals_meaToCous_' + courseIndex + '_MTC_EAT_PERS" name="Meals[meaToCous][' + courseIndex + '][MTC_EAT_PERS]" value="0xF:15_2000"><input type="hidden" id="Meals_meaToCous_' + courseIndex + '_MTC_KCAL_DAY_TOTAL" name="Meals[meaToCous][' + courseIndex + '][MTC_KCAL_DAY_TOTAL]" value="0"><input type="hidden" id="Meals_meaToCous_' + courseIndex + '_MTC_EAT_ADULTS" name="Meals[meaToCous][' + courseIndex + '][MTC_EAT_ADULTS]" value="0"><input type="hidden" id="Meals_meaToCous_' + courseIndex + '_MTC_EAT_CHILDREN" name="Meals[meaToCous][' + courseIndex + '][MTC_EAT_CHILDREN]" value="0"></div><div class="cou_recipes"><div style="display: table-cell; vertical-align: top;"><a href="#peopleDetailsContent" class="button PeopleSelect bbq-current">' + peopleEatingText + '</a><a href="' + glob.prefix + 'recipes/chooseRecipe" class="button fancyChoose RecipeSelect">' + addRecipeText + '</a><a href="#removeRecipeContent" class="button RecipeRemove">' + removeRecipeText + '</a><input type="hidden" class="fancyValue"></div></div></div>');
 		newCourse.insertBefore(elem);

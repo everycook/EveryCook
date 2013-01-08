@@ -566,12 +566,17 @@ class ProfilesController extends Controller
 	
     public function actionDisplaySavedImage($id, $ext)
     {
+		if (isset($_GET['size'])) {
+			$size = $_GET['size'];
+		} else {
+			$size = 0;
+		}
 		$this->saveLastAction = false;
 		$model=$this->loadModel($id, true);
 		$modified = $model->CHANGED_ON;
 		if (!$modified){
 			$modified = $model->CREATED_ON;
 		}
-		return Functions::getImage($modified, $model->PRF_IMG_ETAG, $model->PRF_IMG, $id);
+		return Functions::getImage($modified, $model->PRF_IMG_ETAG, $model->PRF_IMG, $id, 'Profiles', $size);
     }
 }

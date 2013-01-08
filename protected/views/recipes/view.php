@@ -71,23 +71,39 @@ $this->mainButtons = array(
 		
 		<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>
 		<?php echo CHtml::encode($model->recipeTypes->__get('RET_DESC_' . Yii::app()->session['lang'])); ?>
-				
 		<?php 
+		
 			$i = 1;
 			foreach($model->steps as $step){
 				echo '<div class="step">';
 				echo '<span class="stepNo">' . $i . '.</span> ';
-				if ($step->stepType){
-					echo '<span class="stepType">' . $step->stepType->__get('STT_DESC_' . Yii::app()->session['lang']) . ':</span> ';
-				}
-				if (isset($step->action) && $step->action != null){
-					$text = $step->action->__get('ACT_DESC_AUTO_' . Yii::app()->session['lang']);
+				if (isset($step->actionIn) && $step->actionIn != null){
+					$text = $step->actionIn->__get('AIN_DESC_' . Yii::app()->session['lang']);
 					if (isset($step->ingredient) && $step->ingredient != null){
-						$replText = '<span class="igredient">' . $step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']) . '</span> ';
-						if ($step->STE_GRAMS){
-							$replText .= '<span class="amount">' . $step->STE_GRAMS . 'g' . '</span> ';
-						}
-						$text = str_replace('#objectofaction#', $replText, $text);
+						$replText = '<span class="ingredient">' . $step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']) . '</span> ';
+						$text = str_replace('#ingredient', $replText, $text);
+					}
+					if ($step->STE_GRAMS){
+						$replText = '<span class="weight">' . $step->STE_GRAMS . 'g</span> ';
+						$text = str_replace('#weight', $replText, $text);
+					}
+					
+					if (isset($step->tool) && $step->tool != null){
+						$replText = '<span class="tool">' . $step->tool->__get('TOO_DESC_' . Yii::app()->session['lang']) . '</span> ';
+						$text = str_replace('#tool', $replText, $text);
+					}
+					if ($step->STE_STEP_DURATION){
+						$time = date('H:i:s', $step['STE_STEP_DURATION']-3600);
+						$replText = '<span class="time">' . $time . 'h</span> ';
+						$text = str_replace('#time', $replText, $text);
+					}
+					if ($step->STE_CELSIUS){
+						$replText = '<span class="temp">' . $step->STE_CELSIUS . '°C</span> ';
+						$text = str_replace('#temp', $replText, $text);
+					}
+					if ($step->STE_KPA){
+						$replText = '<span class="pressure">' . $step->STE_KPA . 'kpa</span> ';
+						$text = str_replace('#pressure', $replText, $text);
 					}
 					echo '<span class="action">' . $text . '</span>';
 				}

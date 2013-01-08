@@ -3,6 +3,7 @@ class Functions extends CHtml{
 	
 	const DROP_DOWN_LIST = 0;
 	const CHECK_BOX_LIST = 1;
+	const MULTI_LIST = 2;
 	
 	const IMG_HEIGHT = 400;
 	const IMG_WIDTH = 400;
@@ -38,13 +39,15 @@ class Functions extends CHtml{
 		$html = '<div class="row" id="'.$id.'">';
 		$html .= self::activeLabelEx($model, $fieldName, array('label'=>$label));
 		$html .= ' ';
-		if ($type == 0){
+		if ($type == self::DROP_DOWN_LIST){
 			$html .= self::dropDownList(self::resolveName($model,$fieldName), $model->__get($fieldName), $dataList, $htmlOptions); 
-		} else if ($type == 1){
+		} else if ($type == self::CHECK_BOX_LIST){
 			$html .= '<ul class="search_choose">';
 			$html .= self::checkBoxList(self::resolveName($model,$fieldName), $model->__get($fieldName), $dataList, $htmlOptions); 
 			$html .= '</ul>';
 			$html .= '<div class="clearfix"></div>';
+		} else if ($type == self::MULTI_LIST){
+			$html .= self::listBox(self::resolveName($model,$fieldName), $model->__get($fieldName), $dataList, $htmlOptions); 
 		}
 		if ($form){
 			$html .= $form->error($model, $fieldName);
@@ -212,12 +215,16 @@ class Functions extends CHtml{
 			$new->unsetAttributes(); // clear any default values
 			unset($options['new']);
 		}
+		if (isset($options['newNotClean'])){
+			$new = $options['newNotClean'];
+			unset($options['newNotClean']);
+		}
+		
 		$showTitles = true;
 		if (isset($options['noTitle'])){
 			$showTitles = !$options['noTitle'];
 			unset($options['noTitle']);
 		}
-			
 		
 		$html = '<table class="addRowContainer">';
 		if ($showTitles){
@@ -250,7 +257,6 @@ class Functions extends CHtml{
 		
 		if ($new){
 			$newhtml = self::inputTableRow('%class%', $fieldOptions, '%index%', $new, $texts);
-			
 			$html .= '<tr id="newLine">';
 			$html .= '<td colspan="'.$visibleFields.'"><div class="buttonSmall add">' . $texts['add'] . '</div>'. self::hiddenField('addContent', $newhtml, array('disabled'=>'disabled')).self::hiddenField('lastIndex', $i, array('disabled'=>'disabled')).'</td>';
 			$html .= '</tr>';
@@ -278,7 +284,7 @@ class Functions extends CHtml{
 		} elseif($info[2] == IMAGETYPE_PNG) {
 			$image = imagecreatefrompng($file);
 		} else  {
-				return false;
+			return false;
 		}
 		if ($destType == -1){
 			$destType = $info[2];
@@ -314,6 +320,9 @@ class Functions extends CHtml{
 		} else {
 			$imagetc = imagecreatetruecolor($width, $height);
 		}
+		
+		imagealphablending($imagetc, false);
+		imagesavealpha($imagetc, true);
 		if (($info[0] > $width) or ($info[1] > $height) or ($width != $src_w) or ($height != $src_h) or ($src_x != 0) or ($src_y != 0)){
 			if ($fillWhite){
 				$xmove=0;
@@ -338,9 +347,10 @@ class Functions extends CHtml{
 				$imagetc = $image;
 			}
 		}
-		
+		/*
 		$transparent=imagecolortransparent($image);
 		imagecolortransparent($imagetc,$transparent);
+		*/
 		
 		if($destType == IMAGETYPE_GIF){
 			imagegif($imagetc, $file_new);  
@@ -398,11 +408,15 @@ class Functions extends CHtml{
 		return $info;
 	}
 	
-	public static function getImage($modified, $etag, $picture, $id){
+	public static function getImage($modified, $etag, $picture, $id, $type, $size){
 		//Not using default function to have posibility to set Cache control...
 		//Yii::app()->request->sendFile('image.png', $picture, 'image/png');
 		if (!isset($etag) || $etag === '' || !isset($picture) || $picture === ''){
-			Yii::app()->controller->redirect(Yii::app()->request->baseUrl . '/pics/unknown.png', true, 307);
+			if ($size > 0 && $size < self::IMG_HEIGHT){
+				Yii::app()->controller->redirect(Yii::app()->request->baseUrl . '/pics/unknown.png?size='.$size, true, 307);
+			} else {
+				Yii::app()->controller->redirect(Yii::app()->request->baseUrl . '/pics/unknown.png', true, 307);
+			}
 		}
 		if ($id != 'backup'){
 			if ($modified){
@@ -441,11 +455,42 @@ class Functions extends CHtml{
 			header('Cache-Control: public');
 			header('Etag: ' . $etag);
 		}
-		header("Content-type: image/png");
+		if ($size > 0 && $size < self::IMG_HEIGHT){
+			$filepath = Yii::app()->getBasePath() . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . $type;
+			$filepath = preg_replace('/\w+\/\.\.\//', '', $filepath);
+			
+			$filename = $filepath . DIRECTORY_SEPARATOR . $id . '-' . $size . '.png';
+			
+			/*
+			echo $filename ."\r\n<br>";
+			echo file_exists($filepath) ."-path\r\n<br>";
+			echo file_exists($filename) ."-file\r\n<br>";
+			if (file_exists($filename)){
+				echo filectime($filename) ."-time\r\n<br>";
+			}
+			echo $modified ."\r\n<br>";
+			*/
+			
+			if(file_exists($filename) && filectime($filename) >= $modified){
+				$picture = file_get_contents($filename);
+			} else {
+				if (!file_exists($filepath)){
+					$success = mkdir($filepath, 0777, true);
+					if (!$success){
+						$filename = tempnam(sys_get_temp_dir(), 'img');
+					}
+				}
+				$result = file_put_contents($filename, $picture);
+				self::resizePicture($filename, $filename, $size, $size, 0.8, IMAGETYPE_PNG);
+				$picture = file_get_contents($filename);
+			}
+		}
+		
 		if(ini_get("output_handler")=='')
 			header('Content-Length: '.(function_exists('mb_strlen') ? mb_strlen($picture,'8bit') : strlen($picture)));
 		//header("Content-Disposition: attachment; filename=\"image_" . $id . ".png\"");
 		header('Content-Transfer-Encoding: binary');
+		header("Content-type: image/png");
 		echo $picture;
 	}
 	
@@ -715,6 +760,7 @@ class Functions extends CHtml{
 					} else {
 						$newModel = new $relation->className;
 					}
+					$newModel->unsetAttributes();
 					$newModel->attributes = $data[$relation->name];
 					$model->$relationName = self::arrayToRelatedObjects($newModel, $data[$relation->name]);
 				} else if(($relation instanceof CManyManyRelation) || ($relation instanceof CHasManyRelation)){
@@ -731,6 +777,7 @@ class Functions extends CHtml{
 						} else {
 							$newModel = new $relation->className;
 						}
+						$newModel->unsetAttributes();
 						$newModel->attributes = $entry;
 						$newArray[$i] = self::arrayToRelatedObjects($newModel, $entry);
 						++$i;
@@ -752,7 +799,7 @@ class Functions extends CHtml{
 	}
 	
 	public static function browserCheck(){
-		if (!isset(Yii::app()->session['browserErrorClosed']) || !Yii::app()->session['browserErrorClosed']){
+		if (!isset(Yii::app()->session['browserErrorClosed']) || !Yii::app()->session['browserErrorClosed'] && isset($_SERVER['HTTP_USER_AGENT'])){
 			$userAgent = $_SERVER['HTTP_USER_AGENT'];
 			$type = explode('|', stat_func::browser_detection($userAgent, 'unknown'));
 			if (count($type)>1){

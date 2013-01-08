@@ -333,13 +333,17 @@ function locateCallback(status){
 		//alert("Geolocation service failed. We've placed you in Basel, Schweiz.");
 		//initialLocation = locationBasel;
 		var url = glob.urlAddParamStart(jQuery('#addressFormLink').val()) + 'errorCode=' + status;
-		jQuery.fancybox({'href':url,'onComplete': function(){jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );}});
+		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
+			glob.setContentWithImageChangeToFancy(data, {});
+		}});
 		locateAddressCallback = locateCallback;
 	} else if (status === -2){
 		//alert("Your browser doesn't support geolocation. We've placed you in Basel, Schweiz.");
 		//initialLocation = locationBasel;
 		var url = glob.urlAddParamStart(jQuery('#addressFormLink').val()) + 'errorCode=' + status;
-		jQuery.fancybox({'href':url,'onComplete': function(){jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );}});
+		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
+			glob.setContentWithImageChangeToFancy(data, {});
+		}});
 		locateAddressCallback = locateCallback;
 	} else {
 		if (status !== 0){
@@ -804,7 +808,9 @@ function setGeocodeMarker(latLng, latField, lngField){
 		var url = glob.urlAddParamStart(jQuery('#addressFormLink').val()) + 'errorCode=' + status;
 		url = glob.urlAddParamStart(url) + 'lat=' + latField.val();
 		url = glob.urlAddParamStart(url) + 'lng=' + lngField.val();
-		jQuery.fancybox({'href':url,'onComplete': function(){jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );}});
+		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
+			glob.setContentWithImageChangeToFancy(data, {});
+		}});
 		locateAddressCallback = MarkerCurrentGPSCallback;
 	});
 }
@@ -930,12 +936,16 @@ function decodeAddress(lat, lng, streetField, noField, zipField, cityField, stat
 function MarkerCurrentGPSCallback(status){
 	if (status === -1){
 		var url = glob.urlAddParamStart(jQuery('#addressFormLink').val()) + 'errorCode=' + status;
-		jQuery.fancybox({'href':url,'onComplete': function(){jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );}});
+		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
+			glob.setContentWithImageChangeToFancy(data, {});
+		}});
 		locateAddressCallback = MarkerCurrentGPSCallback;
 		//alert("Geolocation service failed. Please set your location on Map.");
 	} else if (status === -2){
 		var url = glob.urlAddParamStart(jQuery('#addressFormLink').val()) + 'errorCode=' + status;
-		jQuery.fancybox({'href':url,'onComplete': function(){jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );}});
+		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
+			glob.setContentWithImageChangeToFancy(data, {});
+		}});
 		locateAddressCallback = MarkerCurrentGPSCallback;
 		//alert("Your browser doesn't support geolocation. Please set your location on Map.");
 	} else if (status !== 0){
@@ -951,12 +961,16 @@ function UpdateCurrentGPSCallback(status){
 		//alert("Geolocation service failed.");
 		locateAddressCallback = UpdateCurrentGPSCallback;
 		var url = glob.urlAddParamStart(jQuery('#addressFormLink').val()) + 'errorCode=' + status;
-		jQuery.fancybox({'href':url,'onComplete': function(){jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );}});
+		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
+			glob.setContentWithImageChangeToFancy(data, {});
+		}});
 	} else if (status === -2){
 		//alert("Your browser doesn't support geolocation.");
 		locateAddressCallback = UpdateCurrentGPSCallback;
 		var url = glob.urlAddParamStart(jQuery('#addressFormLink').val()) + 'errorCode=' + status;
-		jQuery.fancybox({'href':url,'onComplete': function(){jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );}});
+		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
+			glob.setContentWithImageChangeToFancy(data, {});
+		}});
 	} else if (status !== 0){
 		if (map) {
 			map.setCenter(initialLocation);
@@ -965,12 +979,14 @@ function UpdateCurrentGPSCallback(status){
 		
 		UpdateSessionLocation();
 		if (typeof(lastLocation) === 'undefined' || lastLocation.lat()  != initialLocation.lat() || lastLocation.lng()  != initialLocation.lng()){
+			/*
 			if (lastCords != null){
 				alert('DEBUG: geolocation sucessfull (accuracy: ' + lastCords.accuracy + 'm), press F5 to reload data (will be done automatically in future...)'); //TODO
 			} else {
 				alert('DEBUG: setting address GPS  sucessfull , press F5 to reload data (will be done automatically in future...)'); //TODO
 			}
-			//TODO: reload page
+			*/
+			glob.reloadPage();
 		} else {
 			if (typeof(currentMarker) !== 'undefined'){
 				currentMarker.setMap(null);

@@ -16,6 +16,7 @@ class ProductsController extends Controller
 	protected $searchBackup = 'Products';
 	protected $getNextAmountBackup = 'Products_GetNextAmount';
 	const RECIPES_AMOUNT = 2;
+	const PRELOAD_AMOUNT = 3;
 	
 	protected $distanceForGroupSQL = 'SELECT
 		theView.PRO_ID,
@@ -69,7 +70,7 @@ class ProductsController extends Controller
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
 				'actions'=>array('admin','delete'),
-				'users'=>array('admin'),
+				'roles'=>array('admin'),
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),
@@ -114,7 +115,7 @@ class ProductsController extends Controller
 		Yii::app()->session[$this->getNextAmountBackup] = $otherItemsAmount;
 		
 		
-		$recipes = Yii::app()->db->createCommand()->select('recipes.*')->from('recipes')->join('steps', 'recipes.REC_ID = steps.REC_ID')->where('steps.ING_ID = :id', array(':id'=>$model->ING_ID))->order('CHANGED_ON desc')->group('recipes.REC_ID')->limit(self::RECIPES_AMOUNT,0)->queryAll();
+		$recipes = Yii::app()->db->createCommand()->select('recipes.*')->from('recipes')->join('steps', 'recipes.REC_ID = steps.REC_ID')->where('steps.ING_ID = :id', array(':id'=>$model->ING_ID))->order('CHANGED_ON desc')->group('recipes.REC_ID')->limit(self::RECIPES_AMOUNT * 2,0)->queryAll();
 		
 		//Store distance
 		$data = array();
@@ -195,9 +196,9 @@ class ProductsController extends Controller
 				->group('recipes.REC_ID')
 				->order('CHANGED_ON desc')
 				->limit(1,$index);
-			$model = $command->queryRow();
+			$rows = $command->queryAll();
 			
-			if (!isset($model) || $model == null){
+			if (!isset($rows) || $rows == null || count($rows) == 0){
 				$index = 0;
 				$command = Yii::app()->db->createCommand()
 					->from('recipes')
@@ -205,11 +206,17 @@ class ProductsController extends Controller
 					->where('steps.ING_ID = :id', array(':id'=>$ing_id))
 					->group('recipes.REC_ID')
 					->order('CHANGED_ON desc')
-					->limit(1,$index);
-				$model = $command->queryRow();
+					->limit(self::PRELOAD_AMOUNT,$index);
+				$rows = $command->queryAll();
 			}
 			
-			echo '{img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$model['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$model['REC_ID'])).'", auth:"'.$model['REC_IMG_AUTH'].'", name:"'.$model['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+			echo '{"preloadAmount": '.self::PRELOAD_AMOUNT.', "datas": [';
+			foreach($rows as $model){
+				echo '{img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$model['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$model['REC_ID'])).'", auth:"'.$model['REC_IMG_AUTH'].'", name:"'.$model['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+				echo ',';
+				++$index;
+			}
+			echo ']}';
 		}
 	}
 	
@@ -792,13 +799,18 @@ class ProductsController extends Controller
 	
     public function actionDisplaySavedImage($id, $ext)
     {
+		if (isset($_GET['size'])) {
+			$size = $_GET['size'];
+		} else {
+			$size = 0;
+		}
 		$this->saveLastAction = false;
 		$model=$this->loadModel($id, true);
 		$modified = $model->CHANGED_ON;
 		if (!isset($modified)){
 			$modified = $model->CREATED_ON;
 		}
-		return Functions::getImage($modified, $model->PRO_IMG_ETAG, $model->PRO_IMG, $id);
+		return Functions::getImage($modified, $model->PRO_IMG_ETAG, $model->PRO_IMG, $id, 'Products', $size);
     }
 	
 	public function actionDelicious($id){

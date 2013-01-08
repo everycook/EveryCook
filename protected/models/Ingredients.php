@@ -152,8 +152,6 @@ class Ingredients extends ActiveRecordEC
 
 		$criteria->compare('ING_ID',$this->ING_ID);
 		$criteria->compare('PRF_UID',$this->PRF_UID);
-		$criteria->compare('ING_CREATED',$this->ING_CREATED);
-		$criteria->compare('ING_CHANGED',$this->ING_CHANGED);
 		$criteria->compare('NUT_ID',$this->NUT_ID);
 		$criteria->compare('GRP_ID',$this->GRP_ID);
 		$criteria->compare('SGR_ID',$this->SGR_ID);
@@ -225,9 +223,6 @@ class Ingredients extends ActiveRecordEC
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$this->getCriteria(),
 			'sort'=>$this->getSort(),

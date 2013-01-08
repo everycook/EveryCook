@@ -1,0 +1,10 @@
+	'params'=>array(
+...
+		'PageType'=>'device',
+		'isDevice'=>true,
+		'localNetwork'=>true,
+		'deviceWritePath'=>'/dev/ttyACM0',
+		'deviceReadPath'=>'/var/www/db/hw/status',
+		'deviceWriteUrl'=>'/EveryCook/sendcommand.php?command=',
+		'deviceReadUrl'=>'db/hw/status',
+	),

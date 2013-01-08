@@ -23,9 +23,9 @@
 		echo '</div>';
 		echo '<div class="options">';
 			//echo CHtml::link('+', array('user/addrecipes', 'id'=>$data['REC_ID']), array('class'=>'button backpic addRecipe', 'title'=>$this->trans->RECIPES_ADD));
-			echo CHtml::link('&nbsp;', array('meals/mealPlanner', 'rec_id'=>$data['REC_ID']), array('class'=>'cookwith backpic', 'title'=>$this->trans->RECIPES_MEALPLANNER));
 			echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data['REC_ID']), array('class'=>'delicious noAjax backpic', 'title'=>$this->trans->GENERAL_DELICIOUS));
-			echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['REC_ID']), array('class'=>'disgusting noAjax backpic','title'=>$this->trans->GENERAL_DISGUSTING)) . '<br>';
+			echo CHtml::link('&nbsp;', array('meals/mealPlanner', 'rec_id'=>$data['REC_ID']), array('class'=>'cookwith backpic', 'title'=>$this->trans->RECIPES_MEALPLANNER));
+			echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['REC_ID']), array('class'=>'disgusting noAjax backpic last','title'=>$this->trans->GENERAL_DISGUSTING)) . '<br>';
 			echo CHtml::link(CHtml::encode($this->trans->RECIPES_VIEW_RECIPE), array('view', 'id'=>$data['REC_ID']), array('class'=>'button last'));
 		echo '</div>';
 	}

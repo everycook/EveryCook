@@ -78,12 +78,18 @@ jQuery(function($){
 	
 	jQuery('body').undelegate('.addRowContainer .remove','click').delegate('.addRowContainer .remove','click',function(){
 		var row = jQuery(this).parents('tr:first');
-		var followedRows = row.nextAll().not('.addFields');
+		var followedRows = row.nextAll().not('.addFields').not('.actionsInInfo');
 		
 		lastIndex = lastIndex-1;
 		
 		var next = row.next();
+		var next2 = next.next();
 		if (next.attr('class') === 'addFields'){
+			next.remove();
+			if (next2.attr('class') === 'actionsInInfo'){
+				next2.remove();
+			}
+		} else if (next.attr('class') === 'actionsInInfo'){
 			next.remove();
 		}
 		row.remove();
@@ -98,11 +104,26 @@ jQuery(function($){
 		var row = jQuery(this).parents('tr:first');
 		
 		var next = row.next();
+		var next2 = next.next();
+		var next2 = next.next();
 		if (next.attr('class') !== 'addFields'){
-			next = null;
+			if (next.attr('class') !== 'actionsInInfo'){
+				next2 = null;
+				next = null;
+			} else {
+				next2 = next;
+				next = null;
+			}
+		} else {
+			if (next2.attr('class') !== 'actionsInInfo'){
+				next2 = null;
+			}
 		}
 		
 		var prevEntry = row.prev();
+		if (prevEntry.attr('class') === 'actionsInInfo'){
+			prevEntry = prevEntry.prev();
+		}
 		if (prevEntry.attr('class') === 'addFields'){
 			prevEntry = prevEntry.prev();
 		}
@@ -111,6 +132,9 @@ jQuery(function($){
 			changeInputTableIndex(row, -1);
 			changeInputTableIndex(prevEntry, 1);
 			row.insertBefore(prevEntry);
+			if (next2 != null){
+				next2.insertAfter(row);
+			}
 			if (next != null){
 				next.insertAfter(row);
 			}
@@ -122,21 +146,46 @@ jQuery(function($){
 		
 		var nextEntry;
 		var next = row.next();
+		var next2 = next.next();
 		if (next.attr('class') !== 'addFields'){
-			nextEntry = next;
-			next = null;
+			if (next.attr('class') !== 'actionsInInfo'){
+				nextEntry = next;
+				next2 = null;
+				next = null;
+			} else {
+				nextEntry = next2;
+				next2 = next;
+				next = null;
+			}
 		} else {
-			nextEntry = next.next();
+			if (next2.attr('class') !== 'actionsInInfo'){
+				nextEntry = next2;
+				next2 = null;
+			} else {
+				nextEntry = next2.next();
+			}
 		}
+		
 		var insertPos = nextEntry.next();
 		if (insertPos.attr('class') !== 'addFields'){
-			insertPos = nextEntry;
+			if (insertPos.attr('class') !== 'actionsInInfo'){
+				insertPos = nextEntry;
+			}
+		} else {
+			var insertPos2 = insertPos.next();
+			
+			if (insertPos2.attr('class') === 'actionsInInfo'){
+				insertPos = insertPos2;
+			}
 		}
 		
 		if (nextEntry.not(row.nextAll().last()).length){
 			changeInputTableIndex(row, 1);
 			changeInputTableIndex(nextEntry, -1);
-			row.insertAfter(insertPos);			
+			row.insertAfter(insertPos);
+			if (next2 != null){
+				next2.insertAfter(row);
+			}
 			if (next != null){
 				next.insertAfter(row);
 			}
@@ -249,9 +298,11 @@ jQuery(function($){
 			} else {
 				newFieldText += '<input type="'+type+'" name="'+name+'" id="'+id+'" value="'+value+'" />';
 			}
+			newFieldText = '<span class="noWrap">' + newFieldText + '</span>';
 			newInput = jQuery(newFieldText);
 		}
 		insertElem.append(newInput);
+		insertElem.append(' ');
 		return newInput;
 	}
 	
@@ -304,7 +355,7 @@ jQuery(function($){
 				
 				var fields = fieldParents.find('[name]'+excludingFieldQuery); //All non hidden input fields
 				var withUnit = fields.filter('.withUnit');
-				fields = fields.filter('[type!=hidden]');
+				//fields = fields.filter('[type!=hidden]');
 				fields = fields.add(withUnit);
 				for(var fieldId=0; fieldId<fields.length; fieldId++){
 					var field = jQuery(fields[fieldId]);
@@ -313,7 +364,7 @@ jQuery(function($){
 					var pos = name.lastIndexOf('[');
 					name = name.substr(pos+1,name.length-pos-2);
 					var value = data_row[name];
-					if (typeof(value) !== 'undefined'){
+					if (typeof(value) !== 'undefined' && value !== null){
 						setFieldValue(field,value);
 					}
 				}
@@ -325,8 +376,15 @@ jQuery(function($){
 			
 			var fields = JSON.parse(errors);
 			for (var i = 0; i<fields.length; i++){
-				field = fields[i];
-				jQuery('#'+field).addClass('error');
+				var field = fields[i];
+				var inputField = jQuery('#'+field);
+				if (inputField.hasClass('withUnit')){
+					inputField = jQuery('#'+field+'_VIEW');
+				}
+				if (inputField.hasClass('fancyValue')){
+					inputField = jQuery('#'+field+'_DESC');
+				}
+				inputField.addClass('error');
 				jQuery('[for='+field+']').addClass('error');
 			}
 		} else {
@@ -414,25 +472,18 @@ jQuery(function($){
 	
 	//##################################################################################
 	//Recipe Steps functions
-	
-	var stepConfig;
+
+	var toolContent;
 	var ingredientSelectContent;
 	var weightContent;
 	var ingredients;
+	var specialFields = {};
 	function initRecipeStepsRowContainer(type, contentParent){
 		if (typeof(contentParent) === 'undefined') return;
 		if (contentParent.find('.steps .addRowContainer').length == 0){
 			return;
 		}
 		if (contentParent.find('.steps .addRowContainer .rowContainerInitialized').length > 0){
-			return;
-		}
-		
-		stepConfig = contentParent.find('#stepConfigValues').attr('value');
-		if (stepConfig && stepConfig.length > 0){
-			stepConfig = JSON.parse(stepConfig);
-		} else {
-			stepConfig = [];
 			return;
 		}
 		
@@ -453,23 +504,35 @@ jQuery(function($){
 			return;
 		}
 		
-		initRowContainer(container, data, errors, ':not([id$=STT_ID]):not([id*=ACT_ID])', function(newLine){
+		initRowContainer(container, data, errors, ':not([id$=STT_ID]):not([id$=AIN_ID])', function(newLine){
+			var tds = newLine.find('td');
+			var toolContentElem = newLine.find('[id*=TOO_ID]');
+			var parent = toolContentElem.parents('td:first');
+			var index = tds.index(parent);
+			toolContent = parent.html();
+			toolContentElem.remove();
+			specialFields.TOO_ID = [toolContent, index];
+			
 			var ingredientSelectContentElem = newLine.find('[id$=ING_ID]');
-			ingredientSelectContent = ingredientSelectContentElem.parents(':first').html();
+			parent = ingredientSelectContentElem.parents('td:first');
+			index = tds.index(parent);
+			ingredientSelectContent = parent.html();
 			//ingredientSelectContentElem.remove();
-			ingredientSelectContentElem.parents(':first').html('');
+			ingredientSelectContentElem.parents('td:first').html('');
+			specialFields.ING_ID = [ingredientSelectContent, index];
+			
 			var weightContentElem = newLine.find('[id*=STE_GRAMS]');
-			weightContent = weightContentElem.parents(':first').html();
+			parent = weightContentElem.parents('td:first');
+			index = tds.index(parent);
+			weightContent = parent.html();
 			weightContentElem.remove();
+			specialFields.STE_GRAMS = [weightContent, index];
+			
 			newLineContent = '<tr class="%class%">' + newLine.html() + '</tr>';
 		}, function(newLine, data_row){
-			var stepType = newLine.find('[id$=STT_ID]');
-			setFieldValue(stepType,data_row.STT_ID);
-			updateFields(stepType);
-			
-			var actionType = newLine.find('[id*=ACT_ID]');
-			setFieldValue(actionType,data_row.ACT_ID);
-			updateIngredientVisible(actionType);
+			var actionType = newLine.find('[id$=AIN_ID]');
+			setFieldValue(actionType,data_row.AIN_ID);
+			updateFields(actionType);
 		}, function(fieldParents, data_row){
 			var ingredientField = fieldParents.find('[id$=ING_ID]');
 			if (ingredientField.length > 0){
@@ -482,49 +545,74 @@ jQuery(function($){
 		initMultiFancyCoose();
 	}
 	
+	function showActionDetail(ain_id, coi_id, parent){
+		var actionsInInfo = jQuery('#actionsInDetails #ain_desc_' + ain_id);
+		var details = actionsInInfo.find('#ain_coi_desc_' + ain_id + '_' + coi_id);
+		var next = parent.next();
+		var destPos;
+		
+		if (next.length>0 && next.hasClass('addFields')){
+			parent = next;
+			next = next.next();
+		}
+		if (next.length>0 && next.hasClass('actionsInInfo')){
+			destPos = next.find('td');
+			destPos.children().remove();
+			if (details.length>0){
+				details.clone().appendTo(destPos);
+			}
+		} else if (details.length>0){
+			next = jQuery('<tr class="actionsInInfo"><td colspan="5"></td></tr>')
+			destPos = next.find('td');
+			next.insertAfter(parent);
+			details.clone().appendTo(destPos);
+		}
+	}
+	
+	jQuery('body').undelegate('.steps .addRowContainer [id$=AIN_ID]','change').delegate('.steps .addRowContainer [id$=AIN_ID]','change',function(){
+		var elem = jQuery(this);
+		var coi_id = jQuery('#cookInDisplay').val();
+		var parent = elem.parents('tr:first');
+		updateFields(elem);
+		showActionDetail(elem.val(), coi_id, parent);
+		initMultiFancyCoose();
+	});
 	
 	jQuery('body').undelegate('.steps .addRowContainer .add','click').delegate('.steps .addRowContainer .add','click',function(){
 		var insertBefore = jQuery(this).parents('tr:first');
 		var newRow = addEmptyRow(insertBefore);
-		updateFields(newRow.find('[id$=STT_ID]'));
-		updateIngredientVisible(newRow.find('[id*=ACT_ID]'));
-		if(jQuery('#CookVariant').val() == 0){
-			newRow.find('[id$=ACT_ID_0]').css('display','block'); //.removeAttr('disabled')
-			newRow.find('[id$=ACT_ID_1]').css('display','none'); //.attr('disabled','disabled')
-		} else {
-			newRow.find('[id$=ACT_ID_0]').css('display','none');
-			newRow.find('[id$=ACT_ID_1]').css('display','block');
-		}
-		newRow.find('[id*=ACT_ID]')
+		updateFields(newRow.find('[id$=AIN_ID]'));
 		initMultiFancyCoose();
 	});
 	
-	function getStepConfig(id){
-		for(var i=0; i<stepConfig.length; i++){
-			if (stepConfig[i].STT_ID == id){
-				return stepConfig[i];
-			}
-		}
-		return null;
-	}
+	jQuery('body').undelegate('#recipes-form #cookInDisplay','change').delegate('#recipes-form #cookInDisplay','change',function(){
+		var container = jQuery(this).parents('#recipes-form').find('.addRowContainer:first');
+		var rows = container.find('tbody tr');
+		dataRows = rows.filter('.odd').add(rows.filter('.even'));
+		var coi_id = jQuery('#cookInDisplay').val();
+		dataRows.each(function(index, parent){
+			parent = jQuery(parent);
+			var elem = parent.find('[id$=AIN_ID]');
+			showActionDetail(elem.val(), coi_id, parent);
+		});
+	});
 	
 	function updateFields(elem){
 		var row = elem.parents('tr:first');
 		var next = row.next();
 		var value = elem.attr('value');
+		var currentIndexInt = getIndexFromFieldName(elem.attr('name'));
 		
-		var curStepConfig = getStepConfig(value);
-		
-		if (curStepConfig != null){
-			var defaults = curStepConfig.STT_DEFAULT.split(';');
-			var required = curStepConfig.STT_REQUIRED.split(';');
-		} else {
-			var defaults = [];
-			var required = [];
+		var defaults = [];
+		var required = [];
+		if (value != ''){
+			var actionsInInfo = jQuery('#actionsInDetails #ain_desc_' + value);
+			try {
+				eval('defaults = '+actionsInInfo.find('.actionDefaults').val()+';');
+				eval('required = '+actionsInInfo.find('.actionRequireds').val()+';');
+			} catch(ex){}
 		}
 		
-		row.find('[id*=ACT_ID]').removeAttr('disabled');
-		next.find('[id$=ACT_ID_backup]').remove();
 		if ((defaults.length === 0 || (defaults.length == 1 && defaults[0] == "")) && (required.length === 0 || (required.length == 1 && required[0] == ""))){
 			if (next.attr('class') == 'addFields'){
 				next.remove();
@@ -536,21 +624,10 @@ jQuery(function($){
 			}
 			var insertElem = next.find('td');
 			var fieldParents = row.add(next);
-			var oldFields = next.find('[name]'); //All input fields
-			/*
-			//now always needed if Action includes #objectofaction#, see function updateIngredientVisible(elem);
-			var weightElem = row.find('[id$=STE_GRAMS]');
-			if (required.indexOf('STE_GRAMS') == -1){
-				weightElem.remove();
-			} else {
-				if (weightElem.length == 0){
-					currentIndexInt = getIndexFromFieldName(elem.attr('name'))
-					newWeightContent = weightContent.replace(/%index%/g,currentIndexInt);
-					newWeightContent = jQuery(newWeightContent);
-					jQuery(row.find('td').get(3)).append(newWeightContent);
-				}
-			}
-			*/
+			var oldFields = fieldParents.find('[name]'); //All input fields
+			oldFields = oldFields.not(row.find('[id$=AIN_ID]'));
+			var hiddenKeyFields = row.children('[type=hidden]');
+			oldFields = oldFields.not(hiddenKeyFields);
 			
 			for(var requiredIndex=0; requiredIndex<required.length; requiredIndex++){
 				if (required[requiredIndex] == ''){
@@ -563,13 +640,28 @@ jQuery(function($){
 						oldFields = oldFields.not(field.prev());
 						oldFields = oldFields.not(field.prev().prev());
 					} else {
-						if (field.attr('type') == 'hidden'){
+						if (field.attr('type') == 'hidden' && !field.hasClass('fancyValue')){
 							field.remove();
-							addInputTableField(required[requiredIndex], '', elem, insertElem, 'number');
+							
+							if (typeof(specialFields[required[requiredIndex]]) !== 'undefined'){
+								var specialFieldOption = specialFields[required[requiredIndex]];
+								newFieldContent = specialFieldOption[0].replace(/%index%/g,currentIndexInt);
+								newFieldContent = jQuery(newFieldContent);
+								jQuery(row.find('td').get(specialFieldOption[1])).append(newFieldContent);
+							} else {
+								addInputTableField(required[requiredIndex], '', elem, insertElem, 'number');
+							}
 						}
 					}
 				} else {
-					addInputTableField(required[requiredIndex], '', elem, insertElem, 'number');
+					if (typeof(specialFields[required[requiredIndex]]) !== 'undefined'){
+						var specialFieldOption = specialFields[required[requiredIndex]];
+						newFieldContent = specialFieldOption[0].replace(/%index%/g,currentIndexInt);
+						newFieldContent = jQuery(newFieldContent);
+						jQuery(row.find('td').get(specialFieldOption[1])).append(newFieldContent);
+					} else {
+						addInputTableField(required[requiredIndex], '', elem, insertElem, 'number');
+					}
 				}
 			}
 			for(var defaultIndex=0; defaultIndex<defaults.length; defaultIndex++){
@@ -577,7 +669,7 @@ jQuery(function($){
 					continue;
 				}
 				var fieldOpt=defaults[defaultIndex].split('=');
-				var field = fieldParents.find('[id*='+fieldOpt[0]+']');
+				var field = fieldParents.find('[id$='+fieldOpt[0]+']');
 				if (field.length){
 					oldFields = oldFields.not(field);
 					if (field.hasClass('withUnit')){
@@ -607,71 +699,19 @@ jQuery(function($){
 			}
 			for(var oldFieldIndex=0; oldFieldIndex<oldFields.length; oldFieldIndex++){
 				var field = jQuery(oldFields[oldFieldIndex]);
-				next.find('[for='+field.attr('id')+']').remove();
-				field.remove();
-			}
-		}
-	}
-	
-	jQuery('body').undelegate('.steps .addRowContainer [id$=STT_ID]','change').delegate('.steps .addRowContainer [id$=STT_ID]','change',function(){
-		updateFields(jQuery(this));
-		updateIngredientVisible(jQuery(this).parents('tr:first').find('[id*=ACT_ID]'));
-		initMultiFancyCoose();
-	});
-	
-	function updateIngredientVisible(elem){
-		var value = elem.attr('value');
-		var text = elem.find(':selected').get(0).text;
-		if (text != ''){ //do not change, because thre is no value for this display varaint (auto/man)
-			var row = elem.parents('tr:first');
-			var ingredientElem = row.find('[id*=ING_ID]');
-			var weightElem = row.find('[id*=STE_GRAMS]');
-			if (text.indexOf('#objectofaction#') == -1){
-				ingredientElem.remove();
-				weightElem.remove();
-			} else {
-				currentIndexInt = getIndexFromFieldName(elem.attr('name'));
-				if (ingredientElem.length == 0){
-					newIngredientSelectContent = ingredientSelectContent.replace(/%index%/g,currentIndexInt);
-					newIngredientSelectContent = jQuery(newIngredientSelectContent);
-					jQuery(row.find('td').get(2)).append(newIngredientSelectContent);
-				}
-				if (weightElem.length == 0){
-					newWeightContent = weightContent.replace(/%index%/g,currentIndexInt);
-					newWeightContent = jQuery(newWeightContent);
-					jQuery(row.find('td').get(3)).append(newWeightContent);
+				if (field.parent().hasClass('noWrap')){
+					field.parent().remove();
+				} else {
+					next.find('[for='+field.attr('id')+']').remove();
+					if (field.hasClass('fancyValue')){
+						fieldParents.find('#'+field.attr('id')+'_DESC').remove();
+					}
+					field.remove();
 				}
 			}
 		}
 	}
-	
-	jQuery('body').undelegate('.steps .addRowContainer [id*=ACT_ID]','change').delegate('.steps .addRowContainer [id*=ACT_ID]','change',function(){
-		var elem = jQuery(this);
-		setFieldValue(elem.parent().find('[id*=ACT_ID]').not(elem),elem.val());
-		updateIngredientVisible(elem);
-		initMultiFancyCoose();
-	});
-	
-	
-	
-	jQuery('body').undelegate('#recipes-form .button#RecipeAuto','click').delegate('#recipes-form .button#RecipeAuto','click', function(){
-		var elem = jQuery(this);
-		elem.parents('form:first').find('[id$=ACT_ID_0]').css('display','block'); //.removeAttr('disabled')
-		elem.parents('form:first').find('[id$=ACT_ID_1]').css('display','none'); //.attr('disabled','disabled')
-		jQuery('#CookVariant').val(0);
-		elem.siblings().removeClass('selected');
-		elem.addClass('selected');
-	});
-	
-	jQuery('body').undelegate('#recipes-form .button#RecipeMan','click').delegate('#recipes-form .button#RecipeMan','click', function(){
-		var elem = jQuery(this);
-		elem.parents('form:first').find('[id$=ACT_ID_0]').css('display','none');
-		elem.parents('form:first').find('[id$=ACT_ID_1]').css('display','block');
-		jQuery('#CookVariant').val(1);
-		elem.siblings().removeClass('selected');
-		elem.addClass('selected');
-	});
-	
+		
 	jQuery('body').undelegate('.fancyForm .button.RecipeTemplateSelect','click').delegate('.fancyForm .button.RecipeTemplateSelect','click', function(){
 		var link = jQuery('#stepDetailsLink').val();
 		
@@ -698,6 +738,16 @@ jQuery(function($){
 						glob.showImageOrError(jQuery('input[id$=filename][type=file]'), '{imageId:\'' + data.model.REC_IMG + '\'}');
 					}
 				}
+				if (data.recToCois){
+					var cookIns = jQuery('#cookIns');
+					cookIns.find(':checked').removeAttr('checked');
+					for(var i=0; i < data.recToCois.length; ++i){
+						var recToCoi = data.recToCois[i]
+						cookIns.find('input[value=' + recToCoi.COI_ID+']').attr('checked','checked');
+					}
+					//TODO: Wait for reload so steps could add successfull...
+					//jQuery('input[name=updateCookIn]').click();
+				}
 				if (data.steps){
 					ingredients = data.ingredients;
 					var container = jQuery('.steps .addRowContainer');
@@ -718,13 +768,55 @@ jQuery(function($){
 		return false;
 	});
 	
+	//##################################################################################
+	//AinToAou functions
+	function initAinToAouRowContainer(type, contentParent){
+		if (typeof(contentParent) === 'undefined') return;
+		var container = contentParent.find('.actions .addRowContainer');
+		var data = contentParent.find('#rowsJSON').attr('value');
+		var errors = contentParent.find('#errorJSON').attr('value');
+		initAinToAouRowContainerDoIt(container, data, errors);
+	}
+	
+	function initAinToAouRowContainerDoIt(container, data, errors){
+		if (!container.is('.actions .addRowContainer')){
+			return;
+		}
+		if (container.find('.rowContainerInitialized').length > 0){
+			return;
+		}
+		initRowContainer(container, data, errors, '', undefined, undefined, function(fieldParents,data_row){
+		
+		});
+	}
+	glob.rowContainer.AinToAouRowInit = initAinToAouRowContainerDoIt;
+	
+	
+	jQuery('body').undelegate('.actions .addRowContainer .add','click').delegate('.actions .addRowContainer .add','click',function(){
+		addEmptyRow(jQuery(this).parents('tr:first'));
+	});
+	
+	jQuery('body').undelegate('.actions .addRowContainer [id*=AOU_ID]','change').delegate('.actions .addRowContainer [id*=AOU_ID]','change',function(){
+		var elem = jQuery(this);
+		var index = elem.find(':selected').index();
+		var next = elem.next();
+		if (next.length>0){
+			next.remove();
+		}
+		var details = jQuery('#actionsOutDetails').children().get(index);
+		//clone = details = jQuery('<div>'+jQuery(details).html() + '</div>');
+		 jQuery(details).clone().insertAfter(elem);
+	});
+	
 	//----------------------------------------------
 
 
 	$('#page').bind('newContent.rowcontainer_handling', function(e, type, contentParent) {
 		initRecipeStepsRowContainer(type, contentParent);
 		initMealplannerPeopleRowContainer(type, contentParent);
+		initAinToAouRowContainer(type, contentParent);
 	});
 	initRecipeStepsRowContainer('initial', jQuery('#page'));
 	initMealplannerPeopleRowContainer('initial', jQuery('#page'));
+	initAinToAouRowContainer('initial', jQuery('#page'));
 });

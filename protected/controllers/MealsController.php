@@ -33,7 +33,7 @@ class MealsController extends Controller
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
 				'actions'=>array('admin','delete'),
-				'users'=>array('admin'),
+				'roles'=>array('admin'),
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),
@@ -237,16 +237,20 @@ class MealsController extends Controller
 						foreach($meaToCous as $meaToCou){
 							$meaToCou->MEA_ID = $model->MEA_ID;
 							$meaToCou->setIsNewRecord(true);
-							if($meaToCou->course->save()){
-								$meaToCou->COU_ID = $meaToCou->course->COU_ID;
+							$course = $meaToCou->course;
+							if (!isset($course->CREATED_BY)){
+								$course->setIsNewRecord(true);
+							}
+							if($course->save()){
+								$meaToCou->COU_ID = $course->COU_ID;
 								$meaToCou->MTC_ORDER = $meaToCouIndex;
 								++$meaToCouIndex;
 								if($meaToCou->save()){
 									$CouToRecIndex = 0;
-									$couToRecs = $meaToCou->course->couToRecs;
-									Yii::app()->db->createCommand()->delete(CouToRec::model()->tableName(), 'COU_ID = :id', array(':id'=>$meaToCou->course->COU_ID));
+									$couToRecs = $course->couToRecs;
+									Yii::app()->db->createCommand()->delete(CouToRec::model()->tableName(), 'COU_ID = :id', array(':id'=>$course->COU_ID));
 									foreach($couToRecs as $couToRec){
-										$couToRec->COU_ID = $meaToCou->course->COU_ID;
+										$couToRec->COU_ID = $course->COU_ID;
 										$couToRec->CTR_ORDER = $CouToRecIndex;
 										$couToRec->setIsNewRecord(true);
 										++$CouToRecIndex;

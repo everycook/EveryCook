@@ -23,6 +23,7 @@ class UserIdentity extends CUserIdentity
 	{
 		if (strtolower($this->username) == 'demo' && strtolower($this->password) == 'demo'){
 			$this->setState('demo', true);
+			$this->setState('roles', array('demo','user'));
 			//TODO create demo shoppinglist?
 			$shoppinglists = array();
 			$this->setState('shoppinglists', $shoppinglists);
@@ -57,6 +58,7 @@ class UserIdentity extends CUserIdentity
 					$this->setState('home_gps', $home_gps);
 					$this->setState('view_distance', $record->PRF_VIEW_DISTANCE);
 					$this->setState('design', $record->PRF_DESIGN);
+					$this->setState('roles', explode(';', strtolower($record->PRF_ROLES)));
 					
 					if (!isset($record->PRF_SHOPLISTS) || $record->PRF_SHOPLISTS == null || $record->PRF_SHOPLISTS == ''){
 						$shoppinglists = array();

@@ -1,4 +1,4 @@
-/* reset.css */
+recipe/* reset.css */
 html {margin:0;padding:0;border:0;}
 body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, code, del, dfn, em, img, q, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, dialog, figure, footer, header, hgroup, nav, section {margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline;}
 article, aside, details, figcaption, figure, dialog, footer, header, hgroup, menu, nav, section {display:block;}
@@ -94,6 +94,11 @@ div.form textarea,
 div.form select {
 	margin: 0.2em 0 0.5em 0;
 }
+div.form input[type="radio"] {
+/*	width: 1em;
+	height: 1em;*/
+	margin: 0;
+}
 
 div.form label {
 	font-weight: bold;
@@ -122,7 +127,9 @@ div.form span.required {
 
 div.form div.error label,
 div.form label.error,
-div.form span.error {
+div.form span.error,
+div.form .buttonSmall.error,
+div.form .button.error {
 	color: #C00;
 }
 
@@ -439,6 +446,11 @@ div.resultArea.noPic {
 	min-height:0;
 }
 
+div.resultArea.adminArea {
+	min-height:0;
+	padding: 0 0 0 1.5em;
+}
+
 
 .list_img {
 	float: left;
@@ -492,22 +504,30 @@ div.resultArea div.data_right {
 div.resultArea.noPic div.data {
 	margin-left:0;
 }
+
+div.resultArea.adminArea  div.data {
+	margin-left:0;
+}
+
 div.resultArea div.name {
 	font-weight:bold;
 	font-size:2em;
 	margin-bottom:0.2em;
 }
 
+div.resultArea.adminArea div.name {
+	margin-bottom: 0;
+}
 
 div.resultArea div.options {
 	float:right;
 }
 
-#ingredientsResult div.resultArea div.options a {
+div.resultArea div.options a {
 	margin-right: 2.8em;
 }
 
-#ingredientsResult div.resultArea div.options a.last {
+div.resultArea div.options a.last {
 	margin-right: 0;
 }
 
@@ -545,15 +565,6 @@ div.ingInfo .value {
 	font-weight: bold;
 }
 
-
-
-#recipesResult div.resultArea div.options a.disgusting {
-	float:right;
-}
-
-#recipesResult div.resultArea div.options a.cookwith  {
-	float:right;
-}
 
 #recipesResult div.resultArea div.options a {
 	margin-bottom: 0.8em;
@@ -598,6 +609,10 @@ div#products.detailView div.options {
 div#ingredients.detailView div.options div.otherItems,
 div#products.detailView div.options div.otherItems {
 	width:10em;
+}
+
+.options .otherItems .noItems {
+	font-size: 0.8em;
 }
 
 div.detailView div.options a.backpic {
@@ -681,12 +696,14 @@ div.search  input.search_query{
 ul.search_choose {
 	padding-left:0;
 }
-
-ul.search_choose label{
+ul.options_choose  {
+	margin-left: 13em;
+}
+ul.search_choose label, ul.options_choose label {
 	width: 17em;
 	text-align: left;
 }
-ul.search_choose li {
+ul.search_choose li, ul.options_choose li {
 	width: 20em;
 	float: left;
 	list-style: none;
@@ -721,6 +738,30 @@ ul.search_choose li {
 	width:100%
 }
 
+.addRowContainer select.unit {
+	width:4em;
+	margin-left: 0.25em;
+}
+
+.addRowContainer div.up, .addRowContainer div.down, .addRowContainer div.remove {
+	width: 2.4em;
+	height: 2.4em;
+	float:left;
+	margin-left: 0.8em;
+	cursor: pointer;
+}
+
+.addRowContainer .addFields input {
+	width: 11.5em;
+}
+
+.addRowContainer .addFields input.viewWithUnit {
+	width: 7.25em;
+}
+
+.addRowContainer .addFields .noWrap{
+	white-space: nowrap;	
+}
 
 body > .backpicfix {
 	position:fixed;
@@ -918,6 +959,10 @@ div.cou_recipe img.cou_recipe {
 	width:8em;
 	height:8em;
 }
+div.cou_recipe  .title {
+	clear: both;
+    display: block;
+}
 
 div.mealView input.input_range {
 	margin-right: 0.5em;
@@ -948,10 +993,7 @@ div.mealView span.value {
 	display: inline-block;
 }
 
-.addRowContainer select.unit {
-	width:4em;
-	margin-left: 0.25em;
-}
+
 
 .shoppingList_left {
 	float: left;
@@ -962,11 +1004,16 @@ div.mealView span.value {
 .shoppingList_right .shoppingList_image {
 	float: right;
 	text-align: center;
+	max-width: 10em;
 }
 .shoppingList_right .shoppingList_image .list_img  {
 	margin-bottom: 0.8em;
 	float: none;
 }
+.shoppingList_right .shoppingList_image .button {
+	min-width: 0;
+}
+
 .shoppingList_right .data_right .button {
 	margin-bottom: 0.8em;
 }
@@ -1108,7 +1155,7 @@ div.mealView span.value {
 }
 .cookAssistant .recipeSteps .recipeStep .stepHeader div.temp {
 	margin-left: 0.8em;
-	width: 15%;
+	width: 18%;
 	float:left;
 }
 .cookAssistant .recipeSteps .recipeStep .stepHeader div div div {
@@ -1153,6 +1200,15 @@ div.mealView span.value {
 	font-size: 1.2em;
 	min-height: 2.5em;
 }
+.cookAssistant .recipeSteps .recipeStep .stepInfo .action .actionMainText {
+	font-size: 0.8em;
+	line-height: 1em;
+	margin-bottom: 0.3em;
+	margin-top: -1.5em;
+	max-height: 1em;
+	overflow: hidden;
+	padding-bottom: 0.2em;
+}
 
 .cookAssistant .recipeSteps .recipeStep .stepInfo .action img {
 	float: right;
@@ -1179,6 +1235,13 @@ div.mealView span.value {
 	width: 17%;
 }
 
+.recipeConfig {
+	background-color: white;
+	border-radius: 1.5em;
+	padding: 0.8em;
+	margin-bottom: 1em;
+}
+
 .recipeConfig input[type=radio] {
 	height: 1.3em;
 	width: 1.3em;
@@ -1195,24 +1258,20 @@ div.mealView span.value {
 .stepHeader .title {
 	width:100%;
 }
-.stepHeader .totalTime {
-	width:30%;
-	float: left;
-}
+.stepHeader .totalTime,
 .stepHeader .finishTime {
 	width:30%;
 	float: left;
 }
 
-
-
-.addRowContainer div.up, .addRowContainer div.down, .addRowContainer div.remove {
-	width: 2.4em;
-	height: 2.4em;
-	float:left;
-	margin-left: 0.8em;
-	cursor: pointer;
+.recipeConfig .stepHeader .totalTime,
+.recipeConfig .stepHeader .prepareTime,
+.recipeConfig .stepHeader .cookTime,
+.recipeConfig .stepHeader .finishTime {
+	width:25%;
+	float: left;
 }
+
 
 
 .startpage .slot {
@@ -1322,15 +1381,44 @@ div.mealView span.value {
 	display:block;
 }
 
+.actionOutOverview {
+	margin-bottom: 2em;
+}
+
+.adminOverview .buttons .button {
+	margin-bottom: 0.4em;
+}
+
+#actionsList_form #actionsIns,
+#actionsList_form #cookIns,
+#actionsGenerator_form #actionsIns,
+#actionsGenerator_form #cookIns,
+#actions-out-form #stepTypes,
+#actions-out-form #tools,
+#cook-in-form #tools{
+	min-height: 2.6em;
+}
 
 
 
+.ain_desc {
+	display: block;
+}
 
+.ain_coi_desc {
+	display: block;
+}
 
+.aouLine {
+	display: block;
+}
+.smallDetails {
+	font-size: 0.7em;
+}
 
-
-
-
+.errorSummary li{
+	list-style: none;
+}
 
 
 
@@ -1384,10 +1472,10 @@ div.mealView span.value {
 
 
 /* change view Size on change of window size */
-@media only screen and (max-width : 2400px) and (min-width : 1901px) { body { font-size: 1.3em; } #page {margin: 0 2em;} }
-@media only screen and (max-width : 1900px) and (min-width : 1681px) { body { font-size: 1.2em; } #page {margin: 0 3em;} }
-@media only screen and (max-width : 1680px) and (min-width : 1451px) { body { font-size: 1.1em; } #page {margin: 0 4em;} }
-@media only screen and (max-width : 1450px) and (min-width : 1301px) { body { font-size: 1.0em; } #page {margin: 0 4em;} }
+@media only screen and (min-width : 1901px) { body { font-size: 1.3em; } div.form input[type="radio"] { width:28px; height:28px;} #page {margin: 0 2em;} }
+@media only screen and (max-width : 1900px) and (min-width : 1681px) { body { font-size: 1.2em; } div.form input[type="radio"] { width:24px; height:24px;} #page {margin: 0 3em;} }
+@media only screen and (max-width : 1680px) and (min-width : 1451px) { body { font-size: 1.1em; } div.form input[type="radio"] { width:20px; height:20px;} #page {margin: 0 4em;} }
+@media only screen and (max-width : 1450px) and (min-width : 1301px) { body { font-size: 1.0em; } div.form input[type="radio"] { width:16px; height:16px;} #page {margin: 0 4em;} }
 @media only screen and (max-width : 1300px) and (min-width : 1181px) { body { font-size: 0.9em; } }
 @media only screen and (max-width : 1180px) and (min-width : 1051px) { body { font-size: 0.8em; } }
 @media only screen and (max-width : 1050px) { body { font-size: 0.7em; } }

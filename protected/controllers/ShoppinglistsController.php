@@ -30,7 +30,7 @@ class ShoppinglistsController extends Controller
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
 				'actions'=>array('admin','delete'),
-				'users'=>array('admin'),
+				'roles'=>array('admin'),
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),
@@ -245,7 +245,7 @@ class ShoppinglistsController extends Controller
 		
 		
 		$command = Yii::app()->db->createCommand()
-			->select('ingredients.ING_ID, ingredients.ING_IMG_AUTH, ING_NAME_'.Yii::app()->session['lang'])
+			->select('ingredients.ING_ID, ingredients.ING_IMG_AUTH, ingredients.ING_IMG_ETAG, ING_NAME_'.Yii::app()->session['lang'])
 			->from('ingredients')
 			->where($ing_criteria->condition, $ing_criteria->params);
 			
@@ -311,7 +311,7 @@ class ShoppinglistsController extends Controller
 		}
 		
 		$command = Yii::app()->db->createCommand()
-			->select('products.PRO_ID, products.PRO_IMG_CR, PRO_NAME_'.Yii::app()->session['lang'])
+			->select('products.PRO_ID, products.PRO_IMG_CR, products.PRO_IMG_ETAG, PRO_NAME_'.Yii::app()->session['lang'])
 			->from('products')
 			->group('products.PRO_ID');
 		
@@ -352,6 +352,7 @@ class ShoppinglistsController extends Controller
 			$ing_id = $row['ING_ID'];
 			$data[$ing_id]['ING_NAME'] = $row['ING_NAME_'.Yii::app()->session['lang']];
 			$data[$ing_id]['ING_IMG_AUTH'] = $row['ING_IMG_AUTH'];
+			$data[$ing_id]['ING_IMG_ETAG'] = $row['ING_IMG_ETAG'];
 		}
 		
 		foreach($rows as $row){
@@ -360,6 +361,7 @@ class ShoppinglistsController extends Controller
 			
 			$data[$ing_id]['PRO_NAME'] = $row['PRO_NAME_'.Yii::app()->session['lang']];
 			$data[$ing_id]['PRO_IMG_CR'] = $row['PRO_IMG_CR'];
+			$data[$ing_id]['PRO_IMG_ETAG'] = $row['PRO_IMG_ETAG'];
 			
 			if ($hasYouDist){
 				if (isset($youDistArray[$pro_id])){
