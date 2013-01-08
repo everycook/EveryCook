@@ -29,14 +29,18 @@
 			echo '<div class="recipeConfig">';
 				echo '<div class="stepHeader">';
 					echo '<div class="title"><div>' . $mealStep->recipeName . '</div></div>';
-					echo '<div class="totalTime"><div>' . $this->trans->COOKASISSTANT_TOTAL_TIME . ' <span>'  . date('H:i:s', $info->totalTime[$i]-3600) . '</span></div></div>';
-					echo '<div class="prepareTime"><div>' . $this->trans->COOKASISSTANT_PREPARE_TIME . ' <span>'  . date('H:i:s', $info->prepareTime[$i]-3600) . '</span></div></div>';
-					echo '<div class="cookTime"><div>' . $this->trans->COOKASISSTANT_COOK_TIME . ' <span>'  . date('H:i:s', $info->cookTime[$i]-3600) . '</span></div></div>';
-					if ($mealStep->stepNr != -1 && !$mealStep->endReached){
-						echo '<div class="finishTime' . (($mealStep->inTime)?'':' toLate') . '"><div>' . (($mealStep->stepNr != -1)?$this->trans->COOKASISSTANT_FINISHED_AT:$this->trans->COOKASISSTANT_START_AT) . ' <span>' . date('H:i:s', time() + $mealStep->finishedIn) . '</span></div></div>';
-					}
-					if ($mealStep->endReached){
-						echo '<div class="endReached"><div>' . $this->trans->COOKASISSTANT_RECIPE_END_REACED  . '</div></div>';
+					if (count($info->cookWith[$i])>1){
+						echo '<div class="totalTime"><div>' . $this->trans->COOKASISSTANT_TOTAL_TIME . ' <span>'  . date('H:i:s', $info->totalTime[$i]-3600) . '</span></div></div>';
+						echo '<div class="prepareTime"><div>' . $this->trans->COOKASISSTANT_PREPARE_TIME . ' <span>'  . date('H:i:s', $info->prepareTime[$i]-3600) . '</span></div></div>';
+						echo '<div class="cookTime"><div>' . $this->trans->COOKASISSTANT_COOK_TIME . ' <span>'  . date('H:i:s', $info->cookTime[$i]-3600) . '</span></div></div>';
+						if ($mealStep->stepNr != -1 && !$mealStep->endReached){
+							echo '<div class="finishTime' . (($mealStep->inTime)?'':' toLate') . '"><div>' . (($mealStep->stepNr != -1)?$this->trans->COOKASISSTANT_FINISHED_AT:$this->trans->COOKASISSTANT_START_AT) . ' <span>' . date('H:i:s', time() + $mealStep->finishedIn) . '</span></div></div>';
+						}
+						if ($mealStep->endReached){
+							echo '<div class="endReached"><div>' . $this->trans->COOKASISSTANT_RECIPE_END_REACED  . '</div></div>';
+						}
+					} else {
+						echo '<div class="selectCookIn">' . $this->trans->COOKASISSTANT_SELECT_COOK_IN_FOR_TIME . '</div>';
 					}
 					echo '<span class="clearfix"></span>';
 				echo '</div>';

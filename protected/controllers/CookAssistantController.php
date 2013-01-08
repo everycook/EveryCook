@@ -77,6 +77,7 @@ class CookAssistantController extends Controller {
 		$info->meal = $meal;
 		$info->courseNr = $courseNumber;
 		$info->course = $course;
+		$info->courseFinished[$courseNumber] = false;
 		$stepNumbers = array();
 		$stepStartTime = array();
 		$recipeStartTime = array();
@@ -89,6 +90,7 @@ class CookAssistantController extends Controller {
 		$recipeUsedTime = array();
 		$maxTime = 0;
 		$totalWeight = array();
+		$voted = array();
 		
 		$ingredientIdToNutrient = array();
 		for ($recipeNr=0; $recipeNr<count($course->couToRecs); ++$recipeNr){
@@ -135,6 +137,7 @@ class CookAssistantController extends Controller {
 			$recipeUsedTime[] = 0;
 			$recipeStartTime[] = 0;
 			$totalWeight[] = 0;
+			$voted[] = 0;
 		}
 		$info->stepNumbers = $stepNumbers;
 		$info->stepStartTime = $stepStartTime;
@@ -149,6 +152,7 @@ class CookAssistantController extends Controller {
 		$info->recipeUsedTime = $recipeUsedTime;
 		$info->totalWeight = $totalWeight;
 		$info->ingredientIdToNutrient = $ingredientIdToNutrient;
+		$info->voted = $voted;
 		
 		$this->loadSteps($info);
 		for ($recipeNr=0; $recipeNr<count($course->couToRecs); ++$recipeNr){
@@ -376,6 +380,7 @@ class CookAssistantController extends Controller {
 		//$actionsOuts = null;
 		$tools = null;
 		$cookIns = null;
+		$allFinished = true;
 		for ($recipeNr=0; $recipeNr<count($course->couToRecs); ++$recipeNr){
 			$mealStep = new CookAsisstantStep();
 			$stepNr = $info->stepNumbers[$recipeNr];
@@ -613,6 +618,8 @@ class CookAssistantController extends Controller {
 				if ($maxtime < $info->totalTime[$recipeNr]){
 					$maxtime = $info->totalTime[$recipeNr];
 				}
+				
+				$allFinished = false;
 			} else {
 				$step = $info->recipeSteps[$recipeNr][$stepNr];
 				$coi_id = $info->cookWith[$recipeNr][1];
@@ -709,6 +716,8 @@ class CookAssistantController extends Controller {
 					$mealStep->endReached = true;
 					$mealStep->inTime = true;
 					$mealStep->nextStepIn = 0;
+				} else {
+					$allFinished = false;
 				}
 				$mealStep->ingredientId = $step['ING_ID'];
 				$mealStep->ingredientCopyright = $step['ING_IMG_AUTH'];
@@ -798,6 +807,8 @@ class CookAssistantController extends Controller {
 		}
 		$info->finishedIn = $maxtime;
 		$info->timeDiffMax = $maxDiff;
+		
+		$info->courseFinished[$info->courseNr] = $allFinished;
 		
 		$info->steps = $currentSteps;
 	}
@@ -1127,6 +1138,63 @@ class CookAssistantController extends Controller {
 		$info = Yii::app()->session['cookingInfo'];
 		sendStopToFirmware($info);
 		$this->checkRenderAjax('end');
+	}
+	
+	public function actionVote($recipeNr, $value){
+		$info = Yii::app()->session['cookingInfo'];
+		if (isset($info->voted[$recipeNr]) && $info->voted[$recipeNr]>0){
+			$vote=RecipesVoting::model()->findByPk($info->voted[$recipeNr]);
+		} else {
+			$vote = null;
+		}
+		if ($vote===null){
+			$vote = new RecipesVoting();
+			$vote->PRF_UID = Yii::app()->user->id;
+			$vote->MEA_ID = $info->meal->MEA_ID;
+			$vote->COU_ID = $info->course->COU_ID;
+			$vote->REC_ID = $info->course->couToRecs[$recipeNr]->recipe->REC_ID;
+			$vote->RVO_COOK_DATE = time();
+		}
+		$vote->RVO_VALUE = $value;
+		unset($vote->RVR_ID);
+		unset($vote->RVO_REASON);
+		
+		if ($vote->save()){
+			$info->voted[$recipeNr] = $vote->RVO_ID;
+			if ($value > 0){
+				echo '{sucessfull: true}';
+			} else {
+				$reasons = Yii::app()->db->createCommand()->select('RVR_ID,RVR_DESC_'.Yii::app()->session['lang'])->from('recipes_voting_reason')->order('RVR_DESC_'.Yii::app()->session['lang'])->queryAll();
+				$reasons = CHtml::listData($reasons,'RVR_ID','RVR_DESC_'.Yii::app()->session['lang']);
+				$reasons['other'] = $this->trans->COOKASISSTANT_VOTE_REASON_OTHER;
+				$this->checkRenderAjax('vote', array(
+					'model'=>$vote,
+					'reasons'=>$reasons,
+				), 'none');
+			}
+		} else {
+			print_r($vote->getErrors());
+			//throw new CHttpException(500, 'Error saving vote...');
+		}
+	}
+	
+	public function actionVoteReason($RVO_ID){
+		$vote=RecipesVoting::model()->findByPk($RVO_ID);
+		if ($vote===null){
+			throw new CHttpException(404,'The requested page does not exist.');
+		}
+		if(isset($_POST['RecipesVoting'])){
+			$vote->setScenario('reason');
+			$vote->attributes = $_POST['RecipesVoting']; //$vote->RVR_ID / $vote->RVO_REASON
+			if ($vote->RVR_ID == 'other'){
+				$vote->RVR_ID = 0;
+			}
+			if ($vote->save()){
+				echo '{sucessfull: true}';
+				return;
+			}
+		}
+		throw new CHttpException(500, 'Error update vote for reason...');
 	}
 	
 	/**

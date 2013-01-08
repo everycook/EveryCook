@@ -1236,6 +1236,25 @@ div.mealView span.value {
 .cookAssistant .recipeSteps .recipeStep .stepInfo .nextStep {
 	float: right;
 	width: 17%;
+	min-height: 5em;
+}
+
+
+.cookAssistant .recipeSteps .recipeStep .stepInfo .nextStep .vote {
+	min-width: 0;
+	display: block;
+}
+.cookAssistant .recipeSteps .recipeStep .stepInfo .nextStep .vote.first {
+	margin-bottom: 1.4em;
+}
+
+.cookAssistantVote {
+	width: 31em
+}
+
+.cookAssistant .recipeSteps .recipeStep .stepInfo .nextStep .changeRecipe {
+	min-width: 0;
+	display: block;
 }
 
 .recipeConfig {
@@ -1305,13 +1324,13 @@ div.mealView span.value {
 }
 .up1 {
 /*	border-radius: 7em 7em 0 0;*/
-	border-bottom: 5em solid black;
+	border-bottom: 4em solid black;
 	border-left: 11.3em solid transparent;
 	border-right: 11.3em solid transparent;
 }
 .up2{
 /*	border-radius: 7em 7em 0 0;*/
-	border-bottom: 4em solid white;
+	border-bottom: 3em solid white;
 	border-left: 9em solid transparent;
 	border-right: 9em solid transparent;
 	position: absolute;
@@ -1324,13 +1343,13 @@ div.mealView span.value {
 }
 .down1 {
 /*	border-radius: 0 0 7em 7em;*/
-	border-top: 5em solid black;
+	border-top: 4em solid black;
 	border-left: 11.3em solid transparent;
 	border-right: 11.3em solid transparent;
 }
 .down2 {
 /*	border-radius: 0 0 7em 7em;*/
-	border-top: 4em solid white;
+	border-top: 3em solid white;
 	border-left: 9em solid transparent;
 	border-right: 9em solid transparent;
 	position: absolute;
@@ -1340,6 +1359,7 @@ div.mealView span.value {
 
 .startpage div.search {
 	width: auto;
+	margin-bottom: 0;
 }
 .startpage .f-left {
 	margin-right: 1em;
@@ -1475,13 +1495,14 @@ div.mealView span.value {
 
 
 /* change view Size on change of window size */
-@media only screen and (min-width : 1901px) { body { font-size: 1.3em; } div.form input[type="radio"] { width:28px; height:28px;} #page {margin: 0 2em;} }
-@media only screen and (max-width : 1900px) and (min-width : 1681px) { body { font-size: 1.2em; } div.form input[type="radio"] { width:24px; height:24px;} #page {margin: 0 3em;} }
-@media only screen and (max-width : 1680px) and (min-width : 1451px) { body { font-size: 1.1em; } div.form input[type="radio"] { width:20px; height:20px;} #page {margin: 0 4em;} }
-@media only screen and (max-width : 1450px) and (min-width : 1301px) { body { font-size: 1.0em; } div.form input[type="radio"] { width:16px; height:16px;} #page {margin: 0 4em;} }
-@media only screen and (max-width : 1300px) and (min-width : 1181px) { body { font-size: 0.9em; } }
-@media only screen and (max-width : 1180px) and (min-width : 1051px) { body { font-size: 0.8em; } }
-@media only screen and (max-width : 1050px) { body { font-size: 0.7em; } }
+/*@media only screen and (min-width : 1901px) { body { font-size: 1.3em; } div.form input[type="radio"] { width:28px; height:28px;} #page {margin: 0 2em;} }*/
+@media only screen and (min-width : 1901px) { body { font-size: 1.2em; } div.form input[type="radio"] { width:24px; height:24px;} #page {margin: 0 3em;} }
+@media only screen and (max-width : 1900px) and (min-width : 1681px) { body { font-size: 1.1em; } div.form input[type="radio"] { width:20px; height:20px;} #page {margin: 0 4em;} }
+@media only screen and (max-width : 1680px) and (min-width : 1451px) { body { font-size: 1.0em; } div.form input[type="radio"] { width:16px; height:16px;} #page {margin: 0 4em;} }
+@media only screen and (max-width : 1450px) and (min-width : 1301px) { body { font-size: 0.9em; } }
+@media only screen and (max-width : 1300px) and (min-width : 1181px) { body { font-size: 0.8em; } }
+@media only screen and (max-width : 1180px) and (min-width : 1051px) { body { font-size: 0.7em; } }
+@media only screen and (max-width : 1050px) { body { font-size: 0.6em; } }
 /*
 @media only screen and (max-width : 930px) { body { font-size: 0.6em; } }
 @media only screen and (max-width : 800px) { body { font-size: 0.5em; } }

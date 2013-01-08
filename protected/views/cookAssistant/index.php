@@ -12,7 +12,7 @@
 	<?php
 		$i=0; 
 		foreach($info->steps as $mealStep){
-			$cookWith = ($info->cookWith[$i][0]!=CookAssistantController::COOK_WITH_OTHER)?1:0;
+			$cookWith = ($info->cookWith[$mealStep->recipeNr][0]!=CookAssistantController::COOK_WITH_OTHER)?1:0;
 			echo '<div class="recipeStep">';
 				echo '<input type="hidden" name="cookWith" value="' . ($cookWith) . '"/>';
 				echo '<div class="stepHeader">';
@@ -25,6 +25,11 @@
 					}
 					if (!$mealStep->endReached){
 						echo '<div class="nextTime' . (($mealStep->inTime)?'':' toLate') . '"><div>' . $this->trans->COOKASISSTANT_NEXT_STEP_IN . ' <span>'  . '</span></div></div>'; // $mealStep->nextStepIn . 
+					} else {
+						if (isset($info->courseFinished[$info->courseNr]) && $info->courseFinished[$info->courseNr] === true)
+						if (!isset($info->voted[$mealStep->recipeNr]) || $info->voted[$mealStep->recipeNr]===0) {
+							echo '<div class="nextTime"><div>' . $this->trans->COOKASISSTANT_VOTE_FOR_RECIPE . '</div></div>';
+						}
 					}
 					echo '<input type="hidden" name="nextTime" value="' . $mealStep->nextStepIn . '"/>';
 					echo '<input type="hidden" name="nextTimeTotal" value="' . $mealStep->nextStepTotal . '"/>';
@@ -47,7 +52,21 @@
 					if (!$mealStep->endReached){
 						echo CHtml::link('<div></div>', array('next', 'recipeNr'=>$mealStep->recipeNr, 'step'=>$mealStep->stepNr), array('class'=>'nextStep' . (($mealStep->stepNr == -1)?' startStep':'') . (($mealStep->autoClick)?' autoClick':'') . (($mealStep->mustWait)?' mustWait':'') . (($mealStep->stepType == CookAssistantController::SCALE)?' isWeightStep':'')));
 					} else  {
-						echo '<div class="nextStep"><span></span></div>';
+						if (isset($info->courseFinished[$info->courseNr]) && $info->courseFinished[$info->courseNr] === true){
+							if (!isset($info->voted[$mealStep->recipeNr]) || $info->voted[$mealStep->recipeNr]===0) {
+								echo '<div class="nextStep">';
+								echo CHtml::link($this->trans->COOKASISSTANT_VOTE_GOOD, array('vote', 'recipeNr'=>$mealStep->recipeNr, 'value'=>1), array('class'=>'button vote noAjax first'));
+								echo CHtml::link($this->trans->COOKASISSTANT_VOTE_BAD, array('vote', 'recipeNr'=>$mealStep->recipeNr, 'value'=>-1), array('class'=>'button vote noAjax'));
+								echo CHtml::link($this->trans->COOKASISSTANT_CHANGE_RECIPE, array('recipes/update', 'id'=>$info->course->couToRecs[$mealStep->recipeNr]->recipe->REC_ID), array('class'=>'button changeRecipe', 'style'=>'display:none;'));
+								echo '</div>';
+							} else {
+								echo '<div class="nextStep">';
+								echo CHtml::link($this->trans->COOKASISSTANT_CHANGE_RECIPE, array('recipes/update', 'id'=>$info->course->couToRecs[$mealStep->recipeNr]->recipe->REC_ID), array('class'=>'button changeRecipe'));
+								echo '</div>';
+							}
+						} else {
+							echo '<div class="nextStep"><span></span></div>';
+						}
 					}
 					echo '<span class="clearfix"></span>';
 				echo '</div>';
