@@ -92,6 +92,10 @@ class CookAssistantController extends Controller {
 		$totalWeight = array();
 		$voted = array();
 		
+		$physics = Yii::app()->db->createCommand()->select('PHA_NAME,PHA_VALUE')->from('physics_assumptions')->queryAll();
+		$physics = CHtml::listData($physics,'PHA_NAME','PHA_VALUE');
+		$info->physics = $physics;
+		
 		$ingredientIdToNutrient = array();
 		for ($recipeNr=0; $recipeNr<count($course->couToRecs); ++$recipeNr){
 			$stepNumbers[] = -1;
@@ -1027,10 +1031,10 @@ class CookAssistantController extends Controller {
 	
 	private function calcHeadUpTime($info, $recipeNr, $T_start, $T_end){
 		$P_heating = 1000; //W
-		$cp_H2O=4.18; // J/g*K
-		$cp_lipid=1.8; // J/g*K
-		$cp_prot=1.7; // J/g*K
-		$cp_carb=1.3; // J/g*K
+		$cp_H2O=$info->physics['cp_H2O']; //4.18 J/g*K
+		$cp_lipid=$info->physics['cp_lipid']; //1.8 J/g*K
+		$cp_prot=$info->physics['cp_prot']; //1.7 J/g*K
+		$cp_carb=$info->physics['cp_carb']; //1.3 J/g*K
 		
 		if ($this->debug) {echo 'calcHeadUpTime: from: ' . $T_start . ', to: ' . $T_end . '...' . "<br>\n";}
 		$m_H2O = 0.0;
@@ -1059,10 +1063,10 @@ class CookAssistantController extends Controller {
 		
 	private function calcCoolDownTime($info, $recipeNr, $T_start, $T_end){
 		$P_cooling = -30; //W
-		$cp_H2O=4.18; // J/g*K
-		$cp_lipid=1.8; // J/g*K
-		$cp_prot=1.7; // J/g*K
-		$cp_carb=1.3; // J/g*K
+		$cp_H2O=$info->physics['cp_H2O']; //4.18 J/g*K
+		$cp_lipid=$info->physics['cp_lipid']; //1.8 J/g*K
+		$cp_prot=$info->physics['cp_prot']; //1.7 J/g*K
+		$cp_carb=$info->physics['cp_carb']; //1.3 J/g*K
 		
 		if ($this->debug) {echo 'calcCoolDownTime: from: ' . $T_start + ', to: ' + $T_end + '...' . "<br>\n";}
 		$m_H2O = 0.0;
