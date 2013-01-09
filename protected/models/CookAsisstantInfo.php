@@ -27,9 +27,10 @@ class CookAsisstantInfo extends CModel
 	public $courseFinished = array();
 	public $voted = array();
 	public $physics = array();
+	public $recipeCookedInfos = array();
 	
 	public function attributeNames(){
-		return array('meal', 'courseNr', 'course', 'recipeSteps', 'stepNumbers', 'steps', 'totalWeight', 'stepStartTime', 'recipeStartTime', 'cookWith', 'totalTime', 'prepareTime', 'cookTime', 'usedTime', 'recipeUsedTime', 'timeDiff', 'finishedIn', 'timeDiffMax', '$started', 'cookInState', 'ingredientWeight', 'ingredientIdToNutrient', 'courseFinished', 'voted', 'physics');
+		return array('meal', 'courseNr', 'course', 'recipeSteps', 'stepNumbers', 'steps', 'totalWeight', 'stepStartTime', 'recipeStartTime', 'cookWith', 'totalTime', 'prepareTime', 'cookTime', 'usedTime', 'recipeUsedTime', 'timeDiff', 'finishedIn', 'timeDiffMax', '$started', 'cookInState', 'ingredientWeight', 'ingredientIdToNutrient', 'courseFinished', 'voted', 'physics', 'recipeCookedInfos');
 	}	
 	
 	public function __get($name) {

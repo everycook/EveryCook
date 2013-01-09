@@ -3,7 +3,9 @@
 <div class="cookAssistant">
 	<div class="meta">
 		<div class=""><?php printf($this->trans->COOKASISSTANT_COURSE_RECIPES, $info->courseNr+1, count($info->steps)); ?></div>
-		<div class="finishTime"><?php echo $this->trans->COOKASISSTANT_FINISHED_AT; ?><br/><span><?php echo date('H:i:s', time() + $info->finishedIn); ?></span></div>
+		<?php if ($info->finishedIn > 0){ ?>
+			<div class="finishTime"><?php echo $this->trans->COOKASISSTANT_FINISHED_AT; ?><br/><span><?php echo date('H:i:s', time() + $info->finishedIn); ?></span></div>
+		<?php } ?>
 		<input type="hidden" name="finishTime" id="finishTime" value="<?php echo $info->finishedIn ?>"/>
 		<input type="hidden" name="timeDiff" id="timeDiff" value="<?php echo $info->timeDiffMax ?>"/>
 		<input type="hidden" name="started" id="started" value="<?php echo $info->started ?>"/>

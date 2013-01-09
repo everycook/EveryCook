@@ -96,6 +96,8 @@ class CookAssistantController extends Controller {
 		$physics = CHtml::listData($physics,'PHA_NAME','PHA_VALUE');
 		$info->physics = $physics;
 		
+		$recipeCookedInfos = array();
+		
 		$ingredientIdToNutrient = array();
 		for ($recipeNr=0; $recipeNr<count($course->couToRecs); ++$recipeNr){
 			$stepNumbers[] = -1;
@@ -142,6 +144,7 @@ class CookAssistantController extends Controller {
 			$recipeStartTime[] = 0;
 			$totalWeight[] = 0;
 			$voted[] = 0;
+			$recipeCookedInfos[] = array();
 		}
 		$info->stepNumbers = $stepNumbers;
 		$info->stepStartTime = $stepStartTime;
@@ -152,11 +155,13 @@ class CookAssistantController extends Controller {
 		$info->cookTime = $cookTimes;
 		$info->usedTime = $usedTimes;
 		$info->timeDiff = $timeDiff;
-		$info->finishedIn = $maxTime;
+		//$info->finishedIn = $maxTime;
+		$info->finishedIn = 0; //set correct value after choose of cookIn options
 		$info->recipeUsedTime = $recipeUsedTime;
 		$info->totalWeight = $totalWeight;
 		$info->ingredientIdToNutrient = $ingredientIdToNutrient;
 		$info->voted = $voted;
+		$info->recipeCookedInfos = $recipeCookedInfos;
 		
 		$this->loadSteps($info);
 		for ($recipeNr=0; $recipeNr<count($course->couToRecs); ++$recipeNr){
@@ -194,6 +199,7 @@ class CookAssistantController extends Controller {
 						$timeDiff = $timeDiff - $info->steps[$recipeNr]->stepDuration;
 						$info->timeDiff[$recipeNr] = $info->timeDiff[$recipeNr] + $timeDiff;
 						$info->recipeStartTime[$recipeNr] = $currentTime;
+						$info->recipeCookedInfos[$recipeNr][$step]['timeDiff']=$timeDiff;
 						
 						$mealStep = $info->steps[$recipeNr];
 						
@@ -206,6 +212,11 @@ class CookAssistantController extends Controller {
 								$ingWeight = $stepAttributes['STE_GRAMS'];
 							} else {
 								$ingWeight = 0;
+							}
+							$info->recipeCookedInfos[$recipeNr][$step]['ing_id'] = $mealStep->ingredientId;
+							$info->recipeCookedInfos[$recipeNr][$step]['weight'] = $ingWeight;
+							if (isset($stepAttributes['STE_GRAMS'])){
+								$info->recipeCookedInfos[$recipeNr][$step]['neededWeight'] = $stepAttributes['STE_GRAMS'];
 							}
 							
 							if ($ingWeight>0){
@@ -245,6 +256,21 @@ class CookAssistantController extends Controller {
 					
 					$this->loadSteps($info);
 					$this->sendActionToFirmware($info, $recipeNr);
+					
+					if (!isset($info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]+1])){
+						//this is the last step, Save recipeCookedInfos
+						$cookedInfo = new RecipeCookedInfos();
+						$cookedInfo->PRF_UID = Yii::app()->user->id;
+						$cookedInfo->MEA_ID = $info->meal->MEA_ID;
+						$cookedInfo->COU_ID = $info->course->COU_ID;
+						$cookedInfo->REC_ID = $info->course->couToRecs[$recipeNr]->recipe->REC_ID;
+						$cookedInfo->RCI_COOK_DATE = time();
+						$cookedInfo->RCI_JSON = CJSON::encode($info->recipeCookedInfos[$recipeNr]);
+						if(!$cookedInfo->save()){
+							//TODO error while save recipeCookedInfos...
+						}
+					}
+					
 					Yii::app()->session['cookingInfo'] = $info;
 				} else {
 					//TODO recipe ended, no next step available.
@@ -385,6 +411,7 @@ class CookAssistantController extends Controller {
 		$tools = null;
 		$cookIns = null;
 		$allFinished = true;
+		$allCookWithSet = true;
 		for ($recipeNr=0; $recipeNr<count($course->couToRecs); ++$recipeNr){
 			$mealStep = new CookAsisstantStep();
 			$stepNr = $info->stepNumbers[$recipeNr];
@@ -439,6 +466,11 @@ class CookAssistantController extends Controller {
 						$detailSteps = array();
 						$detailSteps['all'] = array();
 						
+						if (!isset($actionIn) || $actionIn == null){
+							print_r($step);
+							die();
+						}
+						
 						foreach($actionIn->ainToAous as $ainToAou){
 							if ($ainToAou->COI_ID == $coi_id){
 								$actionsOut = $ainToAou->actionsOut;
@@ -447,20 +479,6 @@ class CookAssistantController extends Controller {
 								$stepAttributes['ATA_NO'] = $ainToAou['ATA_NO'];
 								$stepAttributes = array_merge($stepAttributes, $actionIn->attributes);
 								$stepAttributes = array_merge($stepAttributes, $actionsOut->attributes);
-								if ($stepAttributes['AOU_DURATION'] == self::STEP_DURATION_SPECIAL_USE_STEP){
-									$stepAttributes['AOU_DURATION'] = $stepAttributes['STE_STEP_DURATION'];
-								}
-								if ($stepAttributes['AOU_DUR_PRO'] > 0 && isset($stepAttributes['STE_GRAMS']) && $stepAttributes['STE_GRAMS']>0){
-									$stepAttributes['CALC_DURATION'] = $stepAttributes['AOU_DURATION'] * ( $stepAttributes['STE_GRAMS'] / $stepAttributes['AOU_DUR_PRO']) ;
-								} else if ($stepAttributes['AOU_DUR_PRO'] > 0 && (!isset($stepAttributes['STE_GRAMS']) || $stepAttributes['STE_GRAMS']<=0)){
-									$stepAttributes['CALC_DURATION'] = $stepAttributes['AOU_DURATION'] * ( $info->totalWeight[$recipeNr] / $stepAttributes['AOU_DUR_PRO']) ;
-								} else if ($stepAttributes['AOU_DURATION'] == self::STEP_DURATION_SPECIAL_CALC_HEADUP){
-									$stepAttributes['CALC_DURATION'] = $this->calcHeadUpTime($info, $recipeNr, $currentTemp, $stepAttributes['STE_CELSIUS']);
-								} else if ($stepAttributes['AOU_DURATION'] == self::STEP_DURATION_SPECIAL_CALC_COOLDOWN){
-									$stepAttributes['CALC_DURATION'] = $this->calcCoolDownTime($info, $recipeNr, $currentTemp, $stepAttributes['STE_CELSIUS']);
-								} else {
-									$stepAttributes['CALC_DURATION'] = $stepAttributes['AOU_DURATION'];
-								}
 								
 								if (isset($step->ingredient)){
 									$stepAttributes['ING_ID'] = $step->ingredient->ING_ID;
@@ -485,6 +503,28 @@ class CookAssistantController extends Controller {
 									$stepAttributes['ING_ID'] = 0;
 									$stepAttributes['ING_IMG_AUTH'] = '';
 									$stepAttributes['ING_NAME_' . Yii::app()->session['lang']] = '';
+								}
+								
+								if ($stepAttributes['AOU_DURATION'] == self::STEP_DURATION_SPECIAL_USE_STEP){
+									$stepAttributes['AOU_DURATION'] = $stepAttributes['STE_STEP_DURATION'];
+								}
+								 if ($stepAttributes['AOU_DUR_PRO'] > 0 && (isset($stepAttributes['STE_GRAMS']) && $stepAttributes['STE_GRAMS'] == -1)){
+									$stepAttributes['CALC_DURATION'] = $stepAttributes['AOU_DURATION'] * ( $info->totalWeight[$recipeNr] / $stepAttributes['AOU_DUR_PRO']) ;
+								//} else if ($stepAttributes['AOU_DUR_PRO'] > 0 && (isset($stepAttributes['STE_GRAMS']) && $stepAttributes['STE_GRAMS']>0){
+								//	$stepAttributes['CALC_DURATION'] = $stepAttributes['AOU_DURATION'] * ( $stepAttributes['STE_GRAMS'] / $stepAttributes['AOU_DUR_PRO']) ;
+								} else if ($stepAttributes['AOU_DUR_PRO'] > 0){
+									if (isset($info->ingredientWeight[$recipeNr][$stepAttributes['ING_ID']])){
+										$ingWeight = $info->ingredientWeight[$recipeNr][$stepAttributes['ING_ID']];
+									} else {
+										$ingWeight = 0;
+									}
+									$stepAttributes['CALC_DURATION'] = $stepAttributes['AOU_DURATION'] * ( $ingWeight / $stepAttributes['AOU_DUR_PRO']) ;
+								} else if ($stepAttributes['AOU_DURATION'] == self::STEP_DURATION_SPECIAL_CALC_HEADUP){
+									$stepAttributes['CALC_DURATION'] = $this->calcHeadUpTime($info, $recipeNr, $currentTemp, $stepAttributes['STE_CELSIUS']);
+								} else if ($stepAttributes['AOU_DURATION'] == self::STEP_DURATION_SPECIAL_CALC_COOLDOWN){
+									$stepAttributes['CALC_DURATION'] = $this->calcCoolDownTime($info, $recipeNr, $currentTemp, $stepAttributes['STE_CELSIUS']);
+								} else {
+									$stepAttributes['CALC_DURATION'] = $stepAttributes['AOU_DURATION'];
 								}
 								if (isset($step->STE_CELSIUS) && $step->STE_CELSIUS>0){
 									//for simulation
@@ -589,9 +629,11 @@ class CookAssistantController extends Controller {
 					//Reset ingredientWeight / totalWeight after simulation
 					$info->ingredientWeight[$recipeNr] = array();
 					$info->totalWeight[$recipeNr] = 0;
+					
+					$info->recipeCookedInfos[$recipeNr]['coi_id']=$coi_id;
 				} else {
 					//Cook in not defined
-					
+					$allCookWithSet = false;
 				}
 				
 				//TODO Calculate Starttime
@@ -628,6 +670,8 @@ class CookAssistantController extends Controller {
 				$step = $info->recipeSteps[$recipeNr][$stepNr];
 				$coi_id = $info->cookWith[$recipeNr][1];
 				
+				$info->recipeCookedInfos[$recipeNr][$stepNr]=array('stepNr'=>$stepNr, 'stepType'=>$step['STT_ID']);
+				
 				if (isset($info->steps[$recipeNr])){
 					$oldMealstep = $info->steps[$recipeNr];
 					if (isset($oldMealstep) && $oldMealstep != null){
@@ -649,15 +693,17 @@ class CookAssistantController extends Controller {
 					}
 					$cookIns = $cookInsIndexedArray;
 				}
-				
-				if ($step['AOU_DUR_PRO'] > 0 && (!isset($step['STE_GRAMS']) || $step['STE_GRAMS']<=0)){
+				if ($step['AOU_DUR_PRO'] > 0 && (isset($step['STE_GRAMS']) && $step['STE_GRAMS'] == -1)){
 					$stepDuration = $step['AOU_DURATION'] * ( $info->totalWeight[$recipeNr] / $step['AOU_DUR_PRO']) ;
+					$info->recipeCookedInfos[$recipeNr][$stepNr]['weightDuration'] = $stepDuration;
 					//TODO: total time anpassen????
 				} else if ($step['AOU_DURATION'] == self::STEP_DURATION_SPECIAL_CALC_HEADUP){
 					$stepDuration = $this->calcHeadUpTime($info, $recipeNr, $currentTemp, $step['STE_CELSIUS']);
+					$info->recipeCookedInfos[$recipeNr][$stepNr]['headUpTime'] = $stepDuration;
 					//TODO: total time anpassen????
 				} else if ($step['AOU_DURATION'] == self::STEP_DURATION_SPECIAL_CALC_COOLDOWN){
 					$stepDuration = $this->calcCoolDownTime($info, $recipeNr, $currentTemp, $step['STE_CELSIUS']);
+					$info->recipeCookedInfos[$recipeNr][$stepNr]['coolDownTime'] = $stepDuration;
 					//TODO: total time anpassen????
 				} else {
 					$stepDuration = $step['CALC_DURATION'];
@@ -809,11 +855,11 @@ class CookAssistantController extends Controller {
 				}
 			}
 		}
-		$info->finishedIn = $maxtime;
-		$info->timeDiffMax = $maxDiff;
-		
+		if($allCookWithSet){
+			$info->finishedIn = $maxtime;
+			$info->timeDiffMax = $maxDiff;
+		}
 		$info->courseFinished[$info->courseNr] = $allFinished;
-		
 		$info->steps = $currentSteps;
 	}
 	
@@ -1115,6 +1161,10 @@ class CookAssistantController extends Controller {
 	
 	public function actionOverview() {
 		$info = Yii::app()->session['cookingInfo'];
+		if(!isset($info) || $info == null){
+			$this->actionStart();
+			return;
+		}
 		if(isset($_POST['cookwith'])){
 			foreach($_POST['cookwith'] as $i=>$val){
 			//for($i=0; $i<count($_POST['cookwith']);++$i){
@@ -1147,12 +1197,12 @@ class CookAssistantController extends Controller {
 	public function actionVote($recipeNr, $value){
 		$info = Yii::app()->session['cookingInfo'];
 		if (isset($info->voted[$recipeNr]) && $info->voted[$recipeNr]>0){
-			$vote=RecipesVoting::model()->findByPk($info->voted[$recipeNr]);
+			$vote=RecipeVotings::model()->findByPk($info->voted[$recipeNr]);
 		} else {
 			$vote = null;
 		}
 		if ($vote===null){
-			$vote = new RecipesVoting();
+			$vote = new RecipeVotings();
 			$vote->PRF_UID = Yii::app()->user->id;
 			$vote->MEA_ID = $info->meal->MEA_ID;
 			$vote->COU_ID = $info->course->COU_ID;
@@ -1168,7 +1218,7 @@ class CookAssistantController extends Controller {
 			if ($value > 0){
 				echo '{sucessfull: true}';
 			} else {
-				$reasons = Yii::app()->db->createCommand()->select('RVR_ID,RVR_DESC_'.Yii::app()->session['lang'])->from('recipes_voting_reason')->order('RVR_DESC_'.Yii::app()->session['lang'])->queryAll();
+				$reasons = Yii::app()->db->createCommand()->select('RVR_ID,RVR_DESC_'.Yii::app()->session['lang'])->from('recipe_voting_reasons')->order('RVR_DESC_'.Yii::app()->session['lang'])->queryAll();
 				$reasons = CHtml::listData($reasons,'RVR_ID','RVR_DESC_'.Yii::app()->session['lang']);
 				$reasons['other'] = $this->trans->COOKASISSTANT_VOTE_REASON_OTHER;
 				$this->checkRenderAjax('vote', array(
@@ -1183,13 +1233,13 @@ class CookAssistantController extends Controller {
 	}
 	
 	public function actionVoteReason($RVO_ID){
-		$vote=RecipesVoting::model()->findByPk($RVO_ID);
+		$vote=RecipeVotings::model()->findByPk($RVO_ID);
 		if ($vote===null){
 			throw new CHttpException(404,'The requested page does not exist.');
 		}
-		if(isset($_POST['RecipesVoting'])){
+		if(isset($_POST['RecipeVotings'])){
 			$vote->setScenario('reason');
-			$vote->attributes = $_POST['RecipesVoting']; //$vote->RVR_ID / $vote->RVO_REASON
+			$vote->attributes = $_POST['RecipeVotings']; //$vote->RVR_ID / $vote->RVO_REASON
 			if ($vote->RVR_ID == 'other'){
 				$vote->RVR_ID = 0;
 			}

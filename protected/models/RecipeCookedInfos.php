@@ -1,24 +1,22 @@
 <?php
 
 /**
- * This is the model class for table "recipes_voting".
+ * This is the model class for table "recipe_cooked_infos".
  *
- * The followings are the available columns in table 'recipes_voting':
- * @property integer $RVO_ID
+ * The followings are the available columns in table 'recipe_cooked_infos':
+ * @property integer $RCI_ID
  * @property integer $PRF_UID
  * @property integer $MEA_ID
  * @property integer $COU_ID
  * @property integer $REC_ID
- * @property integer $RVO_COOK_DATE
- * @property integer $RVO_VALUE
- * @property integer $RVR_ID
- * @property string $RVO_REASON
+ * @property integer $RCI_COOK_DATE
+ * @property string $RCI_JSON
  */
-class RecipesVoting extends ActiveRecordECSimple
+class RecipeCookedInfos extends ActiveRecordECSimple
 {
 	/**
 	 * Returns the static model of the specified AR class.
-	 * @return RecipesVoting the static model class
+	 * @return RecipeCookedInfos the static model class
 	 */
 	public static function model($className=__CLASS__){
 		return parent::model($className);
@@ -28,7 +26,7 @@ class RecipesVoting extends ActiveRecordECSimple
 	 * @return string the associated database table name
 	 */
 	public function tableName(){
-		return 'recipes_voting';
+		return 'recipe_cooked_infos';
 	}
 
 	/**
@@ -38,12 +36,11 @@ class RecipesVoting extends ActiveRecordECSimple
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('MEA_ID, COU_ID, REC_ID, RVO_COOK_DATE, RVO_VALUE', 'required'),
-			array('PRF_UID, MEA_ID, COU_ID, REC_ID, RVO_COOK_DATE, RVO_VALUE, RVR_ID', 'numerical', 'integerOnly'=>true),
-			array('RVO_REASON', 'length', 'max'=>200),
+			array('MEA_ID, COU_ID, REC_ID, RCI_COOK_DATE, RCI_JSON', 'required'),
+			array('PRF_UID, MEA_ID, COU_ID, REC_ID, RCI_COOK_DATE', 'numerical', 'integerOnly'=>true),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('RVO_ID, PRF_UID, MEA_ID, COU_ID, REC_ID, RVO_COOK_DATE, RVO_VALUE, RVR_ID, RVO_REASON', 'safe', 'on'=>'search'),
+			array('RCI_ID, PRF_UID, MEA_ID, COU_ID, REC_ID, RCI_COOK_DATE, RCI_JSON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -62,35 +59,31 @@ class RecipesVoting extends ActiveRecordECSimple
 	 */
 	public function attributeLabels(){
 		return array(
-			'RVO_ID' => 'Rvo',
-			'PRF_UID' => 'Prf',
+			'RCI_ID' => 'Rci',
+			'PRF_UID' => 'Prf Uid',
 			'MEA_ID' => 'Mea',
 			'COU_ID' => 'Cou',
 			'REC_ID' => 'Rec',
-			'RVO_COOK_DATE' => 'Rvo Cook Date',
-			'RVO_VALUE' => 'Rvo Value',
-			'RVR_ID' => 'Rvr',
-			'RVO_REASON' => 'Rvo Reason',
+			'RCI_COOK_DATE' => 'Rci Cook Date',
+			'RCI_JSON' => 'Rci Json',
 		);
 	}
 	
 	public function getSearchFields(){
-		return array('RVO_ID', 'RVO_DESC_' . Yii::app()->session['lang']);
+		return array('RCI_ID', 'RCI_DESC_' . Yii::app()->session['lang']);
 	}
 	
 	
 	public function getCriteriaString(){
 		$criteria=new CDbCriteria;
 		
-		$criteria->compare($this->tableName().'.RVO_ID',$this->RVO_ID);
+		$criteria->compare($this->tableName().'.RCI_ID',$this->RCI_ID);
 		$criteria->compare($this->tableName().'.PRF_UID',$this->PRF_UID);
 		$criteria->compare($this->tableName().'.MEA_ID',$this->MEA_ID);
 		$criteria->compare($this->tableName().'.COU_ID',$this->COU_ID);
 		$criteria->compare($this->tableName().'.REC_ID',$this->REC_ID);
-		$criteria->compare($this->tableName().'.RVO_COOK_DATE',$this->RVO_COOK_DATE);
-		$criteria->compare($this->tableName().'.RVO_VALUE',$this->RVO_VALUE);
-		$criteria->compare($this->tableName().'.RVR_ID',$this->RVR_ID);
-		$criteria->compare($this->tableName().'.RVO_REASON',$this->RVO_REASON,true);
+		$criteria->compare($this->tableName().'.RCI_COOK_DATE',$this->RCI_COOK_DATE);
+		$criteria->compare($this->tableName().'.RCI_JSON',$this->RCI_JSON,true);
 	}
 	
 	public function getCriteria(){
@@ -99,15 +92,13 @@ class RecipesVoting extends ActiveRecordECSimple
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('RVO_ID',$this->RVO_ID);
+		$criteria->compare('RCI_ID',$this->RCI_ID);
 		$criteria->compare('PRF_UID',$this->PRF_UID);
 		$criteria->compare('MEA_ID',$this->MEA_ID);
 		$criteria->compare('COU_ID',$this->COU_ID);
 		$criteria->compare('REC_ID',$this->REC_ID);
-		$criteria->compare('RVO_COOK_DATE',$this->RVO_COOK_DATE);
-		$criteria->compare('RVO_VALUE',$this->RVO_VALUE);
-		$criteria->compare('RVR_ID',$this->RVR_ID);
-		$criteria->compare('RVO_REASON',$this->RVO_REASON,true);
+		$criteria->compare('RCI_COOK_DATE',$this->RCI_COOK_DATE);
+		$criteria->compare('RCI_JSON',$this->RCI_JSON,true);
 		//Add with conditions for relations
 		//$criteria->with = array('???relationName???' => array());
 	}
@@ -117,8 +108,8 @@ class RecipesVoting extends ActiveRecordECSimple
 		$sort->attributes = array(
 		/*
 			'sortId' => array(
-				'asc' => 'RVO_ID',
-				'desc' => 'RVO_ID DESC',
+				'asc' => 'RCI_ID',
+				'desc' => 'RCI_ID DESC',
 			),
 		*/
 			'*',

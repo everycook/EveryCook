@@ -7,18 +7,20 @@ jQuery(function($){
 	var interval = -1;
 	var errorCounter=[];
 	function initTimer(type, contentParent){
-		if (interval != -1){
-			window.clearInterval(interval);
+		if (type !== 'fancy'){
+			if (interval != -1){
+				window.clearInterval(interval);
+			}
+			if (typeof(contentParent) === 'undefined') return;
+			startTime = [];
+			var currentTime = new Date().getTime();
+			contentParent.find('.recipeStep').each(function(index){
+				startTime[index] = currentTime;
+			});
+			errorCounter=[];
+			interval = window.setInterval(updateTime,500);
+			updateTime(true);
 		}
-		if (typeof(contentParent) === 'undefined') return;
-		startTime = [];
-		var currentTime = new Date().getTime();
-		contentParent.find('.recipeStep').each(function(index){
-			startTime[index] = currentTime;
-		});
-		errorCounter=[];
-		interval = window.setInterval(updateTime,500);
-		updateTime(true);
 	}
 	
 	$('#page').bind('newContent.ajax_handling', function(e, type, contentParent) {

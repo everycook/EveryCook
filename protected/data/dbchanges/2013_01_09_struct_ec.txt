@@ -1,0 +1,12 @@
+CREATE TABLE `recipe_cooked_infos` (
+`RCI_ID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+`PRF_UID` INT NULL ,
+`MEA_ID` INT NOT NULL ,
+`COU_ID` INT NOT NULL ,
+`REC_ID` INT NOT NULL ,
+`RCI_COOK_DATE` INT NOT NULL ,
+`RCI_JSON` TEXT NOT NULL 
+) ENGINE = InnoDB;
+
+RENAME TABLE `recipes_voting` TO `recipe_votings` ;
+RENAME TABLE `recipes_voting_reason` TO `recipe_voting_reasons` ;

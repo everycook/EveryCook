@@ -2,7 +2,7 @@
 <div class="cookAssistantVote form">
 
 <?php $form=$this->beginWidget('CActiveForm', array(
-	'id'=>'recipesVoting-form',
+	'id'=>'recipeVotings-form',
 	'enableAjaxValidation'=>false,
 	/*'action'=>Yii::app()->createUrl('voteReason', array('RVO_ID'=>$model->RVO_ID)),*/
 	'action'=>$this->createUrl('voteReason', array('RVO_ID'=>$model->RVO_ID)),
