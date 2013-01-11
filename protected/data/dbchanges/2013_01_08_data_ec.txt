@@ -1,4 +1,4 @@
-INSERT INTO `ec`.`physics_assumptions` (`PHA_NAME` ,`PHA_UNIT` ,`PHA_VALUE` ,`CREATED_BY` ,`CREATED_ON` ,`CHANGED_BY` ,`CHANGED_ON`) VALUES
+INSERT INTO `physics_assumptions` (`PHA_NAME` ,`PHA_UNIT` ,`PHA_VALUE` ,`CREATED_BY` ,`CREATED_ON` ,`CHANGED_BY` ,`CHANGED_ON`) VALUES
 ('cp_H2O', 'J/g*K', '4.18', '3', 1357680560 , NULL, NULL),
 ('cp_lipid', 'J/g*K', '1.8', '3', 1357680560 , NULL, NULL),
 ('cp_prot', 'J/g*K', '1.7', '3', 1357680560 , NULL, NULL),

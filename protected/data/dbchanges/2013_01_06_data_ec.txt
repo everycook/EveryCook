@@ -1,4 +1,4 @@
-INSERT INTO `recipe_voting_reasons` (`RVR_ID` ,`RVR_DESC_DE_CH` ,`RVR_DESC_EN_GB`) VALUES
+INSERT INTO `recipes_voting_reason` (`RVR_ID` ,`RVR_DESC_DE_CH` ,`RVR_DESC_EN_GB`) VALUES
 ('1', 'Zu lange gekockt.', 'it''s cooked to long.'),
 ('2', 'Zuwenig lang gekockt.', 'Not cooked long enough.');
 
