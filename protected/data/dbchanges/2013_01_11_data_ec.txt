@@ -22,4 +22,4 @@ INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
 ('TITLE_RECIPEVOTINGREASONS_VIEW', 'View RecipeVotingReason #%d', 'View RecipeVotingReason #%d', ''),
 ('TITLE_RECIPEVOTINGREASONS_UPDATE', 'Update RecipeVotingReason #%d', 'Update RecipeVotingReason #%d', ''),
 ('TITLE_RECIPEVOTINGREASONS_LIST', 'Recipe Voting Reasons', 'Recipe Voting Reasons', ''),
-('TITLE_RECIPEVOTINGREASONS_CREATE', 'Create RecipeVotingReason', 'Create RecipeVotingReason', '');iew EthicalCriteria #%d
+('TITLE_RECIPEVOTINGREASONS_CREATE', 'Create RecipeVotingReason', 'Create RecipeVotingReason', '');
