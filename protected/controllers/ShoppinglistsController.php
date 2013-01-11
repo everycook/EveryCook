@@ -311,7 +311,7 @@ class ShoppinglistsController extends Controller
 		}
 		
 		$command = Yii::app()->db->createCommand()
-			->select('products.PRO_ID, products.PRO_IMG_CR, products.PRO_IMG_ETAG, PRO_NAME_'.Yii::app()->session['lang'])
+			->select('products.PRO_ID, products.PRO_IMG_AUTH, products.PRO_IMG_ETAG, PRO_NAME_'.Yii::app()->session['lang'])
 			->from('products')
 			->group('products.PRO_ID');
 		
@@ -360,7 +360,7 @@ class ShoppinglistsController extends Controller
 			$ing_id = $proToIng[$pro_id];
 			
 			$data[$ing_id]['PRO_NAME'] = $row['PRO_NAME_'.Yii::app()->session['lang']];
-			$data[$ing_id]['PRO_IMG_CR'] = $row['PRO_IMG_CR'];
+			$data[$ing_id]['PRO_IMG_AUTH'] = $row['PRO_IMG_AUTH'];
 			$data[$ing_id]['PRO_IMG_ETAG'] = $row['PRO_IMG_ETAG'];
 			
 			if ($hasYouDist){

@@ -119,9 +119,9 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'PRO_IMG_CR'); ?>
-		<?php echo $form->textField($model,'PRO_IMG_CR',array('size'=>30,'maxlength'=>30)); ?>
-		<?php echo $form->error($model,'PRO_IMG_CR'); ?>
+		<?php echo $form->labelEx($model,'PRO_IMG_AUTH'); ?>
+		<?php echo $form->textField($model,'PRO_IMG_AUTH',array('size'=>30,'maxlength'=>30)); ?>
+		<?php echo $form->error($model,'PRO_IMG_AUTH'); ?>
 	</div>
 
 	<div class="buttons">

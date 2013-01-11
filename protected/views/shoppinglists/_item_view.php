@@ -17,7 +17,7 @@
 			<div class="shoppingList_image">
 				<div class="list_img">
 					<?php echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'.png')), '', array('class'=>'shoppinglist_product', 'alt'=>$data['PRO_NAME'], 'title'=>$data['PRO_NAME'])); ?>
-					<div class="img_auth"><?php if ($data['PRO_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $data['PRO_IMG_CR']; } ?></div>
+					<div class="img_auth"><?php if ($data['PRO_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $data['PRO_IMG_AUTH']; } ?></div>
 				</div>
 				<?php echo CHtml::link($this->trans->SHOPPINGLIST_HAVE_IT, array('removeFromList', 'id'=>$data['SHO_ID'], 'ing_id'=>$data['ING_ID']), array('class'=>'button noAjax removeFromList')); ?>
 			</div>
