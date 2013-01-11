@@ -12,12 +12,14 @@ $tablePrefix = substr($primaryKey, 0, strpos($primaryKey,'_'));
 <?php echo "<?php\n"; ?>
 	if ($this->isFancyAjaxRequest){
 		echo CHtml::link($this->trans->GENERAL_SELECT, $data['<?php echo $primaryKey; ?>'], array('class'=>'f-right button <?php echo $this->model; ?>Select'));
+	/*
 	} else {
 		echo '<div class="options">';
 			echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data['<?php echo $primaryKey; ?>']), array('class'=>'delicious noAjax backpic', 'title'=>$this->trans->GENERAL_DELICIOUS));
 			//echo CHtml::link('&nbsp;', array('<controller>/<page>', '<?php echo $primaryKey; ?>'=>$data['<?php echo $primaryKey; ?>']), array('class'=>'cookwith backpic', 'title'=>$this->trans->???));
 			echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['<?php echo $primaryKey; ?>']), array('class'=>'disgusting noAjax backpic last','title'=>$this->trans->GENERAL_DISGUSTING));
 		echo '</div>';
+	*/
 	}
 	?>
 	

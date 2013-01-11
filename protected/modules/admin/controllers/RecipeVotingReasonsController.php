@@ -1,15 +1,6 @@
 <?php
-/**
- * This is the template for generating a controller class file for CRUD feature.
- * The following variables are available in this template:
- * - $this: the CrudCode object
- */
-$tablePrefix = $this->tableSchema->primaryKey;
-$tablePrefix = substr($tablePrefix, 0, strpos($tablePrefix,'_'));
-?>
-<?php echo "<?php\n"; ?>
 
-class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseControllerClass."\n"; ?>
+class RecipeVotingReasonsController extends Controller
 {
 	/**
 	 * @return array action filters
@@ -20,8 +11,8 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 		);
 	}
 	
-	protected $createBackup = '<?php echo $this->modelClass; ?>_Backup';
-	protected $searchBackup = '<?php echo $this->modelClass; ?>';
+	protected $createBackup = 'RecipeVotingReasons_Backup';
+	protected $searchBackup = 'RecipeVotingReasons';
 	
 	/**
 	 * Specifies the access control rules.
@@ -31,7 +22,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 	public function accessRules(){
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','choose<?php echo $this->modelClass; ?>','advanceChoose<?php echo $this->modelClass; ?>'),
+				'actions'=>array('index','view','search','advanceSearch','chooseRecipeVotingReasons','advanceChooseRecipeVotingReasons'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -72,7 +63,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 			$oldmodel = $Session_Backup;
 		}
 		if (isset($id) && $id != null){
-			if (!isset($oldmodel) || $oldmodel-><?php echo $this->tableSchema->primaryKey; ?> != $id){
+			if (!isset($oldmodel) || $oldmodel->RVR_ID != $id){
 				$oldmodel = $this->loadModel($id, true);
 			}
 		}
@@ -80,7 +71,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 		if (isset($oldmodel)){
 			$model = $oldmodel;
 		} else {
-			$model=new <?php echo $this->modelClass; ?>;
+			$model=new RecipeVotingReasons;
 		}
 		return $model;
 	}
@@ -94,14 +85,14 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['<?php echo $this->modelClass; ?>']))
+		if(isset($_POST['RecipeVotingReasons']))
 		{
-			$model->attributes=$_POST['<?php echo $this->modelClass; ?>'];
+			$model->attributes=$_POST['RecipeVotingReasons'];
 			if($model->save()){
 				unset(Yii::app()->session[$this->createBackup]);
 				unset(Yii::app()->session[$this->createBackup.'_Time']);
-				$this->forwardAfterSave(array('view', 'id'=>$model-><?php echo $this->tableSchema->primaryKey; ?>));
-				//$this->forwardAfterSave(array('search', 'query'=>$model->__get('<?php echo $tablePrefix; ?>_DESC_' . Yii::app()->session['lang'])));
+				$this->forwardAfterSave(array('view', 'id'=>$model->RVR_ID));
+				//$this->forwardAfterSave(array('search', 'query'=>$model->__get('RVR_DESC_' . Yii::app()->session['lang'])));
 				return;
 			}
 		}
@@ -157,7 +148,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 	 * Lists all models.
 	 */
 	public function actionIndex(){
-		$dataProvider=new CActiveDataProvider('<?php echo $this->modelClass; ?>');
+		$dataProvider=new CActiveDataProvider('RecipeVotingReasons');
 		$this->checkRenderAjax('index',array(
 			'dataProvider'=>$dataProvider,
 		));
@@ -165,7 +156,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 	
 	
 	private function prepareSearch($view, $ajaxLayout, $criteria){
-		$model=new <?php echo $this->modelClass; ?>('search');
+		$model=new RecipeVotingReasons('search');
 		$model->unsetAttributes();  // clear any default values
 		
 		$model2 = new SimpleSearchForm();
@@ -179,14 +170,14 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 		}
 		
 		$modelAvailable = false;
-		if(isset($_POST['<?php echo $this->modelClass; ?>'])) {
-			$model->attributes=$_POST['<?php echo $this->modelClass; ?>'];
+		if(isset($_POST['RecipeVotingReasons'])) {
+			$model->attributes=$_POST['RecipeVotingReasons'];
 			$modelAvailable = true;
 		}
 		
 		$Session_Data = Yii::app()->session[$this->searchBackup];
 		if (isset($Session_Data)){
-			if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['<?php echo $this->modelClass; ?>']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_Data['time'])){
+			if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['RecipeVotingReasons']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_Data['time'])){
 				if (isset($Session_Data['query'])){
 					$query = $Session_Data['query'];
 					$model2->query = $query;
@@ -201,7 +192,8 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 		}
 		
 		$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(), $model->getSearchFields(), $query, $model->tableName() . '.');
-		if ($modelAvailable || $criteriaString != '' || $criteria != null){
+		//if there is no search criteria, show all
+		//if ($modelAvailable || $criteriaString != '' || $criteria != null){
 			$command = Yii::app()->db->createCommand()
 					->from($model->tableName());
 				//Add aditional conditions, and joins here...
@@ -245,14 +237,14 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 				unset(Yii::app()->session[$this->searchBackup]);
 			}
 			$rows = $command->queryAll();
-		} else {
+		/*} else {
 			$rows = array();
 			unset(Yii::app()->session[$this->searchBackup]);
-		}
+		}*/
 		
 		$dataProvider=new CArrayDataProvider($rows, array(
-			'id'=>'<?php echo $this->tableSchema->primaryKey; ?>',
-			'keyField'=>'<?php echo $this->tableSchema->primaryKey; ?>',
+			'id'=>'RVR_ID',
+			'keyField'=>'RVR_ID',
 			'pagination'=>array(
 				'pageSize'=>10,
 			),
@@ -283,12 +275,12 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 		$this->prepareSearch('search', null, null);
 	}
 	
-	public function actionChoose<?php echo $this->modelClass; ?>(){
+	public function actionChooseRecipeVotingReasons(){
 		$this->isFancyAjaxRequest = true;
 		$this->prepareSearch('search', 'none', null);
 	}
 	
-	public function actionAdvanceChoose<?php echo $this->modelClass; ?>(){
+	public function actionAdvanceChooseRecipeVotingReasons(){
 		$this->isFancyAjaxRequest = true;
 		$this->prepareSearch('advanceSearch', 'none', null);
 	}
@@ -302,7 +294,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 		
 		$ids = explode(',', $ids);
 		$criteria=new CDbCriteria;
-		$criteria->compare(<?php echo $this->modelClass; ?>::model()->tableName().'.<?php echo $this->tableSchema->primaryKey; ?>',$ids);
+		$criteria->compare(RecipeVotingReasons::model()->tableName().'.RVR_ID',$ids);
 		
 		$this->prepareSearch('like', null, $criteria);
 	}
@@ -316,7 +308,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 		
 		$ids = explode(',', $ids);
 		$criteria=new CDbCriteria;
-		$criteria->compare(<?php echo $this->modelClass; ?>::model()->tableName().'.<?php echo $this->tableSchema->primaryKey; ?>',$ids);
+		$criteria->compare(RecipeVotingReasons::model()->tableName().'.RVR_ID',$ids);
 		
 		$this->prepareSearch('like', null, $criteria);
 	}
@@ -342,7 +334,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 		if ($id == 'backup'){
 			$model=Yii::app()->session[$this->createBackup];
 		} else {
-			$model=<?php echo $this->modelClass; ?>::model()->findByPk($id);
+			$model=RecipeVotingReasons::model()->findByPk($id);
 		}
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
@@ -354,7 +346,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 	 * @param CModel the model to be validated
 	 */
 	protected function performAjaxValidation($model){
-		if(isset($_POST['ajax']) && $_POST['ajax']==='<?php echo $this->class2id($this->modelClass); ?>-form')
+		if(isset($_POST['ajax']) && $_POST['ajax']==='recipe-voting-reasons-form')
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();

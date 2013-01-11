@@ -40,7 +40,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
 				'actions'=>array('delete'),
-				'users'=>array('admin'),
+				'roles'=>array('admin'),
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),

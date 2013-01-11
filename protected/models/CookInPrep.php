@@ -6,8 +6,12 @@
  * The followings are the available columns in table 'cook_in_prep':
  * @property integer $COI_PREP
  * @property string $COI_PREP_DESC
+ * @property integer $CREATED_BY
+ * @property integer $CREATED_ON
+ * @property integer $CHANGED_BY
+ * @property integer $CHANGED_ON
  */
-class CookInPrep extends ActiveRecordECSimple
+class CookInPrep extends ActiveRecordEC
 {
 	/**
 	 * Returns the static model of the specified AR class.
@@ -31,12 +35,12 @@ class CookInPrep extends ActiveRecordECSimple
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('COI_PREP, COI_PREP_DESC', 'required'),
-			array('COI_PREP', 'numerical', 'integerOnly'=>true),
+			array('COI_PREP, COI_PREP_DESC, CREATED_BY, CREATED_ON', 'required'),
+			array('COI_PREP, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('COI_PREP_DESC', 'length', 'max'=>100),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('COI_PREP, COI_PREP_DESC', 'safe', 'on'=>'search'),
+			array('COI_PREP, COI_PREP_DESC, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -57,6 +61,10 @@ class CookInPrep extends ActiveRecordECSimple
 		return array(
 			'COI_PREP' => 'Coi Prep',
 			'COI_PREP_DESC' => 'Coi Prep Desc',
+			'CREATED_BY' => 'Created By',
+			'CREATED_ON' => 'Created On',
+			'CHANGED_BY' => 'Changed By',
+			'CHANGED_ON' => 'Changed On',
 		);
 	}
 	
@@ -70,6 +78,10 @@ class CookInPrep extends ActiveRecordECSimple
 		
 		$criteria->compare($this->tableName().'.COI_PREP',$this->COI_PREP);
 		$criteria->compare($this->tableName().'.COI_PREP_DESC',$this->COI_PREP_DESC,true);
+		$criteria->compare($this->tableName().'.CREATED_BY',$this->CREATED_BY);
+		$criteria->compare($this->tableName().'.CREATED_ON',$this->CREATED_ON);
+		$criteria->compare($this->tableName().'.CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare($this->tableName().'.CHANGED_ON',$this->CHANGED_ON);
 	}
 	
 	public function getCriteria(){
@@ -80,6 +92,10 @@ class CookInPrep extends ActiveRecordECSimple
 
 		$criteria->compare('COI_PREP',$this->COI_PREP);
 		$criteria->compare('COI_PREP_DESC',$this->COI_PREP_DESC,true);
+		$criteria->compare('CREATED_BY',$this->CREATED_BY);
+		$criteria->compare('CREATED_ON',$this->CREATED_ON);
+		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare('CHANGED_ON',$this->CHANGED_ON);
 		//Add with conditions for relations
 		//$criteria->with = array('???relationName???' => array());
 	}

@@ -10,11 +10,15 @@
  * @property string $AOU_PREP
  * @property integer $AOU_DURATION
  * @property integer $AOU_DUR_PRO
- * @property integer $AOU_CIS_CHANGE
- * @property string $AOU_DESC_DE_CH
+ * @property string $AOU_CIS_CHANGE
  * @property string $AOU_DESC_EN_GB
+ * @property string $AOU_DESC_DE_CH
+ * @property integer $CREATED_BY
+ * @property integer $CREATED_ON
+ * @property integer $CHANGED_BY
+ * @property integer $CHANGED_ON
  */
-class ActionsOut extends ActiveRecordECSimple
+class ActionsOut extends ActiveRecordEC
 {
 	/**
 	 * Returns the static model of the specified AR class.
@@ -38,13 +42,13 @@ class ActionsOut extends ActiveRecordECSimple
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('STT_ID, TOO_ID, AOU_DURATION, AOU_DUR_PRO, AOU_CIS_CHANGE, AOU_DESC_DE_CH, AOU_DESC_EN_GB', 'required'),
-			array('STT_ID, TOO_ID, AOU_DURATION, AOU_DUR_PRO, AOU_CIS_CHANGE', 'numerical', 'integerOnly'=>true),
+			array('STT_ID, TOO_ID, AOU_DURATION, AOU_DUR_PRO, AOU_CIS_CHANGE, AOU_DESC_EN_GB, CREATED_BY, CREATED_ON', 'required'),
+			array('STT_ID, TOO_ID, AOU_DURATION, AOU_DUR_PRO, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('AOU_PREP', 'length', 'max'=>1),
-			array('AOU_DESC_DE_CH, AOU_DESC_EN_GB', 'length', 'max'=>100),
+			array('AOU_CIS_CHANGE, AOU_DESC_EN_GB, AOU_DESC_DE_CH', 'length', 'max'=>100),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('AOU_ID, STT_ID, TOO_ID, AOU_PREP, AOU_DURATION, AOU_DUR_PRO, AOU_CIS_CHANGE, AOU_DESC_DE_CH, AOU_DESC_EN_GB', 'safe', 'on'=>'search'),
+			array('AOU_ID, STT_ID, TOO_ID, AOU_PREP, AOU_DURATION, AOU_DUR_PRO, AOU_CIS_CHANGE, AOU_DESC_EN_GB, AOU_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -71,9 +75,13 @@ class ActionsOut extends ActiveRecordECSimple
 			'AOU_PREP' => 'Aou Prep',
 			'AOU_DURATION' => 'Aou Duration',
 			'AOU_DUR_PRO' => 'Aou Dur Pro',
-			'AOU_CIS_CHANGE' => 'Cis',
-			'AOU_DESC_DE_CH' => 'Aou Desc De Ch',
+			'AOU_CIS_CHANGE' => 'Aou Cis Change',
 			'AOU_DESC_EN_GB' => 'Aou Desc En Gb',
+			'AOU_DESC_DE_CH' => 'Aou Desc De Ch',
+			'CREATED_BY' => 'Created By',
+			'CREATED_ON' => 'Created On',
+			'CHANGED_BY' => 'Changed By',
+			'CHANGED_ON' => 'Changed On',
 		);
 	}
 	
@@ -91,9 +99,13 @@ class ActionsOut extends ActiveRecordECSimple
 		$criteria->compare($this->tableName().'.AOU_PREP',$this->AOU_PREP,true);
 		$criteria->compare($this->tableName().'.AOU_DURATION',$this->AOU_DURATION);
 		$criteria->compare($this->tableName().'.AOU_DUR_PRO',$this->AOU_DUR_PRO);
-		$criteria->compare($this->tableName().'.AOU_CIS_CHANGE',$this->AOU_CIS_CHANGE);
-		$criteria->compare($this->tableName().'.AOU_DESC_DE_CH',$this->AOU_DESC_DE_CH,true);
+		$criteria->compare($this->tableName().'.AOU_CIS_CHANGE',$this->AOU_CIS_CHANGE,true);
 		$criteria->compare($this->tableName().'.AOU_DESC_EN_GB',$this->AOU_DESC_EN_GB,true);
+		$criteria->compare($this->tableName().'.AOU_DESC_DE_CH',$this->AOU_DESC_DE_CH,true);
+		$criteria->compare($this->tableName().'.CREATED_BY',$this->CREATED_BY);
+		$criteria->compare($this->tableName().'.CREATED_ON',$this->CREATED_ON);
+		$criteria->compare($this->tableName().'.CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare($this->tableName().'.CHANGED_ON',$this->CHANGED_ON);
 	}
 	
 	public function getCriteria(){
@@ -108,9 +120,13 @@ class ActionsOut extends ActiveRecordECSimple
 		$criteria->compare('AOU_PREP',$this->AOU_PREP,true);
 		$criteria->compare('AOU_DURATION',$this->AOU_DURATION);
 		$criteria->compare('AOU_DUR_PRO',$this->AOU_DUR_PRO);
-		$criteria->compare('AOU_CIS_CHANGE',$this->AOU_CIS_CHANGE);
-		$criteria->compare('AOU_DESC_DE_CH',$this->AOU_DESC_DE_CH,true);
+		$criteria->compare('AOU_CIS_CHANGE',$this->AOU_CIS_CHANGE,true);
 		$criteria->compare('AOU_DESC_EN_GB',$this->AOU_DESC_EN_GB,true);
+		$criteria->compare('AOU_DESC_DE_CH',$this->AOU_DESC_DE_CH,true);
+		$criteria->compare('CREATED_BY',$this->CREATED_BY);
+		$criteria->compare('CREATED_ON',$this->CREATED_ON);
+		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare('CHANGED_ON',$this->CHANGED_ON);
 		//Add with conditions for relations
 		//$criteria->with = array('???relationName???' => array());
 	}
