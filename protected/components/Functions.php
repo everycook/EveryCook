@@ -203,6 +203,9 @@ class Functions extends CHtml{
 			if (isset($texts['move down'])){
 				$html .= '<div class="down" title="' . $texts['move down'] . '"></div>';
 			}
+			if (isset($texts['add2'])){
+				$html .= '<div class="add" title="' . $texts['add2'] . '"></div>';
+			}
 			$html .= '</td>';
 		}
 		$html .= '</tr>';

@@ -52,21 +52,55 @@ jQuery(function($){
 			elem = jQuery(this);
 			elem.attr('name', elem.attr('name').replace(currentIndexStr,newIndexIntStr));
 			elem.attr('id', elem.attr('id').replace(currentIndexStr2,newIndexIntStr2));
-			prev = elem.prev();
+			var prev = elem.prev();
 			if (prev.is('label')){
-				prev.attr('for', prev.attr('for').replace(currentIndexStr2,newIndexIntStr2));	
+				prev.attr('for', prev.attr('for').replace(currentIndexStr2,newIndexIntStr2));
+			}
+			var next = elem.next();
+			if (next.is('a')){  // && elem.is('.fancyValue')
+				next.attr('id', next.attr('id').replace(currentIndexStr2,newIndexIntStr2));
 			}
 		});
 	}
 	
-	function addEmptyRow(emptyLineContainer){
-		var currentNewLineContent = newLineContent.replace('%class%',(lastIndex % 2 == 1)?'odd':'even');
-		currentNewLineContent = currentNewLineContent.replace(/%index%/g,lastIndex);
+	function addEmptyRow(insertBeforeLine){
+		var index;
+		if (insertBeforeLine.is('#newLine')){
+			index = lastIndex;
+		} else {
+			var fields = insertBeforeLine.find('input[name]');
+			if (fields.length == 0){
+				return null;
+			} else {
+				index = getIndexFromFieldName(fields.attr('name'));
+			}
+		}
+		
+		var currentNewLineContent = newLineContent.replace('%class%',(index % 2 == 1)?'odd':'even');
+		currentNewLineContent = currentNewLineContent.replace(/%index%/g,index);
+		
+		currentNewLineContent = jQuery(currentNewLineContent);
+		currentNewLineContent.insertBefore(insertBeforeLine);
+		
+		if (index != lastIndex){
+			try {
+				changeInputTableIndex(insertBeforeLine, 1);
+				var followedRows = insertBeforeLine.nextAll().not('.addFields').not('.actionsInInfo');
+				followedRows = followedRows.not(followedRows.last());
+				followedRows.each(function(){
+					changeInputTableIndex(jQuery(this), 1);
+				});
+				/*
+				for (var i=0; i<followedRows.length; ++i){
+					changeInputTableIndex(followedRows[i], 1);
+				}*/
+			} catch(ex){
+				console.log(ex);
+			}
+		}
 		
 		lastIndex = lastIndex+1;
 		
-		currentNewLineContent = jQuery(currentNewLineContent);
-		currentNewLineContent.insertBefore(emptyLineContainer);
 		return currentNewLineContent;
 	}
 	

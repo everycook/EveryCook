@@ -746,7 +746,7 @@ ul.search_choose li, ul.options_choose li {
 	margin-left: 0.25em;
 }
 
-.addRowContainer div.up, .addRowContainer div.down, .addRowContainer div.remove {
+.addRowContainer .options div.up, .addRowContainer .options div.down, .addRowContainer .options div.remove, .addRowContainer .options div.add {
 	width: 2.4em;
 	height: 2.4em;
 	float:left;
@@ -1322,13 +1322,13 @@ div.mealView span.value {
 	position: relative;
 	margin-bottom: 1em;
 }
-.up1 {
+.up-arrow .up1 {
 /*	border-radius: 7em 7em 0 0;*/
 	border-bottom: 4em solid black;
 	border-left: 11.3em solid transparent;
 	border-right: 11.3em solid transparent;
 }
-.up2{
+.up-arrow .up2{
 /*	border-radius: 7em 7em 0 0;*/
 	border-bottom: 3em solid white;
 	border-left: 9em solid transparent;
@@ -1341,13 +1341,13 @@ div.mealView span.value {
 	position: relative;
 	margin-top: 1em;
 }
-.down1 {
+.down-arrow .down1 {
 /*	border-radius: 0 0 7em 7em;*/
 	border-top: 4em solid black;
 	border-left: 11.3em solid transparent;
 	border-right: 11.3em solid transparent;
 }
-.down2 {
+.down-arrow .down2 {
 /*	border-radius: 0 0 7em 7em;*/
 	border-top: 3em solid white;
 	border-left: 9em solid transparent;
