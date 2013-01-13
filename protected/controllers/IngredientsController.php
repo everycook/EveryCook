@@ -208,10 +208,8 @@ class IngredientsController extends Controller
 		
 		if (isset($oldmodel)){
 			$model = $oldmodel;
-			$oldPicture = $oldmodel->ING_IMG;
 		} else {
 			$model=new Ingredients;
-			$oldPicture = null;
 		}
 		Functions::uploadImage('Ingredients', $model, $this->createBackup, 'ING_IMG');
 	}
@@ -232,10 +230,10 @@ class IngredientsController extends Controller
 		
 		if (isset($oldmodel)){
 			$model = $oldmodel;
-			$oldPicture = $oldmodel->ING_IMG;
+			$oldPictureFilename = $oldmodel->ING_IMG_FILENAME;
 		} else {
 			$model=new Ingredients;
-			$oldPicture=null;
+			$oldPictureFilename=null;
 		}
 		if (isset($model->ING_IMG) && $model->ING_IMG != ''){
 			$model->setScenario('withPic');
@@ -243,8 +241,8 @@ class IngredientsController extends Controller
 		
 		if(isset($_POST['Ingredients'])){
 			$model->attributes=$_POST['Ingredients'];
-			if (isset($oldPicture)){
-				Functions::updatePicture($model,'ING_IMG', $oldPicture);
+			if (isset($oldPictureFilename)){
+				Functions::updatePicture($model,'ING_IMG', $oldPictureFilename);
 			}
 			
 			Yii::app()->session[$this->createBackup] = $model;
@@ -898,7 +896,7 @@ class IngredientsController extends Controller
 		if (!$modified){
 			$modified = $model->CREATED_ON;
 		}
-		return Functions::getImage($modified, $model->ING_IMG_ETAG, $model->ING_IMG, $id, 'Ingredients', $size);
+		return Functions::getImage($modified, $model->ING_IMG_ETAG, $model->ING_IMG_FILENAME, $id, 'Ingredients', $size);
     }
 	
 	public function actionDelicious($id){

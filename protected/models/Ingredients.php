@@ -14,6 +14,7 @@
  * @property integer $STB_ID
  * @property double $ING_DENSITY
  * @property string $ING_IMG
+ * @property string $ING_IMG_FILENAME
  * @property string $ING_IMG_AUTH
  * @property string $ING_IMG_ETAG
  * @property string $ING_NAME_EN_GB
@@ -59,11 +60,11 @@ class Ingredients extends ActiveRecordEC
 			array('ING_DENSITY', 'numerical'),
 			array('ING_IMG_AUTH', 'length', 'max'=>30),
 			array('ING_IMG_ETAG', 'length', 'max'=>40),
-			array('ING_NAME_EN_GB, ING_NAME_DE_CH', 'length', 'max'=>100),
+			array('ING_NAME_EN_GB, ING_NAME_DE_CH, ING_IMG_FILENAME', 'length', 'max'=>100),
 			array('CHANGED_ON, ING_IMG, ING_IMG_ETAG, nutrientData, groupNames, subgroupNames, ingredientConveniences, storability, ingredientStates', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('ING_ID, PRF_UID, ING_CREATED, ING_CHANGED, NUT_ID, GRP_ID, SGR_ID, IST_ID, ICO_ID, STB_ID, ING_DENSITY, ING_IMG, ING_IMG_AUTH, ING_NAME_EN, ING_NAME_DE', 'safe', 'on'=>'search'),
+			array('ING_ID, PRF_UID, ING_CREATED, ING_CHANGED, NUT_ID, GRP_ID, SGR_ID, IST_ID, ICO_ID, STB_ID, ING_DENSITY, ING_IMG, ING_IMG_FILENAME, ING_IMG_AUTH, ING_NAME_EN, ING_NAME_DE', 'safe', 'on'=>'search'),
 		);
 	}
 
