@@ -202,7 +202,7 @@ class IngredientsController extends Controller
 		}
 		if (isset($id)){
 			if (!isset($oldmodel) || $oldmodel->ING_ID != $id){
-				$oldmodel = $this->loadModel($id, true);
+				$oldmodel = $this->loadModel($id);
 			}
 		}
 		
@@ -224,7 +224,7 @@ class IngredientsController extends Controller
 		}
 		if (isset($id)){
 			if (!isset($oldmodel) || $oldmodel->ING_ID != $id){
-				$oldmodel = $this->loadModel($id, true);
+				$oldmodel = $this->loadModel($id);
 			}
 		}
 		
@@ -271,12 +271,35 @@ class IngredientsController extends Controller
 					if(Yii::app()->user->demo){
 						$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
 					} else {
-						if($model->save()){
-							unset(Yii::app()->session[$this->createBackup]);
-							unset(Yii::app()->session[$this->createBackup.'_Time']);
-							$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
-							//$this->forwardAfterSave(array('search', 'query'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
-							return;
+						$transaction=$model->dbConnection->beginTransaction();
+						try {
+							if($model->save()){
+								$changed = Functions::fixPicturePathAfterSave($model,'ING_IMG', $model->ING_IMG_FILENAME);
+								if ($changed){
+									if($model->save()){
+										$transaction->commit();
+										unset(Yii::app()->session[$this->createBackup]);
+										unset(Yii::app()->session[$this->createBackup.'_Time']);
+										$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
+										//$this->forwardAfterSave(array('search', 'query'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
+										return;
+									} else {
+										$transaction->rollBack();
+									}
+								} else {
+									$transaction->commit();
+									unset(Yii::app()->session[$this->createBackup]);
+									unset(Yii::app()->session[$this->createBackup.'_Time']);
+									$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
+									//$this->forwardAfterSave(array('search', 'query'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
+									return;
+								}
+							} else {
+								$transaction->rollBack();
+							}
+						} catch(Exception $e) {
+							if ($this->debug) echo 'Exception occured -&gt; rollback. Exeption was: ' . $e;
+							$transaction->rollBack();
 						}
 					}
 				}
@@ -858,7 +881,7 @@ class IngredientsController extends Controller
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer the ID of the model to be loaded
 	 */
-	public function loadModel($id, $withPicture = false)
+	public function loadModel($id)
 	{
 		if ($id == 'backup'){
 			$model=Yii::app()->session[$this->createBackup];
@@ -891,9 +914,9 @@ class IngredientsController extends Controller
 			$size = 0;
 		}
 		$this->saveLastAction = false;
-		$model=$this->loadModel($id, true);
+		$model=$this->loadModel($id);
 		$modified = $model->CHANGED_ON;
-		if (!$modified){
+		if (!isset($modified)){
 			$modified = $model->CREATED_ON;
 		}
 		return Functions::getImage($modified, $model->ING_IMG_ETAG, $model->ING_IMG_FILENAME, $id, 'Ingredients', $size);

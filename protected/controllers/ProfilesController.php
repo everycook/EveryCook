@@ -87,18 +87,18 @@ class ProfilesController extends Controller
 		}
 		if (isset($id)){
 			if (!isset($oldmodel) || $oldmodel->PRF_UID != $id){
-				$oldmodel = $this->loadModel($id, true);
+				$oldmodel = $this->loadModel($id);
 			}
 		}
 		
 		if (isset($oldmodel)){
 			$model = $oldmodel;
-			$oldPicture = $oldmodel->PRF_IMG;
+			$oldPictureFilename = $oldmodel->PRF_IMG_FILENAME;
 		} else {
 			$model=new Profiles;
-			$oldPicture = null;
+			$oldPictureFilename = null;
 		}
-		return array($model, $oldPicture);
+		return array($model, $oldPictureFilename);
 	}
 	
 	public function actionUploadImage(){
@@ -107,24 +107,24 @@ class ProfilesController extends Controller
 			$id = $_GET['id'];
 		}
 		
-		list($model, $oldPicture) = $this->getModelAndOldPic($id);
+		list($model, $oldPictureFilename) = $this->getModelAndOldPic($id);
 		
-		Functions::uploadImage('Profiles', $model, 'Profiles_Backup', 'PRF_IMG');
+		Functions::uploadImage('Profiles', $model, $this->createBackup, 'PRF_IMG');
 	}
 	
 	private function prepareCreateOrUpdate($id, $view){
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 		
-		list($model, $oldPicture) = $this->getModelAndOldPic($id);
+		list($model, $oldPictureFilename) = $this->getModelAndOldPic($id);
 		
 		if (isset($id) && $id != Yii::app()->user->id){
 			throw new CHttpException(403,'It\'s not allowed to change profile of other user.');
 		}
 		if(isset($_POST['Profiles'])) {
 			$model->attributes=$_POST['Profiles'];
-			if (isset($oldPicture)){
-				Functions::updatePicture($model,'PRF_IMG', $oldPicture);
+			if (isset($oldPictureFilename)){
+				Functions::updatePicture($model,'PRF_IMG', $oldPictureFilename);
 			}
 			
 			if (isset($model->birthday_year) && $model->birthday_year != ''){
@@ -169,17 +169,37 @@ class ProfilesController extends Controller
 					Yii::app()->user->view_distance = $model->PRF_VIEW_DISTANCE;
 					$this->forwardAfterSave(array('view', 'id'=>$model->PRF_UID));
 					return;
-				} else {				
-					if($model->save(false)){
-						$home_gps = array($model->PRF_LOC_GPS_LAT, $model->PRF_LOC_GPS_LNG, $model->PRF_LOC_GPS_POINT);
-						Yii::app()->user->home_gps = $home_gps;
-						Yii::app()->user->view_distance = $model->PRF_VIEW_DISTANCE;
-						
-						unset(Yii::app()->session[$this->createBackup]);
-						unset(Yii::app()->session[$this->createBackup.'_Time']);
-						
-						$this->forwardAfterSave(array('view', 'id'=>$model->PRF_UID));
-						return;
+				} else {
+					$transaction=$model->dbConnection->beginTransaction();
+					try {
+						if($model->save(false)){
+							$saveOK = true;
+							$changed = Functions::fixPicturePathAfterSave($model,'PRF_IMG', $model->PRF_IMG_FILENAME);
+							if ($changed){
+								if(!$model->save()){
+									if ($this->debug) {echo 'error on save after img file: ';  print_r($model->getErrors());}
+									$transaction->rollBack();
+									$saveOK = false;
+								}
+							}
+							if ($saveOK){
+								$transaction->commit();
+								$home_gps = array($model->PRF_LOC_GPS_LAT, $model->PRF_LOC_GPS_LNG, $model->PRF_LOC_GPS_POINT);
+								Yii::app()->user->home_gps = $home_gps;
+								Yii::app()->user->view_distance = $model->PRF_VIEW_DISTANCE;
+								
+								unset(Yii::app()->session[$this->createBackup]);
+								unset(Yii::app()->session[$this->createBackup.'_Time']);
+								
+								$this->forwardAfterSave(array('view', 'id'=>$model->PRF_UID));
+								return;
+							}
+						} else {
+							$transaction->rollBack();
+						}
+					} catch(Exception $e) {
+						if ($this->debug) echo 'Exception occured -&gt; rollback. Exeption was: ' . $e;
+						$transaction->rollBack();
 					}
 				}
 			}
@@ -576,6 +596,6 @@ class ProfilesController extends Controller
 		if (!$modified){
 			$modified = $model->CREATED_ON;
 		}
-		return Functions::getImage($modified, $model->PRF_IMG_ETAG, $model->PRF_IMG, $id, 'Profiles', $size);
+		return Functions::getImage($modified, $model->PRF_IMG_ETAG, $model->PRF_IMG_FILENAME, $id, 'Profiles', $size);
     }
 }

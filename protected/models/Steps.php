@@ -124,6 +124,8 @@ class Steps extends ActiveRecordEC
 		$criteria->compare($this->tableName().'.STE_STIR_PAUSE',$this->STE_STIR_PAUSE);
 		$criteria->compare($this->tableName().'.STE_STEP_DURATION',$this->STE_STEP_DURATION);
 		$criteria->compare($this->tableName().'.TOO_ID',$this->TOO_ID);
+		
+		return $criteria;
 	}
 	
 	public function getCriteria(){

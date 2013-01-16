@@ -496,7 +496,7 @@ class Functions extends CHtml{
 	}
 	
 	public static function generatePictureName($model, $temp){
-		$type = $model->getClassName();
+		$type = get_class($model);
 		$primeryKeyField = $model->tableSchema->primaryKey;
 		$id = $model[$primeryKeyField];
 		if (!isset($id) || $temp){
@@ -516,12 +516,24 @@ class Functions extends CHtml{
 		return $filename;
 	}
 	
+	public static function fixPicturePathAfterSave($model, $picFieldName, $tempPictureFilename){
+		if (strpos($tempPictureFilename, '_temp') !== false){
+			//Current img position is tempfile so copy it do used picture
+			$filename = self::generatePictureName($model, false);
+			copy($tempPictureFilename, $filename);
+			$model->__set($picFieldName . '_FILENAME', $filename);
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	public static function updatePicture($model, $picFieldName, $oldPictureFilename){
 		$file = CUploadedFile::getInstance($model,'filename');
 		if (isset($file)){
 			self::resizePicture($file->getTempName(), $file->getTempName(), self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG);
 			$img_md5 = md5(file_get_contents($file->getTempName()));
-			$filename = generatePictureName($model, true);
+			$filename = self::generatePictureName($model, true);
 			copy($file->getTempName(), $filename);
 			$model->__set($picFieldName . '_FILENAME', $filename);
 			$model->__set($picFieldName . '_ETAG', $img_md5);
@@ -537,7 +549,7 @@ class Functions extends CHtml{
 				if (($model->imagechanged == true || $cropInfosAvailable) && $model->__get($picFieldName) != ''){
 					$filename = $model->__get($picFieldName . '_FILENAME');
 					if (strpos($filename, '_temp') === false){
-						$tempfile = generatePictureName($model, true);
+						$tempfile = self::generatePictureName($model, true);
 					} else {
 						$tempfile = $filename;
 					}
@@ -579,7 +591,7 @@ class Functions extends CHtml{
 				//if ($imginfo[0]>=self::IMG_WIDTH && $imginfo[1]>=self::IMG_HEIGHT){
 				if ($imginfo[0]>=self::IMG_WIDTH || $imginfo[1]>=self::IMG_HEIGHT){
 					$img_md5 = md5(file_get_contents($filename));
-					$temp_filename = generatePictureName($model, true);
+					$temp_filename = self::generatePictureName($model, true);
 					copy($filename, $temp_filename);
 					$model->__set($picFieldName . '_FILENAME', $temp_filename);
 					$model->__set($picFieldName . '_ETAG', $img_md5);
@@ -637,7 +649,7 @@ class Functions extends CHtml{
 		
 		$model->__set($pictureFieldName . '_AUTH', $autor[0]);
 		
-		$temp_filename = generatePictureName($model, true);
+		$temp_filename = self::generatePictureName($model, true);
 		file_put_contents($temp_filename, $imgData);
 		
 		$imginfo = self::changePictureType($temp_filename,$temp_filename, IMAGETYPE_PNG);

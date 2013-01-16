@@ -135,7 +135,7 @@ class RecipesController extends Controller
 		}
 		if (isset($id)){
 			if (!isset($oldmodel) || $oldmodel->REC_ID != $id){
-				$oldmodel = $this->loadModel($id, true);
+				$oldmodel = $this->loadModel($id);
 			}
 		}
 		
@@ -145,7 +145,7 @@ class RecipesController extends Controller
 			$model=new Recipes;
 		}
 		
-		Functions::uploadImage('Recipes', $model, 'Recipes_Backup', 'REC_IMG');
+		Functions::uploadImage('Recipes', $model, $this->createBackup, 'REC_IMG');
 	}
 	
 	private function readActionsInDetails($coi_ids, $tools, $stepTypeConfig){
@@ -418,20 +418,20 @@ class RecipesController extends Controller
 		}
 		if (isset($id)){
 			if (!isset($oldmodel) || $oldmodel->REC_ID != $id){
-				$oldmodel = $this->loadModel($id, true);
+				$oldmodel = $this->loadModel($id);
 			}
 		}
 		
 		if (isset($oldmodel)){
 			$model = $oldmodel;
-			$oldPicture = $oldmodel->REC_IMG;
+			$oldPictureFilename = $oldmodel->REC_IMG_FILENAME;
 			$oldAmount = count($oldmodel->steps);
 		} else {
 			$model=new Recipes;
-			$oldPicture = null;
+			$oldPictureFilename = null;
 			$oldAmount = 0;
 		}
-		if (isset($model->REC_IMG) && $model->REC_IMG != ''){
+		if (isset($model->REC_IMG_FILENAME) && $model->REC_IMG_FILENAME != ''){
 			$model->setScenario('withPic');
 		}
 		
@@ -547,8 +547,8 @@ class RecipesController extends Controller
 				}
 				$stepsOK = false;
 			}
-			if (isset($oldPicture)){
-				Functions::updatePicture($model,'REC_IMG', $oldPicture);
+			if (isset($oldPictureFilename)){
+				Functions::updatePicture($model,'REC_IMG', $oldPictureFilename);
 			}
 			
 			Yii::app()->session[$this->createBackup] = $model;
@@ -615,11 +615,23 @@ class RecipesController extends Controller
 								//finish save
 								if ($saveOK){
 									$this->updateKCal($model->REC_ID);
-									$transaction->commit();
-									unset(Yii::app()->session[$this->createBackup]);
-									unset(Yii::app()->session[$this->createBackup.'_Time']);
-									$this->forwardAfterSave(array('view', 'id'=>$model->REC_ID));
-									return;
+									
+									$saveOK = true;
+									$changed = Functions::fixPicturePathAfterSave($model,'REC_IMG', $model->REC_IMG_FILENAME);
+									if ($changed){
+										if(!$model->save()){
+											if ($this->debug) {echo 'error on save after img file: ';  print_r($model->getErrors());}
+											$transaction->rollBack();
+											$saveOK = false;
+										}
+									}
+									if ($saveOK){
+										$transaction->commit();
+										unset(Yii::app()->session[$this->createBackup]);
+										unset(Yii::app()->session[$this->createBackup.'_Time']);
+										$this->forwardAfterSave(array('view', 'id'=>$model->REC_ID));
+										return;
+									}
 								} else {
 									if ($this->debug) echo 'any errors occured, rollback';
 									$transaction->rollBack();
@@ -706,239 +718,10 @@ class RecipesController extends Controller
 			'actionsInDetails'=>$actionsInDetails,
 		));
 	}
-	/* old
-	private function prepareCreateOrUpdate($id, $view){
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-		
-		$Session_Recipes_Backup = Yii::app()->session[$this->createBackup];
-		if (isset($Session_Recipes_Backup)){
-			$oldmodel = $Session_Recipes_Backup;
-		}
-		if (isset($id)){
-			if (!isset($oldmodel) || $oldmodel->REC_ID != $id){
-				$oldmodel = $this->loadModel($id, true);
-			}
-		}
-		
-		if (isset($oldmodel)){
-			$model = $oldmodel;
-			$oldPicture = $oldmodel->REC_IMG;
-			$oldAmount = count($oldmodel->steps);
-		} else {
-			$model=new Recipes;
-			$oldPicture = null;
-			$oldAmount = 0;
-		}
-		if (isset($model->REC_IMG) && $model->REC_IMG != ''){
-			$model->setScenario('withPic');
-		}
-		
-		$stepTypeConfig = Yii::app()->db->createCommand()->select('STT_ID,STT_DEFAULT,STT_REQUIRED,STT_DESC_'.Yii::app()->session['lang'])->from('step_types')->order('STT_ID')->queryAll();
-		
-		$actions = Yii::app()->db->createCommand()->select('ACT_ID,ACT_DESC_AUTO_'.Yii::app()->session['lang'].',ACT_DESC_MAN_'.Yii::app()->session['lang'].',ACT_SKIP')->from('actions')->queryAll();
-		$actions_auto = CHtml::listData($actions,'ACT_ID','ACT_DESC_AUTO_'.Yii::app()->session['lang']);
-		$actions_man = CHtml::listData($actions,'ACT_ID','ACT_DESC_MAN_'.Yii::app()->session['lang']);
-		
-		if(isset($_POST['Recipes'])){
-			$model->attributes=$_POST['Recipes'];
-			//$steps = array();
-			$stepsOK = true;
-			if (isset($_POST['Steps'])){
-				$model = Functions::arrayToRelatedObjects($model, array('steps'=> $_POST['Steps']));
-				
-				$index = 1;
-				foreach($model->steps as $step){
-					$required = '';
-					foreach ($stepTypeConfig as $stepType){
-						if ($stepType['STT_ID'] == $step['STT_ID']){
-							$required = $stepType['STT_REQUIRED'];
-							break;
-						}
-					}
-					if ($required != ''){
-						$requiredFields = explode(';', $required);
-						foreach($requiredFields as $requiredField){
-							if (!isset($step[$requiredField]) || $step[$requiredField] == null || $step[$requiredField] == ''){
-								array_push($this->errorFields, 'Steps_'.$index.'_'.$requiredField);
-								$stepsOK = false;
-							}
-						}
-						if (isset($step['ACT_ID']) && isset($actions_auto[$step['ACT_ID']])){
-							$actiontext = $actions_auto[$step['ACT_ID']];
-							if (strpos($actiontext, '#objectofaction#') !== false){ // > -1
-								$requiredField = 'ING_ID';
-								if (!isset($step[$requiredField]) || $step[$requiredField] == null || $step[$requiredField] == ''){
-									array_push($this->errorFields, 'Steps_'.$index.'_'.$requiredField);
-									$stepsOK = false;
-								}
-							}
-						}
-					}
-					++$index;
-				}
-				
-				/*
-				foreach($_POST['Steps'] as $index => $values){
-					if ($index <= $oldAmount && $index-1>=0){
-						$newStep = $oldmodel->steps[$index-1];
-					} else {
-						$newStep = new Steps;
-					}
-					$newStep->attributes = $values;
-					foreach ($values as $key=>$value){
-						if ($value == '' && $key != 'REC_ID' && $key != 'STE_STEP_NO'){
-							$this->errorText .= '<li>Value ' . $key . ' of Step' . $index . ' is empty.</li>';
-							array_push($this->errorFields, 'Steps_'.$index.'_'.$key);
-							$stepsOK = false;
-						}
-					}
-					$newStep->STE_STEP_NO = $index;
-					//$steps[$index] = $newStep;
-					array_push($steps, $newStep);
-				}
-				* /
-			} else {
-				$this->errorText .= '<li>No Steps defined!</li>';
-				$stepsOK = false;
-			}
-			/*
-			$stepsToDelete = array();
-			if (isset($oldmodel)){
-				$newAmount = count($steps);
-				if ($oldAmount > $newAmount){
-					for($i = $newAmount; $i < $oldAmount; $i++){
-						array_push($stepsToDelete, $oldmodel->steps[$i]);
-					}
-				}
-			}
-			
-			$model->steps = $steps;
-			* /
-			if (isset($oldPicture)){
-				Functions::updatePicture($model,'REC_IMG', $oldPicture);
-			}
-			
-			Yii::app()->session[$this->createBackup] = $model;
-			Yii::app()->session[$this->createBackup.'_Time'] = time();
-			
-			
-			if(Yii::app()->user->demo){
-				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
-				$model->validate();
-			} else {
-				if ($stepsOK){
-					$transaction=$model->dbConnection->beginTransaction();
-					try {
-						if($model->save()){
-							$saveOK = true;
-							Yii::app()->db->createCommand()->delete(Steps::model()->tableName(), 'REC_ID = :id', array(':id'=>$model->REC_ID));
-							$stepNo = 0;
-							//foreach($steps as $step){
-							foreach($model->steps as $step){
-								$step->REC_ID = $model->REC_ID;
-								$step->STE_STEP_NO = $stepNo;
-								$step->setIsNewRecord(true);
-								if(!$step->save()){
-									$saveOK = false;
-									if ($this->debug) echo 'error on save Step: errors:'; print_r($step->getErrors());
-								}
-								++$stepNo;
-							}
-							/*
-							foreach($stepsToDelete as $step){
-								if(!$step->delete()){
-									$saveOK = false;
-									if ($this->debug) echo 'error on delete Step: '; print_r($step->getErrors());
-								}
-							}
-							* /
-							if ($saveOK){
-								$this->updateKCal($model->REC_ID);
-								$transaction->commit();
-								unset(Yii::app()->session[$this->createBackup]);
-								unset(Yii::app()->session[$this->createBackup.'_Time']);
-								$this->forwardAfterSave(array('view', 'id'=>$model->REC_ID));
-								return;
-							} else {
-								if ($this->debug) echo 'any errors occured, rollback';
-								$transaction->rollBack();
-							}
-						} else {
-							if ($this->debug) echo 'error on save: ';  print_r($model->getErrors());
-							$transaction->rollBack();
-						}
-					} catch(Exception $e) {
-						if ($this->debug) echo 'Exception occured -&gt; rollback. Exeption was: ' . $e;
-						$transaction->rollBack();
-					}
-				} else {
-					//To show Recipe errors also
-					$model->validate();
-				}
-			}
-		}
-		
-		$recipeTypes = Yii::app()->db->createCommand()->select('RET_ID,RET_DESC_'.Yii::app()->session['lang'])->from('recipe_types')->queryAll();
-		$recipeTypes = CHtml::listData($recipeTypes,'RET_ID','RET_DESC_'.Yii::app()->session['lang']);
-		
-		$stepTypes = CHtml::listData($stepTypeConfig,'STT_ID','STT_DESC_'.Yii::app()->session['lang']);
-		//$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
-		//$ingredients = CHtml::listData($ingredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
-		
-		if (isset($model->steps) && isset($model->steps[0])/* && !isset($model->steps[0]->ingredient)* /){
-			/*
-			$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
-			$ingredients = CHtml::listData($ingredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
-			$usedIngredients = array();
-			foreach($model->steps as $step){
-				foreach($ingredients as $row_key=>$row_val){
-					if($row_key == $val){
-						$usedIngredients = array_merge($usedIngredients,array($row_key=>$row_val));
-						break;
-					}
-				}
-			}
-			* /
-			$neededIngredients = array();
-			foreach($model->steps as $step){
-				array_push($neededIngredients,$step->ING_ID);
-			}
-			if (count($neededIngredients)>0){
-				$criteria=new CDbCriteria;
-				$criteria->select = 'ING_ID,ING_NAME_'.Yii::app()->session['lang'];
-				$criteria->compare('ING_ID',$neededIngredients);
-				$usedIngredients = Yii::app()->db->commandBuilder->createFindCommand('ingredients', $criteria, '')->queryAll();
-				$usedIngredients = CHtml::listData($usedIngredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
-			} else {
-				$usedIngredients=array();
-			}
-		} else {
-			$usedIngredients=array();
-		}
-		
-		$stepsJSON = CJSON::encode($model->steps);
-		$stepTypeConfig = CJSON::encode($stepTypeConfig);
-		
-		if (!isset($_POST['CookVariant']) || $_POST['CookVariant'] == ''){
-			$_POST['CookVariant'] = 0;
-		}
-		
-		$this->checkRenderAjax($view,array(
-			'model'=>$model,
-			'recipeTypes'=>$recipeTypes,
-			'stepTypes'=>$stepTypes,
-			'actions'=>array($actions_auto, $actions_man),
-			'ingredients'=>$usedIngredients,
-			'stepTypeConfig'=>$stepTypeConfig,
-			'stepsJSON'=>$stepsJSON,
-		));
-	}
-	*/
 	
 	public function actionGetRecipeInfos($id){
 		$this->saveLastAction = false;
-		$model = $this->loadModel($id, false);
+		$model = $this->loadModel($id);
 		if (isset($model->steps) && isset($model->steps[0])/* && !isset($model->steps[0]->ingredient)*/){
 			/*
 			$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
@@ -1251,7 +1034,7 @@ class RecipesController extends Controller
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer the ID of the model to be loaded
 	 */
-	public function loadModel($id, $withPicture = false)
+	public function loadModel($id)
 	{
 		if ($id == 'backup'){
 			$model=Yii::app()->session[$this->createBackup];
@@ -1284,12 +1067,12 @@ class RecipesController extends Controller
 			$size = 0;
 		}
 		$this->saveLastAction = false;
-		$model=$this->loadModel($id, true);
+		$model=$this->loadModel($id);
 		$modified = $model->CHANGED_ON;
 		if (!isset($modified)){
 			$modified = $model->CREATED_ON;
 		}
-		return Functions::getImage($modified, $model->REC_IMG_ETAG, $model->REC_IMG, $id, 'Recipes', $size);
+		return Functions::getImage($modified, $model->REC_IMG_ETAG, $model->REC_IMG_FILENAME, $id, 'Recipes', $size);
     }
 	
 	public function actionDelicious($id){

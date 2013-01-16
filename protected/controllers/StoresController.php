@@ -114,16 +114,16 @@ class StoresController extends Controller
 		}
 		if (isset($id)){
 			if (!isset($oldmodel) || $oldmodel->STO_ID != $id){
-				$oldmodel = $this->loadModel($id, true);
+				$oldmodel = $this->loadModel($id);
 			}
 		}
 		
 		if (isset($oldmodel)){
 			$model = $oldmodel;
-			$oldPicture = $oldmodel->STO_IMG;
+			$oldPictureFilename = $oldmodel->STO_IMG_FILENAME;
 		} else {
 			$model=new Stores;
-			$oldPicture = null;
+			$oldPictureFilename = null;
 		}
 		Functions::uploadImage('Stores', $model, $this->createBackup, 'STO_IMG');
 	}
@@ -138,25 +138,25 @@ class StoresController extends Controller
 		}
 		if (isset($id)){
 			if (!isset($oldmodel) || $oldmodel->STO_ID != $id){
-				$oldmodel = $this->loadModel($id, true);
+				$oldmodel = $this->loadModel($id);
 			}
 		}
 		
 		if (isset($oldmodel)){
 			$model = $oldmodel;
-			$oldPicture = $oldmodel->STO_IMG;
+			$oldPictureFilename = $oldmodel->STO_IMG_FILENAME;
 		} else {
 			$model=new Stores;
-			$oldPicture = null;
+			$oldPictureFilename = null;
 		}
-		if (isset($model->STO_IMG) && $model->STO_IMG != ''){
+		if (isset($model->STO_IMG_FILENAME) && $model->STO_IMG_FILENAME != ''){
 			$model->setScenario('withPic');
 		}
 		
 		if(isset($_POST['Stores'])){
 			$model->attributes=$_POST['Stores'];
 			
-			Functions::updatePicture($model,'STO_IMG', $oldPicture);
+			Functions::updatePicture($model,'STO_IMG', $oldPictureFilename);
 			
 			Yii::app()->session[$this->createBackup] = $model;
 			Yii::app()->session[$this->createBackup.'_Time'] = time();
@@ -191,10 +191,21 @@ class StoresController extends Controller
 						$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
 					} else {
 						if($model->save()){
-							unset(Yii::app()->session[$this->createBackup]);
-							unset(Yii::app()->session[$this->createBackup.'_Time']);
-							$this->forwardAfterSave(array('view', 'id'=>$model->STO_ID));
-							return;
+							$saveOK = true;
+							$changed = Functions::fixPicturePathAfterSave($model,'STO_IMG', $model->STO_IMG_FILENAME);
+							if ($changed){
+								if(!$model->save()){
+									if ($this->debug) {echo 'error on save after img file: ';  print_r($model->getErrors());}
+									$transaction->rollBack();
+									$saveOK = false;
+								}
+							}
+							if ($saveOK){
+								unset(Yii::app()->session[$this->createBackup]);
+								unset(Yii::app()->session[$this->createBackup.'_Time']);
+								$this->forwardAfterSave(array('view', 'id'=>$model->STO_ID));
+								return;
+							}
 						}
 					}
 				}
@@ -535,7 +546,7 @@ class StoresController extends Controller
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer the ID of the model to be loaded
 	 */
-	public function loadModel($id, $withPicture = false)
+	public function loadModel($id)
 	{
 		if ($id == 'backup'){
 			$model=Yii::app()->session[$this->createBackup];
@@ -568,12 +579,12 @@ class StoresController extends Controller
 			$size = 0;
 		}
 		$this->saveLastAction = false;
-		$model=$this->loadModel($id, true);
+		$model=$this->loadModel($id);
 		$modified = $model->CREATED_ON;
 		if (!$modified){
 			$modified = $model->CHANGED_ON;
 		}
-		return Functions::getImage($modified, $model->STO_IMG_ETAG, $model->STO_IMG, $id, 'Stores', $size);
+		return Functions::getImage($modified, $model->STO_IMG_ETAG, $model->STO_IMG_FILENAME, $id, 'Stores', $size);
     }
 	
 	public function actionGetStoresInRange(){

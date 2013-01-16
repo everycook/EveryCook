@@ -13,6 +13,7 @@
  * @property string $PRF_EMAIL
  * @property string $PRF_LANG
  * @property string $PRF_IMG
+ * @property string $PRF_IMG_FILENAME
  * @property string $PRF_IMG_ETAG
  * @property string $PRF_PW
  * @property double $PRF_LOC_GPS_LAT
@@ -27,6 +28,8 @@
  * @property string $PRF_NOTLIKES_P
  * @property string $PRF_SHOPLISTS
  * @property integer $PRF_VIEW_DISTANCE
+ * @property string $PRF_DESIGN
+ * @property string $PRF_ROLES
  * @property integer $PRF_ACTIVE
  * @property string $PRF_RND
  * @property integer $CREATED_BY
@@ -58,17 +61,15 @@ class Profiles extends ActiveRecordECPriv
 	 * Returns the static model of the specified AR class.
 	 * @return Profiles the static model class
 	 */
-	public static function model($className=__CLASS__)
-	{
+	public static function model($className=__CLASS__){
 		return parent::model($className);
 	}
 
 	/**
 	 * @return string the associated database table name
 	 */
-	public function tableName()
-	{
-		return 'profiles';
+	public function tableName(){
+		return 'ec_priv.profiles';
 	}
 	
 	public function afterFind(){
@@ -87,23 +88,25 @@ class Profiles extends ActiveRecordECPriv
 	/**
 	 * @return array validation rules for model attributes.
 	 */
-	public function rules()
-	{
+	public function rules(){
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
 			array('PRF_NICK, PRF_EMAIL, PRF_PW, PRF_LANG', 'required'),
 			array('PRF_BIRTHDAY, PRF_VIEW_DISTANCE, PRF_ACTIVE, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG', 'numerical'),
-			array('PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_RND', 'length', 'max'=>100),
+			array('PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_ROLES, PRF_RND', 'length', 'max'=>100),
 			array('PRF_GENDER', 'length', 'max'=>1),
 			array('PRF_LANG', 'length', 'max'=>10),
+			array('PRF_IMG_FILENAME', 'length', 'max'=>250),
 			array('PRF_IMG_ETAG', 'length', 'max'=>40),
 			array('PRF_PW', 'length', 'max'=>256),
+			array('PRF_DESIGN', 'length', 'max'=>20),
+			array('PRF_IMG_FILENAME, PRF_IMG_ETAG', 'required', 'on'=>'withPic'),
 			array('new_pw, pw_repeat, birthday_day, birthday_month, birthday_year, PRF_IMG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_GENDER, PRF_BIRTHDAY, PRF_EMAIL, PRF_LANG, PRF_IMG, PRF_IMG_ETAG, PRF_PW, PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_VIEW_DISTANCE, PRF_ACTIVE, PRF_RND, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_GENDER, PRF_BIRTHDAY, PRF_EMAIL, PRF_LANG, PRF_IMG, PRF_IMG_FILENAME, PRF_IMG_ETAG, PRF_PW, PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_VIEW_DISTANCE, PRF_DESIGN, PRF_ROLES, PRF_ACTIVE, PRF_RND, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 			
 			// register
 			//array('pw_repeat','safe'),
@@ -122,8 +125,7 @@ class Profiles extends ActiveRecordECPriv
 	/**
 	 * @return array relational rules.
 	 */
-	public function relations()
-	{
+	public function relations(){
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
@@ -133,8 +135,7 @@ class Profiles extends ActiveRecordECPriv
 	/**
 	 * @return array customized attribute labels (name=>label)
 	 */
-	public function attributeLabels()
-	{
+	public function attributeLabels(){
 		return array(
 			'PRF_UID' => 'Prf Uid',
 			'PRF_FIRSTNAME' => 'Prf Firstname',
@@ -145,6 +146,7 @@ class Profiles extends ActiveRecordECPriv
 			'PRF_EMAIL' => 'Prf Email',
 			'PRF_LANG' => 'Prf Lang',
 			'PRF_IMG' => 'Prf Img',
+			'PRF_IMG_FILENAME' => 'Prf Img Filename',
 			'PRF_IMG_ETAG' => 'Prf Img Etag',
 			'PRF_PW' => 'Prf Pw',
 			'pw_repeat' => 'pw repeat',
@@ -160,6 +162,8 @@ class Profiles extends ActiveRecordECPriv
 			'PRF_NOTLIKES_P' => 'Prf Notlikes P',
 			'PRF_SHOPLISTS' => 'Prf Shoplists',
 			'PRF_VIEW_DISTANCE' => 'Prf View Distance',
+			'PRF_DESIGN' => 'Prf Design',
+			'PRF_ROLES' => 'Prf Roles',
 			//'PRF_ACTIVE' => 'Prf Active',
 			//'PRF_RND' => 'Prf Rnd',
 			//'CREATED_BY' => 'Created By',
@@ -169,13 +173,52 @@ class Profiles extends ActiveRecordECPriv
 			'verifyCode'=>'Verification Code',
 		);
 	}
-
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
-	 */
-	public function search()
-	{
+	
+	public function getSearchFields(){
+		return array('PRF_UID', 'PRF_NICK', 'PRF_FIRSTNAME', 'PRF_LASTNAME');
+	}
+	
+	
+	public function getCriteriaString(){
+		$criteria=new CDbCriteria;
+		
+		$criteria->compare($this->tableName().'.PRF_UID',$this->PRF_UID);
+		$criteria->compare($this->tableName().'.PRF_FIRSTNAME',$this->PRF_FIRSTNAME,true);
+		$criteria->compare($this->tableName().'.PRF_LASTNAME',$this->PRF_LASTNAME,true);
+		$criteria->compare($this->tableName().'.PRF_NICK',$this->PRF_NICK,true);
+		$criteria->compare($this->tableName().'.PRF_GENDER',$this->PRF_GENDER,true);
+		$criteria->compare($this->tableName().'.PRF_BIRTHDAY',$this->PRF_BIRTHDAY);
+		$criteria->compare($this->tableName().'.PRF_EMAIL',$this->PRF_EMAIL,true);
+		$criteria->compare($this->tableName().'.PRF_LANG',$this->PRF_LANG,true);
+		$criteria->compare($this->tableName().'.PRF_IMG',$this->PRF_IMG,true);
+		$criteria->compare($this->tableName().'.PRF_IMG_FILENAME',$this->PRF_IMG_FILENAME,true);
+		$criteria->compare($this->tableName().'.PRF_IMG_ETAG',$this->PRF_IMG_ETAG,true);
+		$criteria->compare($this->tableName().'.PRF_PW',$this->PRF_PW,true);
+		$criteria->compare($this->tableName().'.PRF_LOC_GPS_LAT',$this->PRF_LOC_GPS_LAT);
+		$criteria->compare($this->tableName().'.PRF_LOC_GPS_LNG',$this->PRF_LOC_GPS_LNG);
+		$criteria->compare($this->tableName().'.PRF_LOC_GPS_POINT',$this->PRF_LOC_GPS_POINT,true);
+		$criteria->compare($this->tableName().'.PRF_LIKES_I',$this->PRF_LIKES_I,true);
+		$criteria->compare($this->tableName().'.PRF_LIKES_R',$this->PRF_LIKES_R,true);
+		$criteria->compare($this->tableName().'.PRF_LIKES_P',$this->PRF_LIKES_P,true);
+		$criteria->compare($this->tableName().'.PRF_LIKES_S',$this->PRF_LIKES_S,true);
+		$criteria->compare($this->tableName().'.PRF_NOTLIKES_I',$this->PRF_NOTLIKES_I,true);
+		$criteria->compare($this->tableName().'.PRF_NOTLIKES_R',$this->PRF_NOTLIKES_R,true);
+		$criteria->compare($this->tableName().'.PRF_NOTLIKES_P',$this->PRF_NOTLIKES_P,true);
+		$criteria->compare($this->tableName().'.PRF_SHOPLISTS',$this->PRF_SHOPLISTS,true);
+		$criteria->compare($this->tableName().'.PRF_VIEW_DISTANCE',$this->PRF_VIEW_DISTANCE);
+		$criteria->compare($this->tableName().'.PRF_DESIGN',$this->PRF_DESIGN,true);
+		$criteria->compare($this->tableName().'.PRF_ROLES',$this->PRF_ROLES,true);
+		$criteria->compare($this->tableName().'.PRF_ACTIVE',$this->PRF_ACTIVE);
+		$criteria->compare($this->tableName().'.PRF_RND',$this->PRF_RND,true);
+		$criteria->compare($this->tableName().'.CREATED_BY',$this->CREATED_BY);
+		$criteria->compare($this->tableName().'.CREATED_ON',$this->CREATED_ON);
+		$criteria->compare($this->tableName().'.CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare($this->tableName().'.CHANGED_ON',$this->CHANGED_ON);
+		
+		return $criteria;
+	}
+	
+	public function getCriteria(){
 		// Warning: Please modify the following code to remove attributes that
 		// should not be searched.
 
@@ -190,6 +233,7 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare('PRF_EMAIL',$this->PRF_EMAIL,true);
 		$criteria->compare('PRF_LANG',$this->PRF_LANG,true);
 		$criteria->compare('PRF_IMG',$this->PRF_IMG,true);
+		$criteria->compare('PRF_IMG_FILENAME',$this->PRF_IMG_FILENAME,true);
 		$criteria->compare('PRF_IMG_ETAG',$this->PRF_IMG_ETAG,true);
 		$criteria->compare('PRF_PW',$this->PRF_PW,true);
 		$criteria->compare('PRF_LOC_GPS_LAT',$this->PRF_LOC_GPS_LAT);
@@ -204,27 +248,40 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare('PRF_NOTLIKES_P',$this->PRF_NOTLIKES_P,true);
 		$criteria->compare('PRF_SHOPLISTS',$this->PRF_SHOPLISTS,true);
 		$criteria->compare('PRF_VIEW_DISTANCE',$this->PRF_VIEW_DISTANCE);
+		$criteria->compare('PRF_DESIGN',$this->PRF_DESIGN,true);
+		$criteria->compare('PRF_ROLES',$this->PRF_ROLES,true);
 		//$criteria->compare('PRF_ACTIVE',$this->PRF_ACTIVE);
 		//$criteria->compare('PRF_RND',$this->PRF_RND,true);
 		//$criteria->compare('CREATED_BY',$this->CREATED_BY);
 		//$criteria->compare('CREATED_ON',$this->CREATED_ON);
 		//$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
 		//$criteria->compare('CHANGED_ON',$this->CHANGED_ON);
-
+		
+		return $criteria;
+	}
+	
+	public function getSort(){
+		$sort = new CSort;
+		$sort->attributes = array(
+		/*
+			'sortId' => array(
+				'asc' => 'PRF_UID',
+				'desc' => 'PRF_UID DESC',
+			),
+		*/
+			'*',
+		);
+		return $sort;
+	}
+	
+	/**
+	 * Retrieves a list of models based on the current search/filter conditions.
+	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+	 */
+	public function search(){
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria'=>$this->getCriteria(),
+			'sort'=>$this->getSort(),
 		));
 	}
-
-	/**
-	* perform one-way encryption on the password before we store it in the database
-	*/
-	/*protected function afterValidate() {
-		parent::afterValidate();
-		$this->PRF_PW = $this->encrypt($this->PRF_PW);
-	}
-
-	private function encrypt($value) {
-		return md5($value);
-	}*/
 }

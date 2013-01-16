@@ -84,6 +84,8 @@ class ProToSto extends ActiveRecordEC
 		$criteria->compare($this->tableName().'.CREATED_ON',$this->CREATED_ON);
 		$criteria->compare($this->tableName().'.CHANGED_BY',$this->CHANGED_BY);
 		$criteria->compare($this->tableName().'.CHANGED_ON',$this->CHANGED_ON);
+		
+		return $criteria;
 	}
 	
 	public function getCriteria(){
@@ -101,6 +103,8 @@ class ProToSto extends ActiveRecordEC
 		$criteria->compare('CHANGED_ON',$this->CHANGED_ON);
 		//Add with conditions for relations
 		//$criteria->with = array('???relationName???' => array());
+		
+		return $criteria;
 	}
 	
 	public function getSort(){

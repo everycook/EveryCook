@@ -84,6 +84,8 @@ class RecipeCookedInfos extends ActiveRecordECSimple
 		$criteria->compare($this->tableName().'.REC_ID',$this->REC_ID);
 		$criteria->compare($this->tableName().'.RCI_COOK_DATE',$this->RCI_COOK_DATE);
 		$criteria->compare($this->tableName().'.RCI_JSON',$this->RCI_JSON,true);
+		
+		return $criteria;
 	}
 	
 	public function getCriteria(){
@@ -101,6 +103,8 @@ class RecipeCookedInfos extends ActiveRecordECSimple
 		$criteria->compare('RCI_JSON',$this->RCI_JSON,true);
 		//Add with conditions for relations
 		//$criteria->with = array('???relationName???' => array());
+		
+		return $criteria;
 	}
 	
 	public function getSort(){

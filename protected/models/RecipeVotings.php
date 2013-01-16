@@ -91,6 +91,8 @@ class RecipeVotings extends ActiveRecordECSimple
 		$criteria->compare($this->tableName().'.RVO_VALUE',$this->RVO_VALUE);
 		$criteria->compare($this->tableName().'.RVR_ID',$this->RVR_ID);
 		$criteria->compare($this->tableName().'.RVO_REASON',$this->RVO_REASON,true);
+		
+		return $criteria;
 	}
 	
 	public function getCriteria(){
@@ -110,6 +112,8 @@ class RecipeVotings extends ActiveRecordECSimple
 		$criteria->compare('RVO_REASON',$this->RVO_REASON,true);
 		//Add with conditions for relations
 		//$criteria->with = array('???relationName???' => array());
+		
+		return $criteria;
 	}
 	
 	public function getSort(){
