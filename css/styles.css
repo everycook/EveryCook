@@ -762,6 +762,12 @@ ul.search_choose li, ul.options_choose li {
 	width: 7.25em;
 }
 
+.addRowContainer .addFields .row0,
+.addRowContainer .addFields .row1,
+.addRowContainer .addFields .row2 {
+	display: block;
+}
+
 .addRowContainer .addFields .noWrap{
 	white-space: nowrap;	
 }

@@ -296,8 +296,15 @@ jQuery(function($){
 		'<option value="3600">h</option>' + 
 		'<option value="1">s</option>' + 
 		'</select>';
-		
-	function addInputTableField(valueName, value, patternElem, insertElem, type){
+	
+	
+	var recipeFieldOrder = 	[/*['AIN_ID','TOO_ID','ING_ID','STE_GRAMS'],*/
+							['STE_STEP_DURATION','STE_CELSIUS','STE_KPA'],
+							['STE_RPM','STE_STIR_RUN','STE_STIR_PAUSE','STE_CLOCKWISE']];
+
+
+
+	function addInputTableField(valueName, value, patternElem, insertElem, type, fieldOrder){
 		var name = patternElem.attr('name');
 		var pos = name.lastIndexOf('[');
 		var patternField = name.substr(pos+1,name.length-pos-2);
@@ -335,8 +342,53 @@ jQuery(function($){
 			newFieldText = '<span class="noWrap">' + newFieldText + '</span>';
 			newInput = jQuery(newFieldText);
 		}
-		insertElem.append(newInput);
-		insertElem.append(' ');
+		
+		var inserted = false;
+		if (typeof(fieldOrder) !== 'undefined'){
+			//var lastField = [];
+			for(var i=0; i<fieldOrder.length; ++i){
+				var lastField = [];
+				var insertElemLine = insertElem.find('.row'+i);
+				if(insertElemLine.length == 0){
+					insertElemLine = jQuery('<span class="row'+i+'"></span>');
+					insertElem.append(insertElemLine);
+				}
+				var fieldList = fieldOrder[i];
+				for(var j=0; j<fieldList.length; ++j){
+					var field = fieldList[j]
+					if (field == valueName){
+						if (lastField.length>0){
+							newInput.insertAfter(lastField);
+							jQuery('<span> </span>').insertAfter(newInput);
+						} else if (/*i==0 && */j==0){
+							insertElemLine.prepend('<span> </span>');
+							insertElemLine.prepend(newInput);
+						} else {
+							insertElemLine.append(newInput);
+							insertElemLine.append('<span> </span>');
+						}
+						inserted = true;
+						break;
+					}
+					var searchField = insertElemLine.find('[id$='+field+']');
+					searchField = searchField.parents('.noWrap:first');
+					if (searchField.length > 0){
+						if (searchField.next().not('.noWrap').length > 0){
+							lastField = searchField.next();
+						} else {
+							lastField = searchField
+						}
+					}
+				}
+				if (inserted){
+					break;
+				}
+			}
+		}
+		if (!inserted){
+			insertElem.append(newInput);
+			insertElem.append('<span> </span>');
+		}
 		return newInput;
 	}
 	
@@ -683,7 +735,7 @@ jQuery(function($){
 								newFieldContent = jQuery(newFieldContent);
 								jQuery(row.find('td').get(specialFieldOption[1])).append(newFieldContent);
 							} else {
-								addInputTableField(required[requiredIndex], '', elem, insertElem, 'number');
+								addInputTableField(required[requiredIndex], '', elem, insertElem, 'number', recipeFieldOrder);
 							}
 						}
 					}
@@ -694,7 +746,7 @@ jQuery(function($){
 						newFieldContent = jQuery(newFieldContent);
 						jQuery(row.find('td').get(specialFieldOption[1])).append(newFieldContent);
 					} else {
-						addInputTableField(required[requiredIndex], '', elem, insertElem, 'number');
+						addInputTableField(required[requiredIndex], '', elem, insertElem, 'number', recipeFieldOrder);
 					}
 				}
 			}
@@ -717,18 +769,18 @@ jQuery(function($){
 						if (field.parents('tr:first').not(row).length == 0){
 							field.attr('disabled','disabled');
 							setFieldValue(field,fieldOpt[1]);
-							var newInput = addInputTableField(fieldOpt[0], fieldOpt[1], elem, insertElem, 'hidden');
+							var newInput = addInputTableField(fieldOpt[0], fieldOpt[1], elem, insertElem, 'hidden', recipeFieldOrder);
 							newInput.attr('id',newInput.attr('id') + '_backup');
 						} else {
 							if (field.attr('type') != 'hidden'){
 								next.find('[for='+field.attr('id')+']').remove();
 								field.remove();
-								addInputTableField(fieldOpt[0], fieldOpt[1], elem, insertElem, 'hidden');
+								addInputTableField(fieldOpt[0], fieldOpt[1], elem, insertElem, 'hidden', recipeFieldOrder);
 							}
 						}
 					}
 				} else {
-					addInputTableField(fieldOpt[0], fieldOpt[1], elem, insertElem, 'hidden');
+					addInputTableField(fieldOpt[0], fieldOpt[1], elem, insertElem, 'hidden', recipeFieldOrder);
 				}
 			}
 			for(var oldFieldIndex=0; oldFieldIndex<oldFields.length; oldFieldIndex++){
