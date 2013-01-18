@@ -271,11 +271,14 @@ class Functions extends CHtml{
 	}
 	
 	public static function resizePicture($file, $file_new, $width, $height, $qualitaet, $destType){
-		self::resizePicturePart($file, $file_new, $width, $height, $qualitaet, $destType, 0, 0 ,-1 ,-1, false);
+		self::resizePictureWithFill($file, $file_new, $width, $height, $qualitaet, $destType, false);
 	}
 	
-	public static function resizePicturePart($file, $file_new, $destWidth, $destHeight, $qualitaet, $destType, $src_x, $src_y, $src_w, $src_h, $fillWhite)
-	{
+	public static function resizePictureWithFill($file, $file_new, $width, $height, $qualitaet, $destType, $fillWhite){
+		self::resizePicturePart($file, $file_new, $width, $height, $qualitaet, $destType, 0, 0 ,-1 ,-1, $fillWhite);
+	}
+	
+	public static function resizePicturePart($file, $file_new, $destWidth, $destHeight, $qualitaet, $destType, $src_x, $src_y, $src_w, $src_h, $fillWhite){
 		if(!file_exists($file))
 			return false;
 		$info = getimagesize($file);
@@ -326,7 +329,8 @@ class Functions extends CHtml{
 		
 		imagealphablending($imagetc, false);
 		imagesavealpha($imagetc, true);
-		if (($info[0] > $width) or ($info[1] > $height) or ($width != $src_w) or ($height != $src_h) or ($src_x != 0) or ($src_y != 0)){
+		//if (($info[0] > $width) or ($info[1] > $height) or ($width != $src_w) or ($height != $src_h) or ($src_x != 0) or ($src_y != 0)){
+		if (($width != $destWidth) or ($height != $destHeight)){
 			if ($fillWhite){
 				$xmove=0;
 				$ymove=0;
@@ -455,7 +459,6 @@ class Functions extends CHtml{
 			header('Cache-Control: public');
 			header('Etag: ' . $etag);
 		}
-		header("Content-type: image/png");
 		if ($size > 0 && $size < self::IMG_HEIGHT){
 			$filepath = Yii::app()->getBasePath() . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . $type;
 			$filepath = preg_replace('/\w+\/\.\.\//', '', $filepath);
@@ -488,6 +491,7 @@ class Functions extends CHtml{
 			$picture = file_get_contents($pictureFilename);
 		}
 		
+		header("Content-type: image/png");
 		if(ini_get("output_handler")=='')
 			header('Content-Length: '.(function_exists('mb_strlen') ? mb_strlen($picture,'8bit') : strlen($picture)));
 		//header("Content-Disposition: attachment; filename=\"image_" . $id . ".png\"");
@@ -546,7 +550,7 @@ class Functions extends CHtml{
 				$model->setScenario('withPic');
 			} else {
 				$cropInfosAvailable = isset($_POST['imagecrop_w']) && ($_POST['imagecrop_w'] > 0) && isset($_POST['imagecrop_h']) && ($_POST['imagecrop_h'] > 0);
-				if (($model->imagechanged == true || $cropInfosAvailable) && $model->__get($picFieldName) != ''){
+				if (($model->imagechanged == true || $cropInfosAvailable) && $model->__get($picFieldName . '_FILENAME') != ''){
 					$filename = $model->__get($picFieldName . '_FILENAME');
 					if (strpos($filename, '_temp') === false){
 						$tempfile = self::generatePictureName($model, true);
@@ -556,7 +560,7 @@ class Functions extends CHtml{
 					if ($cropInfosAvailable){
 						self::resizePicturePart($filename, $tempfile, self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG, $_POST['imagecrop_x'], $_POST['imagecrop_y'], $_POST['imagecrop_w'], $_POST['imagecrop_h'], true);
 					} else {
-						self::resizePicture($filename, $tempfile, self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG);
+						self::resizePictureWithFill($filename, $tempfile, self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG, true);
 					}
 					$model->__set($picFieldName . '_FILENAME', $tempfile);
 					$img_md5 = md5(file_get_contents($oldPictureFilename));

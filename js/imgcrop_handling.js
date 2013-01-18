@@ -50,8 +50,9 @@ jQuery(function($){
 					jcrop_api.setOptions({minSize: [40, 400],});
 				}
 			}
-			jcrop_api.animateTo([0,0,400,400], function(){
+			jcrop_api.animateTo([0,0,400,400], function(test){
 				//jcrop_api.setOptions({onChange: checkSelectionValide,});
+				updateCoords(jcrop_api.tellSelect());
 			});
 		});
 		cropable.removeClass('cropable');
