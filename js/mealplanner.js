@@ -23,20 +23,6 @@ jQuery(function($){
 					elem = elem.parent().parent().find('.input_range:first');
 					elem.next().slider('value', elem.val());
 				}});
-				/*
-				jQuery("input[type=range]").slider({
-					from: 0, 
-					to: 100, 
-					step: 1,
-					dimension: '%',
-					skin: 'plastic',
-					onstatechange: function(value){
-						var slider = this;
-						if(!slider.is.init) return false;
-						slider.inputNode.change();
-					},
-				})
-				*/;
 			}
 		}
 	}
@@ -416,26 +402,6 @@ jQuery(function($){
 		}
 	});
 	
-	/* will not be called...?
-	jQuery('body').undelegate('.jqui_slider','slidecreate').delegate('.jqui_slider','slidecreate',function(event, ui){
-		var elem = jQuery(ui.handle);
-		elem = elem.parent().parent().find('.input_range:first');
-		var ranges = elem.parents('.cou_header:first').find('.input_range');
-		elem.next().slider('value', elem.val());
-		alert('test2');
-	});
-	*/
-	
-	/*
-	jQuery('body').undelegate('.cou_recipes [type=range]','slidechange').delegate('.cou_recipes [type=range]','slidechange',function(){
-		var elem = jQuery(this);
-		elem.parent().parent().find('.value:first').text(elem.val());
-		
-		var ranges = elem.parents('.cou_recipes:first').find('.input_range');
-		fixProzentValues(elem, ranges);
-	});
-	*/
-	
 	function updateValues(fields, amount){
 		var fieldAmounts = fields.length;
 		do {
@@ -512,85 +478,22 @@ jQuery(function($){
 				var substractRanges = ranges.not(elem);
 				var fieldAmounts = substractRanges.length;
 				updateValues(substractRanges, Math.round(tooMany / fieldAmounts));
-				/*
-				var substract_each = Math.round(tooMany / (amount-1));
-				for (var i=0; i<amount; ++i){
-					var changeElem = jQuery(ranges[i]);
-					if (ranges[i] != elem.get(0)){
-						var value = parseInt(changeElem.val())-substract_each;
-						if (value<0){
-							value = 0;
-						}
-						changeElem.attr('value',value);
-						changeElem.parent().parent().find('.value:first').text(value);
-					}
-				}
-				*/
 			} else {
 				var tooMany = -(sum-100);
 				var substractRanges = ranges.not(elem);
 				var fieldAmounts = substractRanges.length;
 				updateValues(substractRanges, Math.round(tooMany / fieldAmounts));
-				/*
-				if (elem != null){
-					var substract_each = Math.round(tooMany / (amount-1));
-				} else {
-					var substract_each = Math.round(tooMany / amount);
-				}
-				do {
-					var substractRangesNew = substractRanges;
-					tooMany=0;
-					for (var i=0; i<amount; ++i){
-						var changeElem = jQuery(substractRanges[i]);
-						//if (elem == null || substractRanges[i] != elem.get(0)){
-							var value = parseInt(changeElem.val())
-							value-= substract_each;
-							if (value<0){
-								tooMany+=-value;
-								value = 0;
-								fieldAmounts--;
-								substractRangesNew = substractRangesNew.not(elem);
-							}
-							changeElem.attr('value',value);
-							changeElem.parent().parent().find('.value:first').text(value);
-						//}
-					}
-					if (fieldAmounts>0){
-						substract_each = tooMany / fieldAmounts;
-						substractRanges = substractRangesNew;
-					}
-				} while (tooMany>0 && fieldAmounts>0);
-				*/
 			}
 		} else if (sum<100){
 			var rest = 100-sum;
 			var addRanges = ranges.not(elem);
 			var fieldAmounts = addRanges.length;
 			updateValues(addRanges, Math.round(rest / fieldAmounts));
-			/*
-			if (elem == null){
-				var rest_each = Math.round(rest / amount);
-			} else {
-				var rest_each = Math.round(rest / (amount-1));
-			}
-			for (var i=0; i<amount; ++i){
-				var changeElem = jQuery(ranges[i]);
-				if (elem == null || ranges[i] != elem.get(0)){
-					var value = parseInt(changeElem.val())+rest_each;
-					changeElem.attr('value',value);
-					changeElem.parent().parent().find('.value:first').text(changeElem.val());
-				}
-			}*/
 		}
 		fixProzentValues_loop = true;
 		if (ranges.get(0).type == 'text'){
 			ranges.each(function(){
 				var elem = jQuery(this);
-				/*
-				if( elem.data( "jslider" ) ){
-					elem.slider('value',elem.val());
-				}
-				*/
 				elem.parent().find('.jqui_slider').slider('value', elem.val());
 			});
 		}
