@@ -1,6 +1,6 @@
 <div <?php if(isset($elemID)){ echo 'id="' . $elemID . '" '; } if(isset($hideElem) && $hideElem){ echo 'style="display:none" '; } ?> class="resultArea mealView">
 	<?php
-	echo '<div>';
+	echo '<div class="meal_header">';
 		if(isset($editMode) && $editMode){
 			echo '<div class="slider_holder">' . Functions::activeSpecialField($data, 'MEA_PERC_GDA', 'range', array('min'=>0,'max'=>100)) . '</div>';
 			echo '<span class="prozValue">';
