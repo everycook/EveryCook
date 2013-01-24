@@ -152,14 +152,16 @@ glob.addContentWithImageChange = function(data, dest, doReplace){
 	backImages.each(function(index){
 		var elem = jQuery(this);
 		var url = backImgPath[index];
-		var isURLFunc = false;
-		if (url.substr(0,3) === 'url'){
-			url = url.substr(5,url.length-7);
-			isURLFunc = true;
-		}
-		url = glob.urlAddParamStart(url) + 'size=' + elem.width();
-		if (isURLFunc){
-			url = 'url("' + url + '")';
+		if (url != ''){
+			var isURLFunc = false;
+			if (url.substr(0,3) === 'url'){
+				url = url.substr(5,url.length-7);
+				isURLFunc = true;
+			}
+			url = glob.urlAddParamStart(url) + 'size=' + elem.width();
+			if (isURLFunc){
+				url = 'url("' + url + '")';
+			}
 		}
 		elem.css('background-image', url);
 	});
@@ -192,14 +194,16 @@ glob.setContentWithImageChangeToFancy = function(data, fancyOptions){
 		backImages.each(function(index){
 			var elem = jQuery(this);
 			var url = backImgPath[index];
-			var isURLFunc = false;
-			if (url.substr(0,3) === 'url'){
-				url = url.substr(5,url.length-7);
-				isURLFunc = true;
-			}
-			url = glob.urlAddParamStart(url) + 'size=' + elem.width();
-			if (isURLFunc){
-				url = 'url("' + url + '")';
+			if (url != ''){
+				var isURLFunc = false;
+				if (url.substr(0,3) === 'url'){
+					url = url.substr(5,url.length-7);
+					isURLFunc = true;
+				}
+				url = glob.urlAddParamStart(url) + 'size=' + elem.width();
+				if (isURLFunc){
+					url = 'url("' + url + '")';
+				}
 			}
 			elem.css('background-image', url);
 		});

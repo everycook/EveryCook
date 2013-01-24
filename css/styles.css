@@ -948,6 +948,9 @@ div.mealOverview {
 	padding-left: 0.8em;
 	width: 90%;
 }
+.cou_header input[type="range"] {
+	width: 100%;
+}
 .meal_course {
 	margin-bottom: 2em;
 	border-radius:1.5em;
@@ -1058,7 +1061,11 @@ div.mealView span.value {
 }
 
 .cou_recipe .slider_holder, .cou_recipe .slider_holder input {
-	width: 11em;
+	width: 10em;
+}
+
+.cou_recipe .prozValue {
+	white-space: nowrap;
 }
 
 #fancybox-loading div  {
