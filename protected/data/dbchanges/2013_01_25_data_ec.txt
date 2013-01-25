@@ -1,0 +1,10 @@
+INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('PRODUCTS_PRODUCER_ADD', '&nbsp;&nbsp;+&nbsp;&nbsp;', '&nbsp;&nbsp;+&nbsp;&nbsp;', ''),
+('GENERAL_COPYRITGHT_BY', '© by', '© by', ''),
+('GENERAL_GPS_FAILED_ENTER_MANUAL', 'Geolocation failed. Please enter your current address by hand and press "Address To GPS" button.', 'Geolocation war nicht erfolgreich. Bitte geben Sie ihre aktuelle adresse von Hand ein und drücken den "Adresse zu GPS" Knopf.', ''),
+('GENERAL_GPS_NOT_AVAILABLE', 'Your Browser do not support Geolocation. Please enter your current address by hand and press "Address To GPS" button.', 'Ihr Browser unterstützt geoloction nicht. Bitte geben Sie ihre aktuelle adresse von Hand ein und drücken den "Adresse zu GPS" Knopf.', ''),
+('GENERAL_GPS_ADDRESS_TO_GPS', 'Address to GPS', 'Adresse zu GPS', ''),
+('GENERAL_GPS_GPS_TO_ADDRESS', 'GPS to Address', 'GPS zu Adresse', ''),
+('STORES_SEARCH_BY_QUERY', 'search places by query', 'Suche Places per Suchbegriff', ''),
+('STORES_SEARCH_BY_RANGE', 'search all places in map range', 'Suche alle Places im sichtbaren Ausschnitt', ''),
+('GENERAL_ERRORPAGE_TITLE', 'Error', 'Fehler', '');

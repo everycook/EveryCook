@@ -348,13 +348,6 @@ jQuery(function($){
 		elem.parent().parent().find('.value:first').text(elem.val());
 	});
 	
-	jQuery('body').undelegate('.meal_header .jqui_slider','slide').delegate('.meal_header .jqui_slider','slide',function(event, ui){
-		var elem = jQuery(ui.handle);
-		elem = elem.parent().parent().find('.input_range:first');
-		elem.val(ui.value);
-		elem.parent().parent().find('.value:first').text(ui.value);
-	});
-	
 	jQuery('body').undelegate('.cou_recipes [type=range]','change').delegate('.cou_recipes [type=range]','change',function(){
 		var elem = jQuery(this);
 		elem.parent().parent().find('.value:first').text(elem.val());

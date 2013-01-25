@@ -17,7 +17,7 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 				if ($index == 0){?>
 					<div class="item">
 						<?php echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$recipe['REC_NAME_' . Yii::app()->session['lang']], 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']])), array('recipes/view', 'id'=>$recipe['REC_ID'], 'nosearch'=>'true')); ?>
-						<div class="img_auth"><?php if ($recipe['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $recipe['REC_IMG_AUTH']; } ?></div>
+						<div class="img_auth"><?php if ($recipe['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $recipe['REC_IMG_AUTH']; } ?></div>
 					</div>
 					<?php
 					$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.idx' . $index . ' = {img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$recipe['REC_ID'])).'", auth:"'.$recipe['REC_IMG_AUTH'].'", name:"'.$recipe['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
@@ -53,7 +53,7 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 				if ($index == 0){?>
 					<div class="item">
 						<?php echo CHtml::link(CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$product['PRO_ID'], 'ext'=>'.png')), '', array('class'=>'product', 'alt'=>$product['PRO_NAME_' . Yii::app()->session['lang']], 'title'=>$product['PRO_NAME_' . Yii::app()->session['lang']])), array('products/view', 'id'=>$product['PRO_ID'], 'nosearch'=>'true')); ?>
-						<div class="img_auth"><?php if ($product['PRO_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $product['PRO_IMG_AUTH']; } ?></div>
+						<div class="img_auth"><?php if ($product['PRO_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $product['PRO_IMG_AUTH']; } ?></div>
 					</div>
 					<?php
 					$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.product.idx' . $index . ' = {img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$product['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$product['PRO_ID'])).'", auth:"'.$product['PRO_IMG_AUTH'].'", name:"'.$product['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
@@ -89,7 +89,7 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 				if ($index == 0){?>
 					<div class="item">
 						<?php echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$ingredient['ING_ID'], 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$ingredient['ING_NAME_' . Yii::app()->session['lang']], 'title'=>$ingredient['ING_NAME_' . Yii::app()->session['lang']])), array('ingredients/view', 'id'=>$ingredient['ING_ID'], 'nosearch'=>'true')); ?>
-						<div class="img_auth"><?php if ($ingredient['ING_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $ingredient['ING_IMG_AUTH']; } ?></div>
+						<div class="img_auth"><?php if ($ingredient['ING_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $ingredient['ING_IMG_AUTH']; } ?></div>
 					</div>
 					<?php
 					$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.ingredient.idx' . $index . ' = {img:"'.$this->createUrl('ingredients/displaySavedImage', array('id'=>$ingredient['ING_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('ingredients/view', array('id'=>$ingredient['ING_ID'])).'", auth:"'.$ingredient['ING_IMG_AUTH'].'", name:"'.$ingredient['ING_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';

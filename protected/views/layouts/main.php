@@ -148,7 +148,7 @@
 			</div>
 		</div>
 		<div id="footer">
-				Copyright &copy; <?php echo date('Y'); ?> by EveryCook. <a href="http://creativecommons.org/licenses/by-sa/3.0/"><img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/by-sa.png" width="57" height="20"></a> <?php echo Yii::powered(); ?>
+				Copyright &copy; <?php echo date('Y'); ?> by EveryCook. <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/by-sa.png" width="57" height="20"></a> <?php echo Yii::powered(); ?>
 		</div><!-- footer -->
 		
 		<script>

@@ -4,7 +4,7 @@
 		echo '<div class="list_img">';
 			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$data['REC_NAME_' . Yii::app()->session['lang']], 'title'=>$data['REC_NAME_' . Yii::app()->session['lang']]));
 			echo '<div class="img_auth">';
-			if ($data['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $data['REC_IMG_AUTH']; } 
+			if ($data['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $data['REC_IMG_AUTH']; } 
 			echo '</div>';
 		echo '</div>';
 		
@@ -18,7 +18,7 @@
 		echo '<div class="list_img">';
 			echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$data['REC_NAME_' . Yii::app()->session['lang']], 'title'=>$data['REC_NAME_' . Yii::app()->session['lang']])), array('view', 'id'=>$data['REC_ID'])); 
 			echo '<div class="img_auth">';
-			if ($data['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $data['REC_IMG_AUTH']; } 
+			if ($data['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $data['REC_IMG_AUTH']; } 
 			echo '</div>';
 		echo '</div>';
 		echo '<div class="options">';

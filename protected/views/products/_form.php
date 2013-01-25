@@ -60,7 +60,7 @@
 			echo '</li>';
 			$i++;
 		}
-		echo '</ul><div class="clearfix"></div><span class="buttonSmall add">&nbsp;&nbsp;+&nbsp;&nbsp;</span></div>';
+		echo '</ul><div class="clearfix"></div><span class="buttonSmall add">' . $this->trans->PRODUCTS_PRODUCER_ADD . '</span></div>'; //&nbsp;&nbsp;+&nbsp;&nbsp;
 	} else {
 		echo '<div class="row" id="producer">';
 		echo CHtml::label($this->trans->PRODUCTS_PRODUCERS, 'PRD_ID_0');
@@ -70,7 +70,7 @@
 		echo CHtml::link($this->trans->GENERAL_CHOOSE, array('producers/chooseProducer'), array('class'=>'fancyChoose ProducerSelect'));
 		echo '<span class="buttonSmall remove">' . $this->trans->GENERAL_REMOVE . '<span>';
 		echo '</li>';
-		echo '</ul><div class="clearfix"></div><span class="buttonSmall add">&nbsp;&nbsp;+&nbsp;&nbsp;</span></div>';
+		echo '</ul><div class="clearfix"></div><span class="buttonSmall add">' . $this->trans->PRODUCTS_PRODUCER_ADD . '</span></div>';
 	}
 	?>
 
