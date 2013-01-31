@@ -609,7 +609,38 @@ jQuery(function($){
 	});
 	
 	jQuery('body').undelegate('.fancyForm .button.IngredientSelect','click').delegate('.fancyForm .button.IngredientSelect','click', function(){
-		return fancyChooseSelect('IngredientSelect', this);
+		var caller = jQuery(this);
+		if (caller.is('.RecipeAddPrepare')){
+			var fieldIdentifier = 'IngredientSelect';
+			//use fancyChooseSelect logic
+			var elem = jQuery('.activeFancyField');
+			if (elem.length == 0){
+				elem = jQuery('.fancyChoose.'+fieldIdentifier).siblings('input.fancyValue');
+			}
+			elem.attr('value', jQuery(caller).attr('href'));
+			elem.siblings('a.fancyChoose.' + fieldIdentifier).html(jQuery(caller).parent().find('.name').text());
+			elem.change();
+			
+			//Add prepare row
+			var row = elem.parents('tr:first');
+			var rowId = row.find('[id$=REC_ID]').attr('id');
+			
+			row.find('.add').click();
+			var newRow = jQuery('#'+rowId).parents('tr:first');
+			var prepareAin_id = jQuery('#preparedAIN_ID').val();
+			glob.setFieldValue(newRow.find('[id$=AIN_ID]'), prepareAin_id);
+			
+			//set ingredient on prepare step
+			elem = newRow.find('.fancyChoose.'+fieldIdentifier).siblings('input.fancyValue');
+			elem.attr('value', jQuery(caller).attr('href'));
+			elem.siblings('a.fancyChoose.' + fieldIdentifier).html(jQuery(caller).parent().find('.name').text());
+			elem.change();
+			
+			jQuery.fancybox.close();
+			return false;
+		} else {
+			return fancyChooseSelect('IngredientSelect', this);
+		}
 	});
 	
 	jQuery('body').undelegate('.fancyForm .button.ProducerSelect','click').delegate('.fancyForm .button.ProducerSelect','click', function(){

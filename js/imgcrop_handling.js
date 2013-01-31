@@ -149,7 +149,9 @@ jQuery(function($){
 		var elem = jQuery(this);
 		var form = elem.parents('form:first');
 		var oldAction = form.attr('action');
+		var oldEnctype = form.attr('enctype');
 		form.attr('action', jQuery('#uploadImageLink').attr('value'));
+		form.attr('enctype', 'multipart/form-data');
 		form.unbind('submit');
 		//form.append('<input type="hidden" class="cropMaxInitSize" name="MaxHeight" value="' + window.screen.height + '"/>');
 		//form.append('<input type="hidden" class="cropMaxInitSize" name="MaxWidth" value="' + window.screen.width + '"/>');
@@ -167,6 +169,11 @@ jQuery(function($){
 		form.submit();
 		
 		form.attr('action', oldAction);
+		if (typeof(oldEnctype) === 'undefined'){
+			form.removeAttr('enctype');
+		} else {
+			form.attr('enctype', oldEnctype);
+		}
 		//form.find('.cropMaxInitSize').remove();
 		glob.initAjaxUpload('form', form.parent());
 	});

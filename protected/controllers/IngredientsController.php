@@ -14,6 +14,10 @@ class IngredientsController extends Controller
 	protected $createBackup = 'Ingredients_Backup';
 	protected $searchBackup = 'Ingredients';
 	protected $getNextAmountBackup = 'Ingredients_GetNextAmount';
+	protected $isRecipeIngredientSelect = false;
+	protected $recipeIngredientIds = null;
+	
+	
 	const RECIPES_AMOUNT = 2;
 	const PRODUCTS_AMOUNT = 2;
 	const PRELOAD_AMOUNT = 3;
@@ -27,7 +31,7 @@ class IngredientsController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','getSubGroupSearch','getSubGroupForm','chooseIngredient','advanceChooseIngredient','getNext'),
+				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','getSubGroupSearch','getSubGroupForm','chooseIngredient','advanceChooseIngredient','getNext','chooseIngredientInRecipe'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -438,7 +442,7 @@ class IngredientsController extends Controller
 		
 		$Session_Ingredient = Yii::app()->session[$this->searchBackup];
 		if (isset($Session_Ingredient)){
-			if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Ingredients']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_Ingredient['time'])){
+			if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Ingredients']) && !isset($criteria) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_Ingredient['time'])){
 				if (isset($Session_Ingredient['query'])){
 					$query = $Session_Ingredient['query'];
 					$model2->query = $query;
@@ -453,6 +457,10 @@ class IngredientsController extends Controller
 		}
 		
 		$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'ingredients.');
+		
+		if ($this->isRecipeIngredientSelect && $criteriaString != ''){
+			$criteria = null;
+		}
 		
 		if ($modelAvailable || $criteriaString != '' || $criteria != null){
 			if (!$this->isFancyAjaxRequest){
@@ -785,6 +793,38 @@ class IngredientsController extends Controller
 	public function actionAdvanceChooseIngredient(){
 		$this->isFancyAjaxRequest = true;
 		$this->prepareSearch('advanceSearch', 'none', null);
+	}
+	
+	public function actionChooseIngredientInRecipe(){
+		$this->isFancyAjaxRequest = true;
+		$this->isRecipeIngredientSelect = true;
+		
+		if (isset($_GET['ajaxPaging'])){
+			$this->prepareSearch('search', 'none', null);
+		} else {
+			$Session_Backup = Yii::app()->session['Recipes_Backup'];
+			if (isset($Session_Backup)){
+				$ids = array();
+				$steps = $Session_Backup->steps;
+				foreach($steps as $step){
+					if (isset($step->ING_ID) && $step->ING_ID>0 && isset($step->STE_GRAMS) /*&& $step->STE_GRAMS > 0*/){
+						array_push($ids, $step->ING_ID);
+					}
+				}
+				if (count($ids)>0){
+					$this->recipeIngredientIds = $ids;
+				} else {
+					$this->recipeIngredientIds = null;
+					$ids = array(-1);
+				}
+			} else {
+				$this->recipeIngredientIds = null;
+				$ids = array(-1);
+			}
+			$criteria=new CDbCriteria;
+			$criteria->compare(Ingredients::model()->tableName().'.ING_ID',$ids);
+			$this->prepareSearch('search', 'none', $criteria);
+		}
 	}
 	
 	public function actionShowLike(){

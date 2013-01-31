@@ -24,7 +24,7 @@ class RecipesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','chooseRecipe','advanceChooseRecipe','chooseTemplateRecipe','advanceChooseTemplateRecipe'),
+				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','chooseRecipe','advanceChooseRecipe','chooseTemplateRecipe','advanceChooseTemplateRecipe','updateSessionValues','updateSessionValue'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -408,6 +408,50 @@ class RecipesController extends Controller
 		return array($actionsInDetails, $actionsIn);
 	}
 	
+	public function actionUpdateSessionValues(){
+		if(isset($_POST['Recipes'])){
+			$model = Yii::app()->session[$this->createBackup];
+			if (isset($model)){
+				$recToCois = $model->recToCois;
+				$model->attributes=$_POST['Recipes'];
+				if (isset($_POST['Steps'])){
+					$model = Functions::arrayToRelatedObjects($model, array('steps'=> $_POST['Steps']));
+					$model->recToCois = $recToCois;
+				}
+				
+				Yii::app()->session[$this->createBackup] = $model;
+				Yii::app()->session[$this->createBackup.'_Time'] = time();
+			} else {
+				if ($this->debug) {echo 'error on update session values';}
+			}
+		}
+	}
+	
+	public function actionUpdateSessionValue($StepNr){
+		if (isset($_POST['Steps'])){
+			$model = Yii::app()->session[$this->createBackup];
+			if (isset($model)){
+				$newArray = $model['steps'];
+				if (isset($newArray[$StepNr-1])){
+					$newModel = $newArray[$StepNr-1];
+				} else {
+					$newModel = new Steps;
+				}
+				$dataArray = $_POST['Steps'];
+				$entry = $dataArray[$StepNr];
+				$newModel->unsetAttributes();
+				$newModel->attributes = $entry;
+				$newArray[$StepNr-1] = Functions::arrayToRelatedObjects($newModel, $entry);
+				
+				$model['steps'] = $newArray;
+				Yii::app()->session[$this->createBackup] = $model;
+				Yii::app()->session[$this->createBackup.'_Time'] = time();
+			} else {
+				if ($this->debug) {echo 'error on update session values';}
+			}
+		}
+	}
+	
 	private function prepareCreateOrUpdate($id, $view){
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
@@ -510,6 +554,8 @@ class RecipesController extends Controller
 			$model->attributes=$_POST['Recipes'];
 			$steps = array();
 			$stepsOK = true;
+			$ingredientPrepareSteps = array();
+			$ingredientUseSteps = array();
 			if (isset($_POST['Steps'])){
 				$model = Functions::arrayToRelatedObjects($model, array('steps'=> $_POST['Steps']));
 				$model->recToCois = $recToCois;
@@ -521,15 +567,23 @@ class RecipesController extends Controller
 						$ainDetails = $actionsInDetails[$step['AIN_ID']];
 						$required = $ainDetails['required'];
 					}
-					if (isset($required) &&  count($required)>0){
+					if (isset($required) && count($required)>0){
 						foreach($required as $requiredField){
 							if (!isset($step[$requiredField]) || $step[$requiredField] == null || $step[$requiredField] == ''){
-								$this->errorText .= '<li>Value of required field ' . $requiredField . ' of Step' . $index . ' is empty.</li>';
+								$this->errorText .= sprintf($this->trans->RECIPES_REQUIRED_FIELD_EMPTY, $requiredField, $index);
 								array_push($this->errorFields, 'Steps_'.$index.'_'.$requiredField);
 								$stepsOK = false;
 							}
 						}
 					}
+					if (isset($step['ING_ID']) && $step['ING_ID']>0){
+						if (isset($step['STE_GRAMS']) /*&& $step['STE_GRAMS'] > 0*/){
+							$ingredientPrepareSteps[$step['ING_ID']] = $index;
+						} else {
+							$ingredientUseSteps[$index] = $step['ING_ID'];
+						}
+					}
+					
 					/*
 					foreach($step->getAttributes(false) as $key=>$value){
 						if ($value === '' && $key != 'REC_ID' && $key != 'STE_STEP_NO'){
@@ -540,6 +594,19 @@ class RecipesController extends Controller
 					}
 					*/
 					++$index;
+				}
+				foreach($ingredientUseSteps as $stepNr=>$ing_id){
+					if(!isset($ingredientPrepareSteps[$ing_id])){
+						//ingredient not prepared
+						$this->errorText .= sprintf($this->trans->RECIPES_INGREDIENT_NOT_PREPARED, $stepNr);
+						array_push($this->errorFields, 'Steps_'.$stepNr.'_ING_ID');
+						$stepsOK = false;
+					} else if ($ingredientPrepareSteps[$ing_id]>$stepNr){
+						//ingredient prepared after use
+						$this->errorText .= sprintf($this->trans->RECIPES_INGREDIENT_PREPARED_TO_LATE, $stepNr, $ingredientPrepareSteps[$ing_id]);
+						array_push($this->errorFields, 'Steps_'.$stepNr.'_ING_ID');
+						$stepsOK = false;
+					}
 				}
 			} else {
 				if(!isset($_POST['updateCookIn'])){
@@ -556,7 +623,7 @@ class RecipesController extends Controller
 			
 			if(!isset($_POST['updateCookIn'])){
 				if(Yii::app()->user->demo){
-					$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+					$this->errorText .= sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
 					$model->validate();
 				} else {
 					if ($stepsOK){
@@ -650,6 +717,9 @@ class RecipesController extends Controller
 					}
 				}
 			}
+		} else {
+			Yii::app()->session[$this->createBackup] = $model;
+			Yii::app()->session[$this->createBackup.'_Time'] = time();
 		}
 		
 		$recipeTypes = Yii::app()->db->createCommand()->select('RET_ID,RET_DESC_'.Yii::app()->session['lang'])->from('recipe_types')->queryAll();

@@ -50,6 +50,10 @@ if ($this->isFancyAjaxRequest){ ?>
 	
 	<div class="clearfix"></div>
 
+	<?php if($this->isRecipeIngredientSelect){
+		echo '<div>' . $this->trans->INGREDIENTS_SELECT_FROM_RECIPE . '</div>';
+	} ?>
+
 <?php $this->widget('AjaxPagingListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',

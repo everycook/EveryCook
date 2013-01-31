@@ -15,6 +15,8 @@ jQuery(function($){
 	var rows;
 	var lastIndex = 0;
 	var newLineContent;
+	var updateRowTimeouts = new Array();
+	glob.rowContainer.SendDataToBackendRowTimeout = 5000;
 	
 	function getIndexFromFieldName(name){
 		var currentIndex = name.match(/\[([^\]]+)\]/);
@@ -33,7 +35,7 @@ jQuery(function($){
 			inputs = elem.find('[name]');//All input fields
 		}
 		
-		var currentIndexInt = getIndexFromFieldName(inputs.attr('name'))
+		var currentIndexInt = getIndexFromFieldName(inputs.attr('name'));
 		if (currentIndexInt === false) {
 			return false;
 		}
@@ -61,6 +63,7 @@ jQuery(function($){
 				next.attr('id', next.attr('id').replace(currentIndexStr2,newIndexIntStr2));
 			}
 		});
+		return newIndexInt;
 	}
 	
 	function addEmptyRow(insertBeforeLine){
@@ -114,6 +117,8 @@ jQuery(function($){
 		var row = jQuery(this).parents('tr:first');
 		var followedRows = row.nextAll().not('.addFields').not('.actionsInInfo');
 		
+		var rowContainer = jQuery(this).parents('.addRowContainer:first');
+		
 		lastIndex = lastIndex-1;
 		
 		var next = row.next();
@@ -132,6 +137,8 @@ jQuery(function($){
 		followedRows.each(function(){
 			changeInputTableIndex(jQuery(this), -1);
 		});
+		
+		SendDataToBackend(rowContainer);
 	});
 	
 	jQuery('body').undelegate('.addRowContainer .up','click').delegate('.addRowContainer .up','click',function(){
@@ -163,8 +170,8 @@ jQuery(function($){
 		}
 		
 		if (prevEntry.length){
-			changeInputTableIndex(row, -1);
-			changeInputTableIndex(prevEntry, 1);
+			var rowNr = changeInputTableIndex(row, -1);
+			var prevEntryNr = changeInputTableIndex(prevEntry, 1);
 			row.insertBefore(prevEntry);
 			if (next2 != null){
 				next2.insertAfter(row);
@@ -172,6 +179,9 @@ jQuery(function($){
 			if (next != null){
 				next.insertAfter(row);
 			}
+			
+			SendDataToBackendRowSetTimeout(row, rowNr);
+			SendDataToBackendRowSetTimeout(prevEntry, prevEntryNr);
 		}
 	});
 
@@ -214,8 +224,8 @@ jQuery(function($){
 		}
 		
 		if (nextEntry.not(row.nextAll().last()).length){
-			changeInputTableIndex(row, 1);
-			changeInputTableIndex(nextEntry, -1);
+			var rowNr = changeInputTableIndex(row, 1);
+			var nextEntryNr = changeInputTableIndex(nextEntry, -1);
 			row.insertAfter(insertPos);
 			if (next2 != null){
 				next2.insertAfter(row);
@@ -223,6 +233,9 @@ jQuery(function($){
 			if (next != null){
 				next.insertAfter(row);
 			}
+			
+			SendDataToBackendRowSetTimeout(row, rowNr);
+			SendDataToBackendRowSetTimeout(nextEntry, nextEntryNr);
 		}
 	});
 	
@@ -244,7 +257,7 @@ jQuery(function($){
 	*/
 	
 	jQuery('body').undelegate('.addRowContainer .viewWithUnit','change').delegate('.addRowContainer .viewWithUnit','change',function(){
-		var inputField = jQuery(this)
+		var inputField = jQuery(this);
 		var unitField = inputField.next();
 		var multiplier = unitField.val();
 		var dataField = unitField.next();
@@ -255,7 +268,7 @@ jQuery(function($){
 	});
 	
 	jQuery('body').undelegate('.addRowContainer .unit','change').delegate('.addRowContainer .unit','change',function(){
-		var unitField = jQuery(this)
+		var unitField = jQuery(this);
 		var multiplier = unitField.val();
 		var inputField = unitField.prev();
 		var dataField = unitField.next();
@@ -266,7 +279,7 @@ jQuery(function($){
 	});
 	
 	jQuery('body').undelegate('.addRowContainer .withUnit','change').delegate('.addRowContainer .withUnit','change',function(){
-		var dataField = jQuery(this)
+		var dataField = jQuery(this);
 		var unitField = dataField.prev();
 		var multiplier = unitField.val();
 		var inputField = unitField.prev();
@@ -404,11 +417,12 @@ jQuery(function($){
 			field.change();
 		}
 	}
-	
+	glob.setFieldValue = setFieldValue;
 	
 	function initRowContainer(container, data, errors, excludingFieldQuery, bevoreRowCallback, eachRowBeginCallback, eachRowEndCallback){
 		var emptyLineContainer = container.find('#newLine');
 		if (emptyLineContainer.length !== 0 && data.length !== 0){
+			container.addClass('initializeRowContainer');
 			var lastIndexElem = emptyLineContainer.find('input[name=lastIndex]')
 			lastIndex = new Number(lastIndexElem.attr('value')).valueOf();
 			
@@ -473,6 +487,7 @@ jQuery(function($){
 				inputField.addClass('error');
 				jQuery('[for='+field+']').addClass('error');
 			}
+			container.removeClass('initializeRowContainer');
 		} else {
 			rows = [];
 		}
@@ -487,6 +502,89 @@ jQuery(function($){
 	}
 	
 	glob.rowContainer.clear = clearRowContainer;
+	
+	function SendDataToBackend(rowContainer){
+		if (rowContainer.parent().is('.updateBackend')){
+			var url = jQuery('#updateSessionValuesLink').val();
+			var form = rowContainer.parents('form:first');
+			glob.ShowActivity = false;
+			jQuery.ajax({'type':'post', 'url':url, 'data': form.serialize(),'cache':false,/*'success':function(data){
+					//alert('success');
+				},
+				'error':function(xhr){
+					//alert('error');
+				},*/
+			});
+			glob.ShowActivity = true;
+		}
+	}
+	
+	function SendDataToBackendRow(row, rowNr){
+		updateRowTimeouts[rowNr] = undefined;
+		if (row.parents('.addRowContainer:first').parent().is('.updateBackend')){
+			var url = jQuery('#updateSessionValueLink').val();
+			url = glob.urlAddParamStart(url) + 'StepNr=' + rowNr;
+			
+			if (row.is('.addFields')){
+				var prev = row.prev();
+				if (prev.is('.odd') || prev.is('.even')){
+					row = row.add(prev);
+				}
+			} else {
+				var next = row.next();
+				if (next.is('.addFields')){
+					row = row.add(next);
+				}
+			}
+			var data = ''
+			var inputs = row.find('input').add(row.find('select'));
+			inputs.each(function(i){
+				var elem = jQuery(this);
+				if (i != 0){
+					data += '&';
+				}
+				data += elem.attr('name') + '=' + elem.val();
+			});
+			glob.ShowActivity = false;
+			jQuery.ajax({'type':'post', 'url':url, 'data': data,'cache':false,/*'success':function(data){
+					//alert('success');
+				},
+				'error':function(xhr){
+					//alert('error');
+				},*/
+			});
+			glob.ShowActivity = true;
+		}
+	}
+	
+	function SendDataToBackendRowCallback(rowNr){
+		var timeoutInfo = updateRowTimeouts[rowNr];
+		if (typeof(timeoutInfo) !== 'undefined'){
+			SendDataToBackendRow(timeoutInfo['row'], rowNr);
+		}
+	}
+	glob.rowContainer.SendDataToBackendRowCallback = SendDataToBackendRowCallback;
+	
+	function SendDataToBackendRowSetTimeout(row, rowNr){
+		var timeoutInfo = updateRowTimeouts[rowNr];
+		if (typeof(timeoutInfo) !== 'undefined'){
+			window.clearTimeout(timeoutInfo['timeoutId']);
+		}
+		
+		timeoutInfo = new Array();
+		timeoutInfo['timeoutId'] = window.setTimeout('glob.rowContainer.SendDataToBackendRowCallback('+rowNr+');', glob.rowContainer.SendDataToBackendRowTimeout);
+		timeoutInfo['row'] = row;
+		
+		updateRowTimeouts[rowNr] = timeoutInfo;
+	}
+	
+	jQuery('body').undelegate('.updateBackend .addRowContainer:not(.initializeRowContainer) input','change').delegate('.updateBackend .addRowContainer:not(.initializeRowContainer) input','change',function(){
+		var dataField = jQuery(this);
+		var rowNr = getIndexFromFieldName(dataField.attr('name'));
+		
+		SendDataToBackendRowSetTimeout(dataField.parents('tr:first'), rowNr);
+	});
+	
 	
 	//##################################################################################
 	//Mealplanner people functions
@@ -669,6 +767,7 @@ jQuery(function($){
 		var newRow = addEmptyRow(insertBefore);
 		updateFields(newRow.find('[id$=AIN_ID]'));
 		initMultiFancyCoose();
+		SendDataToBackend(jQuery(this).parents('.addRowContainer:first'));
 	});
 	
 	jQuery('body').undelegate('#recipes-form #cookInDisplay','change').delegate('#recipes-form #cookInDisplay','change',function(){
@@ -793,6 +892,21 @@ jQuery(function($){
 						fieldParents.find('#'+field.attr('id')+'_DESC').remove();
 					}
 					field.remove();
+				}
+			}
+			
+			//Check show prepared Ingredient link, or normale one
+			if (fieldParents.find('[id*=STE_GRAMS]').length>0){
+				//Normal link
+				var field = fieldParents.find('[id$=ING_ID_DESC]');
+				if (field.length>0){
+					field.attr('href', jQuery('#ingredientsChooseLink').val());
+				}
+			} else {
+				//prepared link
+				var field = fieldParents.find('[id$=ING_ID_DESC]');
+				if (field.length>0){
+					field.attr('href', jQuery('#preparedIngredientsChooseLink').val());
 				}
 			}
 		}
