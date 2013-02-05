@@ -28,7 +28,7 @@ $this->menu=array(
 		'PRF_BIRTHDAY',
 		'PRF_EMAIL',
 		'PRF_LANG',
-		//'PRF_IMG',
+		//'PRF_IMG_FILENAME',
 		//'PRF_PW',
 		'PRF_LOC_GPS_LAT',
 		'PRF_LOC_GPS_LNG',

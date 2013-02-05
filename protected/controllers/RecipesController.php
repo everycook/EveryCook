@@ -823,18 +823,16 @@ class RecipesController extends Controller
 			$usedIngredients=array();
 		}
 		
-		if (isset($model->REC_IMG) && strlen($model->REC_IMG)>0){
+		if (isset($model->REC_IMG_FILENAME) && strlen($model->REC_IMG_FILENAME)>0){
 			$currentModel = Yii::app()->session[$this->createBackup];
 			if (!isset($currentModel) || $currentModel == null){
 				$currentModel = new Recipes();
 			}
-			$currentModel->REC_IMG = $model->REC_IMG;
+			$currentModel->REC_IMG_FILENAME = $model->REC_IMG_FILENAME;
 			$currentModel->REC_IMG_ETAG = $model->REC_IMG_ETAG;
 			$currentModel->REC_IMG_AUTH = $model->REC_IMG_AUTH;
 			
 			Yii::app()->session[$this->createBackup] = $currentModel;
-			
-			$model->REC_IMG = 'backup';
 		}
 		
 		$stepsJSON = CJSON::encode($model->steps);

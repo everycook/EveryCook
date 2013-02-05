@@ -46,7 +46,7 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 	<div class="slot f-right">
 		<input name="product" class="imgIndex" type="hidden" value="0" />
 		<div class="up-arrow"><div class="up1"></div><div class="up2"></div></div>
-		<?php		
+		<?php
 			$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.product = {};';
 			$index = 0;
 			foreach($products as $product){

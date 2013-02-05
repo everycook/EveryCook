@@ -10,7 +10,6 @@
  * @property integer $ING_ID
  * @property integer $ECO_ID
  * @property integer $ETH_ID
- * @property string $PRO_IMG
  * @property string $PRO_IMG_FILENAME
  * @property string $PRO_IMG_AUTH
  * @property string $PRO_IMG_ETAG
@@ -57,10 +56,10 @@ class Products extends ActiveRecordEC
 			array('PRO_IMG_AUTH', 'length', 'max'=>30),
 			array('PRO_IMG_ETAG', 'length', 'max'=>40),
 			array('PRO_NAME_EN_GB, PRO_NAME_DE_CH', 'length', 'max'=>100),
-			array('PRO_IMG, CHANGED_ON', 'safe'),
+			array('CHANGED_ON', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('PRO_ID, PRO_BARCODE, PRO_PACKAGE_GRAMMS, ING_ID, ECO_ID, ETH_ID, PRO_IMG, PRO_IMG_FILENAME, PRO_IMG_AUTH, PRO_IMG_ETAG, PRO_NAME_EN_GB, PRO_NAME_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('PRO_ID, PRO_BARCODE, PRO_PACKAGE_GRAMMS, ING_ID, ECO_ID, ETH_ID, PRO_IMG_FILENAME, PRO_IMG_AUTH, PRO_IMG_ETAG, PRO_NAME_EN_GB, PRO_NAME_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -91,7 +90,6 @@ class Products extends ActiveRecordEC
 			'ING_ID' => 'Ing',
 			'ECO_ID' => 'Eco',
 			'ETH_ID' => 'Eth',
-			'PRO_IMG' => 'Pro Img',
 			'PRO_IMG_FILENAME' => 'Pro Img Filename',
 			'PRO_IMG_AUTH' => 'Pro Img Auth',
 			'PRO_IMG_ETAG' => 'Pro Img Etag',
@@ -118,7 +116,6 @@ class Products extends ActiveRecordEC
 		$criteria->compare($this->tableName().'.ING_ID',$this->ING_ID);
 		$criteria->compare($this->tableName().'.ECO_ID',$this->ECO_ID);
 		$criteria->compare($this->tableName().'.ETH_ID',$this->ETH_ID);
-		$criteria->compare($this->tableName().'.PRO_IMG',$this->PRO_IMG,true);
 		$criteria->compare($this->tableName().'.PRO_IMG_FILENAME',$this->PRO_IMG_FILENAME,true);
 		$criteria->compare($this->tableName().'.PRO_IMG_AUTH',$this->PRO_IMG_AUTH,true);
 		$criteria->compare($this->tableName().'.PRO_IMG_ETAG',$this->PRO_IMG_ETAG,true);
@@ -144,7 +141,6 @@ class Products extends ActiveRecordEC
 		$criteria->compare('ING_ID',$this->ING_ID);
 		$criteria->compare('ECO_ID',$this->ECO_ID);
 		$criteria->compare('ETH_ID',$this->ETH_ID);
-		$criteria->compare('PRO_IMG',$this->PRO_IMG,true);
 		$criteria->compare('PRO_IMG_FILENAME',$this->PRO_IMG_FILENAME,true);
 		$criteria->compare('PRO_IMG_AUTH',$this->PRO_IMG_AUTH,true);
 		$criteria->compare('PRO_IMG_ETAG',$this->PRO_IMG_ETAG,true);

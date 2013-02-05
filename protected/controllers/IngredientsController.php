@@ -239,7 +239,7 @@ class IngredientsController extends Controller
 			$model=new Ingredients;
 			$oldPictureFilename=null;
 		}
-		if (isset($model->ING_IMG) && $model->ING_IMG != ''){
+		if (isset($model->ING_IMG_FILENAME) && $model->ING_IMG_FILENAME != ''){
 			$model->setScenario('withPic');
 		}
 		

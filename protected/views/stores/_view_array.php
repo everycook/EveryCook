@@ -89,7 +89,7 @@
 	<?php echo CHtml::encode($data->STO_PHONE); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('STO_IMG')); ?>:</b>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('STO_IMG_FILENAME')); ?>:</b>
 	<?php echo CHtml::encode($data->STO_IMG); ?>
 	<br />
 

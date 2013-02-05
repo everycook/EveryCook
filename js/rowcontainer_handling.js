@@ -934,8 +934,8 @@ jQuery(function($){
 							setFieldValue(input, data.model[value]);
 						}
 					}
-					if (data.model.REC_IMG === 'backup'){
-						glob.showImageOrError(jQuery('input[id$=filename][type=file]'), '{imageId:\'' + data.model.REC_IMG + '\'}');
+					if (data.model.REC_IMG_FILENAME != null && data.model.REC_IMG_FILENAME !== ''){ //'backup'){
+						glob.showImageOrError(jQuery('input[id$=filename][type=file]'), '{imageId:\'backup\'}');
 					}
 				}
 				if (data.recToCois){

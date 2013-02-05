@@ -6,7 +6,6 @@
  * The followings are the available columns in table 'recipes':
  * @property integer $REC_ID
  * @property integer $PRF_UID
- * @property string $REC_IMG
  * @property string $REC_IMG_FILENAME
  * @property string $REC_IMG_AUTH
  * @property string $REC_IMG_ETAG
@@ -53,10 +52,10 @@ class Recipes extends ActiveRecordEC
 			array('REC_IMG_AUTH', 'length', 'max'=>30),
 			array('REC_IMG_ETAG', 'length', 'max'=>40),
 			array('REC_NAME_EN_GB, REC_NAME_DE_CH', 'length', 'max'=>100),
-			array('RET_ID, REC_IMG, steps', 'safe'),
+			array('RET_ID, steps', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('REC_ID, PRF_UID, REC_IMG, REC_IMG_FILENAME, REC_IMG_AUTH, REC_IMG_ETAG, RET_ID, REC_KCAL, REC_NAME_EN_GB, REC_NAME_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('REC_ID, PRF_UID, REC_IMG_FILENAME, REC_IMG_AUTH, REC_IMG_ETAG, RET_ID, REC_KCAL, REC_NAME_EN_GB, REC_NAME_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -80,7 +79,6 @@ class Recipes extends ActiveRecordEC
 		return array(
 			'REC_ID' => 'Rec',
 			'PRF_UID' => 'Prf Uid',
-			'REC_IMG' => 'Rec Img',
 			'REC_IMG_FILENAME' => 'Rec Img Filename',
 			'REC_IMG_AUTH' => 'Rec Img Auth',
 			'REC_IMG_ETAG' => 'Rec Img Etag',
@@ -105,7 +103,6 @@ class Recipes extends ActiveRecordEC
 		
 		$criteria->compare($this->tableName().'.REC_ID',$this->REC_ID);
 		$criteria->compare($this->tableName().'.PRF_UID',$this->PRF_UID);
-		$criteria->compare($this->tableName().'.REC_IMG',$this->REC_IMG,true);
 		$criteria->compare($this->tableName().'.REC_IMG_FILENAME',$this->REC_IMG_FILENAME,true);
 		$criteria->compare($this->tableName().'.REC_IMG_AUTH',$this->REC_IMG_AUTH,true);
 		$criteria->compare($this->tableName().'.REC_IMG_ETAG',$this->REC_IMG_ETAG,true);
@@ -129,7 +126,6 @@ class Recipes extends ActiveRecordEC
 
 		$criteria->compare('REC_ID',$this->REC_ID);
 		$criteria->compare('PRF_UID',$this->PRF_UID);
-		$criteria->compare('REC_IMG',$this->REC_IMG,true);
 		$criteria->compare('REC_IMG_FILENAME',$this->REC_IMG_FILENAME,true);
 		$criteria->compare('REC_IMG_AUTH',$this->REC_IMG_AUTH,true);
 		$criteria->compare('REC_IMG_ETAG',$this->REC_IMG_ETAG,true);

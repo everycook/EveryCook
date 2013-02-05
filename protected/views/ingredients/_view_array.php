@@ -179,7 +179,7 @@
 	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_DENSITY')); ?>:</strong>
 	<?php echo CHtml::encode($data->ING_DENSITY); ?>
 	<br />
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_IMG')); ?>:</strong>
+	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_IMG_FILENAME')); ?>:</strong>
 	<?php echo CHtml::encode($data->ING_IMG); ?><br />
 	
 	

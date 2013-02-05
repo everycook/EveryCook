@@ -103,10 +103,10 @@ class Profiles extends ActiveRecordECPriv
 			array('PRF_PW', 'length', 'max'=>256),
 			array('PRF_DESIGN', 'length', 'max'=>20),
 			array('PRF_IMG_FILENAME, PRF_IMG_ETAG', 'required', 'on'=>'withPic'),
-			array('new_pw, pw_repeat, birthday_day, birthday_month, birthday_year, PRF_IMG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS', 'safe'),
+			array('new_pw, pw_repeat, birthday_day, birthday_month, birthday_year, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_GENDER, PRF_BIRTHDAY, PRF_EMAIL, PRF_LANG, PRF_IMG, PRF_IMG_FILENAME, PRF_IMG_ETAG, PRF_PW, PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_VIEW_DISTANCE, PRF_DESIGN, PRF_ROLES, PRF_ACTIVE, PRF_RND, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_GENDER, PRF_BIRTHDAY, PRF_EMAIL, PRF_LANG, PRF_IMG_FILENAME, PRF_IMG_ETAG, PRF_PW, PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_VIEW_DISTANCE, PRF_DESIGN, PRF_ROLES, PRF_ACTIVE, PRF_RND, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 			
 			// register
 			//array('pw_repeat','safe'),
@@ -145,7 +145,6 @@ class Profiles extends ActiveRecordECPriv
 			'PRF_BIRTHDAY' => 'Prf Birthday',
 			'PRF_EMAIL' => 'Prf Email',
 			'PRF_LANG' => 'Prf Lang',
-			'PRF_IMG' => 'Prf Img',
 			'PRF_IMG_FILENAME' => 'Prf Img Filename',
 			'PRF_IMG_ETAG' => 'Prf Img Etag',
 			'PRF_PW' => 'Prf Pw',
@@ -190,7 +189,6 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare($this->tableName().'.PRF_BIRTHDAY',$this->PRF_BIRTHDAY);
 		$criteria->compare($this->tableName().'.PRF_EMAIL',$this->PRF_EMAIL,true);
 		$criteria->compare($this->tableName().'.PRF_LANG',$this->PRF_LANG,true);
-		$criteria->compare($this->tableName().'.PRF_IMG',$this->PRF_IMG,true);
 		$criteria->compare($this->tableName().'.PRF_IMG_FILENAME',$this->PRF_IMG_FILENAME,true);
 		$criteria->compare($this->tableName().'.PRF_IMG_ETAG',$this->PRF_IMG_ETAG,true);
 		$criteria->compare($this->tableName().'.PRF_PW',$this->PRF_PW,true);
@@ -232,7 +230,6 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare('PRF_BIRTHDAY',$this->PRF_BIRTHDAY);
 		$criteria->compare('PRF_EMAIL',$this->PRF_EMAIL,true);
 		$criteria->compare('PRF_LANG',$this->PRF_LANG,true);
-		$criteria->compare('PRF_IMG',$this->PRF_IMG,true);
 		$criteria->compare('PRF_IMG_FILENAME',$this->PRF_IMG_FILENAME,true);
 		$criteria->compare('PRF_IMG_ETAG',$this->PRF_IMG_ETAG,true);
 		$criteria->compare('PRF_PW',$this->PRF_PW,true);

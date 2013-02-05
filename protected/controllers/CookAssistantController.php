@@ -105,7 +105,6 @@ class CookAssistantController extends Controller {
 			$cookWith[] = array();
 			$totalTime = 0;
 			$recipe = $course->couToRecs[$recipeNr]->recipe;
-			$recipe->REC_IMG = NULL;
 			
 			//Calculate Weight
 			$meaToCou = $meal->meaToCous[$courseNumber];
@@ -123,7 +122,6 @@ class CookAssistantController extends Controller {
 			foreach($recipe->steps as $step){
 				$totalTime += $step->STE_STEP_DURATION;
 				if (isset($step->ingredient)){
-					$step->ingredient->ING_IMG = null;
 					//$ingredientIdToNutrient[$step->ingredient->ING_ID] = $step->ingredient->NUT_ID;
 					$ingredientIdToNutrient[$step->ingredient->ING_ID] = $step->ingredient->nutrientData;
 				}

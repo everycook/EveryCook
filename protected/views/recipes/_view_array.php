@@ -51,7 +51,7 @@
 		<?php echo CHtml::encode($data['REC_CHANGED']); ?>
 		<br />
 		<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>
-		<?php echo CHtml::encode($data['REC_IMG']); ?>
+		<?php echo CHtml::encode($data['REC_IMG_FILENAME']); ?>
 		<br />
 
 		<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>

@@ -13,7 +13,6 @@
  * @property integer $ICO_ID
  * @property integer $STB_ID
  * @property double $ING_DENSITY
- * @property string $ING_IMG
  * @property string $ING_IMG_FILENAME
  * @property string $ING_IMG_AUTH
  * @property string $ING_IMG_ETAG
@@ -61,10 +60,10 @@ class Ingredients extends ActiveRecordEC
 			array('ING_IMG_AUTH', 'length', 'max'=>30),
 			array('ING_IMG_ETAG', 'length', 'max'=>40),
 			array('ING_NAME_EN_GB, ING_NAME_DE_CH, ING_IMG_FILENAME', 'length', 'max'=>100),
-			array('CHANGED_ON, ING_IMG, ING_IMG_ETAG, nutrientData, groupNames, subgroupNames, ingredientConveniences, storability, ingredientStates', 'safe'),
+			array('CHANGED_ON, ING_IMG_ETAG, nutrientData, groupNames, subgroupNames, ingredientConveniences, storability, ingredientStates', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('ING_ID, PRF_UID, ING_CREATED, ING_CHANGED, NUT_ID, GRP_ID, SGR_ID, IST_ID, ICO_ID, STB_ID, ING_DENSITY, ING_IMG, ING_IMG_FILENAME, ING_IMG_AUTH, ING_NAME_EN, ING_NAME_DE', 'safe', 'on'=>'search'),
+			array('ING_ID, PRF_UID, ING_CREATED, ING_CHANGED, NUT_ID, GRP_ID, SGR_ID, IST_ID, ICO_ID, STB_ID, ING_DENSITY, ING_IMG_FILENAME, ING_IMG_AUTH, ING_NAME_EN, ING_NAME_DE', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -100,7 +99,7 @@ class Ingredients extends ActiveRecordEC
 			'ICO_ID' => 'Ing Convenience',
 			'STB_ID' => 'Ing Storability',
 			'ING_DENSITY' => 'Ing Density',
-			'ING_IMG' => 'Ing Img',
+			'ING_IMG_FILENAME' => 'Ing Img Filename',
 			'ING_IMG_AUTH' => 'Ing Img Auth',
 			'ING_IMG_ETAG' => 'Ing Img Etag',
 			'ING_NAME_EN_GB' => 'Ing Name En Gb',
@@ -128,7 +127,7 @@ class Ingredients extends ActiveRecordEC
 		$criteria->compare($this->tableName().'.ICO_ID',$this->ICO_ID);
 		$criteria->compare($this->tableName().'.STB_ID',$this->STB_ID);
 		$criteria->compare('ING_DENSITY',$this->ING_DENSITY);
-		//$criteria->compare('ING_IMG',$this->ING_IMG,true);
+		$criteria->compare('ING_IMG_FILENAME',$this->ING_IMG_FILENAME,true);
 		$criteria->compare('ING_IMG_AUTH',$this->ING_IMG_AUTH,true);
 		$criteria->compare('ING_IMG_ETAG',$this->ING_IMG_ETAG,true);
 		$criteria->compare('ING_NAME_EN_GB',$this->ING_NAME_EN_GB,true);
@@ -160,7 +159,7 @@ class Ingredients extends ActiveRecordEC
 		$criteria->compare('ICO_ID',$this->ICO_ID);
 		$criteria->compare('STB_ID',$this->STB_ID);
 		$criteria->compare('ING_DENSITY',$this->ING_DENSITY);
-		//$criteria->compare('ING_IMG',$this->ING_IMG,true);
+		$criteria->compare('ING_IMG_FILENAME',$this->ING_IMG_FILENAME,true);
 		$criteria->compare('ING_IMG_AUTH',$this->ING_IMG_AUTH,true);
 		$criteria->compare('ING_IMG_ETAG',$this->ING_IMG_ETAG,true);
 		$criteria->compare('ING_NAME_EN_GB',$this->ING_NAME_EN_GB,true);

@@ -63,7 +63,6 @@ class Stores extends ActiveRecordEC
 			array('STO_COUNTRY', 'length', 'max'=>2),
 			array('STO_IMG_FILENAME', 'length', 'max'=>250),
 			array('STO_IMG_ETAG', 'length', 'max'=>40),
-			array('STO_IMG', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('STO_ID, STO_NAME, STO_STREET, STO_HOUSE_NO, STO_ZIP, STO_CITY, STO_COUNTRY, STO_STATE, STY_ID, STO_GPS_LAT, STO_GPS_LNG, STO_GPS_POINT, STO_PHONE, STO_IMG, STO_IMG_FILENAME, STO_IMG_AUTH, STO_IMG_ETAG, SUP_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
@@ -98,7 +97,6 @@ class Stores extends ActiveRecordEC
 			'STO_GPS_LNG' => 'Sto Gps Lng',
 			'STO_GPS_POINT' => 'Sto Gps Point',
 			'STO_PHONE' => 'Sto Phone',
-			'STO_IMG' => 'Sto Img',
 			'STO_IMG_FILENAME' => 'Sto Img Filename',
 			'STO_IMG_AUTH' => 'Sto Img Auth',
 			'STO_IMG_ETAG' => 'Sto Img Etag',
@@ -131,7 +129,6 @@ class Stores extends ActiveRecordEC
 		$criteria->compare($this->tableName().'.STO_GPS_LNG',$this->STO_GPS_LNG);
 		$criteria->compare($this->tableName().'.STO_GPS_POINT',$this->STO_GPS_POINT,true);
 		$criteria->compare($this->tableName().'.STO_PHONE',$this->STO_PHONE,true);
-		$criteria->compare($this->tableName().'.STO_IMG',$this->STO_IMG,true);
 		$criteria->compare($this->tableName().'.STO_IMG_FILENAME',$this->STO_IMG_FILENAME,true);
 		$criteria->compare($this->tableName().'.STO_IMG_AUTH',$this->STO_IMG_AUTH,true);
 		$criteria->compare($this->tableName().'.STO_IMG_ETAG',$this->STO_IMG_ETAG,true);
@@ -163,7 +160,6 @@ class Stores extends ActiveRecordEC
 		$criteria->compare('STO_GPS_LNG',$this->STO_GPS_LNG);
 		$criteria->compare('STO_GPS_POINT',$this->STO_GPS_POINT,true);
 		$criteria->compare('STO_PHONE',$this->STO_PHONE,true);
-		$criteria->compare('STO_IMG',$this->STO_IMG,true);
 		$criteria->compare('STO_IMG_FILENAME',$this->STO_IMG_FILENAME,true);
 		$criteria->compare('STO_IMG_AUTH',$this->STO_IMG_AUTH,true);
 		$criteria->compare('STO_IMG_ETAG',$this->STO_IMG_ETAG,true);
