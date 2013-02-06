@@ -506,7 +506,7 @@ class CookAssistantController extends Controller {
 								if ($stepAttributes['AOU_DURATION'] == self::STEP_DURATION_SPECIAL_USE_STEP){
 									$stepAttributes['AOU_DURATION'] = $stepAttributes['STE_STEP_DURATION'];
 								}
-								 if ($stepAttributes['AOU_DUR_PRO'] > 0 && (isset($stepAttributes['STE_GRAMS']) && $stepAttributes['STE_GRAMS'] == -1)){
+								if ($stepAttributes['AOU_DUR_PRO'] > 0 && (isset($stepAttributes['STE_GRAMS']) && $stepAttributes['STE_GRAMS'] == -1)){
 									$stepAttributes['CALC_DURATION'] = $stepAttributes['AOU_DURATION'] * ( $info->totalWeight[$recipeNr] / $stepAttributes['AOU_DUR_PRO']) ;
 								//} else if ($stepAttributes['AOU_DUR_PRO'] > 0 && (isset($stepAttributes['STE_GRAMS']) && $stepAttributes['STE_GRAMS']>0){
 								//	$stepAttributes['CALC_DURATION'] = $stepAttributes['AOU_DURATION'] * ( $stepAttributes['STE_GRAMS'] / $stepAttributes['AOU_DUR_PRO']) ;

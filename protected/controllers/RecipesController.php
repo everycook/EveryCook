@@ -327,8 +327,10 @@ class RecipesController extends Controller
 			foreach($textKeys as $field=>$textKey){
 				if (strpos($actionText, $textKey) !== false){
 					if (!isset($actionsOut[$textKey]) || $actionsOut[$textKey] == -1){
-						$required[$field]=true;
-						$requiredAction[$field]=true;
+						if (!($field == 'STE_STEP_DURATION' && $actionsOut['AOU_DURATION']<-1)){
+							$required[$field]=true;
+							$requiredAction[$field]=true;
+						}
 					}
 				}
 			}

@@ -42,7 +42,7 @@ class ActionsOut extends ActiveRecordEC
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('STT_ID, TOO_ID, AOU_DURATION, AOU_DUR_PRO, AOU_CIS_CHANGE, AOU_DESC_EN_GB, CREATED_BY, CREATED_ON', 'required'),
+			array('STT_ID, TOO_ID, AOU_DURATION, AOU_DUR_PRO, AOU_DESC_EN_GB, CREATED_BY, CREATED_ON', 'required'),
 			array('STT_ID, TOO_ID, AOU_DURATION, AOU_DUR_PRO, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('AOU_PREP', 'length', 'max'=>1),
 			array('AOU_CIS_CHANGE, AOU_DESC_EN_GB, AOU_DESC_DE_CH', 'length', 'max'=>100),
