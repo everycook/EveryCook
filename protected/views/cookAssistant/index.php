@@ -59,10 +59,12 @@
 								echo CHtml::link($this->trans->COOKASISSTANT_VOTE_BAD, array('vote', 'recipeNr'=>$mealStep->recipeNr, 'value'=>-1), array('class'=>'button vote noAjax'));
 								echo CHtml::link($this->trans->COOKASISSTANT_CHANGE_RECIPE, array('recipes/update', 'id'=>$info->course->couToRecs[$mealStep->recipeNr]->recipe->REC_ID), array('class'=>'button changeRecipe', 'style'=>'display:none;'));
 								echo '</div>';
-							} else {
+							} else if (isset($info->voted[$mealStep->recipeNr]) && $info->voted[$mealStep->recipeNr]===-1) {
 								echo '<div class="nextStep">';
 								echo CHtml::link($this->trans->COOKASISSTANT_CHANGE_RECIPE, array('recipes/update', 'id'=>$info->course->couToRecs[$mealStep->recipeNr]->recipe->REC_ID), array('class'=>'button changeRecipe'));
 								echo '</div>';
+							} else {
+								echo '<div class="nextStep"><span></span></div>';
 							}
 						} else {
 							echo '<div class="nextStep"><span></span></div>';

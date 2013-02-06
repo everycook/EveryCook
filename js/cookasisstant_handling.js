@@ -337,8 +337,8 @@ jQuery(function($){
 				eval('var data = ' + data + ';');
 				if (data.sucessfull){
 					anchor.parent().children().hide();
-					//anchor.parent().append('<span></span>');
-					anchor.parent().find('.changeRecipe').show();
+					anchor.parent().append('<span></span>');
+					//anchor.parent().find('.changeRecipe').show();
 					anchor.parents('.recipeStep:first').find('.nextTime').hide();
 					return;
 				}
