@@ -799,12 +799,12 @@ class CookAssistantController extends Controller {
 					$replText = '<span class="tool">' . $tool['TOO_DESC_' . Yii::app()->session['lang']] . '</span> ';
 					$text = str_replace('#tool', $replText, $text);
 				}
-				if ($step['STE_STEP_DURATION']){
-					$time = date('H:i:s', $step['STE_STEP_DURATION']-3600);
+				//if ($step['STE_STEP_DURATION']){
+					$time = date('H:i:s', $stepDuration-3600);
 					$replText = '<span class="time">' . $time . 'h</span> ';
 					$mainText = str_replace('#time', $replText, $mainText);
 					$text = str_replace('#time', $replText, $text);
-				}
+				//}
 				if ($step['STE_CELSIUS']){
 					$replText = '<span class="temp">' . $step['STE_CELSIUS'] . '°C</span> ';
 					$mainText = str_replace('#temp', $replText, $mainText);

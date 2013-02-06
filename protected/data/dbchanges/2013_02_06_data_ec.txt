@@ -11,3 +11,10 @@ UPDATE `step_types` SET `STT_DEFAULT` = '' WHERE `step_types`.`STT_ID` =22;
 UPDATE `step_types` SET `STT_DEFAULT` = 'STE_STEP_DURATION=15' WHERE `step_types`.`STT_ID` =23;
 
 UPDATE `actions_out` SET `AOU_DURATION` = '-2' WHERE `actions_out`.`AOU_ID` in (25,27,30);
+
+UPDATE `actions_out` SET `AOU_DURATION` = '-3' WHERE `actions_out`.`AOU_ID` =35;
+
+INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('RECIPES_PREPARE', 'Prepare', 'Vorbereitung', '');
+('GENERAL_BACK_TO_SEARCH', 'Back to search', 'Zurück zur Suche', ''),
+('FIELD_AOU_ID', 'Action Out', 'Action Out', '');
