@@ -120,7 +120,7 @@ class MealsController extends Controller
 			'criteria'=>array(
 				'condition'=>'PRF_UID = ' . Yii::app()->user->id,
 				'order'=>'MEA_DATE',
-				//'condition'=>'MEA_DATE > ' . $selectDate, //TODO: only show planed meals in future
+				'condition'=>'MEA_DATE >= ' . $selectDate,
 			),
 		));
 		$this->checkRenderAjax('index',array(
