@@ -543,7 +543,7 @@ class Functions extends CHtml{
 			$model->__set($picFieldName . '_ETAG', $img_md5);
 			$model->setScenario('withPic');
 		} else {
-			if ($model->__get($picFieldName) == '' && $oldPictureFilename != ''){
+			if ($model->__get($picFieldName . '_FILENAME') == '' && $oldPictureFilename != ''){
 				$model->__set($picFieldName . '_FILENAME', $oldPictureFilename);
 				$img_md5 = md5(file_get_contents($oldPictureFilename));
 				$model->__set($picFieldName . '_ETAG', $img_md5);
