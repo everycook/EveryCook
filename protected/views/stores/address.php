@@ -9,9 +9,9 @@
 		if (isset($_GET['errorCode'])){
 			$status = $_GET['errorCode'];
 			if ($status == -1) {
-				echo 'Geolocation failed. Please enter your current address by hand and press "Address To GPS" button.';
+				echo $this->trans->GENERAL_GPS_FAILED_ENTER_MANUAL;
 			} else if ($status == -2) {
-				echo 'Your Browser do not support Geolocation. Please enter your current address by hand and press "Address To GPS" button.';
+				echo $this->trans->GENERAL_GPS_NOT_AVAILABLE;
 			}
 		}
 	?></div>
@@ -75,8 +75,8 @@
 	</div>
 
 	<div class="buttons">
-		<?php echo CHtml::button('Address to GPS', array('id'=>'Address_to_GPS', 'class'=>'button')); ?>
-		<?php echo CHtml::button('GPS to Address', array('id'=>'GPS_to_Address', 'class'=>'button')); ?>
+		<?php echo CHtml::button($this->trans->GENERAL_GPS_ADDRESS_TO_GPS, array('id'=>'Address_to_GPS', 'class'=>'button')); ?>
+		<?php echo CHtml::button($this->trans->GENERAL_GPS_GPS_TO_ADDRESS, array('id'=>'GPS_to_Address', 'class'=>'button')); ?>
 		<?php echo CHtml::link($this->trans->GENERAL_CANCEL, '#', array('class'=>'button closeFancy')); ?>
 		<?php echo CHtml::link($this->trans->GENERAL_SAVE, '#', array('class'=>'button', 'id'=>'useLocation')); ?>
 	</div>

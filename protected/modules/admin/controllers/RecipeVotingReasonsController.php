@@ -1,6 +1,6 @@
 <?php
 
-class CookInStateController extends Controller
+class RecipeVotingReasonsController extends Controller
 {
 	/**
 	 * @return array action filters
@@ -11,8 +11,8 @@ class CookInStateController extends Controller
 		);
 	}
 	
-	protected $createBackup = 'CookInState_Backup';
-	protected $searchBackup = 'CookInState';
+	protected $createBackup = 'RecipeVotingReasons_Backup';
+	protected $searchBackup = 'RecipeVotingReasons';
 	
 	/**
 	 * Specifies the access control rules.
@@ -22,7 +22,7 @@ class CookInStateController extends Controller
 	public function accessRules(){
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','chooseCookInState','advanceChooseCookInState'),
+				'actions'=>array('index','view','search','advanceSearch','chooseRecipeVotingReasons','advanceChooseRecipeVotingReasons'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -63,7 +63,7 @@ class CookInStateController extends Controller
 			$oldmodel = $Session_Backup;
 		}
 		if (isset($id) && $id != null){
-			if (!isset($oldmodel) || $oldmodel->CIS_ID != $id){
+			if (!isset($oldmodel) || $oldmodel->RVR_ID != $id){
 				$oldmodel = $this->loadModel($id, true);
 			}
 		}
@@ -71,7 +71,7 @@ class CookInStateController extends Controller
 		if (isset($oldmodel)){
 			$model = $oldmodel;
 		} else {
-			$model=new CookInState;
+			$model=new RecipeVotingReasons;
 		}
 		return $model;
 	}
@@ -85,14 +85,14 @@ class CookInStateController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['CookInState']))
+		if(isset($_POST['RecipeVotingReasons']))
 		{
-			$model->attributes=$_POST['CookInState'];
+			$model->attributes=$_POST['RecipeVotingReasons'];
 			if($model->save()){
 				unset(Yii::app()->session[$this->createBackup]);
 				unset(Yii::app()->session[$this->createBackup.'_Time']);
-				$this->forwardAfterSave(array('view', 'id'=>$model->CIS_ID));
-				//$this->forwardAfterSave(array('search', 'query'=>$model->__get('CIS_DESC_' . Yii::app()->session['lang'])));
+				$this->forwardAfterSave(array('view', 'id'=>$model->RVR_ID));
+				//$this->forwardAfterSave(array('search', 'query'=>$model->__get('RVR_DESC_' . Yii::app()->session['lang'])));
 				return;
 			}
 		}
@@ -148,7 +148,7 @@ class CookInStateController extends Controller
 	 * Lists all models.
 	 */
 	public function actionIndex(){
-		$dataProvider=new CActiveDataProvider('CookInState');
+		$dataProvider=new CActiveDataProvider('RecipeVotingReasons');
 		$this->checkRenderAjax('index',array(
 			'dataProvider'=>$dataProvider,
 		));
@@ -156,7 +156,7 @@ class CookInStateController extends Controller
 	
 	
 	private function prepareSearch($view, $ajaxLayout, $criteria){
-		$model=new CookInState('search');
+		$model=new RecipeVotingReasons('search');
 		$model->unsetAttributes();  // clear any default values
 		
 		$model2 = new SimpleSearchForm();
@@ -170,14 +170,14 @@ class CookInStateController extends Controller
 		}
 		
 		$modelAvailable = false;
-		if(isset($_POST['CookInState'])) {
-			$model->attributes=$_POST['CookInState'];
+		if(isset($_POST['RecipeVotingReasons'])) {
+			$model->attributes=$_POST['RecipeVotingReasons'];
 			$modelAvailable = true;
 		}
 		
 		$Session_Data = Yii::app()->session[$this->searchBackup];
 		if (isset($Session_Data)){
-			if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['CookInState']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_Data['time'])){
+			if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['RecipeVotingReasons']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_Data['time'])){
 				if (isset($Session_Data['query'])){
 					$query = $Session_Data['query'];
 					$model2->query = $query;
@@ -243,8 +243,8 @@ class CookInStateController extends Controller
 		}*/
 		
 		$dataProvider=new CArrayDataProvider($rows, array(
-			'id'=>'CIS_ID',
-			'keyField'=>'CIS_ID',
+			'id'=>'RVR_ID',
+			'keyField'=>'RVR_ID',
 			'pagination'=>array(
 				'pageSize'=>10,
 			),
@@ -275,12 +275,12 @@ class CookInStateController extends Controller
 		$this->prepareSearch('search', null, null);
 	}
 	
-	public function actionChooseCookInState(){
+	public function actionChooseRecipeVotingReasons(){
 		$this->isFancyAjaxRequest = true;
 		$this->prepareSearch('search', 'none', null);
 	}
 	
-	public function actionAdvanceChooseCookInState(){
+	public function actionAdvanceChooseRecipeVotingReasons(){
 		$this->isFancyAjaxRequest = true;
 		$this->prepareSearch('advanceSearch', 'none', null);
 	}
@@ -294,7 +294,7 @@ class CookInStateController extends Controller
 		
 		$ids = explode(',', $ids);
 		$criteria=new CDbCriteria;
-		$criteria->compare(CookInState::model()->tableName().'.CIS_ID',$ids);
+		$criteria->compare(RecipeVotingReasons::model()->tableName().'.RVR_ID',$ids);
 		
 		$this->prepareSearch('like', null, $criteria);
 	}
@@ -308,7 +308,7 @@ class CookInStateController extends Controller
 		
 		$ids = explode(',', $ids);
 		$criteria=new CDbCriteria;
-		$criteria->compare(CookInState::model()->tableName().'.CIS_ID',$ids);
+		$criteria->compare(RecipeVotingReasons::model()->tableName().'.RVR_ID',$ids);
 		
 		$this->prepareSearch('like', null, $criteria);
 	}
@@ -334,7 +334,7 @@ class CookInStateController extends Controller
 		if ($id == 'backup'){
 			$model=Yii::app()->session[$this->createBackup];
 		} else {
-			$model=CookInState::model()->findByPk($id);
+			$model=RecipeVotingReasons::model()->findByPk($id);
 		}
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
@@ -346,7 +346,7 @@ class CookInStateController extends Controller
 	 * @param CModel the model to be validated
 	 */
 	protected function performAjaxValidation($model){
-		if(isset($_POST['ajax']) && $_POST['ajax']==='cook-in-state-form')
+		if(isset($_POST['ajax']) && $_POST['ajax']==='recipe-voting-reasons-form')
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();

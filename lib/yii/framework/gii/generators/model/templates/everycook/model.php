@@ -134,6 +134,7 @@ foreach($columns as $name=>$column){
 	}
 }
 ?>
+		return $criteria;
 	}
 	
 	public function getCriteria(){
@@ -153,6 +154,8 @@ foreach($columns as $name=>$column){
 ?>
 		//Add with conditions for relations
 		//$criteria->with = array('???relationName???' => array());
+		
+		return $criteria;
 	}
 	
 	public function getSort(){

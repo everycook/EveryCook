@@ -12,7 +12,25 @@
 	
 	<?php
 	if ($this->isFancyAjaxRequest){
-		echo CHtml::link($this->trans->GENERAL_SELECT, $data['ING_ID'], array('class'=>'f-right button IngredientSelect'));
+		if($this->isRecipeIngredientSelect){
+			if ($this->recipeIngredientIds != null){
+				$found = false;
+				foreach($this->recipeIngredientIds as $ing_id){
+					if ($data['ING_ID'] == $ing_id){
+						echo CHtml::link($this->trans->GENERAL_SELECT, $data['ING_ID'], array('class'=>'f-right button IngredientSelect'));
+						$found = true;
+						break;
+					}
+				}
+				if (!$found){
+					echo CHtml::link($this->trans->GENERAL_SELECT, $data['ING_ID'], array('class'=>'f-right button IngredientSelect RecipeAddPrepare'));
+				}
+			} else {
+				echo CHtml::link($this->trans->GENERAL_SELECT, $data['ING_ID'], array('class'=>'f-right button IngredientSelect RecipeAddPrepare'));
+			}
+		} else {
+			echo CHtml::link($this->trans->GENERAL_SELECT, $data['ING_ID'], array('class'=>'f-right button IngredientSelect'));
+		}
 	} else {
 		?>
 		<div class="options">
@@ -161,7 +179,7 @@
 	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_DENSITY')); ?>:</strong>
 	<?php echo CHtml::encode($data->ING_DENSITY); ?>
 	<br />
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_IMG')); ?>:</strong>
+	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_IMG_FILENAME')); ?>:</strong>
 	<?php echo CHtml::encode($data->ING_IMG); ?><br />
 	
 	

@@ -1,11 +1,11 @@
 <?php
 $this->breadcrumbs=array(
-	'Cook In States',
+	'Recipe Voting Reasons',
 );
 
 $this->menu=array(
-	array('label'=>'Create CookInState', 'url'=>array('create')),
-	array('label'=>'Manage CookInState', 'url'=>array('admin')),
+	array('label'=>'Create RecipeVotingReasons', 'url'=>array('create')),
+	array('label'=>'Manage RecipeVotingReasons', 'url'=>array('admin')),
 );
 
 if (!$this->isFancyAjaxRequest){
@@ -17,12 +17,12 @@ if (!$this->isFancyAjaxRequest){
 }
 
 $advanceSearch = array(($this->isFancyAjaxRequest)?'advanceChooseIngredient':'advanceSearch');
-if (isset(Yii::app()->session['CookInState']) && isset(Yii::app()->session['CookInState']['time'])){
-	$advanceSearch=array_merge($advanceSearch,array('newSearch'=>Yii::app()->session['CookInState']['time']));
+if (isset(Yii::app()->session['RecipeVotingReasons']) && isset(Yii::app()->session['RecipeVotingReasons']['time'])){
+	$advanceSearch=array_merge($advanceSearch,array('newSearch'=>Yii::app()->session['RecipeVotingReasons']['time']));
 }
 
 if ($this->isFancyAjaxRequest){ ?>
-	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('chooseCookInState'); ?>"/>
+	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('chooseRecipeVotingReasons'); ?>"/>
 	<?php
 }
 ?>
@@ -31,7 +31,7 @@ if ($this->isFancyAjaxRequest){ ?>
 <div>
 <?php $form=$this->beginWidget('CActiveForm', array(
 		'action'=>Yii::app()->createUrl($this->route),
-		'id'=>'cook-in-state_form',
+		'id'=>'recipe-voting-reasons_form',
 		'method'=>'post',
 		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 	)); ?>

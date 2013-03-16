@@ -52,6 +52,12 @@ if ($this->isFancyAjaxRequest){ ?>
 		} ?>
 		<?php echo "<?php"; ?>  echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
 	</div>
+	<div class="f-right">
+		<?php echo "<?php"; ?>  echo CHtml::link($this->trans->GENERAL_SIMPLE_SEARCH, $simpleSearch, array('class'=>'button', 'id'=>'simpleSearch')); ?><br>
+	</div>
+	<div class="f-center">
+		<?php echo "<?php"; ?>  echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('create','newModel'=>time()), array('class'=>'button', 'id'=>'create')); ?><br>
+	</div>
 	
 	<div class="clearfix"></div>
 	

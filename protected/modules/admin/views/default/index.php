@@ -13,6 +13,6 @@ $this->breadcrumbs=array(
 	<?php echo CHtml::link('StepTypes', array('stepTypes/search'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('Cook In', array('cookIn/search'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('Cook In Prep', array('cookInPrep/search'), array('class'=>'button')); ?><br />
-	<?php echo CHtml::link('Cook In State', array('cookInState/search'), array('class'=>'button')); ?><br />
+	<?php echo CHtml::link('Recipe Voting Reasons', array('recipeVotingReasons/search'), array('class'=>'button')); ?><br />
 	</div>
 </div>

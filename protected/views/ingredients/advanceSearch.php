@@ -86,8 +86,8 @@ if ($this->isFancyAjaxRequest){
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'ING_IMG'); ?>
-		<?php echo $form->textField($model,'ING_IMG'); ?>
+		<?php echo $form->label($model,'ING_IMG_FILENAME'); ?>
+		<?php echo $form->textField($model,'ING_IMG_FILENAME'); ?>
 	</div>
 
 	<div class="row">

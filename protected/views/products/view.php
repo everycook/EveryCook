@@ -120,7 +120,7 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 		<h1><?php echo $productName; ?></h1>
 		<div class="detail_img f-left">
 			<?php echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$model->PRO_ID, 'ext'=>'.png')), '', array('class'=>'product', 'alt'=>$model->__get('PRO_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('PRO_NAME_' . Yii::app()->session['lang']))); ?>
-			<div class="img_auth"><?php if ($model->PRO_IMG_ETAG == '') { echo '&nbsp;'; } else {echo '© by ' . $model->PRO_IMG_CR; } ?></div>
+			<div class="img_auth"><?php if ($model->PRO_IMG_ETAG == '') { echo '&nbsp;'; } else {echo '© by ' . $model->PRO_IMG_AUTH; } ?></div>
 		</div>
 		
 		<div class="proInfo">

@@ -33,7 +33,7 @@
 	<?php echo CHtml::encode($data->PRF_LANG); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('PRF_IMG')); ?>:</b>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('PRF_IMG_FILENAME')); ?>:</b>
 	<?php echo CHtml::encode($data->PRF_IMG); ?>
 	<br />
 

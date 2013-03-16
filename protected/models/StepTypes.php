@@ -84,6 +84,8 @@ class StepTypes extends ActiveRecordEC
 		$criteria->compare($this->tableName().'.STT_REQUIRED',$this->STT_REQUIRED,true);
 		$criteria->compare($this->tableName().'.STT_DESC_EN_GB',$this->STT_DESC_EN_GB,true);
 		$criteria->compare($this->tableName().'.STT_DESC_DE_CH',$this->STT_DESC_DE_CH,true);
+		
+		return $criteria;
 	}
 	
 	public function getCriteria(){
@@ -99,6 +101,8 @@ class StepTypes extends ActiveRecordEC
 		$criteria->compare('STT_DESC_DE_CH',$this->STT_DESC_DE_CH,true);
 		//Add with conditions for relations
 		//$criteria->with = array('???relationName???' => array());
+		
+		return $criteria;
 	}
 	
 	public function getSort(){

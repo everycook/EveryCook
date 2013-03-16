@@ -15,6 +15,8 @@ jQuery(function($){
 	var rows;
 	var lastIndex = 0;
 	var newLineContent;
+	var updateRowTimeouts = new Array();
+	glob.rowContainer.SendDataToBackendRowTimeout = 5000;
 	
 	function getIndexFromFieldName(name){
 		var currentIndex = name.match(/\[([^\]]+)\]/);
@@ -33,7 +35,7 @@ jQuery(function($){
 			inputs = elem.find('[name]');//All input fields
 		}
 		
-		var currentIndexInt = getIndexFromFieldName(inputs.attr('name'))
+		var currentIndexInt = getIndexFromFieldName(inputs.attr('name'));
 		if (currentIndexInt === false) {
 			return false;
 		}
@@ -52,21 +54,56 @@ jQuery(function($){
 			elem = jQuery(this);
 			elem.attr('name', elem.attr('name').replace(currentIndexStr,newIndexIntStr));
 			elem.attr('id', elem.attr('id').replace(currentIndexStr2,newIndexIntStr2));
-			prev = elem.prev();
+			var prev = elem.prev();
 			if (prev.is('label')){
-				prev.attr('for', prev.attr('for').replace(currentIndexStr2,newIndexIntStr2));	
+				prev.attr('for', prev.attr('for').replace(currentIndexStr2,newIndexIntStr2));
+			}
+			var next = elem.next();
+			if (next.is('a')){  // && elem.is('.fancyValue')
+				next.attr('id', next.attr('id').replace(currentIndexStr2,newIndexIntStr2));
 			}
 		});
+		return newIndexInt;
 	}
 	
-	function addEmptyRow(emptyLineContainer){
-		var currentNewLineContent = newLineContent.replace('%class%',(lastIndex % 2 == 1)?'odd':'even');
-		currentNewLineContent = currentNewLineContent.replace(/%index%/g,lastIndex);
+	function addEmptyRow(insertBeforeLine){
+		var index;
+		if (insertBeforeLine.is('#newLine')){
+			index = lastIndex;
+		} else {
+			var fields = insertBeforeLine.find('input[name]');
+			if (fields.length == 0){
+				return null;
+			} else {
+				index = getIndexFromFieldName(fields.attr('name'));
+			}
+		}
+		
+		var currentNewLineContent = newLineContent.replace('%class%',(index % 2 == 1)?'odd':'even');
+		currentNewLineContent = currentNewLineContent.replace(/%index%/g,index);
+		
+		currentNewLineContent = jQuery(currentNewLineContent);
+		currentNewLineContent.insertBefore(insertBeforeLine);
+		
+		if (index != lastIndex){
+			try {
+				changeInputTableIndex(insertBeforeLine, 1);
+				var followedRows = insertBeforeLine.nextAll().not('.addFields').not('.actionsInInfo');
+				followedRows = followedRows.not(followedRows.last());
+				followedRows.each(function(){
+					changeInputTableIndex(jQuery(this), 1);
+				});
+				/*
+				for (var i=0; i<followedRows.length; ++i){
+					changeInputTableIndex(followedRows[i], 1);
+				}*/
+			} catch(ex){
+				console.log(ex);
+			}
+		}
 		
 		lastIndex = lastIndex+1;
 		
-		currentNewLineContent = jQuery(currentNewLineContent);
-		currentNewLineContent.insertBefore(emptyLineContainer);
 		return currentNewLineContent;
 	}
 	
@@ -79,6 +116,8 @@ jQuery(function($){
 	jQuery('body').undelegate('.addRowContainer .remove','click').delegate('.addRowContainer .remove','click',function(){
 		var row = jQuery(this).parents('tr:first');
 		var followedRows = row.nextAll().not('.addFields').not('.actionsInInfo');
+		
+		var rowContainer = jQuery(this).parents('.addRowContainer:first');
 		
 		lastIndex = lastIndex-1;
 		
@@ -98,6 +137,8 @@ jQuery(function($){
 		followedRows.each(function(){
 			changeInputTableIndex(jQuery(this), -1);
 		});
+		
+		SendDataToBackend(rowContainer);
 	});
 	
 	jQuery('body').undelegate('.addRowContainer .up','click').delegate('.addRowContainer .up','click',function(){
@@ -129,8 +170,8 @@ jQuery(function($){
 		}
 		
 		if (prevEntry.length){
-			changeInputTableIndex(row, -1);
-			changeInputTableIndex(prevEntry, 1);
+			var rowNr = changeInputTableIndex(row, -1);
+			var prevEntryNr = changeInputTableIndex(prevEntry, 1);
 			row.insertBefore(prevEntry);
 			if (next2 != null){
 				next2.insertAfter(row);
@@ -138,6 +179,9 @@ jQuery(function($){
 			if (next != null){
 				next.insertAfter(row);
 			}
+			
+			SendDataToBackendRowSetTimeout(row, rowNr);
+			SendDataToBackendRowSetTimeout(prevEntry, prevEntryNr);
 		}
 	});
 
@@ -180,8 +224,8 @@ jQuery(function($){
 		}
 		
 		if (nextEntry.not(row.nextAll().last()).length){
-			changeInputTableIndex(row, 1);
-			changeInputTableIndex(nextEntry, -1);
+			var rowNr = changeInputTableIndex(row, 1);
+			var nextEntryNr = changeInputTableIndex(nextEntry, -1);
 			row.insertAfter(insertPos);
 			if (next2 != null){
 				next2.insertAfter(row);
@@ -189,6 +233,9 @@ jQuery(function($){
 			if (next != null){
 				next.insertAfter(row);
 			}
+			
+			SendDataToBackendRowSetTimeout(row, rowNr);
+			SendDataToBackendRowSetTimeout(nextEntry, nextEntryNr);
 		}
 	});
 	
@@ -210,7 +257,7 @@ jQuery(function($){
 	*/
 	
 	jQuery('body').undelegate('.addRowContainer .viewWithUnit','change').delegate('.addRowContainer .viewWithUnit','change',function(){
-		var inputField = jQuery(this)
+		var inputField = jQuery(this);
 		var unitField = inputField.next();
 		var multiplier = unitField.val();
 		var dataField = unitField.next();
@@ -221,7 +268,7 @@ jQuery(function($){
 	});
 	
 	jQuery('body').undelegate('.addRowContainer .unit','change').delegate('.addRowContainer .unit','change',function(){
-		var unitField = jQuery(this)
+		var unitField = jQuery(this);
 		var multiplier = unitField.val();
 		var inputField = unitField.prev();
 		var dataField = unitField.next();
@@ -232,7 +279,7 @@ jQuery(function($){
 	});
 	
 	jQuery('body').undelegate('.addRowContainer .withUnit','change').delegate('.addRowContainer .withUnit','change',function(){
-		var dataField = jQuery(this)
+		var dataField = jQuery(this);
 		var unitField = dataField.prev();
 		var multiplier = unitField.val();
 		var inputField = unitField.prev();
@@ -262,8 +309,15 @@ jQuery(function($){
 		'<option value="3600">h</option>' + 
 		'<option value="1">s</option>' + 
 		'</select>';
-		
-	function addInputTableField(valueName, value, patternElem, insertElem, type){
+	
+	
+	var recipeFieldOrder = 	[/*['AIN_ID','TOO_ID','ING_ID','STE_GRAMS'],*/
+							['STE_STEP_DURATION','STE_CELSIUS','STE_KPA'],
+							['STE_RPM','STE_STIR_RUN','STE_STIR_PAUSE','STE_CLOCKWISE']];
+
+
+
+	function addInputTableField(valueName, value, patternElem, insertElem, type, fieldOrder){
 		var name = patternElem.attr('name');
 		var pos = name.lastIndexOf('[');
 		var patternField = name.substr(pos+1,name.length-pos-2);
@@ -301,8 +355,53 @@ jQuery(function($){
 			newFieldText = '<span class="noWrap">' + newFieldText + '</span>';
 			newInput = jQuery(newFieldText);
 		}
-		insertElem.append(newInput);
-		insertElem.append(' ');
+		
+		var inserted = false;
+		if (typeof(fieldOrder) !== 'undefined'){
+			//var lastField = [];
+			for(var i=0; i<fieldOrder.length; ++i){
+				var lastField = [];
+				var insertElemLine = insertElem.find('.row'+i);
+				if(insertElemLine.length == 0){
+					insertElemLine = jQuery('<span class="row'+i+'"></span>');
+					insertElem.append(insertElemLine);
+				}
+				var fieldList = fieldOrder[i];
+				for(var j=0; j<fieldList.length; ++j){
+					var field = fieldList[j]
+					if (field == valueName){
+						if (lastField.length>0){
+							newInput.insertAfter(lastField);
+							jQuery('<span> </span>').insertAfter(newInput);
+						} else if (/*i==0 && */j==0){
+							insertElemLine.prepend('<span> </span>');
+							insertElemLine.prepend(newInput);
+						} else {
+							insertElemLine.append(newInput);
+							insertElemLine.append('<span> </span>');
+						}
+						inserted = true;
+						break;
+					}
+					var searchField = insertElemLine.find('[id$='+field+']');
+					searchField = searchField.parents('.noWrap:first');
+					if (searchField.length > 0){
+						if (searchField.next().not('.noWrap').length > 0){
+							lastField = searchField.next();
+						} else {
+							lastField = searchField
+						}
+					}
+				}
+				if (inserted){
+					break;
+				}
+			}
+		}
+		if (!inserted){
+			insertElem.append(newInput);
+			insertElem.append('<span> </span>');
+		}
 		return newInput;
 	}
 	
@@ -318,11 +417,12 @@ jQuery(function($){
 			field.change();
 		}
 	}
-	
+	glob.setFieldValue = setFieldValue;
 	
 	function initRowContainer(container, data, errors, excludingFieldQuery, bevoreRowCallback, eachRowBeginCallback, eachRowEndCallback){
 		var emptyLineContainer = container.find('#newLine');
 		if (emptyLineContainer.length !== 0 && data.length !== 0){
+			container.addClass('initializeRowContainer');
 			var lastIndexElem = emptyLineContainer.find('input[name=lastIndex]')
 			lastIndex = new Number(lastIndexElem.attr('value')).valueOf();
 			
@@ -387,6 +487,7 @@ jQuery(function($){
 				inputField.addClass('error');
 				jQuery('[for='+field+']').addClass('error');
 			}
+			container.removeClass('initializeRowContainer');
 		} else {
 			rows = [];
 		}
@@ -401,6 +502,89 @@ jQuery(function($){
 	}
 	
 	glob.rowContainer.clear = clearRowContainer;
+	
+	function SendDataToBackend(rowContainer){
+		if (rowContainer.parent().is('.updateBackend')){
+			var url = jQuery('#updateSessionValuesLink').val();
+			var form = rowContainer.parents('form:first');
+			glob.ShowActivity = false;
+			jQuery.ajax({'type':'post', 'url':url, 'data': form.serialize(),'cache':false,/*'success':function(data){
+					//alert('success');
+				},
+				'error':function(xhr){
+					//alert('error');
+				},*/
+			});
+			glob.ShowActivity = true;
+		}
+	}
+	
+	function SendDataToBackendRow(row, rowNr){
+		updateRowTimeouts[rowNr] = undefined;
+		if (row.parents('.addRowContainer:first').parent().is('.updateBackend')){
+			var url = jQuery('#updateSessionValueLink').val();
+			url = glob.urlAddParamStart(url) + 'StepNr=' + rowNr;
+			
+			if (row.is('.addFields')){
+				var prev = row.prev();
+				if (prev.is('.odd') || prev.is('.even')){
+					row = row.add(prev);
+				}
+			} else {
+				var next = row.next();
+				if (next.is('.addFields')){
+					row = row.add(next);
+				}
+			}
+			var data = ''
+			var inputs = row.find('input').add(row.find('select'));
+			inputs.each(function(i){
+				var elem = jQuery(this);
+				if (i != 0){
+					data += '&';
+				}
+				data += elem.attr('name') + '=' + elem.val();
+			});
+			glob.ShowActivity = false;
+			jQuery.ajax({'type':'post', 'url':url, 'data': data,'cache':false,/*'success':function(data){
+					//alert('success');
+				},
+				'error':function(xhr){
+					//alert('error');
+				},*/
+			});
+			glob.ShowActivity = true;
+		}
+	}
+	
+	function SendDataToBackendRowCallback(rowNr){
+		var timeoutInfo = updateRowTimeouts[rowNr];
+		if (typeof(timeoutInfo) !== 'undefined'){
+			SendDataToBackendRow(timeoutInfo['row'], rowNr);
+		}
+	}
+	glob.rowContainer.SendDataToBackendRowCallback = SendDataToBackendRowCallback;
+	
+	function SendDataToBackendRowSetTimeout(row, rowNr){
+		var timeoutInfo = updateRowTimeouts[rowNr];
+		if (typeof(timeoutInfo) !== 'undefined'){
+			window.clearTimeout(timeoutInfo['timeoutId']);
+		}
+		
+		timeoutInfo = new Array();
+		timeoutInfo['timeoutId'] = window.setTimeout('glob.rowContainer.SendDataToBackendRowCallback('+rowNr+');', glob.rowContainer.SendDataToBackendRowTimeout);
+		timeoutInfo['row'] = row;
+		
+		updateRowTimeouts[rowNr] = timeoutInfo;
+	}
+	
+	jQuery('body').undelegate('.updateBackend .addRowContainer:not(.initializeRowContainer) input','change').delegate('.updateBackend .addRowContainer:not(.initializeRowContainer) input','change',function(){
+		var dataField = jQuery(this);
+		var rowNr = getIndexFromFieldName(dataField.attr('name'));
+		
+		SendDataToBackendRowSetTimeout(dataField.parents('tr:first'), rowNr);
+	});
+	
 	
 	//##################################################################################
 	//Mealplanner people functions
@@ -583,6 +767,7 @@ jQuery(function($){
 		var newRow = addEmptyRow(insertBefore);
 		updateFields(newRow.find('[id$=AIN_ID]'));
 		initMultiFancyCoose();
+		SendDataToBackend(jQuery(this).parents('.addRowContainer:first'));
 	});
 	
 	jQuery('body').undelegate('#recipes-form #cookInDisplay','change').delegate('#recipes-form #cookInDisplay','change',function(){
@@ -649,7 +834,7 @@ jQuery(function($){
 								newFieldContent = jQuery(newFieldContent);
 								jQuery(row.find('td').get(specialFieldOption[1])).append(newFieldContent);
 							} else {
-								addInputTableField(required[requiredIndex], '', elem, insertElem, 'number');
+								addInputTableField(required[requiredIndex], '', elem, insertElem, 'number', recipeFieldOrder);
 							}
 						}
 					}
@@ -660,7 +845,7 @@ jQuery(function($){
 						newFieldContent = jQuery(newFieldContent);
 						jQuery(row.find('td').get(specialFieldOption[1])).append(newFieldContent);
 					} else {
-						addInputTableField(required[requiredIndex], '', elem, insertElem, 'number');
+						addInputTableField(required[requiredIndex], '', elem, insertElem, 'number', recipeFieldOrder);
 					}
 				}
 			}
@@ -683,18 +868,18 @@ jQuery(function($){
 						if (field.parents('tr:first').not(row).length == 0){
 							field.attr('disabled','disabled');
 							setFieldValue(field,fieldOpt[1]);
-							var newInput = addInputTableField(fieldOpt[0], fieldOpt[1], elem, insertElem, 'hidden');
+							var newInput = addInputTableField(fieldOpt[0], fieldOpt[1], elem, insertElem, 'hidden', recipeFieldOrder);
 							newInput.attr('id',newInput.attr('id') + '_backup');
 						} else {
 							if (field.attr('type') != 'hidden'){
 								next.find('[for='+field.attr('id')+']').remove();
 								field.remove();
-								addInputTableField(fieldOpt[0], fieldOpt[1], elem, insertElem, 'hidden');
+								addInputTableField(fieldOpt[0], fieldOpt[1], elem, insertElem, 'hidden', recipeFieldOrder);
 							}
 						}
 					}
 				} else {
-					addInputTableField(fieldOpt[0], fieldOpt[1], elem, insertElem, 'hidden');
+					addInputTableField(fieldOpt[0], fieldOpt[1], elem, insertElem, 'hidden', recipeFieldOrder);
 				}
 			}
 			for(var oldFieldIndex=0; oldFieldIndex<oldFields.length; oldFieldIndex++){
@@ -707,6 +892,21 @@ jQuery(function($){
 						fieldParents.find('#'+field.attr('id')+'_DESC').remove();
 					}
 					field.remove();
+				}
+			}
+			
+			//Check show prepared Ingredient link, or normale one
+			if (fieldParents.find('[id*=STE_GRAMS]').length>0){
+				//Normal link
+				var field = fieldParents.find('[id$=ING_ID_DESC]');
+				if (field.length>0){
+					field.attr('href', jQuery('#ingredientsChooseLink').val());
+				}
+			} else {
+				//prepared link
+				var field = fieldParents.find('[id$=ING_ID_DESC]');
+				if (field.length>0){
+					field.attr('href', jQuery('#preparedIngredientsChooseLink').val());
 				}
 			}
 		}
@@ -734,8 +934,8 @@ jQuery(function($){
 							setFieldValue(input, data.model[value]);
 						}
 					}
-					if (data.model.REC_IMG === 'backup'){
-						glob.showImageOrError(jQuery('input[id$=filename][type=file]'), '{imageId:\'' + data.model.REC_IMG + '\'}');
+					if (data.model.REC_IMG_FILENAME != null && data.model.REC_IMG_FILENAME !== ''){ //'backup'){
+						glob.showImageOrError(jQuery('input[id$=filename][type=file]'), '{imageId:\'backup\'}');
 					}
 				}
 				if (data.recToCois){
@@ -805,7 +1005,7 @@ jQuery(function($){
 		}
 		var details = jQuery('#actionsOutDetails').children().get(index);
 		//clone = details = jQuery('<div>'+jQuery(details).html() + '</div>');
-		 jQuery(details).clone().insertAfter(elem);
+		jQuery(details).clone().insertAfter(elem);
 	});
 	
 	//----------------------------------------------

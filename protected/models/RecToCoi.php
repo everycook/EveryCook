@@ -6,8 +6,12 @@
  * The followings are the available columns in table 'rec_to_coi':
  * @property integer $REC_ID
  * @property integer $COI_ID
+ * @property integer $CREATED_BY
+ * @property integer $CREATED_ON
+ * @property integer $CHANGED_BY
+ * @property integer $CHANGED_ON
  */
-class RecToCoi extends ActiveRecordECSimple
+class RecToCoi extends ActiveRecordEC
 {
 	/**
 	 * Returns the static model of the specified AR class.
@@ -31,11 +35,11 @@ class RecToCoi extends ActiveRecordECSimple
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('REC_ID, COI_ID', 'required'),
-			array('REC_ID, COI_ID', 'numerical', 'integerOnly'=>true),
+			array('REC_ID, COI_ID, CREATED_BY, CREATED_ON', 'required'),
+			array('REC_ID, COI_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('REC_ID, COI_ID', 'safe', 'on'=>'search'),
+			array('REC_ID, COI_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -56,6 +60,10 @@ class RecToCoi extends ActiveRecordECSimple
 		return array(
 			'REC_ID' => 'Rec',
 			'COI_ID' => 'Coi',
+			'CREATED_BY' => 'Created By',
+			'CREATED_ON' => 'Created On',
+			'CHANGED_BY' => 'Changed By',
+			'CHANGED_ON' => 'Changed On',
 		);
 	}
 	
@@ -69,6 +77,12 @@ class RecToCoi extends ActiveRecordECSimple
 		
 		$criteria->compare($this->tableName().'.REC_ID',$this->REC_ID);
 		$criteria->compare($this->tableName().'.COI_ID',$this->COI_ID);
+		$criteria->compare($this->tableName().'.CREATED_BY',$this->CREATED_BY);
+		$criteria->compare($this->tableName().'.CREATED_ON',$this->CREATED_ON);
+		$criteria->compare($this->tableName().'.CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare($this->tableName().'.CHANGED_ON',$this->CHANGED_ON);
+		
+		return $criteria;
 	}
 	
 	public function getCriteria(){
@@ -79,8 +93,14 @@ class RecToCoi extends ActiveRecordECSimple
 
 		$criteria->compare('REC_ID',$this->REC_ID);
 		$criteria->compare('COI_ID',$this->COI_ID);
+		$criteria->compare('CREATED_BY',$this->CREATED_BY);
+		$criteria->compare('CREATED_ON',$this->CREATED_ON);
+		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare('CHANGED_ON',$this->CHANGED_ON);
 		//Add with conditions for relations
 		//$criteria->with = array('???relationName???' => array());
+		
+		return $criteria;
 	}
 	
 	public function getSort(){

@@ -1,11 +1,11 @@
 <?php
 $this->breadcrumbs=array(
-	'Cook In States',
+	'Recipe Voting Reasons',
 );
 
 $this->menu=array(
-	array('label'=>'Create CookInState', 'url'=>array('create')),
-	array('label'=>'Manage CookInState', 'url'=>array('admin')),
+	array('label'=>'Create RecipeVotingReasons', 'url'=>array('create')),
+	array('label'=>'Manage RecipeVotingReasons', 'url'=>array('admin')),
 );
 
 if (!$this->isFancyAjaxRequest){
@@ -17,21 +17,21 @@ if (!$this->isFancyAjaxRequest){
 }
 
 $advanceSearch = array(($this->isFancyAjaxRequest)?'advanceChooseIngredient':'advanceSearch');
-if (isset(Yii::app()->session['CookInState']) && isset(Yii::app()->session['CookInState']['time'])){
-	$advanceSearch=array_merge($advanceSearch,array('newSearch'=>Yii::app()->session['CookInState']['time']));
+if (isset(Yii::app()->session['RecipeVotingReasons']) && isset(Yii::app()->session['RecipeVotingReasons']['time'])){
+	$advanceSearch=array_merge($advanceSearch,array('newSearch'=>Yii::app()->session['RecipeVotingReasons']['time']));
 }
 
 if ($this->isFancyAjaxRequest){ ?>
-	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('advanceChooseCookInState'); ?>"/>
+	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('advanceChooseRecipeVotingReasons'); ?>"/>
 	<?php
 }
 ?>
 
-<div id="cook-in-stateAdvanceSearch">
+<div id="recipe-voting-reasonsAdvanceSearch">
 <?php  $form=$this->beginWidget('CActiveForm', array(
 		'action'=>Yii::app()->createUrl($this->route),
 		'method'=>'post',
-		'id'=>'cook-in-state_form',
+		'id'=>'recipe-voting-reasons_form',
 		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 	)); ?>
 	<div class="f-left search">
@@ -42,10 +42,17 @@ if ($this->isFancyAjaxRequest){ ?>
 		} ?>
 		<?php  echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
 	</div>
+	<div class="f-right">
+		<?php  echo CHtml::link($this->trans->GENERAL_SIMPLE_SEARCH, $simpleSearch, array('class'=>'button', 'id'=>'simpleSearch')); ?><br>
+	</div>
+	<div class="f-center">
+		<?php  echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('create','newModel'=>time()), array('class'=>'button', 'id'=>'create')); ?><br>
+	</div>
 	
 	<div class="clearfix"></div>
 	
 <?php
+	/*
 	$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
 	$htmlOptions_type1 = array('template'=>'<li>{input} {label}</li>', 'separator'=>"\n", 'checkAll'=>$this->trans->INGREDIENTS_SEARCH_CHECK_ALL, 'checkAllLast'=>false);
 	
@@ -55,7 +62,7 @@ if ($this->isFancyAjaxRequest){ ?>
 	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_CONVENIENCE, $model, 'ICO_ID', $ingredientConveniences, Functions::DROP_DOWN_LIST, 'ingredientConveniences', $htmlOptions_type0);
 	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_STATE, $model, 'IST_ID', $ingredientStates, Functions::DROP_DOWN_LIST, 'ingredientStates', $htmlOptions_type0);
 	//echo searchCriteriaInput($this->trans->INGREDIENTS_NUTRIENT, $model, 'NUT_ID', $nutrientData, Functions::DROP_DOWN_LIST, 'nutrientData', $htmlOptions_type0);
-	
+	*/
 	/* //example FancyCoose
 	?>
 	
@@ -71,18 +78,38 @@ if ($this->isFancyAjaxRequest){ ?>
 /*	
 	
 	<div class="row">
-		<?php echo $form->label($model,'COI_ID'); ?>
-		<?php echo $form->textField($model,'COI_ID'); ?>
+		<?php echo $form->label($model,'RVR_ID'); ?>
+		<?php echo $form->textField($model,'RVR_ID'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'CIS_ID'); ?>
-		<?php echo $form->textField($model,'CIS_ID'); ?>
+		<?php echo $form->label($model,'RVR_DESC_DE_CH'); ?>
+		<?php echo $form->textField($model,'RVR_DESC_DE_CH',array('size'=>60,'maxlength'=>200)); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'CIS_DESC'); ?>
-		<?php echo $form->textField($model,'CIS_DESC',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->label($model,'RVR_DESC_EN_GB'); ?>
+		<?php echo $form->textField($model,'RVR_DESC_EN_GB',array('size'=>60,'maxlength'=>200)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'CREATED_BY'); ?>
+		<?php echo $form->textField($model,'CREATED_BY'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'CREATED_ON'); ?>
+		<?php echo $form->textField($model,'CREATED_ON'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'CHANGED_BY'); ?>
+		<?php echo $form->textField($model,'CHANGED_BY'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'CHANGED_ON'); ?>
+		<?php echo $form->textField($model,'CHANGED_ON'); ?>
 	</div>
 
 */
@@ -94,7 +121,7 @@ if ($this->isFancyAjaxRequest){ ?>
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'ajaxUpdate'=>false,
-	'id'=>'cook-in-stateResult',
+	'id'=>'recipe-voting-reasonsResult',
 )); ?>
 
 <?php $this->endWidget(); ?>

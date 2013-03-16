@@ -9,7 +9,7 @@ if ($this->route != 'site/index'){
 		<?php echo $content; ?>
 	</div><!-- content -->
 </div>
-<div id="mainButtons">
+<div id="mainButtons"<?php if (!isset($this->mainButtons) || count($this->mainButtons) == 0){ echo ' style="display:none;"';} ?>>
 <?php $this->widget('ext.widgets.MenuWidget',array(
 		'items'=>$this->mainButtons,
 	));

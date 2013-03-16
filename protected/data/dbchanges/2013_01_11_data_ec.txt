@@ -1,0 +1,25 @@
+UPDATE `actions_in` SET `CREATED_BY` = '3',`CREATED_ON` = 1357921111;
+UPDATE `actions_out` SET `CREATED_BY` = '3',`CREATED_ON` = 1357921111;
+UPDATE `ain_to_aou` SET `CREATED_BY` = '3',`CREATED_ON` = 1357921111;
+UPDATE `ain_to_coi` SET `CREATED_BY` = '3',`CREATED_ON` = 1357921111;
+UPDATE `cook_in` SET `CREATED_BY` = '3',`CREATED_ON` = 1357921111;
+UPDATE `cook_in_prep` SET `CREATED_BY` = '3',`CREATED_ON` = 1357921111;
+UPDATE `cou_to_rec` SET `CREATED_BY` = '3',`CREATED_ON` = 1357921111;
+UPDATE `pro_to_prd` SET `CREATED_BY` = '3',`CREATED_ON` = 1357921111;
+UPDATE `pro_to_sto` SET `CREATED_BY` = '3',`CREATED_ON` = 1357921111;
+UPDATE `recipe_voting_reasons` SET `CREATED_BY` = '3',`CREATED_ON` = 1357921111;
+UPDATE `rec_to_coi` SET `CREATED_BY` = '3',`CREATED_ON` = 1357921111;
+UPDATE `tools` SET `CREATED_BY` = '3',`CREATED_ON` = 1357921111;
+
+
+INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('FIELD_RVR_DESC_DE_CH', 'Description German', 'Beschreibung Deutsch', ''),
+('FIELD_RVR_DESC_EN_GB', 'Description English', 'Beschreibung Englisch', ''),
+('FIELD_CREATED_BY', 'Created by', 'Erstellt von', ''),
+('FIELD_CREATED_ON', 'Created on', 'Erstellt am', ''),
+('FIELD_CHANGED_BY', 'Changed by', 'Geändert von', ''),
+('FIELD_CHANGED_ON', 'Changed on', 'Geändert am', ''),
+('TITLE_RECIPEVOTINGREASONS_VIEW', 'View RecipeVotingReason #%d', 'View RecipeVotingReason #%d', ''),
+('TITLE_RECIPEVOTINGREASONS_UPDATE', 'Update RecipeVotingReason #%d', 'Update RecipeVotingReason #%d', ''),
+('TITLE_RECIPEVOTINGREASONS_LIST', 'Recipe Voting Reasons', 'Recipe Voting Reasons', ''),
+('TITLE_RECIPEVOTINGREASONS_CREATE', 'Create RecipeVotingReason', 'Create RecipeVotingReason', '');

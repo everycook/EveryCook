@@ -154,8 +154,8 @@
 		</div>
 		*/ ?> 
 		<div class="buttons">
-			<?php echo CHtml::button('Address to GPS', array('id'=>'Address_to_GPS', 'class'=>'button')); ?>
-			<?php echo CHtml::button('GPS to Address', array('id'=>'GPS_to_Address', 'class'=>'button')); ?>
+			<?php echo CHtml::button($this->trans->GENERAL_GPS_ADDRESS_TO_GPS, array('id'=>'Address_to_GPS', 'class'=>'button')); ?>
+			<?php echo CHtml::button($this->trans->GENERAL_GPS_GPS_TO_ADDRESS, array('id'=>'GPS_to_Address', 'class'=>'button')); ?>
 		</div>
 		<div class="buttons">
 			<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE, array('name'=>'save', 'class'=>'button')); ?>
@@ -166,8 +166,8 @@
 <div id="map_container">
 	<div id="places_search">
 		<input type="text" name="placesQuery" id="placesQuery"/><br>
-		<div class="button" id="placesByQuery">search places by query</div>
-		<div class="button" id="placesByRange">search all places in map range</div>
+		<div class="button" id="placesByQuery"><?php echo $this->trans->STORES_SEARCH_BY_QUERY; ?></div>
+		<div class="button" id="placesByRange"><?php echo $this->trans->STORES_SEARCH_BY_RANGE; ?></div>
 	</div>
 	<div id="map_canvas" style="height:30em; width:30em;"></div>
 	<div id="places_results"></div>

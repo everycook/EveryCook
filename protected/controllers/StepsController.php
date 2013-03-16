@@ -72,16 +72,16 @@ class StepsController extends Controller
 		
 		$stepTypes = Yii::app()->db->createCommand()->select('STT_ID,STT_DESC_'.Yii::app()->session['lang'])->from('step_types')->queryAll();
 		$stepTypes = CHtml::listData($stepTypes,'STT_ID','STT_DESC_'.Yii::app()->session['lang']);
-		$actions = Yii::app()->db->createCommand()->select('ACT_ID,ACT_DESC_AUTO_'.Yii::app()->session['lang'].',ACT_DESC_MAN_'.Yii::app()->session['lang'].',ACT_SKIP')->from('actions')->queryAll();
-		$actions_auto = CHtml::listData($actions,'ACT_ID','ACT_DESC_AUTO_'.Yii::app()->session['lang']);
-		$actions_man = CHtml::listData($actions,'ACT_ID','ACT_DESC_MAN_'.Yii::app()->session['lang']);
+		//$actions = Yii::app()->db->createCommand()->select('ACT_ID,ACT_DESC_AUTO_'.Yii::app()->session['lang'].',ACT_DESC_MAN_'.Yii::app()->session['lang'].',ACT_SKIP')->from('actions')->queryAll();
+		//$actions_auto = CHtml::listData($actions,'ACT_ID','ACT_DESC_AUTO_'.Yii::app()->session['lang']);
+		//$actions_man = CHtml::listData($actions,'ACT_ID','ACT_DESC_MAN_'.Yii::app()->session['lang']);
 		$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_DESC_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
 		$ingredients = CHtml::listData($ingredients,'ING_ID','ING_DESC_'.Yii::app()->session['lang']);
 		
 		$this->checkRenderAjax($view,array(
 			'model'=>$model,
 			'stepTypes'=>$stepTypes,
-			'actions'=>$actions_auto, //TODO submit both
+			//'actions'=>$actions_auto, //TODO submit both
 			'ingredients'=>$ingredients,
 		));
 	}

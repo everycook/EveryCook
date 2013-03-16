@@ -1,7 +1,7 @@
 <div class="form">
 
 <?php $form=$this->beginWidget('CActiveForm', array(
-	'id'=>'cook-in-state_form',
+	'id'=>'recipe-voting-reasons_form',
 	'enableAjaxValidation'=>false,
 )); ?>
 
@@ -14,6 +14,14 @@
 			echo '</div>';
 	}
 	
+	foreach($this->allLanguages as $lang=>$name){
+	echo '<div class="row">'."\r\n";
+		echo $form->labelEx($model,'RVR_DESC_'.$lang) ."\r\n";
+		echo $form->textField($model,'RVR_DESC_'.$lang,array('size'=>60,'maxlength'=>100)) ."\r\n";
+		echo $form->error($model,'RVR_DESC_'.$lang) ."\r\n";
+	echo '</div>'."\r\n";
+	}
+	
 	/*
 	//Example for select / checkboxlist
 	$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
@@ -23,27 +31,39 @@
 	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_STORABILITY, $model, 'STB_ID', $storability, Functions::CHECK_BOX_LIST, 'storability', $htmlOptions_type1);
 	*/
 	?>
-	
+
+	<?php /*
 	<div class="row">
-		<?php echo $form->labelEx($model,'COI_ID'); ?>
-		<?php echo $form->textField($model,'COI_ID'); ?>
-		<?php echo $form->error($model,'COI_ID'); ?>
+		<?php echo $form->labelEx($model,'RVR_ID'); ?>
+		<?php echo $form->textField($model,'RVR_ID'); ?>
+		<?php echo $form->error($model,'RVR_ID'); ?>
 	</div>
-	<?php echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('cookIn/create',array('newModel'=>time())), array('class'=>'button')); ?>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'CIS_ID'); ?>
-		<?php echo $form->textField($model,'CIS_ID'); ?>
-		<?php echo $form->error($model,'CIS_ID'); ?>
+		<?php echo $form->labelEx($model,'CREATED_BY'); ?>
+		<?php echo $form->textField($model,'CREATED_BY'); ?>
+		<?php echo $form->error($model,'CREATED_BY'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'CREATED_ON'); ?>
+		<?php echo $form->textField($model,'CREATED_ON'); ?>
+		<?php echo $form->error($model,'CREATED_ON'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'CHANGED_BY'); ?>
+		<?php echo $form->textField($model,'CHANGED_BY'); ?>
+		<?php echo $form->error($model,'CHANGED_BY'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'CHANGED_ON'); ?>
+		<?php echo $form->textField($model,'CHANGED_ON'); ?>
+		<?php echo $form->error($model,'CHANGED_ON'); ?>
 	</div>
 	
-	<?php
-	echo '<div class="row">'."\r\n";
-		echo $form->labelEx($model,'CIS_DESC') ."\r\n";
-		echo $form->textField($model,'CIS_DESC',array('size'=>60,'maxlength'=>100)) ."\r\n";
-		echo $form->error($model,'CIS_DESC') ."\r\n";
-	echo '</div>'."\r\n";
-	?>
+	*/ ?>
 
 	<div class="buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE); ?>

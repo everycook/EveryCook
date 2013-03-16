@@ -1,0 +1,6 @@
+DROP TABLE `actions`;
+ALTER TABLE `ingredients` DROP `ING_IMG`;
+ALTER TABLE `products` DROP `PRO_IMG`;
+ALTER TABLE `recipes` DROP `REC_IMG`;
+ALTER TABLE `stores` DROP `STO_IMG`;
+ALTER TABLE `steps` DROP `ACT_ID`, DROP `STT_ID`;

@@ -1,11 +1,11 @@
 <?php
 $this->breadcrumbs=array(
-	'Cook In States',
+	'Recipe Voting Reasons',
 );
 
 $this->menu=array(
-	array('label'=>'Create CookInState', 'url'=>array('create')),
-	array('label'=>'Manage CookInState', 'url'=>array('admin')),
+	array('label'=>'Create RecipeVotingReasons', 'url'=>array('create')),
+	array('label'=>'Manage RecipeVotingReasons', 'url'=>array('admin')),
 );
 ?>
 
@@ -13,7 +13,7 @@ $this->menu=array(
 <div>
 <?php $form=$this->beginWidget('CActiveForm', array(
 		'action'=>Yii::app()->createUrl($this->route),
-		'id'=>'cook-in-state_form',
+		'id'=>'recipe-voting-reasons_form',
 		'method'=>'post',
 		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 	)); ?>
@@ -22,7 +22,7 @@ $this->menu=array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'ajaxUpdate'=>false,
-	'id'=>'cook-in-stateResult',
+	'id'=>'recipe-voting-reasonsResult',
 )); ?>
 
 <?php $this->endWidget(); ?>

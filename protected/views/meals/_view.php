@@ -3,7 +3,9 @@
 	echo '<div>';
 		if(isset($editMode) && $editMode){
 			echo '<div class="slider_holder">' . Functions::activeSpecialField($data, 'MEA_PERC_GDA', 'range', array('min'=>0,'max'=>100)) . '</div>';
+			echo '<span class="prozValue">';
 			printf($this->trans->MEALPLANNER_MEAL_GDA,'<span class="value">' . $data->MEA_PERC_GDA . '</span>');
+			echo '</span>';
 			$inputName = Functions::resolveMultiArrayName($data, array('MEA_ID'));
 			echo CHtml::hiddenField($inputName, $data->MEA_ID);
 		} else {
@@ -32,7 +34,7 @@
 			$meaToCous_index=0;
 			foreach($data->meaToCous as $meaToCou) {
 				echo '<div class="meal_course">';
-					echo '<div>';
+					echo '<div class="cou_header">';
 					if(isset($editMode) && $editMode){
 						$inputName = Functions::resolveMultiArrayName($data, array('meaToCous', $meaToCous_index, 'course', 'COU_DESC'));
 						////echo CHtml::label($meaToCou->course->getAttributeLabel('COU_DESC'), $inputName);
@@ -41,7 +43,9 @@
 						echo '<br>';
 						$inputName = Functions::resolveMultiArrayName($data, array('meaToCous', $meaToCous_index, 'MTC_PERC_MEAL'));
 						echo '<div class="slider_holder">' . Functions::specialField($inputName, $meaToCou->MTC_PERC_MEAL, 'range', array('min'=>0,'max'=>100)) . '</div>';
+						echo '<span class="prozValue">';
 						printf($this->trans->MEALPLANNER_COURSE_GDA,'<span class="value">' . $meaToCou->MTC_PERC_MEAL . '</span>');
+						echo '</span>';
 						$inputName = Functions::resolveMultiArrayName($data, array('meaToCous', $meaToCous_index, 'course', 'COU_ID'));
 						echo CHtml::hiddenField($inputName, $meaToCou->course->COU_ID);
 						$inputName = Functions::resolveMultiArrayName($data, array('meaToCous', $meaToCous_index, 'MTC_EAT_PERS'));
@@ -79,7 +83,7 @@
 									if(isset($editMode) && $editMode){
 										$inputName = Functions::resolveMultiArrayName($data, array('meaToCous', $meaToCous_index, 'course', 'couToRecs', $couToRecs_index, 'CTR_REC_PROC'));
 										echo '<div class="slider_holder">' . Functions::specialField($inputName, $couToRec->CTR_REC_PROC, 'range', array('min'=>0,'max'=>100)) . '</div>';
-										echo '<span class="value">' . $couToRec->CTR_REC_PROC . '</span>%';
+										echo '<span class="prozValue"><span class="value">' . $couToRec->CTR_REC_PROC . '</span>%</span>';
 									} else {
 										echo '<span>' . $couToRec->CTR_REC_PROC . '</span>%';
 									}

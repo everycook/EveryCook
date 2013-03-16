@@ -14,6 +14,10 @@ class IngredientsController extends Controller
 	protected $createBackup = 'Ingredients_Backup';
 	protected $searchBackup = 'Ingredients';
 	protected $getNextAmountBackup = 'Ingredients_GetNextAmount';
+	protected $isRecipeIngredientSelect = false;
+	protected $recipeIngredientIds = null;
+	
+	
 	const RECIPES_AMOUNT = 2;
 	const PRODUCTS_AMOUNT = 2;
 	const PRELOAD_AMOUNT = 3;
@@ -27,7 +31,7 @@ class IngredientsController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','getSubGroupSearch','getSubGroupForm','chooseIngredient','advanceChooseIngredient','getNext'),
+				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','getSubGroupSearch','getSubGroupForm','chooseIngredient','advanceChooseIngredient','getNext','chooseIngredientInRecipe'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -147,7 +151,7 @@ class IngredientsController extends Controller
 				if ($type == 'recipe'){
 					echo '{img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$model['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$model['REC_ID'])).'", auth:"'.$model['REC_IMG_AUTH'].'", name:"'.$model['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
 				} else if ($type == 'product'){
-					echo '{img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$model['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$model['PRO_ID'])).'", auth:"'.$model['PRO_IMG_CR'].'", name:"'.$model['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+					echo '{img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$model['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$model['PRO_ID'])).'", auth:"'.$model['PRO_IMG_AUTH'].'", name:"'.$model['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
 				}
 				echo ',';
 				++$index;
@@ -202,16 +206,14 @@ class IngredientsController extends Controller
 		}
 		if (isset($id)){
 			if (!isset($oldmodel) || $oldmodel->ING_ID != $id){
-				$oldmodel = $this->loadModel($id, true);
+				$oldmodel = $this->loadModel($id);
 			}
 		}
 		
 		if (isset($oldmodel)){
 			$model = $oldmodel;
-			$oldPicture = $oldmodel->ING_IMG;
 		} else {
 			$model=new Ingredients;
-			$oldPicture = null;
 		}
 		Functions::uploadImage('Ingredients', $model, $this->createBackup, 'ING_IMG');
 	}
@@ -226,25 +228,25 @@ class IngredientsController extends Controller
 		}
 		if (isset($id)){
 			if (!isset($oldmodel) || $oldmodel->ING_ID != $id){
-				$oldmodel = $this->loadModel($id, true);
+				$oldmodel = $this->loadModel($id);
 			}
 		}
 		
 		if (isset($oldmodel)){
 			$model = $oldmodel;
-			$oldPicture = $oldmodel->ING_IMG;
+			$oldPictureFilename = $oldmodel->ING_IMG_FILENAME;
 		} else {
 			$model=new Ingredients;
-			$oldPicture=null;
+			$oldPictureFilename=null;
 		}
-		if (isset($model->ING_IMG) && $model->ING_IMG != ''){
+		if (isset($model->ING_IMG_FILENAME) && $model->ING_IMG_FILENAME != ''){
 			$model->setScenario('withPic');
 		}
 		
 		if(isset($_POST['Ingredients'])){
 			$model->attributes=$_POST['Ingredients'];
-			if (isset($oldPicture)){
-				Functions::updatePicture($model,'ING_IMG', $oldPicture);
+			if (isset($oldPictureFilename)){
+				Functions::updatePicture($model,'ING_IMG', $oldPictureFilename);
 			}
 			
 			Yii::app()->session[$this->createBackup] = $model;
@@ -273,12 +275,35 @@ class IngredientsController extends Controller
 					if(Yii::app()->user->demo){
 						$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
 					} else {
-						if($model->save()){
-							unset(Yii::app()->session[$this->createBackup]);
-							unset(Yii::app()->session[$this->createBackup.'_Time']);
-							$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
-							//$this->forwardAfterSave(array('search', 'query'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
-							return;
+						$transaction=$model->dbConnection->beginTransaction();
+						try {
+							if($model->save()){
+								$changed = Functions::fixPicturePathAfterSave($model,'ING_IMG', $model->ING_IMG_FILENAME);
+								if ($changed){
+									if($model->save()){
+										$transaction->commit();
+										unset(Yii::app()->session[$this->createBackup]);
+										unset(Yii::app()->session[$this->createBackup.'_Time']);
+										$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
+										//$this->forwardAfterSave(array('search', 'query'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
+										return;
+									} else {
+										$transaction->rollBack();
+									}
+								} else {
+									$transaction->commit();
+									unset(Yii::app()->session[$this->createBackup]);
+									unset(Yii::app()->session[$this->createBackup.'_Time']);
+									$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
+									//$this->forwardAfterSave(array('search', 'query'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
+									return;
+								}
+							} else {
+								$transaction->rollBack();
+							}
+						} catch(Exception $e) {
+							if ($this->debug) echo 'Exception occured -&gt; rollback. Exeption was: ' . $e;
+							$transaction->rollBack();
 						}
 					}
 				}
@@ -417,7 +442,7 @@ class IngredientsController extends Controller
 		
 		$Session_Ingredient = Yii::app()->session[$this->searchBackup];
 		if (isset($Session_Ingredient)){
-			if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Ingredients']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_Ingredient['time'])){
+			if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Ingredients']) && !isset($criteria) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_Ingredient['time'])){
 				if (isset($Session_Ingredient['query'])){
 					$query = $Session_Ingredient['query'];
 					$model2->query = $query;
@@ -432,6 +457,10 @@ class IngredientsController extends Controller
 		}
 		
 		$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'ingredients.');
+		
+		if ($this->isRecipeIngredientSelect && $criteriaString != ''){
+			$criteria = null;
+		}
 		
 		if ($modelAvailable || $criteriaString != '' || $criteria != null){
 			if (!$this->isFancyAjaxRequest){
@@ -766,6 +795,38 @@ class IngredientsController extends Controller
 		$this->prepareSearch('advanceSearch', 'none', null);
 	}
 	
+	public function actionChooseIngredientInRecipe(){
+		$this->isFancyAjaxRequest = true;
+		$this->isRecipeIngredientSelect = true;
+		
+		if (isset($_GET['ajaxPaging'])){
+			$this->prepareSearch('search', 'none', null);
+		} else {
+			$Session_Backup = Yii::app()->session['Recipes_Backup'];
+			if (isset($Session_Backup)){
+				$ids = array();
+				$steps = $Session_Backup->steps;
+				foreach($steps as $step){
+					if (isset($step->ING_ID) && $step->ING_ID>0 && isset($step->STE_GRAMS) /*&& $step->STE_GRAMS > 0*/){
+						array_push($ids, $step->ING_ID);
+					}
+				}
+				if (count($ids)>0){
+					$this->recipeIngredientIds = $ids;
+				} else {
+					$this->recipeIngredientIds = null;
+					$ids = array(-1);
+				}
+			} else {
+				$this->recipeIngredientIds = null;
+				$ids = array(-1);
+			}
+			$criteria=new CDbCriteria;
+			$criteria->compare(Ingredients::model()->tableName().'.ING_ID',$ids);
+			$this->prepareSearch('search', 'none', $criteria);
+		}
+	}
+	
 	public function actionShowLike(){
 		$command = Yii::app()->dbp->createCommand()
 			->select('PRF_LIKES_I')
@@ -860,7 +921,7 @@ class IngredientsController extends Controller
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer the ID of the model to be loaded
 	 */
-	public function loadModel($id, $withPicture = false)
+	public function loadModel($id)
 	{
 		if ($id == 'backup'){
 			$model=Yii::app()->session[$this->createBackup];
@@ -893,12 +954,12 @@ class IngredientsController extends Controller
 			$size = 0;
 		}
 		$this->saveLastAction = false;
-		$model=$this->loadModel($id, true);
+		$model=$this->loadModel($id);
 		$modified = $model->CHANGED_ON;
-		if (!$modified){
+		if (!isset($modified)){
 			$modified = $model->CREATED_ON;
 		}
-		return Functions::getImage($modified, $model->ING_IMG_ETAG, $model->ING_IMG, $id, 'Ingredients', $size);
+		return Functions::getImage($modified, $model->ING_IMG_ETAG, $model->ING_IMG_FILENAME, $id, 'Ingredients', $size);
     }
 	
 	public function actionDelicious($id){

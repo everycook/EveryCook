@@ -119,7 +119,7 @@ class SiteController extends Controller
 				} else if ($type == 'ingredient'){
 					echo '{img:"'.$this->createUrl('ingredients/displaySavedImage', array('id'=>$model['ING_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('ingredients/view', array('id'=>$model['ING_ID'])).'", auth:"'.$model['ING_IMG_AUTH'].'", name:"'.$model['ING_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
 				} else if ($type == 'product'){
-					echo '{img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$model['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$model['PRO_ID'])).'", auth:"'.$model['PRO_IMG_CR'].'", name:"'.$model['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
+					echo '{img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$model['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$model['PRO_ID'])).'", auth:"'.$model['PRO_IMG_AUTH'].'", name:"'.$model['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'}';
 				}
 				echo ',';
 				++$index;
@@ -247,4 +247,114 @@ class SiteController extends Controller
 		Functions::getImage($modified, $etag, $picture, $id, $type, $size);
 	}
 	
+	public function actionExportImageFromDB(){
+		echo "start exporting...<br>\n";
+		
+		echo "start recipes...<br>\n";
+		try {
+			$recipe = new Recipes('search');
+			$recipes = $recipe->findAll();
+			
+			foreach ($recipes as $model){
+				if (isset($model->REC_IMG) && strlen($model->REC_IMG)>0){
+					$filename = Functions::generatePictureName($model, false);
+					file_put_contents($filename, $model->REC_IMG);
+					
+					$model->REC_IMG_FILENAME=$filename;
+					if (!$model->save()){
+						if ($this->debug) {echo 'error on save recipe: errors:'; print_r($model->getErrors());}
+					} 
+				}
+			}
+		} catch(Exception $e) {
+			if ($this->debug) echo 'Exception in recipes occured: ' . $e;
+		}
+		echo "recipes done.<br>\n";
+		
+		echo "start products...<br>\n";
+		try {
+			$product = new Products('search');
+			$products = $product->findAll();
+			
+			foreach ($products as $model){
+				if (isset($model->PRO_IMG) && strlen($model->PRO_IMG)>0){
+					$filename = Functions::generatePictureName($model, false);
+					file_put_contents($filename, $model->PRO_IMG);
+					
+					$model->PRO_IMG_FILENAME=$filename;
+					if (!$model->save()){
+						if ($this->debug) {echo 'error on save product: errors:'; print_r($model->getErrors());}
+					} 
+				}
+			}
+		} catch(Exception $e) {
+			if ($this->debug) echo 'Exception in products occured: ' . $e;
+		}
+		echo "products done.<br>\n";
+		
+		echo "start ingredients...<br>\n";
+		try {
+			$ingredient = new Ingredients('search');
+			$ingredients = $ingredient->findAll();
+			
+			foreach ($ingredients as $model){
+				if (isset($model->ING_IMG) && strlen($model->ING_IMG)>0){
+					$filename = Functions::generatePictureName($model, false);
+					file_put_contents($filename, $model->ING_IMG);
+					
+					$model->ING_IMG_FILENAME=$filename;
+					if (!$model->save()){
+						if ($this->debug) {echo 'error on save ingredient: errors:'; print_r($model->getErrors());}
+					} 
+				}
+			}
+		} catch(Exception $e) {
+			if ($this->debug) echo 'Exception in ingredients occured: ' . $e;
+		}
+		echo "ingredients done.<br>\n";
+		
+		echo "start stores...<br>\n";
+		try {
+			$store = new Stores('search');
+			$stores = $store->findAll();
+			
+			foreach ($stores as $model){
+				if (isset($model->STO_IMG) && strlen($model->STO_IMG)>0){
+					$filename = Functions::generatePictureName($model, false);
+					file_put_contents($filename, $model->STO_IMG);
+					
+					$model->STO_IMG_FILENAME=$filename;
+					if (!$model->save()){
+						if ($this->debug) {echo 'error on save store: errors:'; print_r($model->getErrors());}
+					} 
+				}
+			}
+		} catch(Exception $e) {
+			if ($this->debug) echo 'Exception in stores occured: ' . $e;
+		}
+		echo "stores done.<br>\n";
+		
+		echo "start profiles...<br>\n";
+		try {
+			$profile = new Profiles('search');
+			$profiles = $profile->findAll();
+			
+			foreach ($profiles as $model){
+				if (isset($model->PRF_IMG) && strlen($model->PRF_IMG)>0){
+					$filename = Functions::generatePictureName($model, false);
+					file_put_contents($filename, $model->PRF_IMG);
+					
+					$model->PRF_IMG_FILENAME=$filename;
+					if (!$model->save()){
+						if ($this->debug) {echo 'error on save profile: errors:'; print_r($model->getErrors());}
+					} 
+				}
+			}
+		} catch(Exception $e) {
+			if ($this->debug) echo 'Exception in profiles occured: ' . $e;
+		}
+		echo "profiles done.<br>\n";
+		
+		echo "done.<br>\n";
+	}
 }

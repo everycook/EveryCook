@@ -1,6 +1,11 @@
 <input type="hidden" id="uploadImageLink" value="<?php echo $this->createUrl('recipes/uploadImage',array('id'=>$model->REC_ID)); ?>"/>
 <input type="hidden" id="imageLink" value="<?php echo $this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
 <input type="hidden" id="stepDetailsLink" value="<?php echo $this->createUrl('recipes/getRecipeInfos'); ?>"/>
+<input type="hidden" id="updateSessionValuesLink" value="<?php echo $this->createUrl('recipes/updateSessionValues'); ?>"/>
+<input type="hidden" id="updateSessionValueLink" value="<?php echo $this->createUrl('recipes/updateSessionValue'); ?>"/>
+<input type="hidden" id="ingredientsChooseLink" value="<?php echo $this->createUrl('ingredients/chooseIngredient'); ?>"/>
+<input type="hidden" id="preparedIngredientsChooseLink" value="<?php echo $this->createUrl('ingredients/chooseIngredientInRecipe'); ?>"/>
+<input type="hidden" id="preparedAIN_ID" value="<?php echo Yii::app()->params['PrepareActionId']; ?>"/>
 <div class="form">
 
 <div class="hidden" id="stepConfig">
@@ -15,7 +20,7 @@
 	'id'=>'recipes-form',
 	'enableAjaxValidation'=>false,
 	'action'=>Yii::app()->createUrl($this->route, array_merge($this->getActionParams(), array('ajaxform'=>true))),
-    'htmlOptions'=>array('enctype' => 'multipart/form-data', 'class'=>'ajaxupload'),
+    'htmlOptions'=>array(/*'enctype' => 'multipart/form-data', */'class'=>'ajaxupload'),
 )); ?>
 
 	<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
@@ -129,7 +134,7 @@
 		echo CHtml::dropDownList('cookInDisplay', $first, $cookInsSelected, $htmlOptions_type0) . "\r\n";
 	?>
 	</div>
-	<div class="steps">
+	<div class="steps updateBackend">
 	<?php
 		$fieldOptions = array(
 			array('REC_ID', null, null, array('hidden'=>true)),
@@ -141,7 +146,7 @@
 			array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('fancy'=>true, 'empty'=>$this->trans->GENERAL_CHOOSE, 'url'=>array('ingredients/chooseIngredient'), 'htmlOptions'=>array('class'=>'fancyChoose IngredientSelect buttonSmall'))),
 			array('STE_GRAMS', $this->trans->RECIPES_INGREDIENT_AMOUNT, null, array('type_weight'=>'g')),
 		);
-		$text = array('add'=>$this->trans->GENERAL_ADD, 'remove'=>$this->trans->GENERAL_REMOVE, 'move up'=>'-up-', 'move down'=>'-down-', 'options'=>'Options');
+		$text = array('add'=>$this->trans->GENERAL_ADD, 'remove'=>$this->trans->GENERAL_REMOVE, 'move up'=>'-up-', 'move down'=>'-down-', 'add2'=>$this->trans->GENERAL_ADD, 'options'=>'Options');
 		
 		$options = array('new'=>new Steps);
 		//echo Functions::createInputTable($model->steps, $fieldOptions, $options, $form, $text);

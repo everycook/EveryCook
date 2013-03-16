@@ -150,5 +150,6 @@ return array(
 		'deviceReadPath'=>'/var/www/db/hw/status',
 		'deviceWriteUrl'=>'/EveryCook/sendcommand.php?command=',
 		'deviceReadUrl'=>'db/hw/status',
+		'FinishedActionId'=>13,
 	),
 );

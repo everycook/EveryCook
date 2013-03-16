@@ -64,9 +64,8 @@ $this->breadcrumbs=array(
 			
 			//array('COI_ID', $this->trans->ACTIONSGENERATOR_COOK_IN, $cookIns, null),
 			array('AOU_ID', $this->trans->ACTIONSGENERATOR_ACTIONS_OUT, $actionsOutsList, array('empty'=>$this->trans->GENERAL_CHOOSE)),
-			array('ATA_COI_PREP', $this->trans->ACTIONSGENERATOR_COI_PREP, $cookInPreps, null),
+			array('ATA_COI_PREP', $this->trans->ACTIONSGENERATOR_COI_PREP, $cookInPreps, array('empty'=>$this->trans->GENERAL_CHOOSE)),
 			
-			//array('ACT_ID', $this->trans->RECIPES_ACTION, $actions, array('empty'=>$this->trans->GENERAL_CHOOSE, 'multiple_selects'=>$_POST['CookVariant'])),
 			//array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('empty'=>$this->trans->GENERAL_CHOOSE)),
 			//array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('fancy'=>true, 'empty'=>$this->trans->GENERAL_CHOOSE, 'url'=>'#'.$this->createUrlHash('ingredients/chooseIngredient',array()), 'htmlOptions'=>array('class'=>'fancyChoose IngredientSelect'))),
 			//array('ING_ID', $this->trans->RECIPES_INGREDIENT, $ingredients, array('fancy'=>true, 'empty'=>$this->trans->GENERAL_CHOOSE, 'url'=>array('ingredients/chooseIngredient'), 'htmlOptions'=>array('class'=>'fancyChoose IngredientSelect buttonSmall'))),

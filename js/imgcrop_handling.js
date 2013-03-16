@@ -35,6 +35,7 @@ jQuery(function($){
 			boxHeight: maxHeight,
 			//onChange: checkSelectionValide,
 			onRelease: releaseCheck,
+			handleOffset: 10,
 		},function(){
 			jcrop_api = this;
 			var imgWidth = jcrop_api.getBounds()[0];
@@ -49,8 +50,9 @@ jQuery(function($){
 					jcrop_api.setOptions({minSize: [40, 400],});
 				}
 			}
-			jcrop_api.animateTo([0,0,400,400], function(){
+			jcrop_api.animateTo([0,0,400,400], function(test){
 				//jcrop_api.setOptions({onChange: checkSelectionValide,});
+				updateCoords(jcrop_api.tellSelect());
 			});
 		});
 		cropable.removeClass('cropable');
@@ -147,7 +149,9 @@ jQuery(function($){
 		var elem = jQuery(this);
 		var form = elem.parents('form:first');
 		var oldAction = form.attr('action');
+		var oldEnctype = form.attr('enctype');
 		form.attr('action', jQuery('#uploadImageLink').attr('value'));
+		form.attr('enctype', 'multipart/form-data');
 		form.unbind('submit');
 		//form.append('<input type="hidden" class="cropMaxInitSize" name="MaxHeight" value="' + window.screen.height + '"/>');
 		//form.append('<input type="hidden" class="cropMaxInitSize" name="MaxWidth" value="' + window.screen.width + '"/>');
@@ -165,6 +169,11 @@ jQuery(function($){
 		form.submit();
 		
 		form.attr('action', oldAction);
+		if (typeof(oldEnctype) === 'undefined'){
+			form.removeAttr('enctype');
+		} else {
+			form.attr('enctype', oldEnctype);
+		}
 		//form.find('.cropMaxInitSize').remove();
 		glob.initAjaxUpload('form', form.parent());
 	});

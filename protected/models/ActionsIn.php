@@ -7,10 +7,14 @@
  * @property integer $AIN_ID
  * @property string $AIN_DEFAULT
  * @property string $AIN_PREP
- * @property string $AIN_DESC_DE_CH
  * @property string $AIN_DESC_EN_GB
+ * @property string $AIN_DESC_DE_CH
+ * @property integer $CREATED_BY
+ * @property integer $CREATED_ON
+ * @property integer $CHANGED_BY
+ * @property integer $CHANGED_ON
  */
-class ActionsIn extends ActiveRecordECSimple
+class ActionsIn extends ActiveRecordEC
 {
 	/**
 	 * Returns the static model of the specified AR class.
@@ -34,13 +38,13 @@ class ActionsIn extends ActiveRecordECSimple
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('AIN_DESC_DE_CH, AIN_DESC_EN_GB', 'required'),
-			array('AIN_ID', 'numerical', 'integerOnly'=>true),
-			array('AIN_DEFAULT, AIN_DESC_DE_CH, AIN_DESC_EN_GB', 'length', 'max'=>100),
+			array('AIN_DESC_EN_GB, CREATED_BY, CREATED_ON', 'required'),
+			array('CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('AIN_DEFAULT, AIN_DESC_EN_GB, AIN_DESC_DE_CH', 'length', 'max'=>100),
 			array('AIN_PREP', 'length', 'max'=>1),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('AIN_ID, AIN_DEFAULT, AIN_PREP, AIN_DESC_DE_CH, AIN_DESC_EN_GB', 'safe', 'on'=>'search'),
+			array('AIN_ID, AIN_DEFAULT, AIN_PREP, AIN_DESC_EN_GB, AIN_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -52,7 +56,7 @@ class ActionsIn extends ActiveRecordECSimple
 		// class name for the relations automatically generated below.
 		return array(
 			'ainToCois' => array(self::HAS_MANY, 'AinToCoi', 'AIN_ID'),
-			'ainToAous' => array(self::HAS_MANY, 'AinToAou', 'AIN_ID'),
+			'ainToAous' => array(self::HAS_MANY, 'AinToAou', 'AIN_ID', 'order'=>'ainToAous.ATA_NO'),
 		);
 	}
 
@@ -64,8 +68,12 @@ class ActionsIn extends ActiveRecordECSimple
 			'AIN_ID' => 'Ain',
 			'AIN_DEFAULT' => 'Ain Default',
 			'AIN_PREP' => 'Ain Prep',
-			'AIN_DESC_DE_CH' => 'Ain Desc De Ch',
 			'AIN_DESC_EN_GB' => 'Ain Desc En Gb',
+			'AIN_DESC_DE_CH' => 'Ain Desc De Ch',
+			'CREATED_BY' => 'Created By',
+			'CREATED_ON' => 'Created On',
+			'CHANGED_BY' => 'Changed By',
+			'CHANGED_ON' => 'Changed On',
 		);
 	}
 	
@@ -80,8 +88,14 @@ class ActionsIn extends ActiveRecordECSimple
 		$criteria->compare($this->tableName().'.AIN_ID',$this->AIN_ID);
 		$criteria->compare($this->tableName().'.AIN_DEFAULT',$this->AIN_DEFAULT,true);
 		$criteria->compare($this->tableName().'.AIN_PREP',$this->AIN_PREP,true);
-		$criteria->compare($this->tableName().'.AIN_DESC_DE_CH',$this->AIN_DESC_DE_CH,true);
 		$criteria->compare($this->tableName().'.AIN_DESC_EN_GB',$this->AIN_DESC_EN_GB,true);
+		$criteria->compare($this->tableName().'.AIN_DESC_DE_CH',$this->AIN_DESC_DE_CH,true);
+		$criteria->compare($this->tableName().'.CREATED_BY',$this->CREATED_BY);
+		$criteria->compare($this->tableName().'.CREATED_ON',$this->CREATED_ON);
+		$criteria->compare($this->tableName().'.CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare($this->tableName().'.CHANGED_ON',$this->CHANGED_ON);
+		
+		return $criteria;
 	}
 	
 	public function getCriteria(){
@@ -93,10 +107,16 @@ class ActionsIn extends ActiveRecordECSimple
 		$criteria->compare('AIN_ID',$this->AIN_ID);
 		$criteria->compare('AIN_DEFAULT',$this->AIN_DEFAULT,true);
 		$criteria->compare('AIN_PREP',$this->AIN_PREP,true);
-		$criteria->compare('AIN_DESC_DE_CH',$this->AIN_DESC_DE_CH,true);
 		$criteria->compare('AIN_DESC_EN_GB',$this->AIN_DESC_EN_GB,true);
+		$criteria->compare('AIN_DESC_DE_CH',$this->AIN_DESC_DE_CH,true);
+		$criteria->compare('CREATED_BY',$this->CREATED_BY);
+		$criteria->compare('CREATED_ON',$this->CREATED_ON);
+		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare('CHANGED_ON',$this->CHANGED_ON);
 		//Add with conditions for relations
 		//$criteria->with = array('???relationName???' => array());
+		
+		return $criteria;
 	}
 	
 	public function getSort(){

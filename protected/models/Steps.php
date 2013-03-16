@@ -67,7 +67,6 @@ class Steps extends ActiveRecordEC
 		// class name for the relations automatically generated below.
 		return array(
 			/*'recipe' => array(self::BELONGS_TO, 'Recipes', 'REC_ID'),
-			'action' => array(self::BELONGS_TO, 'Actions', 'ACT_ID'),
 			'stepType' => array(self::BELONGS_TO, 'StepTypes', 'STT_ID'),*/
 			'ingredient' => array(self::BELONGS_TO, 'Ingredients', 'ING_ID'),
 			'actionIn' => array(self::BELONGS_TO, 'ActionsIn', 'AIN_ID'),
@@ -82,7 +81,6 @@ class Steps extends ActiveRecordEC
 	{
 		return array(
 			'REC_ID' => 'Rec',
-			//'ACT_ID' => 'Act',
 			'AIN_ID' => 'Ain',
 			'ING_ID' => 'Ing',
 			'STE_STEP_NO' => 'Ste Step No',
@@ -124,6 +122,8 @@ class Steps extends ActiveRecordEC
 		$criteria->compare($this->tableName().'.STE_STIR_PAUSE',$this->STE_STIR_PAUSE);
 		$criteria->compare($this->tableName().'.STE_STEP_DURATION',$this->STE_STEP_DURATION);
 		$criteria->compare($this->tableName().'.TOO_ID',$this->TOO_ID);
+		
+		return $criteria;
 	}
 	
 	public function getCriteria(){

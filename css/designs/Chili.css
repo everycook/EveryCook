@@ -161,25 +161,30 @@ div.mealOverview {
 
 
 
-.addRowContainer div.up {
+.addRowContainer .options div.up {
 	background: url('../../pics/up.png') no-repeat scroll 0 0 transparent;
 	background-size: contain;
 }
 
-.addRowContainer div.down {
+.addRowContainer .options div.down {
 	background: url('../../pics/down.png') no-repeat scroll 0 0 transparent;
 	background-size: contain;
 }
 
-.addRowContainer div.remove {
+.addRowContainer .options div.remove {
 	background: url('../../pics/remove.png') no-repeat scroll 0 0 transparent;
 	background-size: contain;
 }
 
-.startpage .up1 {
+.addRowContainer .options div.add {
+	background: url('../../pics/add.png') no-repeat scroll 0 0 transparent;
+	background-size: contain;
+}
+
+.startpage .up-arrow .up1 {
 	border-bottom-color: #FF4D02;
 }
 
-.startpage .down1 {
+.startpage .down-arrow .down1 {
 	border-top-color: #FF4D02;
 }

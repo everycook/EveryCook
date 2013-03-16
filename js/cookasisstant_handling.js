@@ -7,18 +7,20 @@ jQuery(function($){
 	var interval = -1;
 	var errorCounter=[];
 	function initTimer(type, contentParent){
-		if (interval != -1){
-			window.clearInterval(interval);
+		if (type !== 'fancy'){
+			if (interval != -1){
+				window.clearInterval(interval);
+			}
+			if (typeof(contentParent) === 'undefined') return;
+			startTime = [];
+			var currentTime = new Date().getTime();
+			contentParent.find('.recipeStep').each(function(index){
+				startTime[index] = currentTime;
+			});
+			errorCounter=[];
+			interval = window.setInterval(updateTime,500);
+			updateTime(true);
 		}
-		if (typeof(contentParent) === 'undefined') return;
-		startTime = [];
-		var currentTime = new Date().getTime();
-		contentParent.find('.recipeStep').each(function(index){
-			startTime[index] = currentTime;
-		});
-		errorCounter=[];
-		interval = window.setInterval(updateTime,500);
-		updateTime(true);
 	}
 	
 	$('#page').bind('newContent.ajax_handling', function(e, type, contentParent) {
@@ -325,5 +327,53 @@ jQuery(function($){
 		} else {
 			return false;
 		}*/
+	});
+	
+	jQuery('body').undelegate('.cookAssistant .vote','click').delegate('.cookAssistant .vote','click', function(){
+		var anchor = jQuery(this);
+		var url = anchor.attr('href');
+		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
+			if (data.indexOf('{')===0){
+				eval('var data = ' + data + ';');
+				if (data.sucessfull){
+					anchor.parent().children().hide();
+					anchor.parent().append('<span></span>');
+					//anchor.parent().find('.changeRecipe').show();
+					anchor.parents('.recipeStep:first').find('.nextTime').hide();
+					return;
+				}
+			}
+			glob.setContentWithImageChangeToFancy(data, {});
+			anchor.parent().addClass('activeVote');
+		}, 'error': function(){
+		}});
+		return false;
+	});
+	
+	jQuery('body').undelegate('.cookAssistantVote #reasons select','change').delegate('.cookAssistantVote #reasons select','change', function(){
+		var elem = jQuery(this);
+		var value = elem.val();
+		if (value === 'other'){
+			jQuery('.cookAssistantVote #other_reason').show();
+		} else {
+			jQuery('.cookAssistantVote #other_reason').hide();
+		}
+	});
+	
+	jQuery('body').undelegate('.cookAssistantVote #saveReason','click').delegate('.cookAssistantVote #saveReason','click', function(){
+		var form = jQuery(this).parents('form:first');
+		jQuery.ajax({'type':'post', 'url':form.attr('action'), 'data': form.serialize(),'cache':false,'success':function(data){
+			var activeVote = jQuery('.activeVote');
+			activeVote.removeClass('.activeVote').children().hide();
+			activeVote.find('.changeRecipe').show();
+			//activeVote.append('<span></span>');
+			activeVote.parents('.recipeStep:first').find('.nextTime').hide();
+			jQuery.fancybox.close();
+		},
+		'error':function(xhr){
+			//ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
+		},
+		});
+		return false;
 	});
 });

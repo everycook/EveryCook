@@ -203,6 +203,9 @@ class Functions extends CHtml{
 			if (isset($texts['move down'])){
 				$html .= '<div class="down" title="' . $texts['move down'] . '"></div>';
 			}
+			if (isset($texts['add2'])){
+				$html .= '<div class="add" title="' . $texts['add2'] . '"></div>';
+			}
 			$html .= '</td>';
 		}
 		$html .= '</tr>';
@@ -268,11 +271,14 @@ class Functions extends CHtml{
 	}
 	
 	public static function resizePicture($file, $file_new, $width, $height, $qualitaet, $destType){
-		self::resizePicturePart($file, $file_new, $width, $height, $qualitaet, $destType, 0, 0 ,-1 ,-1, false);
+		self::resizePictureWithFill($file, $file_new, $width, $height, $qualitaet, $destType, false);
 	}
 	
-	public static function resizePicturePart($file, $file_new, $destWidth, $destHeight, $qualitaet, $destType, $src_x, $src_y, $src_w, $src_h, $fillWhite)
-	{
+	public static function resizePictureWithFill($file, $file_new, $width, $height, $qualitaet, $destType, $fillWhite){
+		self::resizePicturePart($file, $file_new, $width, $height, $qualitaet, $destType, 0, 0 ,-1 ,-1, $fillWhite);
+	}
+	
+	public static function resizePicturePart($file, $file_new, $destWidth, $destHeight, $qualitaet, $destType, $src_x, $src_y, $src_w, $src_h, $fillWhite){
 		if(!file_exists($file))
 			return false;
 		$info = getimagesize($file);
@@ -323,7 +329,8 @@ class Functions extends CHtml{
 		
 		imagealphablending($imagetc, false);
 		imagesavealpha($imagetc, true);
-		if (($info[0] > $width) or ($info[1] > $height) or ($width != $src_w) or ($height != $src_h) or ($src_x != 0) or ($src_y != 0)){
+		//if (($info[0] > $width) or ($info[1] > $height) or ($width != $src_w) or ($height != $src_h) or ($src_x != 0) or ($src_y != 0)){
+		if (($width != $destWidth) or ($height != $destHeight)){
 			if ($fillWhite){
 				$xmove=0;
 				$ymove=0;
@@ -408,10 +415,9 @@ class Functions extends CHtml{
 		return $info;
 	}
 	
-	public static function getImage($modified, $etag, $picture, $id, $type, $size){
+	public static function getImage($modified, $etag, $pictureFilename, $id, $type, $size){
 		//Not using default function to have posibility to set Cache control...
-		//Yii::app()->request->sendFile('image.png', $picture, 'image/png');
-		if (!isset($etag) || $etag === '' || !isset($picture) || $picture === ''){
+		if (!isset($etag) || $etag === '' || !isset($pictureFilename) || $pictureFilename === ''){
 			if ($size > 0 && $size < self::IMG_HEIGHT){
 				Yii::app()->controller->redirect(Yii::app()->request->baseUrl . '/pics/unknown.png?size='.$size, true, 307);
 			} else {
@@ -433,15 +439,13 @@ class Functions extends CHtml{
 				}
 			}
 			
-			if ($etag == '' && $picture != ''){
-				$etag = md5($picture);
-			}
-			
-			if (isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
-				$request_etag = $_SERVER['HTTP_IF_NONE_MATCH'];  //If-None-Match: “877f3628b738c76a54?
-				if ($etag == $request_etag){
-					header('HTTP/1.1 304 Not Modified');
-					exit();
+			if ($etag != ''){
+				if (isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
+					$request_etag = $_SERVER['HTTP_IF_NONE_MATCH'];  //If-None-Match: “877f3628b738c76a54?
+					if ($etag == $request_etag){
+						header('HTTP/1.1 304 Not Modified');
+						exit();
+					}
 				}
 			}
 			
@@ -458,7 +462,6 @@ class Functions extends CHtml{
 		if ($size > 0 && $size < self::IMG_HEIGHT){
 			$filepath = Yii::app()->getBasePath() . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . $type;
 			$filepath = preg_replace('/\w+\/\.\.\//', '', $filepath);
-			
 			$filename = $filepath . DIRECTORY_SEPARATOR . $id . '-' . $size . '.png';
 			
 			/*
@@ -480,12 +483,15 @@ class Functions extends CHtml{
 						$filename = tempnam(sys_get_temp_dir(), 'img');
 					}
 				}
-				$result = file_put_contents($filename, $picture);
-				self::resizePicture($filename, $filename, $size, $size, 0.8, IMAGETYPE_PNG);
+				self::resizePicture($pictureFilename, $filename, $size, $size, 0.8, IMAGETYPE_PNG);
 				$picture = file_get_contents($filename);
 			}
 		}
+		if (!isset($picture) || $picture == ''){
+			$picture = file_get_contents($pictureFilename);
+		}
 		
+		header("Content-type: image/png");
 		if(ini_get("output_handler")=='')
 			header('Content-Length: '.(function_exists('mb_strlen') ? mb_strlen($picture,'8bit') : strlen($picture)));
 		//header("Content-Disposition: attachment; filename=\"image_" . $id . ".png\"");
@@ -494,30 +500,72 @@ class Functions extends CHtml{
 		echo $picture;
 	}
 	
-	public static function updatePicture($model, $picFieldName, $oldPicture){
+	public static function generatePictureName($model, $temp){
+		$type = get_class($model);
+		$primeryKeyField = $model->tableSchema->primaryKey;
+		$id = $model[$primeryKeyField];
+		if (!isset($id) || $temp){
+			$type .= '_temp';
+			$id = 'temp' . Yii::app()->user->id;
+		}
+		$filepath = Yii::app()->getBasePath() . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . $type;
+		$filepath = preg_replace('/\w+\/\.\.\//', '', $filepath);
+		$filename = $filepath . DIRECTORY_SEPARATOR . $id . '.png';
+		
+		if (!file_exists($filepath)){
+			$success = mkdir($filepath, 0777, true);
+			if (!$success){
+				$filename = tempnam(sys_get_temp_dir(), $type . $id);
+			}
+		}
+		return $filename;
+	}
+	
+	public static function fixPicturePathAfterSave($model, $picFieldName, $tempPictureFilename){
+		if (strpos($tempPictureFilename, '_temp') !== false){
+			//Current img position is tempfile so copy it do used picture
+			$filename = self::generatePictureName($model, false);
+			copy($tempPictureFilename, $filename);
+			$model->__set($picFieldName . '_FILENAME', $filename);
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public static function updatePicture($model, $picFieldName, $oldPictureFilename){
 		$file = CUploadedFile::getInstance($model,'filename');
-		if ($file){
+		if (isset($file)){
 			self::resizePicture($file->getTempName(), $file->getTempName(), self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG);
-			$model->__set($picFieldName, file_get_contents($file->getTempName()));
-			$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
+			$img_md5 = md5(file_get_contents($file->getTempName()));
+			$filename = self::generatePictureName($model, true);
+			copy($file->getTempName(), $filename);
+			$model->__set($picFieldName . '_FILENAME', $filename);
+			$model->__set($picFieldName . '_ETAG', $img_md5);
 			$model->setScenario('withPic');
 		} else {
-			if ($model->__get($picFieldName) == '' && $oldPicture != ''){
-				$model->__set($picFieldName, $oldPicture);
-				$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
+			if ($model->__get($picFieldName . '_FILENAME') == '' && $oldPictureFilename != ''){
+				$model->__set($picFieldName . '_FILENAME', $oldPictureFilename);
+				$img_md5 = md5(file_get_contents($oldPictureFilename));
+				$model->__set($picFieldName . '_ETAG', $img_md5);
 				$model->setScenario('withPic');
 			} else {
 				$cropInfosAvailable = isset($_POST['imagecrop_w']) && ($_POST['imagecrop_w'] > 0) && isset($_POST['imagecrop_h']) && ($_POST['imagecrop_h'] > 0);
-				if (($model->imagechanged == true || $cropInfosAvailable) && $model->__get($picFieldName) != ''){
-					$tempfile = tempnam(sys_get_temp_dir(), 'img');
-					file_put_contents($tempfile,$model->__get($picFieldName));
-					if ($cropInfosAvailable){
-						self::resizePicturePart($tempfile, $tempfile, self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG, $_POST['imagecrop_x'], $_POST['imagecrop_y'], $_POST['imagecrop_w'], $_POST['imagecrop_h'], true);
+				if (($model->imagechanged == true || $cropInfosAvailable) && $model->__get($picFieldName . '_FILENAME') != ''){
+					$filename = $model->__get($picFieldName . '_FILENAME');
+					if (strpos($filename, '_temp') === false){
+						$tempfile = self::generatePictureName($model, true);
 					} else {
-						self::resizePicture($tempfile, $tempfile, self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG);
+						$tempfile = $filename;
 					}
-					$model->__set($picFieldName, file_get_contents($tempfile));
-					$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
+					if ($cropInfosAvailable){
+						self::resizePicturePart($filename, $tempfile, self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG, $_POST['imagecrop_x'], $_POST['imagecrop_y'], $_POST['imagecrop_w'], $_POST['imagecrop_h'], true);
+					} else {
+						self::resizePictureWithFill($filename, $tempfile, self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG, true);
+					}
+					$model->__set($picFieldName . '_FILENAME', $tempfile);
+					$img_md5 = md5(file_get_contents($oldPictureFilename));
+					$model->__set($picFieldName . '_ETAG', $img_md5);
 					$model->imagechanged = false;
 				}
 			}
@@ -547,8 +595,11 @@ class Functions extends CHtml{
 			if ($imginfo !== false){
 				//if ($imginfo[0]>=self::IMG_WIDTH && $imginfo[1]>=self::IMG_HEIGHT){
 				if ($imginfo[0]>=self::IMG_WIDTH || $imginfo[1]>=self::IMG_HEIGHT){
-					$model->__set($picFieldName, file_get_contents($filename));
-					$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
+					$img_md5 = md5(file_get_contents($filename));
+					$temp_filename = self::generatePictureName($model, true);
+					copy($filename, $temp_filename);
+					$model->__set($picFieldName . '_FILENAME', $temp_filename);
+					$model->__set($picFieldName . '_ETAG', $img_md5);
 					$model->imagechanged = true;
 					$model->setScenario('withPic');
 					return true;
@@ -601,27 +652,27 @@ class Functions extends CHtml{
 			return -6;
 		}
 		
-		//TODO products have '_CR' ...
 		$model->__set($pictureFieldName . '_AUTH', $autor[0]);
 		
-		$filename = tempnam('/var/www/imgupload/', $picFieldName);
+		$temp_filename = self::generatePictureName($model, true);
+		file_put_contents($temp_filename, $imgData);
 		
-			
-			$imginfo = self::changePictureType($filename,$filename, IMAGETYPE_PNG);
-			if ($imginfo !== false){
-				//if ($imginfo[0]>=self::IMG_WIDTH && $imginfo[1]>=self::IMG_HEIGHT){
-				if ($imginfo[0]>=self::IMG_WIDTH || $imginfo[1]>=self::IMG_HEIGHT){
-					$model->__set($picFieldName, file_get_contents($filename));
-					$model->__set($picFieldName . '_ETAG', md5($model->__get($picFieldName)));
-					$model->imagechanged = true;
-					$model->setScenario('withPic');
-					return true;
-				} else {
-					return -3;
-				}
+		$imginfo = self::changePictureType($temp_filename,$temp_filename, IMAGETYPE_PNG);
+		if ($imginfo !== false){
+			//if ($imginfo[0]>=self::IMG_WIDTH && $imginfo[1]>=self::IMG_HEIGHT){
+			if ($imginfo[0]>=self::IMG_WIDTH || $imginfo[1]>=self::IMG_HEIGHT){
+				$img_md5 = md5(file_get_contents($temp_filename));
+				$model->__set($picFieldName . '_FILENAME', $temp_filename);
+				$model->__set($picFieldName . '_ETAG', $img_md5);
+				$model->imagechanged = true;
+				$model->setScenario('withPic');
+				return true;
 			} else {
-				return -2;
+				return -3;
 			}
+		} else {
+			return -2;
+		}
 	}
 	
 	public static function uploadImage($modelName, $model, $sessionBackupName, $pictureFieldName){

@@ -269,7 +269,7 @@ $this->mainButtons = array(
 		'REC_ID',
 		'REC_CREATED',
 		'REC_CHANGED',
-		'REC_IMG',
+		'REC_IMG_FILENAME',
 		'REC_IMG_AUTH',
 		'RET_ID',
 		'REC_NAME_EN',

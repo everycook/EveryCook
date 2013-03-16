@@ -261,22 +261,22 @@ class ProductsController extends Controller
 		}
 		if (isset($id) && $id != null){
 			if (!isset($oldmodel) || $oldmodel->PRO_ID != $id){
-				$oldmodel = $this->loadModel($id, true);
+				$oldmodel = $this->loadModel($id);
 			}
 		}
 		
 		if (isset($oldmodel)){
 			$model = $oldmodel;
-			$oldPicture = $oldmodel->PRO_IMG;
+			$oldPictureFilename = $oldmodel->PRO_IMG_FILENAME;
 		} else {
 			$model=new Products;
-			$oldPicture = null;
+			$oldPictureFilename = null;
 		}
 		
-		if (isset($model->PRO_IMG) && $model->PRO_IMG != ''){
+		if (isset($model->PRO_IMG_FILENAME) && $model->PRO_IMG_FILENAME != ''){
 			$model->setScenario('withPic');
 		}
-		return array($model, $oldPicture);
+		return array($model, $oldPictureFilename);
 	}
 	
 	public function actionUploadImage(){
@@ -286,16 +286,16 @@ class ProductsController extends Controller
 		} else {
 			$id=null;
 		}
-		list($model, $oldPicture) = $this->getModelAndOldPic($id);
+		list($model, $oldPictureFilename) = $this->getModelAndOldPic($id);
 		
-		Functions::uploadImage('Products', $model, 'Products_Backup', 'PRO_IMG');
+		Functions::uploadImage('Products', $model, $this->createBackup, 'PRO_IMG');
 	}
 	
 	private function prepareCreateOrUpdate($id, $view){
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 		
-		list($model, $oldPicture) = $this->getModelAndOldPic($id);
+		list($model, $oldPictureFilename) = $this->getModelAndOldPic($id);
 		
 		$ing_id = null;
 		if(isset($_GET['ing_id'])){
@@ -308,8 +308,8 @@ class ProductsController extends Controller
 		
 		if(isset($_POST['Products'])){
 			$model->attributes=$_POST['Products'];
-			if (isset($oldPicture)){
-				Functions::updatePicture($model,'PRO_IMG', $oldPicture);
+			if (isset($oldPictureFilename)){
+				Functions::updatePicture($model,'PRO_IMG', $oldPictureFilename);
 			}
 			
 			if(isset($_POST['PRD_ID'])){
@@ -427,8 +427,23 @@ class ProductsController extends Controller
 								} else {
 									$dest = array('view', 'id'=>$model->PRO_ID);
 								}
-								$this->forwardAfterSave($dest);
-								return;
+								
+								$changed = Functions::fixPicturePathAfterSave($model,'PRO_IMG', $model->PRO_IMG_FILENAME);
+								if ($changed){
+									if($model->save()){
+										$transaction->commit();
+										$this->forwardAfterSave($dest);
+										return;
+									} else {
+										$transaction->rollBack();
+									}
+								} else {
+									$transaction->commit();
+									$this->forwardAfterSave($dest);
+									return;
+								}
+							} else {
+								$transaction->rollBack();
 							}
 						} catch(Exception $e) {
 							$this->errorText .= 'Exception occured -&gt; rollback. Exception was: ' . $e . '<br />';
@@ -772,7 +787,7 @@ class ProductsController extends Controller
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer the ID of the model to be loaded
 	 */
-	public function loadModel($id, $withPicture = false)
+	public function loadModel($id)
 	{
 		if ($id == 'backup'){
 			$model=Yii::app()->session[$this->createBackup];
@@ -805,12 +820,12 @@ class ProductsController extends Controller
 			$size = 0;
 		}
 		$this->saveLastAction = false;
-		$model=$this->loadModel($id, true);
+		$model=$this->loadModel($id);
 		$modified = $model->CHANGED_ON;
 		if (!isset($modified)){
 			$modified = $model->CREATED_ON;
 		}
-		return Functions::getImage($modified, $model->PRO_IMG_ETAG, $model->PRO_IMG, $id, 'Products', $size);
+		return Functions::getImage($modified, $model->PRO_IMG_ETAG, $model->PRO_IMG_FILENAME, $id, 'Products', $size);
     }
 	
 	public function actionDelicious($id){

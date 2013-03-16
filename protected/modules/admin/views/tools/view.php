@@ -18,6 +18,10 @@ $this->mainButtons = array(
 ?>
 
 <h1><?php printf($this->trans->TITLE_TOOLS_VIEW, $model->TOO_ID); ?></h1>
+<div class="f-center">
+	<?php  echo CHtml::link($this->trans->GENERAL_BACK_TO_SEARCH, array('search'), array('class'=>'button')); ?><br>
+</div>
+
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,
 	'attributes'=>array(
