@@ -1,4 +1,19 @@
 <?php
+/*
+This is the EveryCook Recipe Database. It is a web application for creating (and storing) machine (and human) readable recipes.
+These recipes are linked to foods and suppliers to allow meal planning and shopping list creation. It also guides the user step-by-step through the recipe with the CookAssistant
+EveryCook is an open source platform for collecting all data about food and make it available to all kinds of cooking devices.
+
+This program is copyright (C) by EveryCook. Written by Samuel Werder, Matthias Flierl and Alexis Wiasmitinow.
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+See GPLv3.htm in the main folder for details.
+*/
 
 // uncomment the following to define a path alias
 // Yii::setPathOfAlias('local','path/to/local-folder');
@@ -140,17 +155,18 @@ return array(
 		'verificationBCCEmail'=>''/*'wiasmitinow@gmail.com'*/,
 		'verificationRegardsName'=>'Alexis',
 		'SMTPMailHost'=>'smtp.gmail.com',
-		'SMTPMailUser'=>'support@everycook.org',
-		'SMTPMailPW'=>'5upp0r77e4m',
+		'SMTPMailUser'=>'',
+		'SMTPMailPW'=>'',
 		'POPHost'=>'pop.gmail.com',
 		'PageType'=>'homepage',
 		'isDevice'=>true,
 		'localNetwork'=>true,
-		'deviceWritePath'=>'/dev/ttyACM0',
-		'deviceReadPath'=>'/var/www/db/hw/status',
-		'deviceWriteUrl'=>'/EveryCook/sendcommand.php?command=',
-		'deviceReadUrl'=>'db/hw/status',
+		'deviceWritePath'=>'/dev/shm/command',
+		'deviceReadPath'=>'/dev/shm/status',
+		'deviceWriteUrl'=>'/hw/sendcommand.php?command=',
+		'deviceReadUrl'=>'/hw/status',
 		'FinishedActionId'=>13,
 		'PrepareActionId'=>11,
+		'syncCredentialsFile'=>'/opt/EveryCook/sync/login_cred',
 	),
 );

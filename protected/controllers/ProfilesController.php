@@ -452,6 +452,7 @@ class ProfilesController extends Controller
 		$mail->AddAddress($model->PRF_EMAIL, $model->PRF_NICK);
 		$mail->Send();
 	}
+	
 
    /*
     * Verifies registration and activates the user profile

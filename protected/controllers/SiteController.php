@@ -147,6 +147,7 @@ class SiteController extends Controller
 	/**
 	 * Displays the contact page
 	 */
+
 	public function actionContact()
 	{
 		$this->useDefaultMainButtons();
