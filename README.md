@@ -21,7 +21,7 @@ You need a XAMP (Apache, Mysql, PHP) installation.
 	Install the memcached Server. (apt-get install memcached)
 
 3.	checkout this git repository to the "db" directory in your webserver path.  
-	git clone git://github.com:/everycook/EveryCook.git /var/www/db  
+	git clone git://github.com/everycook/EveryCook.git /var/www/db  
 	Change filesystem permission so webserver user (www-data) can write to db/assets, db/img, db/cache and db/protected/runtime.
 
 4.	import DB dump  
