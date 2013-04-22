@@ -4,4 +4,5 @@ protected/runtime/*
 cache/*
 protected/config/*
 !protected/config/entw.php
-index.php
+img/*
+!img/info.txt
