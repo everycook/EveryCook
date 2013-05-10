@@ -15,7 +15,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 See GPLv3.htm in the main folder for details.
 */
 
-class SynchController extends Controller
+class SyncController extends Controller
 {
 	function getCreate($dbcon, $table){	
 		$datareader = $dbcon->createCommand("SHOW CREATE TABLE `$table`")->query();
@@ -99,7 +99,7 @@ class SynchController extends Controller
 			}
 		}
 		
-		if (Yii::app()->user->id != 0){
+		if (Yii::app()->user->id >= 0){
 			if(isset($_POST['with_create'])){
 				$with_create = trim(strtolower($_POST['with_create'])) == 'true';
 			} else {
@@ -118,11 +118,33 @@ class SynchController extends Controller
 			}
 			echo $this->getContentByUser(Yii::app()->dbp, 'meals', Yii::app()->user->id);
 			echo $this->getContentByUser(Yii::app()->dbp, 'profiles', Yii::app()->user->id);
-			$mealIds = Yii::app()->dbp->createCommand()->select('MEA_ID')->from('meals')->queryColumn();
-			echo $this->getContentByIDs(Yii::app()->dbp, 'mea_to_cou', 'MEA_ID', implode(', ', $mealIds));
-			echo $this->getContentByIDs(Yii::app()->dbp, 'shoppinglists', 'SHO_ID', implode(', ', Yii::app()->user->shoppinglists));
+			$mealIds = Yii::app()->dbp->createCommand()->select('MEA_ID')->from('meals')->where("PRF_UID = ':id'", array(':id'=>Yii::app()->user->id))->queryColumn();
+			if (count($mealIds)>0){
+				echo $this->getContentByIDs(Yii::app()->dbp, 'mea_to_cou', 'MEA_ID', implode(', ', $mealIds));
+			}
+			if (count(Yii::app()->user->shoppinglists)>0){
+				echo $this->getContentByIDs(Yii::app()->dbp, 'shoppinglists', 'SHO_ID', implode(', ', Yii::app()->user->shoppinglists));
+			}
 		} else {
 			echo "#Error: " . $this->trans->LOGIN_ERROR . "\n";
+		}
+	}
+	
+	
+	public function actionValidateLogin(){
+		if (isset($_GET['user']) && isset($_GET['pw'])){
+			$_identity=new UserIdentity(trim($_POST['user']), trim($_POST['pw']));
+			$_identity->authenticate();
+				
+			if($_identity->errorCode===UserIdentity::ERROR_NONE){
+				Yii::app()->user->login($_identity, 0);
+			}
+		}
+		
+		if (Yii::app()->user->id != 0){
+			echo "{'login':true}";
+		} else {
+			echo "{'Error': '" . $this->trans->LOGIN_ERROR . "'}";
 		}
 	}
 }

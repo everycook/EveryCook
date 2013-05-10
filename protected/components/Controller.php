@@ -112,6 +112,12 @@ class Controller extends CController
 	
 	protected function beforeAction($action)
 	{
+		if (isset($_GET['setDebug'])){
+			Yii::app()->session['debugEnabled'] = $_GET['setDebug'];
+		}
+		if (isset(Yii::app()->session['debugEnabled'])){
+			$this->debug = Yii::app()->session['debugEnabled'];
+		}
 		if ($this->trans===null){
 			// if user isGuest, take session cookie
 			if (Yii::app()->user->isGuest){

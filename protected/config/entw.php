@@ -168,5 +168,6 @@ return array(
 		'FinishedActionId'=>13,
 		'PrepareActionId'=>11,
 		'syncCredentialsFile'=>'/opt/EveryCook/sync/login_cred',
+		'cacheMethode'=>'session' //'session','apc','memcached',
 	),
 );

@@ -55,13 +55,110 @@ class CookAssistantController extends Controller {
 	const STEP_DURATION_SPECIAL_CALC_COOLDOWN = -3;
 	const TEMP_DEFAULT_START = 20;
 	
+	const COOKING_INFOS = 'cookingInfo';
+	const COOKING_INFOS_CHANGEAMOUNT = 'cookingInfoChangeAmount';
+	
+	protected $cookingInfoChangeCounter;
+	
+	
+	protected $memcached = null;
+	
+	protected function getMemcached(){
+		if ($this->memcached == null){
+			$this->memcached = new Memcached();
+			$this->memcached->addServer('localhost', 11211);
+		}
+		return $this->memcached;
+	}
+	
+	protected function getFromCache($name){
+		if (Yii::app()->params['cacheMethode'] == 'session'){
+			return Yii::app()->session[$name];
+		} else if (Yii::app()->params['cacheMethode'] == 'apc'){
+			return apc_fetch($name);
+		} else /*if (Yii::app()->params['cacheMethode'] == 'memcached')*/{
+			$memcached = $this->getMemcached();
+			return $memcached->get($name);
+		}
+	}
+	
+	protected function saveToCache($name, $value, $expirationTime=0){
+		if (Yii::app()->params['cacheMethode'] == 'session'){
+			Yii::app()->session[$name] = $value;
+		} else if (Yii::app()->params['cacheMethode'] == 'apc'){
+			if(apc_store($name, $value, $expirationTime)){
+			/*
+			echo "save successfull...";
+			} else {
+				echo "save failed...";
+			*/
+			}
+		} else /*if (Yii::app()->params['cacheMethode'] == 'memcached')*/{
+			$memcached = $this->getMemcached();
+			//$memcached->set($name, $value, $expirationTime);
+			//$value = Functions::objectToArray($value);
+			//$value = Functions::arrayToObject($value);
+			//$value = Functions::mapCActiveRecordToSimpleClass($value);
+			//print_r($value);
+			//if($memcached->set($name."_stdobj", $value, $expirationTime)){
+			if($memcached->set($name, $value, $expirationTime)){
+			/*
+				echo "save successfull...";
+			} else {
+				echo "save failed...";
+			*/
+			}
+		}
+	}
+	
+	private function preloadData($info){
+		for ($courseNr=0; $courseNr<count($info->meal->meaToCous); ++$courseNr){
+			$course = $info->meal->meaToCous[$courseNr]->course;
+			for ($recipeNr=0; $recipeNr<count($course->couToRecs); ++$recipeNr){
+				$recipe = $course->couToRecs[$recipeNr]->recipe;
+				foreach($recipe->steps as $step){
+					$actionIn = $step->actionIn;
+					foreach($actionIn->ainToAous as $ainToAou){
+						$actionsOut = $ainToAou->actionsOut;
+					}
+					$ingredient = $step->ingredient;
+				}
+				foreach($recipe->recToCois as $recToCoi){
+				}
+				$recipeType = $recipe->recipeTypes;
+			}
+		}
+	}
+	
 	public function actionStart(){
 		if (isset($_GET['id'])){
 			$meal = $this->loadModel($_GET['id'], true);
 			
+			/*
+			echo "<pre>\r\n";
+			print_r($meal);
+			echo "</pre>\r\n";
+			die();
+			*/
 			$info = $this->loadInfoForCourse($meal, 0);
 			
-			Yii::app()->session['cookingInfo'] = $info;
+			$this->preloadData($info);
+			$meal = $info->meal;
+			$meal = Functions::mapCActiveRecordToSimpleClass($meal);
+			$info->meal = $meal;
+			
+			$ingredientIdToNutrient = $info->ingredientIdToNutrient;
+			$ingredientIdToNutrient = Functions::mapCActiveRecordToSimpleClass($ingredientIdToNutrient);
+			$info->ingredientIdToNutrient = $ingredientIdToNutrient;
+			$this->saveToCache(self::COOKING_INFOS, $info);
+			$this->saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, 0);
+			
+			/*
+			echo "<pre>\r\n";
+			print_r($info);
+			echo "</pre>\r\n";
+			die();
+			*/
 			
 			//$this->checkRenderAjax('index', array('info'=>$info));
 			$this->checkRenderAjax('overview', array('info'=>$info));
@@ -72,12 +169,20 @@ class CookAssistantController extends Controller {
 	}
 
 	public function actionGotoCourse($number){
-		$info = Yii::app()->session['cookingInfo'];
+		$info = $this->getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		$meal = $info->meal;
 		if (isset($meal->meaToCous[$number])){
 			$info = $this->loadInfoForCourse($meal, $number);
+			$info = Functions::mapCActiveRecordToSimpleClass($info);
 			
-			Yii::app()->session['cookingInfo'] = $info;
+			$cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+			if ($this->cookingInfoChangeCounter == $cookingInfoChangeCounter){
+				$this->saveToCache(self::COOKING_INFOS, $info);
+				$this->saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $cookingInfoChangeCounter+1);
+			} else {
+				//TODO: concurrentModification Exception
+			}
 		} else {
 			//TODO error course not exist for meal
 		}
@@ -91,7 +196,6 @@ class CookAssistantController extends Controller {
 		$info = new CookAsisstantInfo();
 		$info->meal = $meal;
 		$info->courseNr = $courseNumber;
-		$info->course = $course;
 		$info->courseFinished[$courseNumber] = false;
 		$stepNumbers = array();
 		$stepStartTime = array();
@@ -139,6 +243,7 @@ class CookAssistantController extends Controller {
 				if (isset($step->ingredient)){
 					//$ingredientIdToNutrient[$step->ingredient->ING_ID] = $step->ingredient->NUT_ID;
 					$ingredientIdToNutrient[$step->ingredient->ING_ID] = $step->ingredient->nutrientData;
+					$step->ingredient->nutrientData = null;
 				}
 				if ($step->STE_GRAMS > 0){
 					//$step->STE_GRAMS = round($step->STE_GRAMS * $rec_proz,2);
@@ -184,19 +289,28 @@ class CookAssistantController extends Controller {
 	}
 	
 	public function actionNext($recipeNr, $step){
-		$info = Yii::app()->session['cookingInfo'];
-		
+		$info = $this->getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		//if ($this->debug) {error_log("actionNext called with recipeNr: $recipeNr, step: $step\r\n");}
 		if (isset($info->stepNumbers[$recipeNr])){
+			/*
+			if (isset($info->steps[$recipeNr])){
+				$mealStep = $info->steps[$recipeNr];
+				error_log("actionNext, mealStep->recipeNr:$mealStep->recipeNr, mealStep->stepNr:$mealStep->stepNr, begin");
+			}
+			*/
 			if ($info->stepNumbers[$recipeNr] == $step){
 				if (isset($info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]+1])){
 					$currentTime = time();
-					$course = $info->course;
+					$course = $info->meal->meaToCous[$info->courseNr]->course;
 					if (!$info->started){
 						for ($recipeNrLoop=0; $recipeNrLoop<count($course->couToRecs); ++$recipeNrLoop){
 							$info->stepStartTime[$recipeNrLoop] = $currentTime;
 						}
 					}
 					$info->started = true;
+					
+					//error_log("recipeNr: $recipeNr, stepNumber: ".$info->stepNumbers[$recipeNr]." before, submitted stepNr: $step");
 					++$info->stepNumbers[$recipeNr];
 					$timeDiff = $currentTime - $info->stepStartTime[$recipeNr];
 					
@@ -219,8 +333,8 @@ class CookAssistantController extends Controller {
 						$stepAttributes = $info->recipeSteps[$recipeNr][$step];
 						
 						if ($mealStep->ingredientId != 0){
-							if (isset($mealStep->HWValues['W0']) && $mealStep->HWValues['W0']>0){
-								$ingWeight = $mealStep->HWValues['W0'];
+							if (isset($mealStep->HWValues->W0) && $mealStep->HWValues->W0>0){
+								$ingWeight = $mealStep->HWValues->W0;
 							} else if ($info->cookWith[$recipeNr][1] != self::COOK_WITH_EVERYCOOK_COI){
 								$ingWeight = $stepAttributes['STE_GRAMS'];
 							} else {
@@ -268,33 +382,52 @@ class CookAssistantController extends Controller {
 					$info->finishedIn = $maxtime;
 					
 					$this->loadSteps($info);
-					$this->sendActionToFirmware($info, $recipeNr);
-					
-					if (!isset($info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]+1])){
-						//this is the last step, Save recipeCookedInfos
-						$cookedInfo = new RecipeCookedInfos();
-						$cookedInfo->PRF_UID = Yii::app()->user->id;
-						$cookedInfo->MEA_ID = $info->meal->MEA_ID;
-						$cookedInfo->COU_ID = $info->course->COU_ID;
-						$cookedInfo->REC_ID = $info->course->couToRecs[$recipeNr]->recipe->REC_ID;
-						$cookedInfo->RCI_COOK_DATE = time();
-						$cookedInfo->RCI_JSON = CJSON::encode($info->recipeCookedInfos[$recipeNr]);
-						if(!$cookedInfo->save()){
-							//TODO error while save recipeCookedInfos...
+					try {
+						if (!isset($info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]+1])){
+							//this is the last step, Save recipeCookedInfos
+							$cookedInfo = new RecipeCookedInfos();
+							$cookedInfo->PRF_UID = Yii::app()->user->id;
+							$cookedInfo->MEA_ID = $info->meal->MEA_ID;
+							$cookedInfo->COU_ID = $info->meal->meaToCous[$info->courseNr]->course->COU_ID;
+							$cookedInfo->REC_ID = $info->meal->meaToCous[$info->courseNr]->course->couToRecs[$recipeNr]->recipe->REC_ID;
+							$cookedInfo->RCI_COOK_DATE = time();
+							$cookedInfo->RCI_JSON = CJSON::encode($info->recipeCookedInfos[$recipeNr]);
+							if(!$cookedInfo->save()){
+								//TODO error while save recipeCookedInfos...
+							}
 						}
+						
+						//error_log("recipeNr: $recipeNr, stepNumber: ".$info->stepNumbers[$recipeNr]." after");
+						$cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+						if ($this->cookingInfoChangeCounter == $cookingInfoChangeCounter){
+							$this->saveToCache(self::COOKING_INFOS, $info);
+							$this->saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $cookingInfoChangeCounter+1);
+						} else {
+							error_log("cookingInfoChangeCounter is not same!");
+							//TODO: concurrentModification Exception
+						}
+					} catch(Exception $e){
+						error_log('Exception occured in actionNext, Exeption was: ' . $e);
 					}
-					
-					Yii::app()->session['cookingInfo'] = $info;
+					$this->sendActionToFirmware($info, $recipeNr);
 				} else {
+					error_log("recipeNr: $recipeNr, submitted stepNr: $step, recipe ended, no next step available.");
 					//TODO recipe ended, no next step available.
 				}
 			} else {
+				error_log("recipeNr: $recipeNr, submitted stepNr: $step, Don't change step, it is already next (->F5), but update time");
 				//Don't change step, it is already next (->F5), but update time
 				$this->loadSteps($info);
 			}
 		} else {
+			error_log("recipeNr: $recipeNr, submitted stepNr: $step, error recipeNr doesnt exist.");
 			//TODO error recipeNr doesnt exist.
 		}
+		/*
+		if (isset($info) && isset($info->steps[$recipeNr])){
+			$mealStep = $info->steps[$recipeNr];
+			error_log("actionNext, mealStep->recipeNr:$mealStep->recipeNr, mealStep->stepNr:$mealStep->stepNr, end");
+		}*/
 		$this->checkRenderAjax('index', array('info'=>$info));
 		//$this->redirect('index');
 	}
@@ -415,7 +548,7 @@ class CookAssistantController extends Controller {
 	}
 	
 	private function loadSteps($info){
-		$course = $info->course;
+		$course = $info->meal->meaToCous[$info->courseNr]->course;
 		$currentSteps = array();
 		$currentTime = time();
 		$maxtime = 0;
@@ -432,6 +565,7 @@ class CookAssistantController extends Controller {
 			
 			$mealStep->recipeNr = $recipeNr;
 			$mealStep->stepNr = $stepNr;
+			//error_log("loadSteps, mealStep->recipeNr:$mealStep->recipeNr, mealStep->stepNr:$mealStep->stepNr, begin");
 			$mealStep->recipeName = $recipe->__get('REC_NAME_'.Yii::app()->session['lang']);
 			$stepStartTime = $info->stepStartTime[$recipeNr];
 			if ($stepNr == -1){
@@ -475,14 +609,16 @@ class CookAssistantController extends Controller {
 					$currentTemp = self::TEMP_DEFAULT_START;
 					
 					foreach($recipe->steps as $step){
-						$actionIn = $step->actionIn;
+						$actionIn = $step->actionIn;;
 						$detailSteps = array();
 						$detailSteps['all'] = array();
 						
+						/*
 						if (!isset($actionIn) || $actionIn == null){
 							print_r($step);
 							die();
 						}
+						*/
 						
 						foreach($actionIn->ainToAous as $ainToAou){
 							if ($ainToAou->COI_ID == $coi_id){
@@ -493,10 +629,14 @@ class CookAssistantController extends Controller {
 								$stepAttributes = array_merge($stepAttributes, $actionIn->attributes);
 								$stepAttributes = array_merge($stepAttributes, $actionsOut->attributes);
 								
+								unset($stepAttributes['actionIn']);
+								unset($stepAttributes['ainToAous']);
+								
 								if (isset($step->ingredient)){
 									$stepAttributes['ING_ID'] = $step->ingredient->ING_ID;
 									$stepAttributes['ING_IMG_AUTH'] = $step->ingredient->ING_IMG_AUTH;
-									$stepAttributes['ING_NAME_' . Yii::app()->session['lang']] = $step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']);
+									//$stepAttributes['ING_NAME_' . Yii::app()->session['lang']] = $step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']);
+									$stepAttributes['ING_NAME'] = $step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']);
 									
 									//for simulation:
 									if (isset($step['STE_GRAMS']) && $step['STE_GRAMS']>0){
@@ -515,8 +655,10 @@ class CookAssistantController extends Controller {
 								} else {
 									$stepAttributes['ING_ID'] = 0;
 									$stepAttributes['ING_IMG_AUTH'] = '';
-									$stepAttributes['ING_NAME_' . Yii::app()->session['lang']] = '';
+									//$stepAttributes['ING_NAME_' . Yii::app()->session['lang']] = '';
+									$stepAttributes['ING_NAME'] = '';
 								}
+								unset($stepAttributes['ingredient']);
 								
 								if ($stepAttributes['AOU_DURATION'] == self::STEP_DURATION_SPECIAL_USE_STEP){
 									$stepAttributes['AOU_DURATION'] = $stepAttributes['STE_STEP_DURATION'];
@@ -539,21 +681,31 @@ class CookAssistantController extends Controller {
 								} else {
 									$stepAttributes['CALC_DURATION'] = $stepAttributes['AOU_DURATION'];
 								}
+								//Check vor min Step duration
+								if ($stepAttributes['CALC_DURATION'] < Yii::app()->params['stepMinTime']){
+									$stepAttributes['CALC_DURATION'] = Yii::app()->params['stepMinTime'];
+								}
+								
 								if (isset($step->STE_CELSIUS) && $step->STE_CELSIUS>0){
 									//for simulation
 									$currentTemp = $step->STE_CELSIUS;
 								}
 								
-								$stepAttributes['step_tool'] = $step->tool;
-								//TOO_ID is from ActionsOut
-								if ($stepAttributes['TOO_ID'] == -1 && isset($step->tool)){
-									$stepAttributes['TOO_ID'] = $step->tool->TOO_ID;
+								if (isset($step->TOO_ID) && $step->TOO_ID != ''){
+									$stepAttributes['step_tool'] = $tools[$step->TOO_ID];
+									//current TOO_ID is from ActionsOut
+									if ($stepAttributes['TOO_ID'] == -1){
+										$stepAttributes['TOO_ID'] = $step->TOO_ID;
+									}
+								} else {
+									$stepAttributes['step_tool'] = null;
 								}
 								if(isset($tools[$stepAttributes['TOO_ID']])){
 									$stepAttributes['aou_tool'] = $tools[$stepAttributes['TOO_ID']];
 								} else {
 									$stepAttributes['aou_tool'] = null;
 								}
+								unset($stepAttributes['tool']);
 								$prep = $stepAttributes['ATA_COI_PREP'];
 								if (!isset($detailSteps[$prep])){
 									$detailSteps[$prep] = array();
@@ -587,7 +739,7 @@ class CookAssistantController extends Controller {
 							$prep = $stepAttributes['ATA_COI_PREP'];
 							$add = false;
 							
-							if ($this->debug) {echo 'Step ' . $stepAttributes['STE_STEP_NO'] . ' ' . $stepAttributes['ATA_NO'] . ', conditionNeeded: ' . ($conditionNeeded?'true':'false') . ', prep: ' . $prep . "<br>\r\n";}
+							if ($this->debug) {echo '<br>Step ' . $stepAttributes['STE_STEP_NO'] . ' ' . $stepAttributes['ATA_NO'] . ', conditionNeeded: ' . ($conditionNeeded?'true':'false') . ', prep: ' . $prep . "<br>\r\n";}
 							
 							if ($conditionNeeded || ($prep != 1 && $prep != 2)){
 								if ($prep == 3){
@@ -690,12 +842,26 @@ class CookAssistantController extends Controller {
 					if (isset($oldMealstep) && $oldMealstep != null){
 						$currentTemp = $oldMealstep->currentTemp;
 					}
-					if (!isset($currentTemp) || $currentTemp == null){
+					if (!isset($currentTemp) || $currentTemp == null || $currentTemp == ''){
+						$state = $this->getFromCache('HWValues');
+						if (isset($state) && isset($state->T0)){
+							$currentTemp = $state->T0;
+						}
+					}
+					if (!isset($currentTemp) || $currentTemp == null || $currentTemp == ''){
 						$currentTemp = self::TEMP_DEFAULT_START;
 					}
 				} else {
 					$oldMealstep = null;
-					$currentTemp = self::TEMP_DEFAULT_START;
+					if (!isset($currentTemp) || $currentTemp == null){
+						$state = $this->getFromCache('HWValues');
+						if (isset($state) && isset($state->T0)){
+							$currentTemp = $state->T0;
+						}
+					}
+					if (!isset($currentTemp) || $currentTemp == null){
+						$currentTemp = self::TEMP_DEFAULT_START;
+					}
 				}
 				
 				if ($cookIns == null){
@@ -721,6 +887,7 @@ class CookAssistantController extends Controller {
 				} else {
 					$stepDuration = $step['CALC_DURATION'];
 				}
+				if ($this->debug){echo "stepDuration = $stepDuration \r\n";}
 				$mealStep->stepDuration = $stepDuration;
 				$mealStep->nextStepTotal = $stepDuration;
 				$mealStep->stepType = $step['STT_ID'];
@@ -788,7 +955,8 @@ class CookAssistantController extends Controller {
 				$mainText = $step['AIN_DESC_' . Yii::app()->session['lang']];
 				$text = $step['AOU_DESC_' . Yii::app()->session['lang']];
 				if ($step['ING_ID'] > 0){
-					$replText = '<span class="ingredient">' . $step['ING_NAME_' . Yii::app()->session['lang']] . '</span> ';
+					//$replText = '<span class="ingredient">' . $step['ING_NAME_' . Yii::app()->session['lang']] . '</span> ';
+					$replText = '<span class="ingredient">' . $step['ING_NAME'] . '</span> ';
 					$mainText = str_replace('#ingredient', $replText, $mainText);
 					$text = str_replace('#ingredient', $replText, $text);
 				}
@@ -868,21 +1036,24 @@ class CookAssistantController extends Controller {
 				}
 			}
 		}
+		
+		//error_log("loadSteps, mealStep->recipeNr:$mealStep->recipeNr, mealStep->stepNr:$mealStep->stepNr, end");
 		if($allCookWithSet){
 			$info->finishedIn = $maxtime;
 			$info->timeDiffMax = $maxDiff;
 		}
-		$info->courseFinished[$info->courseNr] = $allFinished;
+		$courseFinished = $info->courseFinished;
+		$courseFinished[$info->courseNr] = $allFinished;
+		$info->courseFinished = $courseFinished;
+		
 		$info->steps = $currentSteps;
 	}
 	
 	public function actionUpdateState($recipeNr){
-		//TODO: remove echo & return
-		echo '{"error":"No machine found..."}';
-		return;
-		$info = Yii::app()->session['cookingInfo'];
+		$info = $this->getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		
-		if (isset($info->cookWith[$recipeNr]) && $info->cookWith[$recipeNr][0]!=self::COOK_WITH_OTHER){
+		if (isset($info->cookWith[$recipeNr]) && isset($info->cookWith[$recipeNr][0]) && $info->cookWith[$recipeNr][0]!=self::COOK_WITH_OTHER){
 			$state = $this->readActionFromFirmware($info, $recipeNr);
 			if (is_string($state) && strpos($state,"ERROR: ") !== false){
 				echo '{"error":"' . substr($state, 7) . '"}';
@@ -901,8 +1072,8 @@ class CookAssistantController extends Controller {
 				return;
 			}
 			
-			$recipe = $info->course->couToRecs[$recipeNr]->recipe;
-			$step = $info->recipeSteps[$info->stepNumbers[$recipeNr]];
+			$recipe = $info->meal->meaToCous[$info->courseNr]->course->couToRecs[$recipeNr]->recipe;
+			$step = $info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]];
 			$executetTime = time() - $info->stepStartTime[$recipeNr];
 			
 			$currentTime = time();
@@ -915,21 +1086,34 @@ class CookAssistantController extends Controller {
 			$additional='';
 			if ($state->SMODE==self::STANDBY || $state->SMODE==self::CUT || $state->SMODE==self::MOTOR || $state->SMODE==self::COOK || $state->SMODE==self::PRESSHOLD || $state->SMODE==self::COOK_TIMEEND || $state->SMODE==self::RECIPE_END){
 				//$percent = 1 - ($state->STIME / $step['STE_STEP_DURATION']);
-				$percent = 1 - ($restTime / $mealStep->nextStepTotal);
+				if (isset($mealStep->nextStepTotal) && $mealStep->nextStepTotal >0){
+					$percent = 1 - ($restTime / $mealStep->nextStepTotal);
+				} else {
+					$percent = 1;
+				}
 			} else if ($state->SMODE==self::SCALE || $state->SMODE==self::WEIGHT_REACHED){
 				$weight = floor($state->W0);
-				$percent = $weight / $step['STE_GRAMS'];
+				if ($step['STE_GRAMS'] != 0){
+					$percent = $weight / $step['STE_GRAMS'];
+				} else {
+					$percent = 1;
+				}
 				$additional=', W0:' . $state->W0;
 				if ($percent>0.05){ //>5%
 					//$restTime = round(($executetTime / $percent) - $executetTime);
-					$text = '<span class=\"ingredient\">' . $step['ING_NAME_' . Yii::app()->session['lang']] . '</span> <span class=\"amount\">' . $step['STE_GRAMS'] . 'g' . '</span>: ' . round($percent*100) . '% / ' . round($state->W0) . 'g';
+					//$text = '<span class=\"ingredient\">' . $step['ING_NAME_' . Yii::app()->session['lang']] . '</span> <span class=\"amount\">' . $step['STE_GRAMS'] . 'g' . '</span>: ' . round($percent*100) . '% / ' . round($state->W0) . 'g';
+					$text = '<span class=\"ingredient\">' . $step['ING_NAME'] . '</span> <span class=\"amount\">' . $step['STE_GRAMS'] . 'g' . '</span>: ' . round($percent*100) . '% / ' . round($state->W0) . 'g';
 					if ($percent>1.05){
 						$text = '<span class=\"toMuch\">' . $text . '</span>';
 					}
 					$additional .= ', text: "' . $text . '"';
 				}
 			} else if ($state->SMODE==self::HEADUP || $state->SMODE==self::HOT){
-				$percent = $state->T0 / $step['STE_CELSIUS'];
+				if ($step['STE_CELSIUS'] != 0){
+					$percent = $state->T0 / $step['STE_CELSIUS'];
+				} else {
+					$percent = 1;
+				}
 				if ($percent>0.05){ //>5%
 					$restTime = round(($executetTime / $percent) - $executetTime);
 				}
@@ -939,7 +1123,11 @@ class CookAssistantController extends Controller {
 					$restTime = round(($executetTime / $percent) - $executetTime);
 				}
 			} else if ($state->SMODE==self::PRESSUP || $state->SMODE==self::PRESSURIZED){
-				$percent = $state->P0 / $step['STE_KPA'];
+				if ($step['STE_KPA'] != 0){
+					$percent = $state->P0 / $step['STE_KPA'];
+				} else {
+					$percent = 1;
+				}
 				if ($percent>0.05){ //>5%
 					$restTime = round(($executetTime / $percent) - $executetTime);
 				}
@@ -970,9 +1158,12 @@ class CookAssistantController extends Controller {
 						if ($mealStep->percent == $percent && $mealStep->weightReachedTime != 0){
 							if ($currentTime - $mealStep->weightReachedTime >=5){
 								$additional.=', gotoNext: true';
+							} else {
+								$additional.=', gotoNextTime: ' . ($currentTime - $mealStep->weightReachedTime);
 							}
 						} else {
 							$mealStep->weightReachedTime = $currentTime;
+							$additional.=', gotoNextTime: 5';
 						}
 					} else {
 						$mealStep->weightReachedTime = 0;
@@ -985,9 +1176,17 @@ class CookAssistantController extends Controller {
 			$mealStep->percent = $percent;
 			$mealStep->nextStepIn = $restTime;
 			
+			$cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+			if ($this->cookingInfoChangeCounter == $cookingInfoChangeCounter){
+				$this->saveToCache(self::COOKING_INFOS, $info);
+				$this->saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $cookingInfoChangeCounter+1);
+			} else {
+				//TODO: concurrentModification Exception
+			}
+			
 			$additional.=', T0:' . $state->T0;
 			$additional.=', P0:' . $state->P0;
-			echo '{percent:' . $percent . ', restTime:' . $restTime .$additional . ', startTime:'.$_GET['startTime'] . '}';
+			echo '{percent:' . $percent . ', restTime:' . $restTime .$additional . ', startTime:'.$_GET['startTime'] . ', SID:' . $state->SID . '}';
 			
 			//{"T0":100,"P0":0,"M0RPM":0,"M0ON":0,"M0OFF":0,"W0":0,"STIME":30,"SMODE":10,"SID":0}
 		}
@@ -996,18 +1195,22 @@ class CookAssistantController extends Controller {
 	private function sendActionToFirmware($info, $recipeNr){
 		try{
 			if (isset($info->cookWith[$recipeNr]) && count($info->cookWith[$recipeNr])>0 && $info->cookWith[$recipeNr][0]!=self::COOK_WITH_OTHER){
-				if (isset($info->course->couToRecs[$recipeNr]->recipe->steps[$info->stepNumbers[$recipeNr]])){
+				if (isset($info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]])){
 					$step = $info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]];
 					if ($info->steps[$recipeNr]->endReached){
-						$command='{"T0":0,"P0":0,"M0RPM":0,"M0ON":0,"M0OFF":0,"W0":0,"STIME":0,"SMODE":'.self::RECIPE_END.',"SID":0}';
+						$command='{"T0":0,"P0":0,"M0RPM":0,"M0ON":0,"M0OFF":0,"W0":0,"STIME":0,"SMODE":'.self::RECIPE_END.',"SID":'.$step['detailStepNr'].'}';
 					} else {
-						$command='{"T0":'.$step['STE_CELSIUS'].',"P0":'.$step['STE_KPA'].',"M0RPM":'.$step['STE_RPM'].',"M0ON":'.$step['STE_STIR_RUN'].',"M0OFF":'.$step['STE_STIR_PAUSE'].',"W0":'.$step['STE_GRAMS'].',"STIME":'.$step['STE_STEP_DURATION'].',"SMODE":'.$step['STT_ID'].',"SID":'.$step['detailStepNr'].'}';
+						$command='{"T0":'.$step['STE_CELSIUS'].',"P0":'.$step['STE_KPA'].',"M0RPM":'.$step['STE_RPM'].',"M0ON":'.$step['STE_STIR_RUN'].',"M0OFF":'.$step['STE_STIR_PAUSE'].',"W0":'.$step['STE_GRAMS'].',"STIME":'.$step['CALC_DURATION'].',"SMODE":'.$step['STT_ID'].',"SID":'.$step['detailStepNr'].'}';
+					}
+					if ($this->debug){
+						echo '<script type="text/javascript"> if(console && console.log){ console.log(\'sendActionToFirmware, command: '.$command.'\')}</script>';
 					}
 					
 					$dest = $info->cookWith[$recipeNr];
 					//TODO: remove return
-					return;
+					//return;
 					if ($dest[0] == self::COOK_WITH_LOCAL){
+						//error_log("sendActionToFirmware, local: $command");
 						$fw = fopen(Yii::app()->params['deviceWritePath'], "w");
 						if (fwrite($fw, $command)) {
 						} else {
@@ -1015,23 +1218,52 @@ class CookAssistantController extends Controller {
 						}
 						fclose($fw);
 					} else if ($dest[0] == self::COOK_WITH_IP){
+						//error_log("sendActionToFirmware, ip: $command");
 						require_once("remotefileinfo.php");
 						$inhalt=remote_fileheader('http://'.$dest[2].Yii::app()->params['deviceWriteUrl'].$command); //remote_file
 						if (is_string($inhalt) && strpos($inhalt, 'ERROR: ') !== false){
 							//TODO error an send command...
 						}
+					} else {
+						//error_log("sendActionToFirmware, command not send, destination was $dest[0], command: $command");
 					}
+				} else {
+					error_log('sendActionToFirmware, $info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]] not set');
+					if ($this->debug){
+						echo '<script type="text/javascript"> if(console && console.log){';
+						echo 'console.log(\'sendActionToFirmware, $info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]] not set\');';
+						//echo 'console.log(\'sendActionToFirmware, count($info->meal->meaToCous[$info->courseNr]->course->couToRecs['.$recipeNr.']->recipe->steps) = '.count($info->meal->meaToCous[$info->courseNr]->course->couToRecs[$recipeNr]->recipe->steps).'\');';
+						//echo 'console.log(\'sendActionToFirmware, $info->stepNumbers['.$recipeNr.'] = '.$info->stepNumbers[$recipeNr].'\');';
+						echo '}</script>';
+					}
+				}
+			} else {
+				error_log('sendActionToFirmware, isset($info->cookWith['.$recipeNr.'])='.isset($info->cookWith[$recipeNr]).'\'');
+				if (isset($info->cookWith[$recipeNr])){
+					error_log('sendActionToFirmware, count($info->cookWith['.$recipeNr.'])='.count($info->cookWith[$recipeNr]).' \'');
+					if (count($info->cookWith[$recipeNr])>0){
+						error_log('sendActionToFirmware, $info->cookWith['.$recipeNr.'][0]= '.$info->cookWith[$recipeNr][0].'\'');
+					}
+				}
+				if ($this->debug){
+					echo '<script type="text/javascript"> if(console && console.log){';
+					echo 'console.log(\'sendActionToFirmware, isset($info->cookWith['.$recipeNr.'])='.isset($info->cookWith[$recipeNr]).'\');';
+					if (isset($info->cookWith[$recipeNr])){
+						echo 'console.log(\'sendActionToFirmware, count($info->cookWith['.$recipeNr.'])='.count($info->cookWith[$recipeNr]).' \');';
+						if (count($info->cookWith[$recipeNr])>0){
+							echo 'console.log(\'sendActionToFirmware, $info->cookWith['.$recipeNr.'][0]= '.$info->cookWith[$recipeNr][0].'\');';
+						}
+					}
+					echo '}</script>';
 				}
 			}
 		} catch(Exception $e) {
+			error_log('Exception occured in sendActionToFirmware for recipeIndex ' . $recipeNr . ', Exeption was: ' . $e);
 			if ($this->debug) echo 'Exception occured in sendActionToFirmware for recipeIndex ' . $recipeNr . ', Exeption was: ' . $e;
 		}
 	}
 	
 	private function readActionFromFirmware($info, $recipeNr){
-		require_once("remotefileinfo.php");
-		$inhalt=remote_file("http://10.0.0.1/db/hw/status");
-		
 		$dest = $info->cookWith[$recipeNr];
 		$inhalt = '';
 		if ($dest[0] == self::COOK_WITH_LOCAL){
@@ -1063,9 +1295,9 @@ class CookAssistantController extends Controller {
 	}
 	
 	private function sendStopToFirmware($info){
-		for ($recipeNr=0; $recipeNr<count($info->$course->couToRecs); ++$recipeNr){
+		for ($recipeNr=0; $recipeNr<count($info->meal->meaToCous[$info->courseNr]->course->couToRecs); ++$recipeNr){
 			if (isset($info->cookWith[$recipeNr]) && $info->cookWith[$recipeNr]){
-				$command='{"T0":0,"P0":0,"M0RPM":0,"M0ON":0,"M0OFF":0,"W0":0,"STIME":0,"SMODE":'.self::RECIPE_END.',"SID":0}';
+				$command='{"T0":0,"P0":0,"M0RPM":0,"M0ON":0,"M0OFF":0,"W0":0,"STIME":0,"SMODE":'.self::RECIPE_END.',"SID":-1}';
 				
 				$dest = $info->cookWith[$recipeNr];
 				
@@ -1113,13 +1345,14 @@ class CookAssistantController extends Controller {
 		if ($this->debug) {echo "\tm_H2O: " . $m_H2O . ', m_lipid: ' . $m_lipid . ', m_prot: ' . $m_prot . ', m_carb: ' . $m_carb . "<br>\n";}
 		try {
 			$t_heatup=($cp_H2O*$m_H2O+$cp_lipid*$m_lipid+$cp_prot*$m_prot+$cp_carb*$m_carb)*($T_end-$T_start)/$P_heating;
+			if ($this->debug) {echo "$t_heatup=($cp_H2O*$m_H2O+$cp_lipid*$m_lipid+$cp_prot*$m_prot+$cp_carb*$m_carb)*($T_end-$T_start)/$P_heating";}
 		} catch(Exception $e) {
 			$t_heatup = -1;
 		}
 		if ($this->debug) {echo 'Done! Time is: ' . $t_heatup . "<br>\n";}
 		return $t_heatup;
 	}
-		
+	
 	private function calcCoolDownTime($info, $recipeNr, $T_start, $T_end){
 		$P_cooling = -30; //W
 		$cp_H2O=$info->physics['cp_H2O']; //4.18 J/g*K
@@ -1155,43 +1388,55 @@ class CookAssistantController extends Controller {
 	
 	
 	public function actionNextCourse(){
-		$info = Yii::app()->session['cookingInfo'];
+		$info = $this->getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		$this->actionGotoCourse($info->courseNr + 1);
 	}
 	
 	public function actionAbort() {
-		//TODO abort cooking
-		$info = Yii::app()->session['cookingInfo'];
+		$info = $this->getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		sendStopToFirmware($info);
 		$this->checkRenderAjax('abort');
 	}
 
 	public function actionIndex(){
-		$info = Yii::app()->session['cookingInfo'];
+		$info = $this->getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		$this->loadSteps($info);
 		$this->checkRenderAjax('index', array('info'=>$info));
 	}
 	
 	public function actionOverview() {
-		$info = Yii::app()->session['cookingInfo'];
+		$info = $this->getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		if(!isset($info) || $info == null){
 			$this->actionStart();
 			return;
 		}
 		if(isset($_POST['cookwith'])){
+			$cookWith = $info->cookWith;
 			foreach($_POST['cookwith'] as $i=>$val){
 			//for($i=0; $i<count($_POST['cookwith']);++$i){
 				if ($val === 'remote'){
-					$info->cookWith[$i] = array(self::COOK_WITH_IP,self::COOK_WITH_EVERYCOOK_COI,$_POST['remoteip'][$i]);
+					$cookWith[$i] = array(self::COOK_WITH_IP,self::COOK_WITH_EVERYCOOK_COI,$_POST['remoteip'][$i]);
 				} else if ($val == self::COOK_WITH_EVERYCOOK_COI){
-					$info->cookWith[$i] = array(self::COOK_WITH_LOCAL,self::COOK_WITH_EVERYCOOK_COI);
+					$cookWith[$i] = array(self::COOK_WITH_LOCAL,self::COOK_WITH_EVERYCOOK_COI);
 				} else {
-					$info->cookWith[$i] = array(self::COOK_WITH_OTHER, $val);
+					$cookWith[$i] = array(self::COOK_WITH_OTHER, $val);
 				}
 			}
+			$info->cookWith = $cookWith;
 		}
 		$this->loadSteps($info);
-		Yii::app()->session['cookingInfo'] = $info;
+		
+		$cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		if ($this->cookingInfoChangeCounter == $cookingInfoChangeCounter){
+			$this->saveToCache(self::COOKING_INFOS, $info);
+			$this->saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $cookingInfoChangeCounter+1);
+		} else {
+			//TODO: concurrentModification Exception
+		}
 		$this->checkRenderAjax('overview', array('info'=>$info));
 	}
 	
@@ -1202,13 +1447,15 @@ class CookAssistantController extends Controller {
 	
 	public function actionEnd(){
 		//TODO stop cooking
-		$info = Yii::app()->session['cookingInfo'];
+		$info = $this->getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		sendStopToFirmware($info);
 		$this->checkRenderAjax('end');
 	}
 	
 	public function actionVote($recipeNr, $value){
-		$info = Yii::app()->session['cookingInfo'];
+		$info = $this->getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		if (isset($info->voted[$recipeNr]) && $info->voted[$recipeNr]>0){
 			$vote=RecipeVotings::model()->findByPk($info->voted[$recipeNr]);
 		} else {
@@ -1218,8 +1465,8 @@ class CookAssistantController extends Controller {
 			$vote = new RecipeVotings();
 			$vote->PRF_UID = Yii::app()->user->id;
 			$vote->MEA_ID = $info->meal->MEA_ID;
-			$vote->COU_ID = $info->course->COU_ID;
-			$vote->REC_ID = $info->course->couToRecs[$recipeNr]->recipe->REC_ID;
+			$vote->COU_ID = $info->meal->meaToCous[$info->courseNr]->course->COU_ID;
+			$vote->REC_ID = $info->meal->meaToCous[$info->courseNr]->course->couToRecs[$recipeNr]->recipe->REC_ID;
 			$vote->RVO_COOK_DATE = time();
 		}
 		$vote->RVO_VALUE = $value;
