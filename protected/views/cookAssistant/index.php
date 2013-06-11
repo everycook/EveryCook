@@ -29,15 +29,22 @@ See GPLv3.htm in the main folder for details.
 	<?php
 		$i=0; 
 		foreach($info->steps as $mealStep){
-			$cookWith = ($info->cookWith[$mealStep->recipeNr][0]!=CookAssistantController::COOK_WITH_OTHER)?1:0;
+			$cookWith = '';
+			$coowWithType = $info->cookWith[$mealStep->recipeNr][0];
+			if ($coowWithType==CookAssistantController::COOK_WITH_LOCAL){
+				$cookWith = $_SERVER['HTTP_HOST'];
+			} else if ($coowWithType==CookAssistantController::COOK_WITH_IP){
+				$cookWith = $info->cookWith[$mealStep->recipeNr][2];
+			}
 			echo '<div class="recipeStep">';
 				echo '<input type="hidden" name="cookWith" value="' . ($cookWith) . '"/>';
+				echo '<input type="hidden" name="stepNr" value="' . $mealStep->stepNr . '"/>';
 				echo '<div class="stepHeader">';
 					echo '<div class="title"><div>' . $mealStep->recipeName . '</div></div>';
 					echo '<div class="finishTime' . (($mealStep->inTime)?'':' toLate') . '"><div>' . (($mealStep->stepNr != -1)?$this->trans->COOKASISSTANT_FINISHED_AT:$this->trans->COOKASISSTANT_START_AT) . ' <span>'  .  '</span></div></div>'; // $mealStep->finishedAt .
 					echo '<input type="hidden" name="finishTime" value="' . $mealStep->finishedIn . '"/>';
 					echo '<input type="hidden" name="lowestFinishTime" value="' . $mealStep->lowestFinishedIn . '"/>';
-					if ($cookWith!=0){
+					if ($cookWith!=''){
 						echo '<div class="temp"><div><div>' . $this->trans->COOKASISSTANT_TEMPERATURE . ' <span class="temp">'.$mealStep->currentTemp.'</span>°C</div><div>' . $this->trans->COOKASISSTANT_PRESSURE . ' <span class="press">'.$mealStep->currentPress.'</span>pa</div></div></div>';
 					}
 					if (!$mealStep->endReached){
@@ -70,15 +77,16 @@ See GPLv3.htm in the main folder for details.
 						echo CHtml::link('<div></div>', array('next', 'recipeNr'=>$mealStep->recipeNr, 'step'=>$mealStep->stepNr), array('class'=>'nextStep' . (($mealStep->stepNr == -1)?' startStep':'') . (($mealStep->autoClick)?' autoClick':'') . (($mealStep->mustWait)?' mustWait':'') . (($mealStep->stepType == CookAssistantController::SCALE)?' isWeightStep':'')));
 					} else  {
 						if (isset($info->courseFinished[$info->courseNr]) && $info->courseFinished[$info->courseNr] === true){
+							$course = $info->meal->meaToCous[$info->courseNr]->course;
 							if (!isset($info->voted[$mealStep->recipeNr]) || $info->voted[$mealStep->recipeNr]===0) {
 								echo '<div class="nextStep">';
 								echo CHtml::link($this->trans->COOKASISSTANT_VOTE_GOOD, array('vote', 'recipeNr'=>$mealStep->recipeNr, 'value'=>1), array('class'=>'button vote noAjax first'));
 								echo CHtml::link($this->trans->COOKASISSTANT_VOTE_BAD, array('vote', 'recipeNr'=>$mealStep->recipeNr, 'value'=>-1), array('class'=>'button vote noAjax'));
-								echo CHtml::link($this->trans->COOKASISSTANT_CHANGE_RECIPE, array('recipes/update', 'id'=>$info->course->couToRecs[$mealStep->recipeNr]->recipe->REC_ID), array('class'=>'button changeRecipe', 'style'=>'display:none;'));
+								echo CHtml::link($this->trans->COOKASISSTANT_CHANGE_RECIPE, array('recipes/update', 'id'=>$course->couToRecs[$mealStep->recipeNr]->recipe->REC_ID), array('class'=>'button changeRecipe', 'style'=>'display:none;'));
 								echo '</div>';
 							} else if (isset($info->voted[$mealStep->recipeNr]) && $info->voted[$mealStep->recipeNr]===-1) {
 								echo '<div class="nextStep">';
-								echo CHtml::link($this->trans->COOKASISSTANT_CHANGE_RECIPE, array('recipes/update', 'id'=>$info->course->couToRecs[$mealStep->recipeNr]->recipe->REC_ID), array('class'=>'button changeRecipe'));
+								echo CHtml::link($this->trans->COOKASISSTANT_CHANGE_RECIPE, array('recipes/update', 'id'=>$course->couToRecs[$mealStep->recipeNr]->recipe->REC_ID), array('class'=>'button changeRecipe'));
 								echo '</div>';
 							} else {
 								echo '<div class="nextStep"><span></span></div>';

@@ -244,7 +244,10 @@ class SiteController extends Controller
 		$etag = md5($picture);
 		$type='pic';
 		//$size=200;
-		Functions::getImage($modified, $etag, $picture, $id, $type, $size);
+		
+		$img = Yii::app()->getBasePath() . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . $img;
+		$img = preg_replace('/\w+\/\.\.\//', '', $img);
+		Functions::getImage($modified, $etag, $img, $id, $type, $size);
 	}
 	
 	public function actionExportImageFromDB(){

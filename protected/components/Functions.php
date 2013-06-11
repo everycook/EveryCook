@@ -503,6 +503,7 @@ class Functions extends CHtml{
 				$picture = file_get_contents($filename);
 			}
 		}
+		
 		if (!isset($picture) || $picture == ''){
 			$picture = file_get_contents($pictureFilename);
 		}
@@ -900,6 +901,128 @@ class Functions extends CHtml{
 				echo '</div>';
 				echo '<div id="modal" style="display:block;"></div>';
 			}
+		}
+	}
+	
+	public static function objectToArray($d) {
+		if (is_object($d)) {
+			// Gets the properties of the given object
+			// with get_object_vars function
+			if (is_subclass_of($d, 'CActiveRecord')){
+				$rels = $d->relations();
+				$newd = $d->getAttributes();
+				foreach($rels as $key=>$val){
+					/*
+					try {
+						$newd[$key] = $d->$key;
+					} catch (exception $e){
+						$newd[$key] = 'NULL'; //TODO add any special?
+					}*/
+					
+					//$newd[$key] = $d->getRelated($key);
+					if ($d->hasRelated($key)){
+						$newd[$key] = $d->$key;
+					} else {
+						$newd[$key] = NULL; //TODO add any special?
+					}
+					
+				}
+				$newd['classname'] = get_class($d);
+				$d = $newd;
+			} else {
+				$newd = get_object_vars($d);
+				if (is_array($newd)) {
+					$newd['classname'] = get_class($d);
+				}
+				$d=$newd;
+			}
+			if (is_array($d)) {
+				return array('isObject'=>array_map(__METHOD__, $d));
+			} else {
+				return $d;
+			}
+		} else if (is_array($d)) {
+			if (count($d) == 0){
+				return $d;
+			} else {
+				return array('isArray'=>array_map(__METHOD__, $d));
+			}
+		} else {
+			return $d;
+		}
+	}
+	
+	public static function arrayToObject($d) {
+		if (is_array($d)) {
+			if (array_key_exists('isArray', $d)){
+				$d = $d['isArray'];
+				if (!is_array($d) || count($d) == 0) {
+					return $d;
+				}
+				return array_map(__METHOD__, $d);
+			} else if (array_key_exists('isObject', $d)){
+				$d = $d['isObject'];
+				//return (object) array_map(__METHOD__, $d);
+				//$d = (object) array_map(__METHOD__, $d);
+				//return (simpleClass) $d;
+				$classname = $d['classname'];
+				unset($d['classname']);
+				return new simpleClass(array_map(__METHOD__, $d), $classname);
+			} else {
+				return $d;
+			}
+		} else {
+			// Return object
+			return $d;
+		}
+	}
+	
+	
+	
+	
+	public static function mapCActiveRecordToSimpleClass($d) {
+		if (is_object($d)) {
+			if (is_subclass_of($d, 'CActiveRecord')){
+				$newd = $d->getAttributes();
+				
+				//remove not needed values
+				unset($newd['CREATED_BY']);
+				unset($newd['CREATED_ON']);
+				unset($newd['CHANGED_BY']);
+				unset($newd['CHANGED_ON']);
+				
+				//add related values
+				$rels = $d->relations();
+				foreach($rels as $key=>$val){
+					/*
+					try {
+						$newd[$key] = $d->$key;
+					} catch (exception $e){
+						$newd[$key] = 'NULL'; //TODO add any special?
+					}
+					*/
+					if ($d->hasRelated($key)){
+						$newd[$key] = $d->$key;
+					} else {
+						$newd[$key] = 'NULL'; //TODO add any special?
+					}
+				}
+				//echo "is CActiveRecord, exact it is: " . get_class($d) ."<br>\r\n";
+				$d = new simpleClass(array_map(__METHOD__, $newd), get_class($d));
+				return $d;
+			} else {
+				$newd = get_object_vars($d);
+				$d = new simpleClass(array_map(__METHOD__, $newd), get_class($d));
+				return $d;
+			}
+		} else if (is_array($d)) {
+			if (count($d) == 0){
+				return $d;
+			} else {
+				return array_map(__METHOD__, $d);
+			}
+		} else {
+			return $d;
 		}
 	}
 }

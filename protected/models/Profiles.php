@@ -84,7 +84,7 @@ class Profiles extends ActiveRecordECPriv
 	 * @return string the associated database table name
 	 */
 	public function tableName(){
-		return 'ec_priv.profiles';
+		return 'profiles';
 	}
 	
 	public function afterFind(){

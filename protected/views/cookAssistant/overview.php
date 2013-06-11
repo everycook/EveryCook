@@ -15,7 +15,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 See GPLv3.htm in the main folder for details.
 */
 ?>
-
 <div class="cookAssistant">
 	<div class="meta">
 		<div class=""><?php printf($this->trans->COOKASISSTANT_COURSE_RECIPES, $info->courseNr+1, count($info->steps)); ?></div>
@@ -66,10 +65,10 @@ See GPLv3.htm in the main folder for details.
 				
 				if (!$info->started){
 					echo '<div class="stepHeader">';
-						$recipe = $info->course->couToRecs[$mealStep->recipeNr]->recipe;
+						$course = $info->meal->meaToCous[$info->courseNr]->course;
+						$recipe = $course->couToRecs[$mealStep->recipeNr]->recipe;
 						$everycookAvailable = false;
 						$optionShown = false;
-						
 						foreach($recipe->recToCois as $recToCoi){
 							if ($recToCoi->COI_ID == CookAssistantController::COOK_WITH_EVERYCOOK_COI){
 								$everycookAvailable = true;

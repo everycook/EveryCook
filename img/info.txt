@@ -1,2 +1,2 @@
-This is location of product/recioes/ingredient pictures.
+This is location of product/recipes/ingredient pictures.
 write access for webserver user needed!

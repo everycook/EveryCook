@@ -137,6 +137,14 @@ See GPLv3.htm in the main folder for details.
 								echo '<a class="button navMenuListEntry'.$class.'" href="' . $link . '">' . $title . '</a><br>'."\n";
 							}
 						}
+						if(!Yii::app()->user->isGuest) {
+							$profile = Profiles::model()->findByPk(Yii::app()->user->id);
+							if (isset($profile) && $profile != null){
+								if (isset($profile->PRF_EVERYCOOP_IP) && $profile->PRF_EVERYCOOP_IP != ''){
+									echo '<a target="_blank" class="button navMenuListEntry noAjax" href="http://' . $profile->PRF_EVERYCOOP_IP . '/db/">' . $this->trans->GENERAL_MY_MACHINE . '</a><br>'."\n";
+								}
+							}
+						}
 						?>
 					</div>
 					<a class="nav_entry noAjax" href="<?php echo '/cms/' . strtolower(substr(Yii::app()->session['lang'],0,2)) . '/'; ?>">

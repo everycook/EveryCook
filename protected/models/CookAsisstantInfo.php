@@ -19,7 +19,6 @@ class CookAsisstantInfo extends CModel
 {
 	public $meal = null;
 	public $courseNr = 0;
-	public $course =  null;
 	public $recipeSteps = array();
 	public $stepNumbers = array();
 	public $steps = array();
@@ -55,6 +54,16 @@ class CookAsisstantInfo extends CModel
 			return null;
 		}
 	}
+	
+	/*
+	public function __set($name, $value) {
+		if (in_array($name, $this->attributeNames())){
+			$this->$name = $value;
+		} else {
+			parent::__set($name,$value);
+		}
+	}
+	*/
 	
 	/**
 	 * Returns the static model of the specified AR class.
