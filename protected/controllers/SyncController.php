@@ -100,6 +100,15 @@ class SyncController extends Controller
 		}
 		
 		if (Yii::app()->user->id >= 0){
+			try {
+				$model = Profiles::model()->findByPk(Yii::app()->user->id);
+				if (isset($_GET['ip']) && $_GET['ip'] != ''){
+					$model->PRF_EVERYCOOP_IP = $_GET['ip'];
+				} else {
+					$model->PRF_EVERYCOOP_IP = $_SERVER["REMOTE_ADDR"];
+				}
+				$model->save();
+			} catch(Exception $e) {}
 			if(isset($_POST['with_create'])){
 				$with_create = trim(strtolower($_POST['with_create'])) == 'true';
 			} else {
