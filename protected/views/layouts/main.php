@@ -141,7 +141,9 @@ See GPLv3.htm in the main folder for details.
 							$profile = Profiles::model()->findByPk(Yii::app()->user->id);
 							if (isset($profile) && $profile != null){
 								if (isset($profile->PRF_EVERYCOOP_IP) && $profile->PRF_EVERYCOOP_IP != ''){
-									echo '<a target="_blank" class="button navMenuListEntry noAjax" href="http://' . $profile->PRF_EVERYCOOP_IP . '/db/">' . $this->trans->GENERAL_MY_MACHINE . '</a><br>'."\n";
+									if (!isset(Yii::app()->params['isDevice']) || !Yii::app()->params['isDevice']){
+										echo '<a target="_blank" class="button navMenuListEntry noAjax" href="http://' . $profile->PRF_EVERYCOOP_IP . '/db/">' . $this->trans->GENERAL_MY_MACHINE . '</a><br>'."\n";
+									}
 								}
 							}
 						}

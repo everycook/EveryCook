@@ -355,7 +355,10 @@ class CookAssistantController extends Controller {
 								} else {
 									$info->ingredientWeight[$recipeNr][$mealStep->ingredientId] += $ingWeight;
 								}
+								echo '<script type="text/javascript"> if(console && console.log){ console.log(\'actionNext, ingredientId: '.$mealStep->ingredientId.', weight: '.$info->ingredientWeight[$recipeNr][$mealStep->ingredientId].'\')}</script>';
 							}
+							
+							//TODO: ingredientWeightInPan 
 						}
 					}
 					
@@ -1153,6 +1156,28 @@ class CookAssistantController extends Controller {
 			if ($state->SMODE >= 30 && $state->SMODE <= 39){
 				//Auto Next:
 				if ($state->SMODE == self::WEIGHT_REACHED){
+					//weight value are to "jummpy", so goto next if reached weight immedialy for now
+					if ($percent>=0.95 && $percent<=1.05){
+						$additional.=', gotoNext: true';
+					} else {
+						$mealStep->weightReachedTime = 0;
+					}
+					/* alernative logic
+					//Wait 5 Sec with only small changes (between 90% and 110%)
+					if ($percent>=0.90 && $percent<=1.10 && $mealStep->weightReachedTime != 0){
+						if ($currentTime - $mealStep->weightReachedTime >=5){
+							$additional.=', gotoNext: true';
+						} else {
+							$additional.=', gotoNextTime: ' . ($currentTime - $mealStep->weightReachedTime);
+						}
+					} else if ($percent>=0.95 && $percent<=1.05){
+						$mealStep->weightReachedTime = $currentTime;
+						$additional.=', gotoNextTime: 5';
+					} else {
+						$mealStep->weightReachedTime = 0;
+					}
+					*/
+					/* old "exact" logic
 					if ($percent>=0.95 && $percent<=1.05){
 						//Wait 5 Sec with no change
 						if ($mealStep->percent == $percent && $mealStep->weightReachedTime != 0){
@@ -1168,6 +1193,7 @@ class CookAssistantController extends Controller {
 					} else {
 						$mealStep->weightReachedTime = 0;
 					}
+					*/
 				} else {
 					$additional.=', gotoNext: true';
 				}
@@ -1193,6 +1219,8 @@ class CookAssistantController extends Controller {
 	}
 	
 	private function sendActionToFirmware($info, $recipeNr){
+	//TODO remove:
+//	return;
 		try{
 			if (isset($info->cookWith[$recipeNr]) && count($info->cookWith[$recipeNr])>0 && $info->cookWith[$recipeNr][0]!=self::COOK_WITH_OTHER){
 				if (isset($info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]])){
@@ -1404,10 +1432,22 @@ class CookAssistantController extends Controller {
 		$info = $this->getFromCache(self::COOKING_INFOS);
 		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		$this->loadSteps($info);
-		$this->checkRenderAjax('index', array('info'=>$info));
+		
+		$allCookWithSet = true;
+		foreach($info->steps as $mealStep){
+			if (count($info->cookWith[$mealStep->recipeNr])<=1){
+				$allCookWithSet = false;
+			}
+		}
+		if ($allCookWithSet){
+			$this->checkRenderAjax('index', array('info'=>$info));
+		} else {
+			$this->forwardTo(array('overview'));
+			//$this->checkRenderAjax('overview', array('info'=>$info));
+		}
 	}
 	
-	public function actionOverview() {
+	public function actionSave(){
 		$info = $this->getFromCache(self::COOKING_INFOS);
 		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		if(!isset($info) || $info == null){
@@ -1437,6 +1477,25 @@ class CookAssistantController extends Controller {
 		} else {
 			//TODO: concurrentModification Exception
 		}
+		
+		$allCookWithSet = true;
+		foreach($info->steps as $mealStep){
+			if (count($info->cookWith[$mealStep->recipeNr])<=1){
+				$allCookWithSet = false;
+			}
+		}
+		if ($allCookWithSet){
+			$this->forwardTo(array('index'));
+			//$this->checkRenderAjax('index', array('info'=>$info));
+		} else {
+			$this->checkRenderAjax('overview', array('info'=>$info));
+		}
+	}
+	
+	public function actionOverview() {
+		$info = $this->getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		$this->loadSteps($info);
 		$this->checkRenderAjax('overview', array('info'=>$info));
 	}
 	

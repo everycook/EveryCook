@@ -27,6 +27,8 @@ jQuery(function($){
 	var connections=[];
 	var socketToConnections=[];
 	var lastWebsocketConnectTime=[];
+	var lastUpdateTime=[];
+	var MIN_STATUS_INTERVAL=40000; //40sec
 	
 	function initTimer(type, contentParent){
 		if (type !== 'fancy'){
@@ -89,6 +91,17 @@ jQuery(function($){
 		
 		elem.text(timeStr);
 	}
+	
+	function showError(message){
+		var content = '<div class="message">' + message + '</div><div class="buttons"><div class="button closeFancy">OK</div></div>'
+		jQuery.fancybox({
+			'content':content
+		});
+	}
+	
+	jQuery('body').undelegate('#fancybox-content .closeFancy','click').delegate('#fancybox-content .closeFancy','click',function(){
+		jQuery.fancybox.close();
+	});
 	
 	function updateTimeNotStarted(recipeStep, maxFinishedIn){
 		var nextTime = recipeStep.find('.nextTime:first span');
@@ -174,9 +187,13 @@ jQuery(function($){
 		} catch (exception){
 			eval('var json = ' + data + ';');
 		}
+		lastUpdateTime[index] = currentTime;
 		if (typeof(json.error) !== 'undefined'){
+			var stepNrField = recipeStep.find("input[name=stepNr]");
 			if (recipeStep.parents('body').length == 0){
 				//is not on assistant site.
+				return true;
+			} else if (stepNrField.length == 0 || stepNrField.val() == -1){
 				return true;
 			} else {
 				if (errorCounter[index] == undefined){
@@ -186,9 +203,9 @@ jQuery(function($){
 				}
 				if (errorCounter[index]<5){
 					//TODO: reload?
-					alert("Error while load State from EveryCook: " + json.error);
+					showError("Error while load State from EveryCook: " + json.error);
 				} else {
-					alert("CookAsisstant Terminated, no furter updates, please start again.");
+					showError("CookAsisstant Terminated, no furter updates, please start again(Press F5 or go to nextstep to reinitialize updater)");
 					connections[index]['active'] = false;
 					if (connections[index]['connected'] === true){
 						try {
@@ -330,30 +347,78 @@ jQuery(function($){
 							maxFinishedIn = restTime;
 						}
 					} else if (nextTime.length>0){ //if not, the end step is reached
-						var input = nextTime.parents('.nextTime:first').next();
-						var restTime = Math.round(input.val() - ((currentTime-startTime[index]) / 1000));
-						showTime(nextTime, restTime*1000 -3600000);
-						
-						var nextLink = recipeStep.find('.nextStep:first');
-						
-						if (restTime<=0){
-							if(connection['type'] === 'browser'){
-								nextLink.removeClass('mustWait');
+						//console.log("lastUpdateTime: " + lastUpdateTime[index] + ", currentTime: " + currentTime);
+						if (lastUpdateTime[index]+MIN_STATUS_INTERVAL < currentTime){
+							if (connection['type'] === 'websocket' && connection['connected'] === true){
+								//ask from middleware
+								connection['socket'].send('getState?reload=true');
+							} else {
+								//poll update
+								glob.ShowActivity = false;
+								var nextTime = recipeStep.find('.nextTime:first span');
+								if (typeof(getValueStartTime[index]) === 'undefined' || getValueStartTime[index]==0){
+									//if (nextTime.length>0){ //if not, the end step is reached
+										getValueTimeoutID[index] = window.setTimeout("glob.cancelFirmwareUpdate("+index+");",5000);
+										getValueStartTime[index] = currentTime;
+										var url = recipeStep.find('input[name=UpdateCookAssistantLink]:first').val();
+										url = glob.urlAddParamStart(url) + 'startTime=' + getValueStartTime[index];
+										jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){				
+												window.clearTimeout(getValueTimeoutID[index]);
+												getValueStartTime[index]=0;
+												handleUpdate(recipeStep, data, index, nextTime, currentTime);
+											},
+											'error':function(xhr){
+												//ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
+											},
+											'complete':function(){
+											}
+										});
+									//}
+								}
+								if (nextTime.length>0){ //if not, the end step is reached
+									maxFinishedIn = updateTimePoll(recipeStep, nextTime, index, maxFinishedIn);
+								}
 							}
-							if (restTime<0){
-								nextTime.parents('.nextTime:first').addClass('toLate');
-							}
-						}
-						
-						var inputTotal = input.next();
-						var stepTotal = parseInt(inputTotal.val());
-						
-						if (!nextLink.is('.isWeightStep') || connection['type'] === 'browser'){
-							var percent = 1 - (restTime / stepTotal);
-							updatePercent(recipeStep, percent);
+						} else {
+							var input = nextTime.parents('.nextTime:first').next();
+							var restTime = Math.round(input.val() - ((currentTime-startTime[index]) / 1000));
+							showTime(nextTime, restTime*1000 -3600000);
 							
-							if (restTime <= 0){
-								if (nextLink.is('.autoClick')){
+							var nextLink = recipeStep.find('.nextStep:first');
+							
+							if (restTime<=0){
+								if(connection['type'] === 'browser'){
+									nextLink.removeClass('mustWait');
+								}
+								if (restTime<0){
+									nextTime.parents('.nextTime:first').addClass('toLate');
+								}
+							}
+							
+							var inputTotal = input.next();
+							var stepTotal = parseInt(inputTotal.val());
+							
+							if (!nextLink.is('.isWeightStep') || connection['type'] === 'browser'){
+								var percent = 1 - (restTime / stepTotal);
+								updatePercent(recipeStep, percent);
+								
+								if (restTime <= 0){
+									if (nextLink.is('.autoClick')){
+										var link = nextLink.attr('href');
+										if (link.indexOf('#') == 0){
+											window.location.hash=link;
+										} else {
+											window.location.pathname=link;
+										}
+										//console.log(link);
+									}
+								}
+							}
+							
+							if (gotoNextTime[index]>0 && currentTime>=gotoNextTime[index]){
+								nextLink.removeClass('mustWait');
+								gotoNextTime[index] = 0;
+								//if (nextLink.is('.autoClick')){
 									var link = nextLink.attr('href');
 									if (link.indexOf('#') == 0){
 										window.location.hash=link;
@@ -361,26 +426,12 @@ jQuery(function($){
 										window.location.pathname=link;
 									}
 									//console.log(link);
-								}
+								//}
 							}
+							
+							//Update finishedIn Time
+							maxFinishedIn = updateFinishedTime(recipeStep, nextTime, stepTotal, maxFinishedIn, index, false, initialize);
 						}
-						
-						if (gotoNextTime[index]>0 && currentTime>=gotoNextTime[index]){
-							nextLink.removeClass('mustWait');
-							gotoNextTime[index] = 0;
-							//if (nextLink.is('.autoClick')){
-								var link = nextLink.attr('href');
-								if (link.indexOf('#') == 0){
-									window.location.hash=link;
-								} else {
-									window.location.pathname=link;
-								}
-								//console.log(link);
-							//}
-						}
-						
-						//Update finishedIn Time
-						maxFinishedIn = updateFinishedTime(recipeStep, nextTime, stepTotal, maxFinishedIn, index, false, initialize);
 					}
 				}
 			}

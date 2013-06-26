@@ -35,7 +35,7 @@ See GPLv3.htm in the main folder for details.
 	<?php
 		$allCookWithSet = true;
 		$i=0;
-		echo '<form id="cookassistant-form" method="post" action="' . $this->createUrl('overview') . '">';
+		echo '<form id="cookassistant-form" method="post" action="' . $this->createUrl('save') . '">';
 		foreach($info->steps as $mealStep){
 			if (count($info->cookWith[$i])>1){
 				$cookWith = ($info->cookWith[$i][0]!=CookAssistantController::COOK_WITH_OTHER)?1:0;
@@ -85,6 +85,7 @@ See GPLv3.htm in the main folder for details.
 									}
 									echo '</div>';
 								//}
+								/*
 								$activ = isset(Yii::app()->params['localNetwork']) && Yii::app()->params['localNetwork'] === true;
 								//if (isset(Yii::app()->params['localNetwork']) && Yii::app()->params['localNetwork'] === true){
 									echo '<div>';
@@ -100,6 +101,7 @@ See GPLv3.htm in the main folder for details.
 									}
 									echo '</div>';
 								//}
+								*/
 							} else {
 								echo '<div>';
 								echo CHtml::label($this->trans->__GET('COOKASISSTANT_COOK_WITH_'.$recToCoi->COI_ID),'cookwith_'.$i.'_local',array());
