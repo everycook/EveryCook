@@ -48,6 +48,7 @@ $this->mainButtons = array(
 		'AOU_DURATION',
 		'AOU_DUR_PRO',
 		'AOU_CIS_CHANGE',
+		'ATY_ID',
 		'AOU_DESC_DE_CH',
 		'AOU_DESC_EN_GB',
 	),

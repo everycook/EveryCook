@@ -14,22 +14,38 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 
 See GPLv3.htm in the main folder for details.
 */
-
-$this->breadcrumbs=array(
-	'Actions Outs'=>array('index'),
-	'Create',
-);
-
-$this->menu=array(
-	array('label'=>'List ActionsOut', 'url'=>array('index')),
-	array('label'=>'Manage ActionsOut', 'url'=>array('admin')),
-);
 ?>
+<div class="form">
 
-<h1><?php echo $this->trans->TITLE_ACTIONSOUT_CREATE; ?></h1>
-<?php echo $this->renderPartial('_form', array(
-	'model'=>$model,
-	'stepTypes'=>$stepTypes,
-	'tools'=>$tools,
-	'actionTypes'=>$actionTypes
-	)); ?>
+<?php $form=$this->beginWidget('CActiveForm', array(
+	'id'=>'action-types_form',
+	'enableAjaxValidation'=>false,
+)); ?>
+
+	<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
+	<?php
+	echo $form->errorSummary($model);
+	if ($this->errorText){
+			echo '<div class="errorSummary">';
+			echo $this->errorText;
+			echo '</div>';
+	}
+	
+	foreach($this->allLanguages as $lang=>$name){
+	echo '<div class="row">'."\r\n";
+		echo $form->labelEx($model,'ATY_DESC_'.$lang) ."\r\n";
+		echo $form->textField($model,'ATY_DESC_'.$lang,array('size'=>60,'maxlength'=>100)) ."\r\n";
+		echo $form->error($model,'ATY_DESC_'.$lang) ."\r\n";
+	echo '</div>'."\r\n";
+	}
+	
+	?>
+
+	<div class="buttons">
+		<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE); ?>
+		<?php echo CHtml::link($this->trans->GENERAL_CANCEL, array('cancel'), array('class'=>'button', 'id'=>'cancel')); ?>
+	</div>
+	
+<?php $this->endWidget(); ?>
+
+</div><!-- form -->

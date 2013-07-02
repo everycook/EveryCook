@@ -162,3 +162,6 @@ See GPLv3.htm in the main folder for details.
 	?>
 	</div>
 </div>
+<script type="text/javascript">
+	jQuery('#metaNavButtons').show();
+</script>

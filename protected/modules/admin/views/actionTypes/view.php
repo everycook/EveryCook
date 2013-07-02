@@ -16,20 +16,33 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Actions Outs'=>array('index'),
-	'Create',
+	'Action Types'=>array('index'),
+	$model->ATY_ID,
 );
 
 $this->menu=array(
-	array('label'=>'List ActionsOut', 'url'=>array('index')),
-	array('label'=>'Manage ActionsOut', 'url'=>array('admin')),
+	array('label'=>'List ActionTypes', 'url'=>array('index')),
+	array('label'=>'Create ActionTypes', 'url'=>array('create')),
+	array('label'=>'Update ActionTypes', 'url'=>array('update', 'id'=>$model->ATY_ID)),
+	array('label'=>'Delete ActionTypes', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->ATY_ID),'confirm'=>'Are you sure you want to delete this item?')),
+	array('label'=>'Manage ActionTypes', 'url'=>array('admin')),
+);
+
+$this->mainButtons = array(
+	array('label'=>$this->trans->GENERAL_EDIT, 'link_id'=>'middle_single', 'url'=>array('update',$this->getActionParams())),
 );
 ?>
 
-<h1><?php echo $this->trans->TITLE_ACTIONSOUT_CREATE; ?></h1>
-<?php echo $this->renderPartial('_form', array(
-	'model'=>$model,
-	'stepTypes'=>$stepTypes,
-	'tools'=>$tools,
-	'actionTypes'=>$actionTypes
-	)); ?>
+<h1><?php printf($this->trans->TITLE_ACTIONTYPES_VIEW, $model->ATY_ID); ?></h1><div class="f-center">
+	<?php
+ echo CHtml::link($this->trans->GENERAL_BACK_TO_SEARCH, array('search'), array('class'=>'button')); ?><br>
+</div>
+
+<?php $this->widget('zii.widgets.CDetailView', array(
+	'data'=>$model,
+	'attributes'=>array(
+		'ATY_ID',
+		'ATY_DESC_EN_GB',
+		'ATY_DESC_DE_CH',
+	),
+)); ?>

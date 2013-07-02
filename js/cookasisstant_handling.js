@@ -28,6 +28,7 @@ jQuery(function($){
 	var socketToConnections=[];
 	var lastWebsocketConnectTime=[];
 	var lastUpdateTime=[];
+	var lastPercent=[];
 	var MIN_STATUS_INTERVAL=40000; //40sec
 	
 	function initTimer(type, contentParent){
@@ -40,6 +41,7 @@ jQuery(function($){
 			currentTime = new Date().getTime();
 			contentParent.find('.recipeStep').each(function(index){
 				startTime[index] = currentTime;
+				lastPercent[index] = 0;
 			});
 			errorCounter=[];
 			initialize(type);
@@ -221,7 +223,11 @@ jQuery(function($){
 			var stepNr = recipeStep.find('input[name=stepNr]').val();
 			if (json.SID == stepNr){
 				if (nextTime.length>0){ //if not, the end step is reached
-					updatePercent(recipeStep, json.percent);
+					//Only update view if percent is greater
+					if (lastPercent[index] < json.percent){
+						updatePercent(recipeStep, json.percent);
+						lastPercent[index] = json.percent;
+					}
 					
 					errorCounter[index] = 0;
 					
@@ -400,7 +406,11 @@ jQuery(function($){
 							
 							if (!nextLink.is('.isWeightStep') || connection['type'] === 'browser'){
 								var percent = 1 - (restTime / stepTotal);
-								updatePercent(recipeStep, percent);
+								//Only update view if percent is greater
+								if (lastPercent[index] < percent){
+									updatePercent(recipeStep, percent);
+									lastPercent[index] = percent;
+								}
 								
 								if (restTime <= 0){
 									if (nextLink.is('.autoClick')){

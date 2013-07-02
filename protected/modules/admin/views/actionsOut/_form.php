@@ -44,6 +44,8 @@ See GPLv3.htm in the main folder for details.
 	echo Functions::createInput(null, $model, 'STT_ID', $stepTypes, Functions::DROP_DOWN_LIST, 'stepTypes', $htmlOptions_type0, $form);
 	echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('tools/create',array('newModel'=>time())), array('class'=>'button f-right'));
 	echo Functions::createInput(null, $model, 'TOO_ID', $tools, Functions::DROP_DOWN_LIST, 'tools', $htmlOptions_type0, $form);
+	echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('actionTypes/create',array('newModel'=>time())), array('class'=>'button f-right'));
+	echo Functions::createInput(null, $model, 'ATY_ID', $actionTypes, Functions::DROP_DOWN_LIST, 'actionTypes', $htmlOptions_type0, $form);
 	?>
 
 	<div class="row">

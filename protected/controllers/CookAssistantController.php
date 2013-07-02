@@ -346,6 +346,7 @@ class CookAssistantController extends Controller {
 								$info->recipeCookedInfos[$recipeNr][$step]['neededWeight'] = $stepAttributes['STE_GRAMS'];
 							}
 							
+							//Save scaled Value
 							if ($ingWeight>0){
 								if (!isset($info->ingredientWeight[$recipeNr])){
 									$info->ingredientWeight[$recipeNr] = array();
@@ -355,10 +356,28 @@ class CookAssistantController extends Controller {
 								} else {
 									$info->ingredientWeight[$recipeNr][$mealStep->ingredientId] += $ingWeight;
 								}
-								echo '<script type="text/javascript"> if(console && console.log){ console.log(\'actionNext, ingredientId: '.$mealStep->ingredientId.', weight: '.$info->ingredientWeight[$recipeNr][$mealStep->ingredientId].'\')}</script>';
+								if ($this->debug) {echo '<script type="text/javascript"> if(console && console.log){ console.log(\'actionNext(ingredientWeight), ingredientId: '.$mealStep->ingredientId.', weight: '.$info->ingredientWeight[$recipeNr][$mealStep->ingredientId].'\')}</script>';}
 							}
-							
-							//TODO: ingredientWeightInPan 
+							//Mark as in pan
+							if ($stepAttributes['ATY_ID'] == 2){
+								if (isset($info->ingredientWeight[$recipeNr])){
+									if (!isset($info->ingredientWeightInPan[$recipeNr])){
+										$info->ingredientWeightInPan[$recipeNr] = array();
+									}
+									if (isset($info->ingredientWeight[$recipeNr][$mealStep->ingredientId])){
+										$weight = $info->ingredientWeight[$recipeNr][$mealStep->ingredientId];
+										if (!isset($info->ingredientWeightInPan[$recipeNr][$mealStep->ingredientId])){
+											$info->ingredientWeightInPan[$recipeNr][$mealStep->ingredientId] = $weight;
+										} else {
+											$info->ingredientWeightInPan[$recipeNr][$mealStep->ingredientId] += $ingWeight;
+										}
+										//Remove value
+										unset($info->ingredientWeight[$recipeNr][$mealStep->ingredientId]);
+										
+										if ($this->debug) {echo '<script type="text/javascript"> if(console && console.log){ console.log(\'actionNext(ingredientWeightInPan), ingredientId: '.$mealStep->ingredientId.', weight: '.$info->ingredientWeightInPan[$recipeNr][$mealStep->ingredientId].'\')}</script>';}
+									}
+								}
+							}
 						}
 					}
 					
@@ -607,7 +626,7 @@ class CookAssistantController extends Controller {
 					
 					
 					//simulate ingredient/total weight and current temp for time calculation
-					$info->ingredientWeight[$recipeNr] = array();
+					$info->ingredientWeightInPan[$recipeNr] = array();
 					$info->totalWeight[$recipeNr] = 0;
 					$currentTemp = self::TEMP_DEFAULT_START;
 					
@@ -643,10 +662,10 @@ class CookAssistantController extends Controller {
 									
 									//for simulation:
 									if (isset($step['STE_GRAMS']) && $step['STE_GRAMS']>0){
-										if (!isset($info->ingredientWeight[$recipeNr][$step->ingredient->ING_ID])){
-											$info->ingredientWeight[$recipeNr][$step->ingredient->ING_ID] = $step['STE_GRAMS'];
+										if (!isset($info->ingredientWeightInPan[$recipeNr][$step->ingredient->ING_ID])){
+											$info->ingredientWeightInPan[$recipeNr][$step->ingredient->ING_ID] = $step['STE_GRAMS'];
 										} else {
-											$info->ingredientWeight[$recipeNr][$step->ingredient->ING_ID] += $step['STE_GRAMS'];
+											$info->ingredientWeightInPan[$recipeNr][$step->ingredient->ING_ID] += $step['STE_GRAMS'];
 										}
 										$info->totalWeight[$recipeNr] += $step['STE_GRAMS'];
 										
@@ -671,8 +690,8 @@ class CookAssistantController extends Controller {
 								//} else if ($stepAttributes['AOU_DUR_PRO'] > 0 && (isset($stepAttributes['STE_GRAMS']) && $stepAttributes['STE_GRAMS']>0){
 								//	$stepAttributes['CALC_DURATION'] = $stepAttributes['AOU_DURATION'] * ( $stepAttributes['STE_GRAMS'] / $stepAttributes['AOU_DUR_PRO']) ;
 								} else if ($stepAttributes['AOU_DUR_PRO'] > 0){
-									if (isset($info->ingredientWeight[$recipeNr][$stepAttributes['ING_ID']])){
-										$ingWeight = $info->ingredientWeight[$recipeNr][$stepAttributes['ING_ID']];
+									if (isset($info->ingredientWeightInPan[$recipeNr][$stepAttributes['ING_ID']])){
+										$ingWeight = $info->ingredientWeightInPan[$recipeNr][$stepAttributes['ING_ID']];
 									} else {
 										$ingWeight = 0;
 									}
@@ -794,8 +813,8 @@ class CookAssistantController extends Controller {
 					$info->prepareTime[$recipeNr] = $prepareTime;
 					$info->cookTime[$recipeNr] = $cookTime;
 					
-					//Reset ingredientWeight / totalWeight after simulation
-					$info->ingredientWeight[$recipeNr] = array();
+					//Reset ingredientWeightInPan / totalWeight after simulation
+					$info->ingredientWeightInPan[$recipeNr] = array();
 					$info->totalWeight[$recipeNr] = 0;
 					
 					$info->recipeCookedInfos[$recipeNr]['coi_id']=$coi_id;
@@ -1071,11 +1090,23 @@ class CookAssistantController extends Controller {
 				$additional.=', P0:' . $state->P0;
 				$mealStep->currentTemp = $state->T0;
 				$mealStep->currentPress = $state->P0;
-				echo '{percent:1, restTime:0' .$additional . ', startTime:'.$_GET['startTime'] . '}';
+				echo '{percent:1, restTime:0' .$additional . /*', startTime:'.$_GET['startTime'] .*/ '}';
+			}
+			
+			if ($state->heaterHasPower == 0 && $state->SMODE!=self::STANDBY && $state->SMODE!=self::SCALE && $state->SMODE < self::HOT){
+				echo '{"error":"Please press Power Button at front to enable Header & Motor"}';
+				return;
+			}
+			if ($state->noPan == 1  && $state->SMODE!=self::STANDBY && $state->SMODE!=self::SCALE && $state->SMODE < self::HOT){
+				echo '{"error":"Please add Pan"}';
 				return;
 			}
 			
 			$recipe = $info->meal->meaToCous[$info->courseNr]->course->couToRecs[$recipeNr]->recipe;
+			if ($info->stepNumbers[$recipeNr] == -1){
+				echo '{"error":"' . 'Not yet start cooking."}';
+				return;
+			}
 			$step = $info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]];
 			$executetTime = time() - $info->stepStartTime[$recipeNr];
 			
@@ -1085,6 +1116,11 @@ class CookAssistantController extends Controller {
 			$mealStep->inTime = $stepStartTime + $mealStep->nextStepTotal < $currentTime;
 			$restTime = $mealStep->nextStepIn;
 			
+			if (isset($mealStep->nextStepTotal) && $mealStep->nextStepTotal >0){
+				$percent = 1 - ($restTime / $mealStep->nextStepTotal);
+			} else {
+				$percent = 1;
+			}
 			//$restTime = $state->STIME;
 			$additional='';
 			if ($state->SMODE==self::STANDBY || $state->SMODE==self::CUT || $state->SMODE==self::MOTOR || $state->SMODE==self::COOK || $state->SMODE==self::PRESSHOLD || $state->SMODE==self::COOK_TIMEEND || $state->SMODE==self::RECIPE_END){
@@ -1112,6 +1148,7 @@ class CookAssistantController extends Controller {
 					$additional .= ', text: "' . $text . '"';
 				}
 			} else if ($state->SMODE==self::HEADUP || $state->SMODE==self::HOT){
+				/*
 				if ($step['STE_CELSIUS'] != 0){
 					$percent = $state->T0 / $step['STE_CELSIUS'];
 				} else {
@@ -1120,12 +1157,16 @@ class CookAssistantController extends Controller {
 				if ($percent>0.05){ //>5%
 					$restTime = round(($executetTime / $percent) - $executetTime);
 				}
+				*/
 			} else if ($state->SMODE==self::COOLDOWN || $state->SMODE==self::COLD){
+				/*
 				$percent = $step['STE_CELSIUS'] / $state->T0; //TODO: correct?
 				if ($percent>0.05){ //>5%
 					$restTime = round(($executetTime / $percent) - $executetTime);
 				}
+				*/
 			} else if ($state->SMODE==self::PRESSUP || $state->SMODE==self::PRESSURIZED){
+				/*
 				if ($step['STE_KPA'] != 0){
 					$percent = $state->P0 / $step['STE_KPA'];
 				} else {
@@ -1134,11 +1175,14 @@ class CookAssistantController extends Controller {
 				if ($percent>0.05){ //>5%
 					$restTime = round(($executetTime / $percent) - $executetTime);
 				}
+				*/
 			} else if ($state->SMODE==self::PRESSDOWN  || $state->SMODE==self::PRESSVENT ||$state->SMODE==self::PRESSURELESS){
+				/*
 				$percent = $step['STE_KPA'] / $state->P0; //TODO: correct?
 				if ($percent>0.05){ //>5%
 					$restTime = round(($executetTime / $percent) - $executetTime);
 				}
+				*/
 			} else if ($state->SMODE==self::INPUT_ERROR){
 				echo '{"error":"' . 'Input Error' . '"}';
 				return;
@@ -1212,15 +1256,18 @@ class CookAssistantController extends Controller {
 			
 			$additional.=', T0:' . $state->T0;
 			$additional.=', P0:' . $state->P0;
+			$additional.=', SMODE:' . $state->SMODE;
+			
 			echo '{percent:' . $percent . ', restTime:' . $restTime .$additional . ', startTime:'.$_GET['startTime'] . ', SID:' . $state->SID . '}';
 			
 			//{"T0":100,"P0":0,"M0RPM":0,"M0ON":0,"M0OFF":0,"W0":0,"STIME":30,"SMODE":10,"SID":0}
+		} else {
+			echo '{"error":"cook with not yet set"}';
+			return;
 		}
 	}
 	
 	private function sendActionToFirmware($info, $recipeNr){
-	//TODO remove:
-//	return;
 		try{
 			if (isset($info->cookWith[$recipeNr]) && count($info->cookWith[$recipeNr])>0 && $info->cookWith[$recipeNr][0]!=self::COOK_WITH_OTHER){
 				if (isset($info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]])){
@@ -1360,7 +1407,7 @@ class CookAssistantController extends Controller {
 		$m_lipid = 0.0;
 		$m_prot = 0.0;
 		$m_carb = 0.0;
-		foreach($info->ingredientWeight[$recipeNr] as $ing_id=>$weight){
+		foreach($info->ingredientWeightInPan[$recipeNr] as $ing_id=>$weight){
 			$nutrientData = $info->ingredientIdToNutrient[$ing_id];
 			
 			$m_H2O += $nutrientData->NUT_WATER * $weight / 100.0;
@@ -1393,7 +1440,7 @@ class CookAssistantController extends Controller {
 		$m_lipid = 0.0;
 		$m_prot = 0.0;
 		$m_carb = 0.0;
-		foreach($info->ingredientWeight[$recipeNr] as $ing_id=>$weight){
+		foreach($info->ingredientWeightInPan[$recipeNr] as $ing_id=>$weight){
 			$nutrientData = $info->ingredientIdToNutrient[$ing_id];
 			
 			$m_H2O += $nutrientData->NUT_WATER * $weight / 100.0;

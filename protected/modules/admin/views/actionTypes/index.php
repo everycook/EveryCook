@@ -16,20 +16,30 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Actions Outs'=>array('index'),
-	'Create',
+	'Action Types',
 );
 
 $this->menu=array(
-	array('label'=>'List ActionsOut', 'url'=>array('index')),
-	array('label'=>'Manage ActionsOut', 'url'=>array('admin')),
+	array('label'=>'Create ActionTypes', 'url'=>array('create')),
+	array('label'=>'Manage ActionTypes', 'url'=>array('admin')),
 );
+
+if (!$this->isFancyAjaxRequest){
+	//if ($this->validSearchPerformed){
+		$this->mainButtons = array(
+			array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('create',array('newModel'=>time()))),
+		);
+	//}
+}
 ?>
 
-<h1><?php echo $this->trans->TITLE_ACTIONSOUT_CREATE; ?></h1>
-<?php echo $this->renderPartial('_form', array(
-	'model'=>$model,
-	'stepTypes'=>$stepTypes,
-	'tools'=>$tools,
-	'actionTypes'=>$actionTypes
-	)); ?>
+<h1><?php echo $this->trans->TITLE_ACTIONTYPES_LIST; ?></h1>
+<div class="f-center">
+	<?php
+  echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('create','newModel'=>time()), array('class'=>'button', 'id'=>'create')); ?><br>
+</div>
+
+<?php $this->widget('AjaxPagingListView', array(
+	'dataProvider'=>$dataProvider,
+	'itemView'=>'_view_array',
+)); ?>

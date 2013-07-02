@@ -70,6 +70,9 @@ See GPLv3.htm in the main folder for details.
 		<?php echo CHtml::encode($data->AOU_CIS_CHANGE); ?>
 		<br />
 
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ATY_ID')); ?>:</b>
+		<?php echo CHtml::encode($data->ATY_ID); ?>
+		<br />
 		<b><?php echo CHtml::encode($data->getAttributeLabel('AOU_DESC_DE_CH')); ?>:</b>
 		<?php echo CHtml::encode($data->AOU_DESC_DE_CH); ?>
 		<br />

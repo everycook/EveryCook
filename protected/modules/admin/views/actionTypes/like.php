@@ -16,20 +16,31 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Actions Outs'=>array('index'),
-	'Create',
+	'Action Types',
 );
 
 $this->menu=array(
-	array('label'=>'List ActionsOut', 'url'=>array('index')),
-	array('label'=>'Manage ActionsOut', 'url'=>array('admin')),
+	array('label'=>'Create ActionTypes', 'url'=>array('create')),
+	array('label'=>'Manage ActionTypes', 'url'=>array('admin')),
 );
 ?>
 
-<h1><?php echo $this->trans->TITLE_ACTIONSOUT_CREATE; ?></h1>
-<?php echo $this->renderPartial('_form', array(
-	'model'=>$model,
-	'stepTypes'=>$stepTypes,
-	'tools'=>$tools,
-	'actionTypes'=>$actionTypes
+
+<div>
+<?php $form=$this->beginWidget('CActiveForm', array(
+		'action'=>Yii::app()->createUrl($this->route),
+		'id'=>'action-types_form',
+		'method'=>'post',
+		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 	)); ?>
+	
+<?php $this->widget('AjaxPagingListView', array(
+	'dataProvider'=>$dataProvider,
+	'itemView'=>'_view_array',
+	'ajaxUpdate'=>false,
+	'id'=>'action-typesResult',
+)); ?>
+
+<?php $this->endWidget(); ?>
+
+</div>

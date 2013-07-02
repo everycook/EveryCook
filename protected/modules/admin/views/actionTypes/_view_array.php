@@ -14,22 +14,40 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 
 See GPLv3.htm in the main folder for details.
 */
-
-$this->breadcrumbs=array(
-	'Actions Outs'=>array('index'),
-	'Create',
-);
-
-$this->menu=array(
-	array('label'=>'List ActionsOut', 'url'=>array('index')),
-	array('label'=>'Manage ActionsOut', 'url'=>array('admin')),
-);
 ?>
+<div class="resultArea adminArea">
+<?php
+	if ($this->isFancyAjaxRequest){
+		echo CHtml::link($this->trans->GENERAL_SELECT, $data['ATY_ID'], array('class'=>'f-right button ActionTypesSelect'));
+	}
+	?>
+	
+	<div class="data">
+		<div class="name">
+			<?php
+			if ($this->isFancyAjaxRequest){
+				echo CHtml::encode($data['ATY_DESC_' . Yii::app()->session['lang']]);
+			} else {
+				echo CHtml::link(CHtml::encode($data['ATY_DESC_' . Yii::app()->session['lang']]), array('view', 'id'=>$data['ATY_ID']));
+			}
+			?>
+		</div>
+		
+		<?php /*
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ATY_ID')); ?>:</b>
+		<?php echo CHtml::link(CHtml::encode($data->ATY_ID), array('view', 'id'=>$data->ATY_ID)); ?>
+		<br />
 
-<h1><?php echo $this->trans->TITLE_ACTIONSOUT_CREATE; ?></h1>
-<?php echo $this->renderPartial('_form', array(
-	'model'=>$model,
-	'stepTypes'=>$stepTypes,
-	'tools'=>$tools,
-	'actionTypes'=>$actionTypes
-	)); ?>
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ATY_DESC_EN_GB')); ?>:</b>
+		<?php echo CHtml::encode($data->ATY_DESC_EN_GB); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ATY_DESC_DE_CH')); ?>:</b>
+		<?php echo CHtml::encode($data->ATY_DESC_DE_CH); ?>
+		<br />
+
+
+		*/ ?>
+	</div>
+	<div class="clearfix"></div>
+</div>

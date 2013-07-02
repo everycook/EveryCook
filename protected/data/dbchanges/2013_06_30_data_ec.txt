@@ -1,0 +1,19 @@
+INSERT INTO `action_types` (`ATY_ID`, `ATY_DESC_EN_GB`, `ATY_DESC_DE_CH`, `CREATED_BY`, `CREATED_ON`, `CHANGED_BY`, `CHANGED_ON`) VALUES
+('1', 'No Special', 'Nichts spezielles', '3', UNIX_TIMESTAMP( ), NULL, NULL),
+('2', 'Put in CookIn', 'in CookIn eingefügen', '3', UNIX_TIMESTAMP( ), NULL, NULL);
+
+UPDATE `actions_out` SET `ATY_ID` = '1' WHERE `actions_out`. `ATY_ID` = 0;
+
+UPDATE `actions_out` SET `ATY_ID` = '2' WHERE `actions_out`.`AOU_ID` =5;
+UPDATE `actions_out` SET `ATY_ID` = '2' WHERE `actions_out`.`AOU_ID` =8;
+UPDATE `actions_out` SET `ATY_ID` = '2' WHERE `actions_out`.`AOU_ID` =9;
+UPDATE `actions_out` SET `ATY_ID` = '2' WHERE `actions_out`.`AOU_ID` =10;
+UPDATE `actions_out` SET `ATY_ID` = '2' WHERE `actions_out`.`AOU_ID` =11;
+UPDATE `actions_out` SET `ATY_ID` = '2' WHERE `actions_out`.`AOU_ID` =17;
+UPDATE `actions_out` SET `ATY_ID` = '2' WHERE `actions_out`.`AOU_ID` =38;
+
+
+INSERT INTO `textes` (`TXT_NAME`, `EN_GB`, `DE_CH`, `FR_FR`) VALUES
+('FIELD_ATY_ID', 'Action type', 'Aktion Typ', ''),
+('FIELD_ATY_DESC_EN_GB', 'Description English', 'Beschreibung Englisch', ''),
+('FIELD_ATY_DESC_DE_CH', 'Description German', 'Beschreibung Deutsch', '');

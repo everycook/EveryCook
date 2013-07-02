@@ -273,6 +273,9 @@ class ActionsGeneratorController extends Controller
 		$stepTypeConfig = Yii::app()->db->createCommand()->select('STT_ID,STT_DESC_'.Yii::app()->session['lang'])->from('step_types')->order('STT_ID')->queryAll();
 		$stepTypes = CHtml::listData($stepTypeConfig,'STT_ID','STT_DESC_'.Yii::app()->session['lang']);
 		
+		$actionTypes = Yii::app()->db->createCommand()->select('ATY_ID,ATY_DESC_'.Yii::app()->session['lang'])->from('action_types')->order('ATY_ID')->queryAll();
+		$actionTypes = CHtml::listData($actionTypes,'ATY_ID','ATY_DESC_'.Yii::app()->session['lang']);
+		
 		
 		$stepsJSON = CJSON::encode($model->ainToAous);
 		
@@ -292,6 +295,7 @@ class ActionsGeneratorController extends Controller
 				'cookInPreps'=>$cookInPreps,
 				'stepTypes'=>$stepTypes,
 				'tools'=>$tools,
+				'actionTypes'=>$actionTypes,
 				'stepsJSON'=>$stepsJSON,
 			));
 		} else if ($view == 'copy'){

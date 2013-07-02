@@ -27,6 +27,7 @@ See GPLv3.htm in the main folder for details.
 	</div>
 	<div class="recipeSteps">
 	<?php
+		$allFinished=true;
 		$i=0; 
 		foreach($info->steps as $mealStep){
 			$cookWith = '';
@@ -75,6 +76,7 @@ See GPLv3.htm in the main folder for details.
 					echo '</div>';
 					if (!$mealStep->endReached){
 						echo CHtml::link('<div></div>', array('next', 'recipeNr'=>$mealStep->recipeNr, 'step'=>$mealStep->stepNr), array('class'=>'nextStep' . (($mealStep->stepNr == -1)?' startStep':'') . (($mealStep->autoClick)?' autoClick':'') . (($mealStep->mustWait)?' mustWait':'') . (($mealStep->stepType == CookAssistantController::SCALE)?' isWeightStep':'')));
+						$allFinished=false;
 					} else  {
 						if (isset($info->courseFinished[$info->courseNr]) && $info->courseFinished[$info->courseNr] === true){
 							$course = $info->meal->meaToCous[$info->courseNr]->course;
@@ -103,3 +105,11 @@ See GPLv3.htm in the main folder for details.
 	?>
 	</div>
 </div>
+
+<script type="text/javascript">
+	<?php if ($allFinished){
+		echo "jQuery('#metaNavButtons').show();";
+	} else {
+		echo "jQuery('#metaNavButtons').hide();";
+	} ?>
+</script>

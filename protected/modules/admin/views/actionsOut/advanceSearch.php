@@ -118,7 +118,12 @@ if ($this->isFancyAjaxRequest){ ?>
 
 	<div class="row">
 		<?php echo $form->label($model,'AOU_CIS_CHANGE'); ?>
-		<?php echo $form->textField($model,'AOU_CIS_CHANGE'); ?>
+		<?php echo $form->textField($model,'AOU_CIS_CHANGE',array('size'=>60,'maxlength'=>100)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'ATY_ID'); ?>
+		<?php echo $form->textField($model,'ATY_ID'); ?>
 	</div>
 
 	<div class="row">

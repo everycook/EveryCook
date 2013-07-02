@@ -25,6 +25,7 @@ $this->breadcrumbs=array(
 	<?php echo CHtml::link('ActionsGenerator', array('actionsGenerator/index'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('Actions In', array('actionsIn/search'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('Actions Out', array('actionsOut/search'), array('class'=>'button')); ?><br />
+	<?php echo CHtml::link('Action Types', array('actionTypes/search'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('Tools', array('tools/search'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('StepTypes', array('stepTypes/search'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('Cook In', array('cookIn/search'), array('class'=>'button')); ?><br />

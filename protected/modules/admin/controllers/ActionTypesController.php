@@ -15,7 +15,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 See GPLv3.htm in the main folder for details.
 */
 
-class ActionsOutController extends Controller
+class ActionTypesController extends Controller
 {
 	/**
 	 * @return array action filters
@@ -26,8 +26,8 @@ class ActionsOutController extends Controller
 		);
 	}
 	
-	protected $createBackup = 'ActionsOut_Backup';
-	protected $searchBackup = 'ActionsOut';
+	protected $createBackup = 'ActionTypes_Backup';
+	protected $searchBackup = 'ActionTypes';
 	
 	/**
 	 * Specifies the access control rules.
@@ -37,7 +37,7 @@ class ActionsOutController extends Controller
 	public function accessRules(){
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','chooseActionsOut','advanceChooseActionsOut'),
+				'actions'=>array('index','view','search','advanceSearch','chooseActionTypes','advanceChooseActionTypes'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -78,7 +78,7 @@ class ActionsOutController extends Controller
 			$oldmodel = $Session_Backup;
 		}
 		if (isset($id) && $id != null){
-			if (!isset($oldmodel) || $oldmodel->AOU_ID != $id){
+			if (!isset($oldmodel) || $oldmodel->ATY_ID != $id){
 				$oldmodel = $this->loadModel($id, true);
 			}
 		}
@@ -86,7 +86,7 @@ class ActionsOutController extends Controller
 		if (isset($oldmodel)){
 			$model = $oldmodel;
 		} else {
-			$model=new ActionsOut;
+			$model=new ActionTypes;
 		}
 		return $model;
 	}
@@ -100,33 +100,20 @@ class ActionsOutController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['ActionsOut']))
+		if(isset($_POST['ActionTypes']))
 		{
-			$model->attributes=$_POST['ActionsOut'];
+			$model->attributes=$_POST['ActionTypes'];
 			if($model->save()){
 				unset(Yii::app()->session[$this->createBackup]);
 				unset(Yii::app()->session[$this->createBackup.'_Time']);
-				$this->forwardAfterSave(array('view', 'id'=>$model->AOU_ID));
-				//$this->forwardAfterSave(array('search', 'query'=>$model->__get('AOU_DESC_' . Yii::app()->session['lang'])));
+				$this->forwardAfterSave(array('view', 'id'=>$model->ATY_ID));
+				//$this->forwardAfterSave(array('search', 'query'=>$model->__get('ATY_DESC_' . Yii::app()->session['lang'])));
 				return;
 			}
 		}
-		
-		
-		$stepTypes = Yii::app()->db->createCommand()->select('STT_ID,STT_DESC_'.Yii::app()->session['lang'])->from('step_types')->order('STT_ID')->queryAll();
-		$stepTypes = CHtml::listData($stepTypes,'STT_ID','STT_DESC_'.Yii::app()->session['lang']);
-		
-		$tools = Yii::app()->db->createCommand()->select('TOO_ID,TOO_DESC_'.Yii::app()->session['lang'])->from('tools')->order('TOO_DESC_'.Yii::app()->session['lang'])->queryAll();
-		$tools = CHtml::listData($tools,'TOO_ID','TOO_DESC_'.Yii::app()->session['lang']);
-		
-		$actionTypes = Yii::app()->db->createCommand()->select('ATY_ID,ATY_DESC_'.Yii::app()->session['lang'])->from('action_types')->order('ATY_ID')->queryAll();
-		$actionTypes = CHtml::listData($actionTypes,'ATY_ID','ATY_DESC_'.Yii::app()->session['lang']);
-		
+
 		$this->checkRenderAjax($view,array(
 			'model'=>$model,
-			'stepTypes'=>$stepTypes,
-			'tools'=>$tools,
-			'actionTypes'=>$actionTypes,
 		));
 	}
 		
@@ -176,7 +163,7 @@ class ActionsOutController extends Controller
 	 * Lists all models.
 	 */
 	public function actionIndex(){
-		$dataProvider=new CActiveDataProvider('ActionsOut');
+		$dataProvider=new CActiveDataProvider('ActionTypes');
 		$this->checkRenderAjax('index',array(
 			'dataProvider'=>$dataProvider,
 		));
@@ -184,7 +171,7 @@ class ActionsOutController extends Controller
 	
 	
 	private function prepareSearch($view, $ajaxLayout, $criteria){
-		$model=new ActionsOut('search');
+		$model=new ActionTypes('search');
 		$model->unsetAttributes();  // clear any default values
 		
 		$model2 = new SimpleSearchForm();
@@ -198,14 +185,14 @@ class ActionsOutController extends Controller
 		}
 		
 		$modelAvailable = false;
-		if(isset($_POST['ActionsOut'])) {
-			$model->attributes=$_POST['ActionsOut'];
+		if(isset($_POST['ActionTypes'])) {
+			$model->attributes=$_POST['ActionTypes'];
 			$modelAvailable = true;
 		}
 		
 		$Session_Data = Yii::app()->session[$this->searchBackup];
 		if (isset($Session_Data)){
-			if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['ActionsOut']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_Data['time'])){
+			if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['ActionTypes']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_Data['time'])){
 				if (isset($Session_Data['query'])){
 					$query = $Session_Data['query'];
 					$model2->query = $query;
@@ -271,8 +258,8 @@ class ActionsOutController extends Controller
 		}*/
 		
 		$dataProvider=new CArrayDataProvider($rows, array(
-			'id'=>'AOU_ID',
-			'keyField'=>'AOU_ID',
+			'id'=>'ATY_ID',
+			'keyField'=>'ATY_ID',
 			'pagination'=>array(
 				'pageSize'=>10,
 			),
@@ -303,12 +290,12 @@ class ActionsOutController extends Controller
 		$this->prepareSearch('search', null, null);
 	}
 	
-	public function actionChooseActionsOut(){
+	public function actionChooseActionTypes(){
 		$this->isFancyAjaxRequest = true;
 		$this->prepareSearch('search', 'none', null);
 	}
 	
-	public function actionAdvanceChooseActionsOut(){
+	public function actionAdvanceChooseActionTypes(){
 		$this->isFancyAjaxRequest = true;
 		$this->prepareSearch('advanceSearch', 'none', null);
 	}
@@ -322,7 +309,7 @@ class ActionsOutController extends Controller
 		
 		$ids = explode(',', $ids);
 		$criteria=new CDbCriteria;
-		$criteria->compare(ActionsOut::model()->tableName().'.AOU_ID',$ids);
+		$criteria->compare(ActionTypes::model()->tableName().'.ATY_ID',$ids);
 		
 		$this->prepareSearch('like', null, $criteria);
 	}
@@ -336,7 +323,7 @@ class ActionsOutController extends Controller
 		
 		$ids = explode(',', $ids);
 		$criteria=new CDbCriteria;
-		$criteria->compare(ActionsOut::model()->tableName().'.AOU_ID',$ids);
+		$criteria->compare(ActionTypes::model()->tableName().'.ATY_ID',$ids);
 		
 		$this->prepareSearch('like', null, $criteria);
 	}
@@ -362,7 +349,7 @@ class ActionsOutController extends Controller
 		if ($id == 'backup'){
 			$model=Yii::app()->session[$this->createBackup];
 		} else {
-			$model=ActionsOut::model()->findByPk($id);
+			$model=ActionTypes::model()->findByPk($id);
 		}
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
@@ -374,7 +361,7 @@ class ActionsOutController extends Controller
 	 * @param CModel the model to be validated
 	 */
 	protected function performAjaxValidation($model){
-		if(isset($_POST['ajax']) && $_POST['ajax']==='actions-out-form')
+		if(isset($_POST['ajax']) && $_POST['ajax']==='action-types-form')
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();

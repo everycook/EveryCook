@@ -1,5 +1,4 @@
-<?php
-/*
+<?php /*
 This is the EveryCook Recipe Database. It is a web application for creating (and storing) machine (and human) readable recipes.
 These recipes are linked to foods and suppliers to allow meal planning and shopping list creation. It also guides the user step-by-step through the recipe with the CookAssistant
 EveryCook is an open source platform for collecting all data about food and make it available to all kinds of cooking devices.
@@ -15,21 +14,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 See GPLv3.htm in the main folder for details.
 */
 
-$this->breadcrumbs=array(
-	'Actions Outs'=>array('index'),
-	'Create',
-);
-
-$this->menu=array(
-	array('label'=>'List ActionsOut', 'url'=>array('index')),
-	array('label'=>'Manage ActionsOut', 'url'=>array('admin')),
-);
-?>
-
-<h1><?php echo $this->trans->TITLE_ACTIONSOUT_CREATE; ?></h1>
-<?php echo $this->renderPartial('_form', array(
-	'model'=>$model,
-	'stepTypes'=>$stepTypes,
-	'tools'=>$tools,
-	'actionTypes'=>$actionTypes
-	)); ?>
+$this->widget('AjaxPagingListView', array(
+	'dataProvider'=>$dataProvider,
+	'itemView'=>'_view_array',
+)); ?>

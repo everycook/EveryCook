@@ -16,20 +16,20 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Actions Outs'=>array('index'),
-	'Create',
+	'Action Types'=>array('index'),
+	$model->ATY_ID=>array('view','id'=>$model->ATY_ID),
+	'Update',
 );
 
 $this->menu=array(
-	array('label'=>'List ActionsOut', 'url'=>array('index')),
-	array('label'=>'Manage ActionsOut', 'url'=>array('admin')),
+	array('label'=>'List ActionTypes', 'url'=>array('index')),
+	array('label'=>'Create ActionTypes', 'url'=>array('create')),
+	array('label'=>'View ActionTypes', 'url'=>array('view', 'id'=>$model->ATY_ID)),
+	array('label'=>'Manage ActionTypes', 'url'=>array('admin')),
 );
 ?>
 
-<h1><?php echo $this->trans->TITLE_ACTIONSOUT_CREATE; ?></h1>
+<h1><?php printf($this->trans->TITLE_ACTIONTYPES_UPDATE, $model->ATY_ID); ?></h1>
 <?php echo $this->renderPartial('_form', array(
 	'model'=>$model,
-	'stepTypes'=>$stepTypes,
-	'tools'=>$tools,
-	'actionTypes'=>$actionTypes
 	)); ?>
