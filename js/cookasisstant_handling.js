@@ -24,6 +24,7 @@ jQuery(function($){
 	var gotoNextTime=[];
 	var interval = -1;
 	var errorCounter=[];
+	var lastError=[];
 	var connections=[];
 	var socketToConnections=[];
 	var lastWebsocketConnectTime=[];
@@ -37,16 +38,18 @@ jQuery(function($){
 				window.clearInterval(interval);
 			}
 			if (typeof(contentParent) === 'undefined') return;
-			startTime = [];
-			currentTime = new Date().getTime();
-			contentParent.find('.recipeStep').each(function(index){
-				startTime[index] = currentTime;
-				lastPercent[index] = 0;
-			});
-			errorCounter=[];
-			initialize(type);
-			interval = window.setInterval(updateTime,500);
-			updateTime(true);
+			if (jQuery('.recipeStep').length > 0){
+				startTime = [];
+				currentTime = new Date().getTime();
+				contentParent.find('.recipeStep').each(function(index){
+					startTime[index] = currentTime;
+					lastPercent[index] = 0;
+				});
+				errorCounter=[];
+				initialize(type);
+				interval = window.setInterval(updateTime,500);
+				updateTime(true);
+			}
 		}
 	}
 	
@@ -452,7 +455,7 @@ jQuery(function($){
 	}
 	
 	jQuery('body').undelegate('.cookAssistant .nextStep.mustWait','click').delegate('.cookAssistant .nextStep.mustWait','click', function(){
-		var result = window.confirm('Timeend not reached, changing could messup the Recipe, want to finish step anyway?');
+		var result = window.confirm('Timeend not reached, changing could mess up the Recipe, want to finish step anyway?');
 		return result;
 	});
 	
@@ -526,8 +529,22 @@ jQuery(function($){
 			var nextTime = connections[connectionIndex]['recipeStep'].find('.nextTime:first span');
 			if (connections[connectionIndex]['active'] != false){
 				currentTime = new Date().getTime();
-				if (!handleUpdate(connections[connectionIndex]['recipeStep'], msg.data, connections[connectionIndex]['index'], nextTime, currentTime)){
-					this.send('getState');
+				var index = connections[connectionIndex]['index'];
+				var timeSinceLastUpdate = currentTime - lastUpdateTime[index];
+				if (!handleUpdate(connections[connectionIndex]['recipeStep'], msg.data, index, nextTime, currentTime)){
+					if (timeSinceLastUpdate > 10000){
+						this.send('getState');
+					} else {
+						var json;
+						try {
+							json = JSON.parse(data);
+						} catch (exception){
+							eval('var json = ' + data + ';');
+						}
+						if (lastError[index] != json.error){
+							this.send('getState');
+						}
+					}
 				}
 			}
 		};
@@ -541,6 +558,7 @@ jQuery(function($){
 	function connectToWebsocket(recipeStep, ip, port, index, currentTime) {
 		lastWebsocketConnectTime[index] = currentTime;
 		var serverUrl = ip + ':' + port + '/everycook';
+		serverUrl = serverUrl + '?recipeNr=' + index;
 		if (location.protocol == "https:"){
 			serverUrl = 'wss://' + serverUrl;
 		} else {

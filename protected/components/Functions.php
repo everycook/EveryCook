@@ -232,6 +232,11 @@ class Functions extends CHtml{
 		if (isset($options['new'])){
 			$new = $options['new'];
 			$new->unsetAttributes(); // clear any default values
+			if (isset($options['newValues'])){ //add default values if needed
+				foreach($options['newValues'] as $key=>$value){
+					$new->$key = $value;
+				}
+			}
 			unset($options['new']);
 		}
 		if (isset($options['newNotClean'])){

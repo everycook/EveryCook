@@ -69,8 +69,7 @@ See GPLv3.htm in the main folder for details.
 					array(null, $this->trans->MEALPLANNER_PEOPLE_GDA, null, array('htmlTag'=>'span','htmlContent'=>sprintf($this->trans->MEALPLANNER_PEOPLE_GDA_SUM,'<span class="value">0</span>'))),
 				);
 				$text = array('add'=>$this->trans->GENERAL_ADD, 'remove'=>$this->trans->GENERAL_REMOVE, 'options'=>'Options');
-				
-				$options = array('new'=>new CouPeopleGDA,'noTitle'=>true);
+				$options = array('new'=>new CouPeopleGDA, 'newValues'=>array('amount'=>1),'noTitle'=>true);
 				echo Functions::createInputTable(array(), $fieldOptions, $options, $form, $text);
 			?>
 			</div>

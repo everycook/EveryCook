@@ -168,6 +168,8 @@ return array(
 		'FinishedActionId'=>13,
 		'PrepareActionId'=>11,
 		'syncCredentialsFile'=>'/opt/EveryCook/sync/login_cred',
-		'cacheMethode'=>'session' //'session','apc','memcached',
+		'cacheMethode'=>'session', //'session','apc','memcached',
+		'stepMinTime'=>10,
+		'runSyncCommand'=>'/opt/EveryCook/installSettings everycook_sync_wait',
 	),
 );
