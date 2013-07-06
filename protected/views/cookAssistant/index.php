@@ -46,7 +46,7 @@ See GPLv3.htm in the main folder for details.
 					echo '<input type="hidden" name="finishTime" value="' . $mealStep->finishedIn . '"/>';
 					echo '<input type="hidden" name="lowestFinishTime" value="' . $mealStep->lowestFinishedIn . '"/>';
 					if ($cookWith!=''){
-						echo '<div class="temp"><div><div>' . $this->trans->COOKASISSTANT_TEMPERATURE . ' <span class="temp">'.$mealStep->currentTemp.'</span>°C</div><div>' . $this->trans->COOKASISSTANT_PRESSURE . ' <span class="press">'.$mealStep->currentPress.'</span>pa</div></div></div>';
+						echo '<div class="temp"><div><div>' . $this->trans->COOKASISSTANT_TEMPERATURE . ' <span class="temp">'.$mealStep->currentTemp.'</span>°C</div><div>' . $this->trans->COOKASISSTANT_PRESSURE . ' <span class="press">'.$mealStep->currentPress.'</span>kPa</div></div></div>';
 					}
 					if (!$mealStep->endReached){
 						echo '<div class="nextTime' . (($mealStep->inTime)?'':' toLate') . '"><div>' . $this->trans->COOKASISSTANT_NEXT_STEP_IN . ' <span>'  . '</span></div></div>'; // $mealStep->nextStepIn . 
@@ -108,8 +108,9 @@ See GPLv3.htm in the main folder for details.
 
 <script type="text/javascript">
 	<?php if ($allFinished){
-		echo "jQuery('#metaNavButtons').show();";
+		echo "jQuery('#metaNav').show();";
 	} else {
-		echo "jQuery('#metaNavButtons').hide();";
+		echo "jQuery('#metaNav').hide();";
+		echo "jQuery('#container').css('margin-top', '1em');";
 	} ?>
 </script>

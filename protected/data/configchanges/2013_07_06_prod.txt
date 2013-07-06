@@ -1,0 +1,4 @@
+	'params'=>array(
+...
+		'stepMinTime'=>10,
+	),

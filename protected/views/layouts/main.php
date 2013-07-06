@@ -146,6 +146,17 @@ See GPLv3.htm in the main folder for details.
 									}
 								}
 							}
+						} 
+						if (isset(Yii::app()->params['isDevice']) && Yii::app()->params['isDevice']){
+							$additionalClass = '';
+							if (isset(Yii::app()->session['syncDone'])){
+								if (Yii::app()->session['syncDone']){
+									$additionalClass = ' syncDone';
+								} else {
+									$additionalClass = ' syncRunning';
+								}
+							}
+							echo CHtml::link($this->trans->GENERAL_SYNC_FROM_PLATFORM, array('site/syncFromPlatform'), array('class'=>'button navMenuListEntry syncButton' . $additionalClass)) . '<br>'."\n";
 						}
 						?>
 					</div>
