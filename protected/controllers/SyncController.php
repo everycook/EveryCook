@@ -127,7 +127,12 @@ class SyncController extends Controller
 			}
 			echo $this->getContentByUser(Yii::app()->dbp, 'meals', Yii::app()->user->id);
 			echo $this->getContentByUser(Yii::app()->dbp, 'profiles', Yii::app()->user->id);
-			$mealIds = Yii::app()->dbp->createCommand()->select('MEA_ID')->from('meals')->where("PRF_UID = ':id'", array(':id'=>Yii::app()->user->id))->queryColumn();
+			//$command = Yii::app()->dbp->createCommand()->select('MEA_ID')->from('meals')->where("PRF_UID = ':id'", array(':id'=>Yii::app()->user->id));
+			//$command = Yii::app()->dbp->createCommand()->select('MEA_ID')->from('meals')->where("PRF_UID = ':id'");
+			//$command->bindValue(':id',Yii::app()->user->id);
+			$command = Yii::app()->dbp->createCommand()->select('MEA_ID')->from('meals')->where("PRF_UID = '" . Yii::app()->user->id . "'");
+			
+			$mealIds = $command->queryColumn();
 			if (count($mealIds)>0){
 				echo $this->getContentByIDs(Yii::app()->dbp, 'mea_to_cou', 'MEA_ID', implode(', ', $mealIds));
 			}
