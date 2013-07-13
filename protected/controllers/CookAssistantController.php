@@ -60,57 +60,6 @@ class CookAssistantController extends Controller {
 	
 	protected $cookingInfoChangeCounter;
 	
-	
-	protected $memcached = null;
-	
-	protected function getMemcached(){
-		if ($this->memcached == null){
-			$this->memcached = new Memcached();
-			$this->memcached->addServer('localhost', 11211);
-		}
-		return $this->memcached;
-	}
-	
-	protected function getFromCache($name){
-		if (Yii::app()->params['cacheMethode'] == 'session'){
-			return Yii::app()->session[$name];
-		} else if (Yii::app()->params['cacheMethode'] == 'apc'){
-			return apc_fetch($name);
-		} else /*if (Yii::app()->params['cacheMethode'] == 'memcached')*/{
-			$memcached = $this->getMemcached();
-			return $memcached->get($name);
-		}
-	}
-	
-	protected function saveToCache($name, $value, $expirationTime=0){
-		if (Yii::app()->params['cacheMethode'] == 'session'){
-			Yii::app()->session[$name] = $value;
-		} else if (Yii::app()->params['cacheMethode'] == 'apc'){
-			if(apc_store($name, $value, $expirationTime)){
-			/*
-			echo "save successfull...";
-			} else {
-				echo "save failed...";
-			*/
-			}
-		} else /*if (Yii::app()->params['cacheMethode'] == 'memcached')*/{
-			$memcached = $this->getMemcached();
-			//$memcached->set($name, $value, $expirationTime);
-			//$value = Functions::objectToArray($value);
-			//$value = Functions::arrayToObject($value);
-			//$value = Functions::mapCActiveRecordToSimpleClass($value);
-			//print_r($value);
-			//if($memcached->set($name."_stdobj", $value, $expirationTime)){
-			if($memcached->set($name, $value, $expirationTime)){
-			/*
-				echo "save successfull...";
-			} else {
-				echo "save failed...";
-			*/
-			}
-		}
-	}
-	
 	private function preloadData($info){
 		for ($courseNr=0; $courseNr<count($info->meal->meaToCous); ++$courseNr){
 			$course = $info->meal->meaToCous[$courseNr]->course;
@@ -150,8 +99,8 @@ class CookAssistantController extends Controller {
 			$ingredientIdToNutrient = $info->ingredientIdToNutrient;
 			$ingredientIdToNutrient = Functions::mapCActiveRecordToSimpleClass($ingredientIdToNutrient);
 			$info->ingredientIdToNutrient = $ingredientIdToNutrient;
-			$this->saveToCache(self::COOKING_INFOS, $info);
-			$this->saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, 0);
+			Functions::saveToCache(self::COOKING_INFOS, $info);
+			Functions::saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, 0);
 			
 			/*
 			echo "<pre>\r\n";
@@ -169,17 +118,17 @@ class CookAssistantController extends Controller {
 	}
 
 	public function actionGotoCourse($number){
-		$info = $this->getFromCache(self::COOKING_INFOS);
-		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		$info = Functions::getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		$meal = $info->meal;
 		if (isset($meal->meaToCous[$number])){
 			$info = $this->loadInfoForCourse($meal, $number);
 			$info = Functions::mapCActiveRecordToSimpleClass($info);
 			
-			$cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+			$cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 			if ($this->cookingInfoChangeCounter == $cookingInfoChangeCounter){
-				$this->saveToCache(self::COOKING_INFOS, $info);
-				$this->saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $cookingInfoChangeCounter+1);
+				Functions::saveToCache(self::COOKING_INFOS, $info);
+				Functions::saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $cookingInfoChangeCounter+1);
 			} else {
 				//TODO: concurrentModification Exception
 			}
@@ -289,8 +238,8 @@ class CookAssistantController extends Controller {
 	}
 	
 	public function actionNext($recipeNr, $step){
-		$info = $this->getFromCache(self::COOKING_INFOS);
-		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		$info = Functions::getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		//if ($this->debug) {error_log("actionNext called with recipeNr: $recipeNr, step: $step\r\n");}
 		if (isset($info->stepNumbers[$recipeNr])){
 			/*
@@ -420,10 +369,10 @@ class CookAssistantController extends Controller {
 						}
 						
 						//error_log("recipeNr: $recipeNr, stepNumber: ".$info->stepNumbers[$recipeNr]." after");
-						$cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+						$cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 						if ($this->cookingInfoChangeCounter == $cookingInfoChangeCounter){
-							$this->saveToCache(self::COOKING_INFOS, $info);
-							$this->saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $cookingInfoChangeCounter+1);
+							Functions::saveToCache(self::COOKING_INFOS, $info);
+							Functions::saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $cookingInfoChangeCounter+1);
 						} else {
 							error_log("cookingInfoChangeCounter is not same!");
 							//TODO: concurrentModification Exception
@@ -654,6 +603,13 @@ class CookAssistantController extends Controller {
 								unset($stepAttributes['actionIn']);
 								unset($stepAttributes['ainToAous']);
 								
+								
+								if ($stepAttributes['ATY_ID'] == 3){ //prepare machine
+									//remove informations not needed for prepare. for example don't show ingredient image on open lid step
+									unset($step->ingredient);
+									unset($stepAttributes['STE_GRAMS']);
+								}
+								
 								if (isset($step->ingredient)){
 									$stepAttributes['ING_ID'] = $step->ingredient->ING_ID;
 									$stepAttributes['ING_IMG_AUTH'] = $step->ingredient->ING_IMG_AUTH;
@@ -865,7 +821,7 @@ class CookAssistantController extends Controller {
 						$currentTemp = $oldMealstep->currentTemp;
 					}
 					if (!isset($currentTemp) || $currentTemp == null || $currentTemp == ''){
-						$state = $this->getFromCache('HWValues');
+						$state = Functions::getFromCache('HWValues');
 						if (isset($state) && isset($state->T0)){
 							$currentTemp = $state->T0;
 						}
@@ -876,7 +832,7 @@ class CookAssistantController extends Controller {
 				} else {
 					$oldMealstep = null;
 					if (!isset($currentTemp) || $currentTemp == null){
-						$state = $this->getFromCache('HWValues');
+						$state = Functions::getFromCache('HWValues');
 						if (isset($state) && isset($state->T0)){
 							$currentTemp = $state->T0;
 						}
@@ -1068,12 +1024,16 @@ class CookAssistantController extends Controller {
 		$courseFinished[$info->courseNr] = $allFinished;
 		$info->courseFinished = $courseFinished;
 		
+		if ($allFinished && count($courseFinished) == 1){
+			$info->allFinished = true;
+		}
+		
 		$info->steps = $currentSteps;
 	}
 	
 	public function actionUpdateState($recipeNr){
-		$info = $this->getFromCache(self::COOKING_INFOS);
-		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		$info = Functions::getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		
 		if (isset($info->cookWith[$recipeNr]) && isset($info->cookWith[$recipeNr][0]) && $info->cookWith[$recipeNr][0]!=self::COOK_WITH_OTHER){
 			$state = $this->readActionFromFirmware($info, $recipeNr);
@@ -1246,10 +1206,10 @@ class CookAssistantController extends Controller {
 			$mealStep->percent = $percent;
 			$mealStep->nextStepIn = $restTime;
 			
-			$cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+			$cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 			if ($this->cookingInfoChangeCounter == $cookingInfoChangeCounter){
-				$this->saveToCache(self::COOKING_INFOS, $info);
-				$this->saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $cookingInfoChangeCounter+1);
+				Functions::saveToCache(self::COOKING_INFOS, $info);
+				Functions::saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $cookingInfoChangeCounter+1);
 			} else {
 				//TODO: concurrentModification Exception
 			}
@@ -1268,6 +1228,8 @@ class CookAssistantController extends Controller {
 	}
 	
 	private function sendActionToFirmware($info, $recipeNr){
+		//TODO: remove return
+		return;
 		try{
 			if (isset($info->cookWith[$recipeNr]) && count($info->cookWith[$recipeNr])>0 && $info->cookWith[$recipeNr][0]!=self::COOK_WITH_OTHER){
 				if (isset($info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]])){
@@ -1463,21 +1425,21 @@ class CookAssistantController extends Controller {
 	
 	
 	public function actionNextCourse(){
-		$info = $this->getFromCache(self::COOKING_INFOS);
-		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		$info = Functions::getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		$this->actionGotoCourse($info->courseNr + 1);
 	}
 	
 	public function actionAbort() {
-		$info = $this->getFromCache(self::COOKING_INFOS);
-		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		$info = Functions::getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		sendStopToFirmware($info);
 		$this->checkRenderAjax('abort');
 	}
 
 	public function actionIndex(){
-		$info = $this->getFromCache(self::COOKING_INFOS);
-		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		$info = Functions::getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		$this->loadSteps($info);
 		
 		$allCookWithSet = true;
@@ -1495,8 +1457,8 @@ class CookAssistantController extends Controller {
 	}
 	
 	public function actionSave(){
-		$info = $this->getFromCache(self::COOKING_INFOS);
-		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		$info = Functions::getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		if(!isset($info) || $info == null){
 			$this->actionStart();
 			return;
@@ -1517,10 +1479,10 @@ class CookAssistantController extends Controller {
 		}
 		$this->loadSteps($info);
 		
-		$cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		$cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		if ($this->cookingInfoChangeCounter == $cookingInfoChangeCounter){
-			$this->saveToCache(self::COOKING_INFOS, $info);
-			$this->saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $cookingInfoChangeCounter+1);
+			Functions::saveToCache(self::COOKING_INFOS, $info);
+			Functions::saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $cookingInfoChangeCounter+1);
 		} else {
 			//TODO: concurrentModification Exception
 		}
@@ -1540,8 +1502,8 @@ class CookAssistantController extends Controller {
 	}
 	
 	public function actionOverview() {
-		$info = $this->getFromCache(self::COOKING_INFOS);
-		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		$info = Functions::getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		$this->loadSteps($info);
 		$this->checkRenderAjax('overview', array('info'=>$info));
 	}
@@ -1553,15 +1515,15 @@ class CookAssistantController extends Controller {
 	
 	public function actionEnd(){
 		//TODO stop cooking
-		$info = $this->getFromCache(self::COOKING_INFOS);
-		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		$info = Functions::getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		sendStopToFirmware($info);
 		$this->checkRenderAjax('end');
 	}
 	
 	public function actionVote($recipeNr, $value){
-		$info = $this->getFromCache(self::COOKING_INFOS);
-		$this->cookingInfoChangeCounter = $this->getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		$info = Functions::getFromCache(self::COOKING_INFOS);
+		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		if (isset($info->voted[$recipeNr]) && $info->voted[$recipeNr]>0){
 			$vote=RecipeVotings::model()->findByPk($info->voted[$recipeNr]);
 		} else {

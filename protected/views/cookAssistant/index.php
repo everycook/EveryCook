@@ -108,6 +108,7 @@ See GPLv3.htm in the main folder for details.
 
 <script type="text/javascript">
 	<?php if ($allFinished){
+		echo "jQuery('#cookassistant.nav_button').remove();";
 		echo "jQuery('#metaNav').show();";
 	} else {
 		echo "jQuery('#metaNav').hide();";
