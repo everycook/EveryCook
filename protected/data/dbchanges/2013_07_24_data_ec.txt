@@ -1,0 +1,5 @@
+INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('COOKASISSTANT_ABORT', 'Abort cooking', 'Kochen abbrechen', ''),
+('GENERAL_COOKASSISTANT', 'to cook assistant', 'zum Kochassistenten', ''),
+('COOKASISSTANT_ERROR_NO_RECIPE', 'No active cooking informations.', 'Keine aktuelle Kochinformationen vorhanden.', ''),
+('COOKASISSTANT_ABORT_MESSAGE', 'cooking is aborted.', 'Kochen wurde abgebrochen', '');

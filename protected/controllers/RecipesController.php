@@ -208,7 +208,7 @@ class RecipesController extends Controller
 			'STE_GRAMS'=>'#weight',
 			'STE_STEP_DURATION'=>'#time',
 			'STE_CELSIUS'=>'#temp',
-			'STE_KPA'=>'#pressure',
+			'STE_KPA'=>'#press',
 			);
 		
 		//loop thru ainToAou, collect all data for actionsIn and prepare details text to show.

@@ -38,6 +38,16 @@ See GPLv3.htm in the main folder for details.
 				<a href="<?php echo Yii::app()->createUrl('site/index',array()); ?>"><div id="logo" class="backpic" alt="EveryCook Logo"></div></a>
 				<div id="metaNavButtons">
 					<?php
+					$info = Functions::getFromCache('cookingInfo');
+					if (isset($info) && $info != null && !$info->allFinished){
+					?>
+					<a class="nav_entry" id="cookassistant" href="<?php echo Yii::app()->createUrl('cookAssistant',array()); ?>">
+						<div class="nav_button">
+							<span><?php echo $this->trans->GENERAL_COOKASSISTANT; ?></span>
+						</div>
+					</a>
+					<?php
+					}
 					if (Yii::app()->user->checkAccess('admin')){
 					?>
 					<a class="nav_entry" href="<?php echo Yii::app()->createUrl('admin/index',array()); ?>">
@@ -188,7 +198,9 @@ See GPLv3.htm in the main folder for details.
 		<div id="footer">
 				Copyright &copy; <?php echo date('Y'); ?> by EveryCook. <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/by-sa.png" width="57" height="20"></a> <?php echo Yii::powered(); ?>
 		</div><!-- footer -->
-		
+		<!--
+		<a href="https://github.com/everycook/EveryCook" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+		-->
 		<script>
 		var _gaq = _gaq || [];
 		_gaq.push(['_setAccount', 'UA-32739550-1']);

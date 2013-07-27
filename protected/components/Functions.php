@@ -24,6 +24,57 @@ class Functions extends CHtml{
 	const IMG_HEIGHT = 400;
 	const IMG_WIDTH = 400;
 	
+	
+	protected static $memcached = null;
+	
+	public static function getMemcached(){
+		if (self::$memcached == null){
+			self::$memcached = new Memcached();
+			self::$memcached->addServer('localhost', 11211);
+		}
+		return self::$memcached;
+	}
+	
+	public static function getFromCache($name){
+		if (Yii::app()->params['cacheMethode'] == 'session'){
+			return Yii::app()->session[$name];
+		} else if (Yii::app()->params['cacheMethode'] == 'apc'){
+			return apc_fetch($name);
+		} else /*if (Yii::app()->params['cacheMethode'] == 'memcached')*/{
+			$memcached = self::getMemcached();
+			return $memcached->get($name);
+		}
+	}
+	
+	public static function saveToCache($name, $value, $expirationTime=0){
+		if (Yii::app()->params['cacheMethode'] == 'session'){
+			Yii::app()->session[$name] = $value;
+		} else if (Yii::app()->params['cacheMethode'] == 'apc'){
+			if(apc_store($name, $value, $expirationTime)){
+			/*
+			echo "save successfull...";
+			} else {
+				echo "save failed...";
+			*/
+			}
+		} else /*if (Yii::app()->params['cacheMethode'] == 'memcached')*/{
+			$memcached = self::getMemcached();
+			//$memcached->set($name, $value, $expirationTime);
+			//$value = Functions::objectToArray($value);
+			//$value = Functions::arrayToObject($value);
+			//$value = Functions::mapCActiveRecordToSimpleClass($value);
+			//print_r($value);
+			//if($memcached->set($name."_stdobj", $value, $expirationTime)){
+			if($memcached->set($name, $value, $expirationTime)){
+			/*
+				echo "save successfull...";
+			} else {
+				echo "save failed...";
+			*/
+			}
+		}
+	}
+	
 	/*
 	public static function preparedStatementToStatement($command, $params){
 		$sql = $command->getText();
@@ -331,7 +382,6 @@ class Functions extends CHtml{
 				$destHeight = $src_h;
 			}
 		}
-		
 		$width = $destWidth;
 		$height = $destHeight;
 		
@@ -342,6 +392,7 @@ class Functions extends CHtml{
 		} else { 
 			$height = ($width / $src_w) * $src_h; 
 		}
+		
 		if ($fillWhite){
 			$imagetc = imagecreatetruecolor($destWidth, $destHeight);
 		} else {
@@ -351,7 +402,7 @@ class Functions extends CHtml{
 		imagealphablending($imagetc, false);
 		imagesavealpha($imagetc, true);
 		//if (($info[0] > $width) or ($info[1] > $height) or ($width != $src_w) or ($height != $src_h) or ($src_x != 0) or ($src_y != 0)){
-		if (($width != $destWidth) or ($height != $destHeight)){
+		if (($width != $src_w) or ($height != $src_h)){
 			if ($fillWhite){
 				$xmove=0;
 				$ymove=0;
