@@ -14,9 +14,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 
 See GPLv3.htm in the main folder for details.
 */
+
+$this->pageTitle=Yii::app()->name . ' - Error';
+$this->breadcrumbs=array(
+	'Error',
+);
 ?>
 <div class="cookAssistant">
-	<?php echo $this->trans->COOKASISSTANT_ABORT_MESSAGE; ?>
+	Error <br>
+	<span class="error"><?php echo $errorMsg; ?></span>
 </div>
 
 <script type="text/javascript">

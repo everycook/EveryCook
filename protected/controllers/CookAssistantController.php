@@ -53,6 +53,7 @@ class CookAssistantController extends Controller {
 	const STEP_DURATION_SPECIAL_USE_STEP = -1;
 	const STEP_DURATION_SPECIAL_CALC_HEADUP = -2;
 	const STEP_DURATION_SPECIAL_CALC_COOLDOWN = -3;
+	const STEP_DURATION_SPECIAL_CALC_PRESSUP = -4;
 	const TEMP_DEFAULT_START = 20;
 	
 	const COOKING_INFOS = 'cookingInfo';
@@ -101,6 +102,7 @@ class CookAssistantController extends Controller {
 			$info->ingredientIdToNutrient = $ingredientIdToNutrient;
 			Functions::saveToCache(self::COOKING_INFOS, $info);
 			Functions::saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, 0);
+			//error_log("actionStart, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 			
 			/*
 			echo "<pre>\r\n";
@@ -119,13 +121,19 @@ class CookAssistantController extends Controller {
 
 	public function actionGotoCourse($number){
 		$info = Functions::getFromCache(self::COOKING_INFOS);
+		if (!isset($info)){
+			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
+			return;
+		}
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		//error_log("actionGotoCourse, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		$meal = $info->meal;
 		if (isset($meal->meaToCous[$number])){
 			$info = $this->loadInfoForCourse($meal, $number);
 			$info = Functions::mapCActiveRecordToSimpleClass($info);
 			
 			$cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+			//error_log("actionGotoCourse save, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 			if ($this->cookingInfoChangeCounter == $cookingInfoChangeCounter){
 				Functions::saveToCache(self::COOKING_INFOS, $info);
 				Functions::saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $cookingInfoChangeCounter+1);
@@ -239,13 +247,18 @@ class CookAssistantController extends Controller {
 	
 	public function actionNext($recipeNr, $step){
 		$info = Functions::getFromCache(self::COOKING_INFOS);
+		if (!isset($info)){
+			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
+			return;
+		}
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		//error_log("actionNext, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		//if ($this->debug) {error_log("actionNext called with recipeNr: $recipeNr, step: $step\r\n");}
 		if (isset($info->stepNumbers[$recipeNr])){
 			/*
 			if (isset($info->steps[$recipeNr])){
 				$mealStep = $info->steps[$recipeNr];
-				error_log("actionNext, mealStep->recipeNr:$mealStep->recipeNr, mealStep->stepNr:$mealStep->stepNr, begin");
+				error_log("actionNext, mealStep->recipeNr:$mealStep->recipeNr, mealStep->stepNr:$mealStep->stepNr,info->stepNumbers[$recipeNr]:" .($info->stepNumbers[$recipeNr])." begin");
 			}
 			*/
 			if ($info->stepNumbers[$recipeNr] == $step){
@@ -370,6 +383,7 @@ class CookAssistantController extends Controller {
 						
 						//error_log("recipeNr: $recipeNr, stepNumber: ".$info->stepNumbers[$recipeNr]." after");
 						$cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+						//error_log("actionNext save, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 						if ($this->cookingInfoChangeCounter == $cookingInfoChangeCounter){
 							Functions::saveToCache(self::COOKING_INFOS, $info);
 							Functions::saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $cookingInfoChangeCounter+1);
@@ -464,58 +478,103 @@ class CookAssistantController extends Controller {
 	}
 	
 	//TODO fill/create this function
-	private function isCookInStateReverse($old, $oldTool, $new, $newTool){
-		if ($this->debug) {echo 'isReverse: old: ' . $old .', new: ' . $new . "<br>\r\n";}
-		
-		/*
+	private function isCookInStateReverse($old, $oldTool, $new, $newTool, $state){
+		if ($this->debug) {echo 'isReverse: old: ' . $old .', new: ' . $new ;}
+	
 		$isReverse = true;
 		if ($old !== $new){
 			$old = json_decode($old);
 			$new = json_decode($new);
-			foreach($old as $coi_id=>$data){
-				if (isset($new->$coi_id)){
-					$coiState = $new->$coi_id;
-					foreach($data as $key=>$value){
-						/*
-						if ($value === '#tool'){
-							if (isset($oldTool) && $tool != null){
-								$value = $oldTool['TOO_ID'];
-							} else {
-								$value = null;
-							}
-						}
-						* /
-						if (isset($coiState->$key)){
-							$newVal = $coiState->$key;
+			if (is_object($old)){
+				foreach($old as $coi_id=>$data){
+					if (isset($new->$coi_id)){
+						$coiState = $new->$coi_id;
+						foreach($data as $key=>$value){
 							/*
-							if ($newVal === '#tool'){
-								if (isset($newTool) && $tool != null){
-									$newVal = $newTool['TOO_ID'];
+							if ($value === '#tool'){
+								if (isset($oldTool) && $tool != null){
+									$value = $oldTool['TOO_ID'];
 								} else {
-									$newVal = null;
+									$value = null;
 								}
 							}
-							* /
-							if ($newVal !== $value){
-								$hasState = false;
-								break 2;
+							*/
+							if (isset($coiState->$key)){
+								$newVal = $coiState->$key;
+								/*
+								if ($newVal === '#tool'){
+									if (isset($newTool) && $tool != null){
+										$newVal = $newTool['TOO_ID'];
+									} else {
+										$newVal = null;
+									}
+								}
+								*/
+								if ($this->debug) {echo ", new value exist, new: $newVal old:$value";}
+								if ($newVal === $value){
+									$isReverse = false;
+									break 2;
+								}
+							} else {
+								if ($this->debug) {echo ", new value don't exist, old:$value";}
+								if ($value === false){
+									$isReverse = false;
+									break 2;
+								}
+							}
+						}
+					} else {
+						if ($this->debug) {echo "new value has no coi_id ($coi_id) part";}
+						$isReverse = false;
+						break;
+					}
+				}
+			} else {
+				if ($this->debug) {echo "old is not a object";}
+				$isReverse = false;
+			}
+			if ($isReverse){
+				if (is_object($new)){
+					foreach($new as $coi_id=>$data){
+						if (isset($old->$coi_id)){
+							$coiState = $old->$coi_id;
+							foreach($data as $key=>$value){
+								if (isset($coiState->$key)){
+									$oldVal = $coiState->$key;
+									if ($this->debug) {echo ", new value exist, old: $oldVal new:$value";}
+									if ($oldVal === $value){
+										$isReverse = false;
+										break 2;
+									}
+								} else {
+									if ($this->debug) {echo ", old value don't exist, new:$value";}
+									if ($value !== false){
+										$isReverse = false;
+										break 2;
+									} else if (isset($state->$coi_id) && isset($state->$coi_id->$key) && $state->$coi_id->$key != $value){
+										$isReverse = false;
+										break 2;
+									}
+								}
 							}
 						} else {
-							if ($value !== false){
-								$hasState = false;
-								break 2;
-							}
+							if ($this->debug) {echo "old value has no coi_id ($coi_id) part";}
+							$isReverse = false;
+							break;
 						}
 					}
 				} else {
-					$hasState = false;
-					break;
+					if ($this->debug) {echo "new is not a object";}
+					$isReverse = false;
 				}
 			}
+		} else {
+			if ($this->debug) {echo ", old == new";}
+			$isReverse = false;
 		}
-		return $hasState;
-		*/
-		return false;
+		if ($this->debug) {echo ", isReverse: $isReverse<br>\r\n";}
+		
+		return $isReverse;
 	}
 	
 	private function loadSteps($info){
@@ -569,7 +628,7 @@ class CookAssistantController extends Controller {
 					$cookTime = 0;
 					$detailStepNr = 0;
 					//$cookInState = '{"1":{"lid":true, "lidcrew":false, "cutter":null, "scalpot":false}}'; //Annahme deckel geschlossen (bei coi_id==1)
-					$cookInState = '{"1":{"lid":true}}'; //Annahme deckel geschlossen (bei coi_id==1)
+					$cookInState = '{"1":{"lid":true,"pusher":true}}'; //Annahme deckel geschlossen und stössel eingesetzt (bei coi_id==1)
 					$cookInState = json_decode($cookInState);
 					$lastStepAttributes = null;
 					
@@ -603,14 +662,23 @@ class CookAssistantController extends Controller {
 								unset($stepAttributes['actionIn']);
 								unset($stepAttributes['ainToAous']);
 								
+								if (isset($stepAttributes['STT_ID']) && $stepAttributes['STT_ID'] == self::STANDBY){
+									$stepAttributes['STE_CELSIUS'] = 0;
+									$stepAttributes['STE_KPA'] = 0;
+									$stepAttributes['STE_RPM'] = 0;
+									$stepAttributes['STE_CLOCKWISE'] = 0;
+									$stepAttributes['STE_STIR_RUN'] = 0;
+									$stepAttributes['STE_STIR_PAUSE'] = 0;
+								}
 								
 								if ($stepAttributes['ATY_ID'] == 3){ //prepare machine
 									//remove informations not needed for prepare. for example don't show ingredient image on open lid step
 									unset($step->ingredient);
-									unset($stepAttributes['STE_GRAMS']);
+									$stepAttributes['STE_GRAMS'] = 0;
+									$stepAttributes['ING_ID'] = 0;
 								}
 								
-								if (isset($step->ingredient)){
+								if (isset($step->ingredient) && $stepAttributes['ING_ID'] != 0){
 									$stepAttributes['ING_ID'] = $step->ingredient->ING_ID;
 									$stepAttributes['ING_IMG_AUTH'] = $step->ingredient->ING_IMG_AUTH;
 									//$stepAttributes['ING_NAME_' . Yii::app()->session['lang']] = $step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']);
@@ -656,6 +724,8 @@ class CookAssistantController extends Controller {
 									$stepAttributes['CALC_DURATION'] = $this->calcHeadUpTime($info, $recipeNr, $currentTemp, $stepAttributes['STE_CELSIUS']);
 								} else if ($stepAttributes['AOU_DURATION'] == self::STEP_DURATION_SPECIAL_CALC_COOLDOWN){
 									$stepAttributes['CALC_DURATION'] = $this->calcCoolDownTime($info, $recipeNr, $currentTemp, $stepAttributes['STE_CELSIUS']);
+								} else if ($stepAttributes['AOU_DURATION'] == self::STEP_DURATION_SPECIAL_CALC_PRESSUP){
+									$stepAttributes['CALC_DURATION'] = $this->calcPressUpTime($info, $recipeNr, $currentTemp, $stepAttributes['STE_KPA']);
 								} else {
 									$stepAttributes['CALC_DURATION'] = $stepAttributes['AOU_DURATION'];
 								}
@@ -713,15 +783,15 @@ class CookAssistantController extends Controller {
 								}
 							}
 						}
-						foreach($detailSteps['all']  as $stepAttributes){
+						foreach($detailSteps['all'] as $stepAttributes){
 							$prep = $stepAttributes['ATA_COI_PREP'];
 							$add = false;
 							
 							if ($this->debug) {echo '<br>Step ' . $stepAttributes['STE_STEP_NO'] . ' ' . $stepAttributes['ATA_NO'] . ', conditionNeeded: ' . ($conditionNeeded?'true':'false') . ', prep: ' . $prep . "<br>\r\n";}
 							
 							if ($conditionNeeded || ($prep != 1 && $prep != 2)){
-								if ($prep == 3){
-									if ($lastStepAttributes != null && $this->isCookInStateReverse($lastStepAttributes['AOU_CIS_CHANGE'], ($lastStepAttributes['aou_tool']==null)?$lastStepAttributes['step_tool']:$lastStepAttributes['aou_tool'], $stepAttributes['AOU_CIS_CHANGE'], ($stepAttributes['aou_tool']==null)?$stepAttributes['step_tool']:$stepAttributes['aou_tool'])){
+								if ($prep != 0){
+									if ($lastStepAttributes != null && $this->isCookInStateReverse($lastStepAttributes['AOU_CIS_CHANGE'], ($lastStepAttributes['aou_tool']==null)?$lastStepAttributes['step_tool']:$lastStepAttributes['aou_tool'], $stepAttributes['AOU_CIS_CHANGE'], ($stepAttributes['aou_tool']==null)?$stepAttributes['step_tool']:$stepAttributes['aou_tool'], $cookInState)){
 										//TODO test, isCookInStateReverse function not yet created.
 										if ($stepAttributes['AOU_PREP'] == 'Y'){
 											--$detailStepNr;
@@ -729,6 +799,8 @@ class CookAssistantController extends Controller {
 										} else {
 											array_pop($otherSteps);
 										}
+										//do state change anyway so it is realy reversed.
+										$cookInState = $this->changeCookInState($cookInState, $stepAttributes['AOU_CIS_CHANGE'], ($stepAttributes['aou_tool']==null)?$stepAttributes['step_tool']:$stepAttributes['aou_tool']);
 									} else if(!$this->hasCookInState($cookInState, $stepAttributes['AOU_CIS_CHANGE'], ($stepAttributes['aou_tool']==null)?$stepAttributes['step_tool']:$stepAttributes['aou_tool'])){
 										$add = true;
 									}
@@ -754,8 +826,11 @@ class CookAssistantController extends Controller {
 							} else {
 								if ($this->debug) {echo "---NOT added<br>\r\n";}
 							}
+							if ($stepAttributes['AOU_PREP'] != 'Y'){
+								if ($this->debug) {echo "update laststep<br>\r\n";}
+								$lastStepAttributes = $stepAttributes;
+							}
 						}
-						$lastStepAttributes = $stepAttributes;
 					}
 					$recipeSteps = $prepareSteps;
 					foreach($otherSteps as $stepAttributes){
@@ -862,6 +937,10 @@ class CookAssistantController extends Controller {
 					$stepDuration = $this->calcCoolDownTime($info, $recipeNr, $currentTemp, $step['STE_CELSIUS']);
 					$info->recipeCookedInfos[$recipeNr][$stepNr]['coolDownTime'] = $stepDuration;
 					//TODO: total time anpassen????
+				} else if ($step['AOU_DURATION'] == self::STEP_DURATION_SPECIAL_CALC_PRESSUP){
+					$stepDuration = $this->calcPressUpTime($info, $recipeNr, $currentTemp, $step['STE_KPA']);
+					$info->recipeCookedInfos[$recipeNr][$stepNr]['pressUpTime'] = $stepDuration;
+					//TODO: total time anpassen????
 				} else {
 					$stepDuration = $step['CALC_DURATION'];
 				}
@@ -932,13 +1011,13 @@ class CookAssistantController extends Controller {
 				
 				$mainText = $step['AIN_DESC_' . Yii::app()->session['lang']];
 				$text = $step['AOU_DESC_' . Yii::app()->session['lang']];
-				if ($step['ING_ID'] > 0){
+				if (isset($step['ING_ID']) && $step['ING_ID'] > 0){
 					//$replText = '<span class="ingredient">' . $step['ING_NAME_' . Yii::app()->session['lang']] . '</span> ';
 					$replText = '<span class="ingredient">' . $step['ING_NAME'] . '</span> ';
 					$mainText = str_replace('#ingredient', $replText, $mainText);
 					$text = str_replace('#ingredient', $replText, $text);
 				}
-				if ($step['STE_GRAMS']){
+				if (isset($step['STE_GRAMS']) && $step['STE_GRAMS'] > 0){
 					$replText = '<span class="weight">' . $step['STE_GRAMS'] . 'g</span> ';
 					$mainText = str_replace('#weight', $replText, $mainText);
 					$text = str_replace('#weight', $replText, $text);
@@ -966,15 +1045,15 @@ class CookAssistantController extends Controller {
 					$mainText = str_replace('#time', $replText, $mainText);
 					$text = str_replace('#time', $replText, $text);
 				//}
-				if ($step['STE_CELSIUS']){
+				if (isset($step['STE_CELSIUS']) && $step['STE_CELSIUS'] > 0){
 					$replText = '<span class="temp">' . $step['STE_CELSIUS'] . '°C</span> ';
 					$mainText = str_replace('#temp', $replText, $mainText);
 					$text = str_replace('#temp', $replText, $text);
 				}
-				if ($step['STE_KPA']){
+				if (isset($step['STE_KPA']) && $step['STE_KPA'] > 0){
 					$replText = '<span class="pressure">' . $step['STE_KPA'] . 'kpa</span> ';
-					$mainText = str_replace('#pressure', $replText, $mainText);
-					$text = str_replace('#pressure', $replText, $text);
+					$mainText = str_replace('#press', $replText, $mainText);
+					$text = str_replace('#press', $replText, $text);
 				}
 				$mealStep->mainActionText = $mainText;
 				$mealStep->actionText = $text;
@@ -1033,8 +1112,12 @@ class CookAssistantController extends Controller {
 	
 	public function actionUpdateState($recipeNr){
 		$info = Functions::getFromCache(self::COOKING_INFOS);
+		if (!isset($info)){
+			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
+			return;
+		}
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
-		
+		//error_log("actionUpdateState, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		if (isset($info->cookWith[$recipeNr]) && isset($info->cookWith[$recipeNr][0]) && $info->cookWith[$recipeNr][0]!=self::COOK_WITH_OTHER){
 			$state = $this->readActionFromFirmware($info, $recipeNr);
 			if (is_string($state) && strpos($state,"ERROR: ") !== false){
@@ -1207,6 +1290,7 @@ class CookAssistantController extends Controller {
 			$mealStep->nextStepIn = $restTime;
 			
 			$cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+			//error_log("actionUpdateState save, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 			if ($this->cookingInfoChangeCounter == $cookingInfoChangeCounter){
 				Functions::saveToCache(self::COOKING_INFOS, $info);
 				Functions::saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $cookingInfoChangeCounter+1);
@@ -1229,7 +1313,8 @@ class CookAssistantController extends Controller {
 	
 	private function sendActionToFirmware($info, $recipeNr){
 		//TODO: remove return
-		return;
+		//return;
+		
 		try{
 			if (isset($info->cookWith[$recipeNr]) && count($info->cookWith[$recipeNr])>0 && $info->cookWith[$recipeNr][0]!=self::COOK_WITH_OTHER){
 				if (isset($info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]])){
@@ -1301,6 +1386,9 @@ class CookAssistantController extends Controller {
 	}
 	
 	private function readActionFromFirmware($info, $recipeNr){
+		//TODO remove debug output
+		//return json_decode('{"T0":100,"P0":0,"M0RPM":0,"M0ON":0,"M0OFF":0,"W0":0,"STIME":5,"SMODE":1,"SID":' . $info->steps[$recipeNr]->stepNr . ',"heaterHasPower":1,"noPan":0}');
+		
 		$dest = $info->cookWith[$recipeNr];
 		$inhalt = '';
 		if ($dest[0] == self::COOK_WITH_LOCAL){
@@ -1382,7 +1470,14 @@ class CookAssistantController extends Controller {
 		if ($this->debug) {echo "\tm_H2O: " . $m_H2O . ', m_lipid: ' . $m_lipid . ', m_prot: ' . $m_prot . ', m_carb: ' . $m_carb . "<br>\n";}
 		try {
 			$t_heatup=($cp_H2O*$m_H2O+$cp_lipid*$m_lipid+$cp_prot*$m_prot+$cp_carb*$m_carb)*($T_end-$T_start)/$P_heating;
-			if ($this->debug) {echo "$t_heatup=($cp_H2O*$m_H2O+$cp_lipid*$m_lipid+$cp_prot*$m_prot+$cp_carb*$m_carb)*($T_end-$T_start)/$P_heating";}
+			
+			//Add standard heatUp time for pan 500g metal: 0.48 J / g*K
+			$cp_pan = 0.48;
+			$m_pan = 500;
+			$t_pan = ($cp_pan*$m_pan) * ($T_end-$T_start)/$P_heating;
+			
+			$t_heatup += $t_pan;
+			if ($this->debug) {echo "$t_heatup=($cp_H2O*$m_H2O+$cp_lipid*$m_lipid+$cp_prot*$m_prot+$cp_carb*$m_carb)*($T_end-$T_start)/$P_heating + $t_pan";}
 		} catch(Exception $e) {
 			$t_heatup = -1;
 		}
@@ -1422,24 +1517,46 @@ class CookAssistantController extends Controller {
 		return $t_cooldown;
 	}
 	
+	private function calcPressUpTime($info, $recipeNr, $T_start, $P_end){
+		if ($this->debug) {echo "calcPressUpTime start temp:$T_start, dest press:$P_end";}
+		return $this->calcHeadUpTime($info, $recipeNr, $T_start, 120);
+	}
 	
 	
 	public function actionNextCourse(){
 		$info = Functions::getFromCache(self::COOKING_INFOS);
+		if (!isset($info)){
+			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
+			return;
+		}
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		//error_log("actionNextCourse, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		$this->actionGotoCourse($info->courseNr + 1);
 	}
 	
 	public function actionAbort() {
 		$info = Functions::getFromCache(self::COOKING_INFOS);
+		if (!isset($info)){
+			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
+			return;
+		}
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
-		sendStopToFirmware($info);
+		//error_log("actionAbort, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
+		$this->sendStopToFirmware($info);
+		$info->allFinished = true;
+		Functions::saveToCache(self::COOKING_INFOS, NULL);
+		Functions::saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $this->cookingInfoChangeCounter+1);
 		$this->checkRenderAjax('abort');
 	}
 
 	public function actionIndex(){
 		$info = Functions::getFromCache(self::COOKING_INFOS);
+		if (!isset($info)){
+			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
+			return;
+		}
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		//error_log("actionIndex, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		$this->loadSteps($info);
 		
 		$allCookWithSet = true;
@@ -1458,7 +1575,12 @@ class CookAssistantController extends Controller {
 	
 	public function actionSave(){
 		$info = Functions::getFromCache(self::COOKING_INFOS);
+		if (!isset($info)){
+			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
+			return;
+		}
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		//error_log("actionSave, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		if(!isset($info) || $info == null){
 			$this->actionStart();
 			return;
@@ -1480,6 +1602,7 @@ class CookAssistantController extends Controller {
 		$this->loadSteps($info);
 		
 		$cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		//error_log("actionSave save, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		if ($this->cookingInfoChangeCounter == $cookingInfoChangeCounter){
 			Functions::saveToCache(self::COOKING_INFOS, $info);
 			Functions::saveToCache(self::COOKING_INFOS_CHANGEAMOUNT, $cookingInfoChangeCounter+1);
@@ -1503,7 +1626,12 @@ class CookAssistantController extends Controller {
 	
 	public function actionOverview() {
 		$info = Functions::getFromCache(self::COOKING_INFOS);
+		if (!isset($info)){
+			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
+			return;
+		}
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		//error_log("actionOverview, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		$this->loadSteps($info);
 		$this->checkRenderAjax('overview', array('info'=>$info));
 	}
@@ -1516,14 +1644,24 @@ class CookAssistantController extends Controller {
 	public function actionEnd(){
 		//TODO stop cooking
 		$info = Functions::getFromCache(self::COOKING_INFOS);
+		if (!isset($info)){
+			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
+			return;
+		}
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		//error_log("actionEnd, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		sendStopToFirmware($info);
 		$this->checkRenderAjax('end');
 	}
 	
 	public function actionVote($recipeNr, $value){
 		$info = Functions::getFromCache(self::COOKING_INFOS);
+		if (!isset($info)){
+			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
+			return;
+		}
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
+		//error_log("actionVote, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		if (isset($info->voted[$recipeNr]) && $info->voted[$recipeNr]>0){
 			$vote=RecipeVotings::model()->findByPk($info->voted[$recipeNr]);
 		} else {

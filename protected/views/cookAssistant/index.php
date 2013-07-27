@@ -69,7 +69,7 @@ See GPLv3.htm in the main folder for details.
 							echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$mealStep->ingredientId, 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$mealStep->ingredientCopyright, 'title'=>$mealStep->ingredientCopyright));
 						}
 						echo '<div class="actionInner' . (($mealStep->ingredientId != 0)?' withPic':'') . '">';
-							echo '<div class="actionMainText">' . $mealStep->mainActionText . '</div>';
+							//echo '<div class="actionMainText">' . $mealStep->mainActionText . '</div>';
 							echo '<div class="actionText">' . $mealStep->actionText . '</div>';
 							echo '<span class="clearfix"></span>';
 						echo '</div>';
@@ -108,7 +108,7 @@ See GPLv3.htm in the main folder for details.
 
 <script type="text/javascript">
 	<?php if ($allFinished){
-		echo "jQuery('#cookassistant.nav_button').remove();";
+		echo "jQuery('#cookassistant.nav_entry').remove();";
 		echo "jQuery('#metaNav').show();";
 	} else {
 		echo "jQuery('#metaNav').hide();";

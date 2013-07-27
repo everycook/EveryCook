@@ -119,8 +119,14 @@ $this->mainButtons = array(
 					}
 					if ($step->STE_KPA){
 						$replText = '<span class="pressure">' . $step->STE_KPA . 'kpa</span> ';
-						$text = str_replace('#pressure', $replText, $text);
+						$text = str_replace('#press', $replText, $text);
 					}
+					/*
+					if ($step->STE_KPA){
+						$replText = '<span class="cookin">' . $step->STE_KPA . '</span> ';
+						$text = str_replace('#cookin', $replText, $text);
+					}
+					*/
 					echo '<span class="action">' . $text . '</span>';
 				}
 				echo '</div>';

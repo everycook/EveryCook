@@ -27,6 +27,9 @@ See GPLv3.htm in the main folder for details.
 		<?php
 			if ($info->started){ 
 				echo CHtml::link('<div>'.$this->trans->COOKASISSTANT_CONTINUE.'</div>', array('index'), array('class'=>'f-right'));
+				if (!$info->allFinished){
+					echo CHtml::link('<div>'.$this->trans->COOKASISSTANT_ABORT.'</div>', array('abort'), array('class'=>'f-right', 'id'=>'abortCooking'));
+				}
 			}
 		?>
 		<span class="clearfix"></span>
