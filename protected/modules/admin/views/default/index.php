@@ -24,7 +24,7 @@ $this->breadcrumbs=array(
 	<div class="buttons">
 	<?php
 	if (isset(Yii::app()->params['isDevice']) && Yii::app()->params['isDevice']){
-		echo CHtml::link('manualmode', '/manualmode', array('class'=>'button'));
+		echo CHtml::link('manualmode', '/manualmode', array('class'=>'button', 'target'=>'_blank'));
 		echo "<br /><br />";
 	}
 	?>
