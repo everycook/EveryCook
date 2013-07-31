@@ -166,7 +166,16 @@ See GPLv3.htm in the main folder for details.
 									$additionalClass = ' syncRunning';
 								}
 							}
-							echo CHtml::link($this->trans->GENERAL_SYNC_FROM_PLATFORM, array('site/syncFromPlatform'), array('class'=>'button navMenuListEntry syncButton' . $additionalClass)) . '<br>'."\n";
+							$lastUpdateDate = 'unknown';
+							try {
+								$data = array();
+								$returncode = -1;
+								exec('cat '. Yii::app()->params['lastSyncDateFile'], $data, $returncode);
+								if ($returncode == 0 && isset($data) && count($data)>0){
+									$lastUpdateDate = $data[0];
+								}
+							} catch(Exception $e){}
+							echo CHtml::link(sprintf($this->trans->GENERAL_SYNC_FROM_PLATFORM, $lastUpdateDate), array('site/syncFromPlatform'), array('class'=>'button navMenuListEntry syncButton' . $additionalClass)) . '<br>'."\n";
 						}
 						?>
 					</div>
