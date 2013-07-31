@@ -66,6 +66,8 @@ class CookAssistantController extends Controller {
 	
 	protected $cookingInfoChangeCounter;
 	
+	public $debugErrorLog=false;
+	
 	private function preloadData($info){
 		for ($courseNr=0; $courseNr<count($info->meal->meaToCous); ++$courseNr){
 			$course = $info->meal->meaToCous[$courseNr]->course;
@@ -299,7 +301,18 @@ class CookAssistantController extends Controller {
 						
 						$state = Functions::getFromCache('HWValues');
 						if (isset($state)){
+							if ($this->debugErrorLog) {error_log("actionNext, HWValues: ". CJSON::encode($state));}
 							$mealStep->HWValues = $state;
+							if (isset($mealStep->HWValues)){
+								if ($mealStep->HWValues->T0 > 0){
+									$mealStep->currentTemp = $mealStep->HWValues->T0;
+								}
+								if ($mealStep->HWValues->P0 > 0){
+									$mealStep->currentPress = $mealStep->HWValues->P0;
+								}
+							}
+						/*} else {
+							error_log("actionNext, no HWValues...");*/
 						}
 						
 						$stepAttributes = $info->recipeSteps[$recipeNr][$step];
@@ -329,9 +342,9 @@ class CookAssistantController extends Controller {
 									$info->ingredientWeight[$recipeNr][$mealStep->ingredientId] += $ingWeight;
 								}
 								if ($this->debug) {echo '<script type="text/javascript"> if(console && console.log){ console.log(\'actionNext(ingredientWeight), ingredientId: '.$mealStep->ingredientId.', weight: '.$info->ingredientWeight[$recipeNr][$mealStep->ingredientId].'\')}</script>';}
-								//error_log($step . ' actionNext(ingredientWeight), ingredientId: '.$mealStep->ingredientId.', weight: '.$info->ingredientWeight[$recipeNr][$mealStep->ingredientId]);
+								if ($this->debugErrorLog) {error_log($step . ' actionNext(ingredientWeight), ingredientId: '.$mealStep->ingredientId.', weight: '.$info->ingredientWeight[$recipeNr][$mealStep->ingredientId]);}
 							} else {
-								//error_log($step . ' actionNext(ingredientWeight), ingredientId: '.$mealStep->ingredientId.', ingWeight: '.$ingWeight);
+								if ($this->debugErrorLog) {error_log($step . ' actionNext(ingredientWeight), ingredientId: '.$mealStep->ingredientId.', ingWeight: '.$ingWeight);}
 							}
 							//Mark as in pan
 							if ($stepAttributes['ATY_ID'] == self::ATY_ID_ADD_TO_COOK_IN){
@@ -350,19 +363,19 @@ class CookAssistantController extends Controller {
 										unset($info->ingredientWeight[$recipeNr][$mealStep->ingredientId]);
 										
 										if ($this->debug) {echo '<script type="text/javascript"> if(console && console.log){ console.log(\'actionNext(ingredientWeightInPan), ingredientId: '.$mealStep->ingredientId.', weight: '.$info->ingredientWeightInPan[$recipeNr][$mealStep->ingredientId].'\')}</script>';}
-										//error_log($step . ' actionNext(ingredientWeightInPan), ingredientId: '.$mealStep->ingredientId.', weight: '.$info->ingredientWeightInPan[$recipeNr][$mealStep->ingredientId]);
+										if ($this->debugErrorLog) {error_log($step . ' actionNext(ingredientWeightInPan), ingredientId: '.$mealStep->ingredientId.', weight: '.$info->ingredientWeightInPan[$recipeNr][$mealStep->ingredientId]);}
 									} else {
-										//error_log($step . ' actionNext(ingredientWeightInPan), ingredientId: '.$mealStep->ingredientId.', ingredientWeight is not set');
+										if ($this->debugErrorLog) {error_log($step . ' actionNext(ingredientWeightInPan), ingredientId: '.$mealStep->ingredientId.', ingredientWeight is not set');}
 									}
 								} else {
-									//error_log($step . ' actionNext(ingredientWeightInPan), ingredientId: '.$mealStep->ingredientId.', not ingredientWeight for recipe');
+									if ($this->debugErrorLog) {error_log($step . ' actionNext(ingredientWeightInPan), ingredientId: '.$mealStep->ingredientId.', not ingredientWeight for recipe');}
 								}
 							} else {
-								//error_log($step . ' actionNext(ingredientWeightInPan), ingredientId: '.$mealStep->ingredientId.', ATY_ID: '.$stepAttributes['ATY_ID']);
+								if ($this->debugErrorLog) {error_log($step . ' actionNext(ingredientWeightInPan), ingredientId: '.$mealStep->ingredientId.', ATY_ID: '.$stepAttributes['ATY_ID']);}
 							}
 						}
 					} else {
-						//error_log($step . ' actionNext(ingredientWeightInPan), step == -1');
+						if ($this->debugErrorLog) {error_log($step . ' actionNext(ingredientWeightInPan), step == -1');}
 					}
 					
 					// echo "timeDiff:".$timeDiff."\n";
@@ -856,6 +869,17 @@ class CookAssistantController extends Controller {
 							}
 						}
 					}
+					//remove all "cleanup after action" steps before finished step
+					$index = count($otherSteps)-2; //skip "finished" step and check the one before
+					if ($index >= 0){
+						while($otherSteps[$index]['ATA_COI_PREP'] == 4){
+							$cookTime -= $otherSteps[$index]['CALC_DURATION'];
+							if ($this->debug) {echo 'Remove Step	(index:'.$index.')' . $stepAttributes['STE_STEP_NO'] . ' ' . $stepAttributes['ATA_NO'] . ': ' . $otherSteps[$index]['AIN_DESC_' . Yii::app()->session['lang']]. ' /' . $otherSteps[$index]['AOU_DESC_' . Yii::app()->session['lang']] . "<br>\r\n";}
+							$otherSteps[$index] = $otherSteps[$index+1];
+							unset($otherSteps[$index+1]);
+							--$index;
+						}
+					}
 					$recipeSteps = $prepareSteps;
 					foreach($otherSteps as $stepAttributes){
 						$stepAttributes['detailStepNr'] = $detailStepNr;
@@ -919,6 +943,9 @@ class CookAssistantController extends Controller {
 				$state = Functions::getFromCache('HWValues');
 				if (isset($state)){
 					$mealStep->HWValues = $state;
+					/*error_log("loadSteps, HWValues: ". CJSON::encode($state));
+				} else {
+					error_log("loadSteps, no HWValues...");*/
 				}
 				
 				if (isset($info->steps[$recipeNr])){
@@ -936,12 +963,12 @@ class CookAssistantController extends Controller {
 					}
 				} else {
 					$oldMealstep = null;
-					if (!isset($currentTemp) || $currentTemp == null){
+					if (!isset($currentTemp) || $currentTemp == null || $currentTemp == ''){
 						if (isset($mealStep->HWValues) && isset($mealStep->HWValues->T0)){
 							$currentTemp = $mealStep->HWValues->T0;
 						}
 					}
-					if (!isset($currentTemp) || $currentTemp == null){
+					if (!isset($currentTemp) || $currentTemp == null || $currentTemp == ''){
 						$currentTemp = self::TEMP_DEFAULT_START;
 					}
 				}
@@ -949,6 +976,7 @@ class CookAssistantController extends Controller {
 				if (isset($mealStep->HWValues) && isset($mealStep->HWValues->P0)){
 					$mealStep->currentPress = $mealStep->HWValues->P0;
 				}
+				//error_log("loadSteps, currentTemp: " . $mealStep->currentTemp . ", currentPress: " . $mealStep->currentPress);
 				
 				if ($cookIns == null){
 					$cookIns = Yii::app()->db->createCommand()->from('cook_in')->queryAll();
@@ -1499,10 +1527,10 @@ class CookAssistantController extends Controller {
 			$m_carb += $nutrientData->NUT_CARB * $weight / 100.0;
 			
 			if ($this->debug) {echo "\ting_id: " . $ing_id . ', weight: ' . $weight . "<br>\n";}
-			//error_log("calcHeadUpTime:\ting_id: " . $ing_id . ', weight: ' . $weight);
+			if ($this->debugErrorLog) {error_log("calcHeadUpTime:\ting_id: " . $ing_id . ', weight: ' . $weight);}
 		}
 		if ($this->debug) {echo "\tm_H2O: " . $m_H2O . ', m_lipid: ' . $m_lipid . ', m_prot: ' . $m_prot . ', m_carb: ' . $m_carb . "<br>\n";}
-		//error_log("calcHeadUpTime:\tm_H2O: " . $m_H2O . ', m_lipid: ' . $m_lipid . ', m_prot: ' . $m_prot . ', m_carb: ' . $m_carb);
+		if ($this->debugErrorLog) {error_log("calcHeadUpTime:\tm_H2O: " . $m_H2O . ', m_lipid: ' . $m_lipid . ', m_prot: ' . $m_prot . ', m_carb: ' . $m_carb);}
 		try {
 			$t_heatup=($cp_H2O*$m_H2O+$cp_lipid*$m_lipid+$cp_prot*$m_prot+$cp_carb*$m_carb)*($T_end-$T_start)/$P_heating;
 			
@@ -1513,7 +1541,7 @@ class CookAssistantController extends Controller {
 			
 			$t_heatup += $t_pan;
 			if ($this->debug) {echo "$t_heatup=($cp_H2O*$m_H2O+$cp_lipid*$m_lipid+$cp_prot*$m_prot+$cp_carb*$m_carb)*($T_end-$T_start)/$P_heating + $t_pan";}
-			//error_log("calcHeadUpTime: $t_heatup=($cp_H2O*$m_H2O+$cp_lipid*$m_lipid+$cp_prot*$m_prot+$cp_carb*$m_carb)*($T_end-$T_start)/$P_heating + $t_pan");
+			if ($this->debugErrorLog) {error_log("calcHeadUpTime: $t_heatup=($cp_H2O*$m_H2O+$cp_lipid*$m_lipid+$cp_prot*$m_prot+$cp_carb*$m_carb)*($T_end-$T_start)/$P_heating + $t_pan");}
 		} catch(Exception $e) {
 			$t_heatup = -1;
 		}
@@ -1555,9 +1583,12 @@ class CookAssistantController extends Controller {
 	
 	private function calcPressUpTime($info, $recipeNr, $T_start, $P_end){
 		if ($this->debug) {echo "calcPressUpTime start temp:$T_start, dest press:$P_end";}
-		return $this->calcHeadUpTime($info, $recipeNr, $T_start, 120);
+		$heatUpTime = $this->calcHeadUpTime($info, $recipeNr, $T_start, 100);
+		//PresUp speed: 0.45kPa/sec
+		$pressUpTime = $P_end / 0.45;
+		if ($this->debugErrorLog) {error_log("calcPressUpTime: heatUpTime:$heatUpTime + static wait (befor PressUpBegin): 120 + pressUpTime:$pressUpTime ($P_end / 0.45)");}
+		return $heatUpTime + 120 + $pressUpTime;
 	}
-	
 	
 	public function actionNextCourse(){
 		$info = Functions::getFromCache(self::COOKING_INFOS);
