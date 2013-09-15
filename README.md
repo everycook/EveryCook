@@ -12,7 +12,7 @@ You need a XAMP (Apache, Mysql, PHP) installation.
 1.  configure Apache  
 	Activate/install the following modules in your apache config:  
 	mod\_rewrite  
-	mod\_memcached (apt-get install php5-memcached)  
+	mod\_memcached (apt-get install php5-memcached php5-mysql)  
 	
 	Set "AllowOverride FileInfo" for Everycook's "db" direcory in your apache/vhost config.  
 	This is needed for mod\_rewrite takes effect.
