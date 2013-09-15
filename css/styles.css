@@ -1200,6 +1200,11 @@ div.mealView span.value {
 }
 
 
+.cookAssistant .recipeSteps .recipeStep .stepHeader div.temp span.panInfo {
+	line-height: 1em;
+	font-size: 2em;
+}
+
 .cookAssistant .recipeSteps .recipeStep .stepInfo {
 	position: relative;
 }
@@ -1485,6 +1490,20 @@ div.mealView span.value {
 }
 
 
+.cookAssistant .stepHeader .middleware {
+	float: left;
+	margin-left: 0.8em;
+	margin-top: 0.5em;
+	width: 1em;
+}
+
+.cookAssistant .recipeSteps .recipeStep .stepHeader .middleware  > div {
+	background-color: orange;
+}
+
+.cookAssistant .recipeSteps .recipeStep .stepHeader .middleware.connected > div {
+	background-color: green;
+}
 
 
 /* @group view Size change */

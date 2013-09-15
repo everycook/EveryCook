@@ -31,6 +31,7 @@ jQuery(function($){
 	var lastUpdateTime=[];
 	var lastPercent=[];
 	var MIN_STATUS_INTERVAL=40000; //40sec
+	var finishedInTimeLastValue = 9999999;
 	
 	function initTimer(type, contentParent){
 		if (type !== 'fancy'){
@@ -328,6 +329,9 @@ jQuery(function($){
 									handleUpdate(recipeStep, data, index, nextTime, currentTime);
 								},
 								'error':function(xhr){
+									if (console && console.log){
+										console.log("Error on load state: " + xhr.status);
+									}
 									//ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
 								},
 								'complete':function(){
@@ -450,7 +454,11 @@ jQuery(function($){
 			}
 		}
 		if (maxFinishedIn != 0){
-			showTime(jQuery('.meta .finishTime span'), currentTime+(maxFinishedIn*1000));
+			var valToShow = currentTime+(maxFinishedIn*1000);
+			//if (finishedInTimeLastValue > valToShow){
+				showTime(jQuery('.meta .finishTime span'), valToShow);
+				finishedInTimeLastValue = valToShow;
+			//}
 		}
 	}
 	
@@ -523,6 +531,9 @@ jQuery(function($){
 		socket.onopen = function(msg) {
 			var connectionIndex = socketToConnections[this];
 			connections[connectionIndex]['connected'] = true;
+			var recipeStep = connections[connectionIndex]['recipeStep'];
+			recipeStep.find('.middleware').addClass('connected');
+			recipeStep.find('.middleware > div').attr('title', glob.trans.COOKASISSTANT_MIDDLEWARE_ONLINE);
 		};
 		socket.onmessage = function(msg) {
 			var connectionIndex = socketToConnections[this];
@@ -551,6 +562,9 @@ jQuery(function($){
 		socket.onclose = function(msg) {
 			var connectionIndex = socketToConnections[this];
 			connections[connectionIndex]['connected'] = false;
+			var recipeStep = connections[connectionIndex]['recipeStep'];
+			recipeStep.find('.middleware').removeClass('connected');
+			recipeStep.find('.middleware > div').attr('title', glob.trans.COOKASISSTANT_MIDDLEWARE_OFFLINE);
 		};
 		return socket;
 	}
