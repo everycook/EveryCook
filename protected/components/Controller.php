@@ -98,7 +98,7 @@ class Controller extends CController
 			$this->trans->JUMPTO_LIKE_PRODUCTS => array(Yii::app()->createUrl('/products/showLike',array())),
 			$this->trans->JUMPTO_LIKE_RECIPES => array(Yii::app()->createUrl('/recipes/showLike',array())),
 			$this->trans->JUMPTO_MEALLIST => array(Yii::app()->createUrl('/meals/mealList',array())),
-			$this->trans->JUMPTO_MEALPLANNER => array(Yii::app()->createUrl('/meals/mealPlanner',array('newModel'=>time())), ' newModelTime'),
+//			$this->trans->JUMPTO_MEALPLANNER => array(Yii::app()->createUrl('/meals/mealPlanner',array('newModel'=>time())), ' newModelTime'),
 			$this->trans->JUMPTO_SHOPPINGLISTS => array(Yii::app()->createUrl('/shoppinglists/index',array())),
 		);
 	}
@@ -222,13 +222,21 @@ class Controller extends CController
 		$this->forwardTo($url);
 	}
 	
-	public function forwardTo($urlparams){
-		if($this->isFancyAjaxRequest){
-			echo "{fancy:'" . Yii::app()->createUrl($urlparams[0], array_splice($urlparams,1)). "'}";
-		} else  if($this->useAjaxLinks && $this->getIsAjaxRequest()){
-			echo "{hash:'" . $this->createUrlHash($urlparams[0], array_splice($urlparams,1)) . "'}";
+	public function forwardTo($urlparams, $useAjaxIfPossible = true){
+		if ($useAjaxIfPossible){
+			if($this->isFancyAjaxRequest){
+				echo "{fancy:'" . Yii::app()->createUrl($urlparams[0], array_splice($urlparams,1)). "'}";
+			} else  if($this->useAjaxLinks && $this->getIsAjaxRequest()){
+				echo "{hash:'" . $this->createUrlHash($urlparams[0], array_splice($urlparams,1)) . "'}";
+			} else {
+				$this->redirect($urlparams);
+			}
 		} else {
-			$this->redirect($urlparams);
+			if($this->isFancyAjaxRequest || ($this->useAjaxLinks && $this->getIsAjaxRequest())){
+				echo "{redirect:'" . $this->createUrlHash($urlparams[0], array_splice($urlparams,1)) . "'}";
+			} else {
+				$this->redirect($urlparams);
+			}
 		}
 	}
 	
@@ -329,6 +337,7 @@ class Controller extends CController
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/mealplanner.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerCoreScript('yiiactiveform');
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/cookasisstant_handling.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/sprintf.js', CClientScript::POS_HEAD);
 				
 				$ziiBaseScriptUrl=Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('zii.widgets.assets'));
 				Yii::app()->clientscript->registerScriptFile($ziiBaseScriptUrl.'/listview'.'/jquery.yiilistview.js',CClientScript::POS_END);

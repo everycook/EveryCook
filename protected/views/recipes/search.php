@@ -58,11 +58,11 @@ if ($this->isFancyAjaxRequest){ ?>
 		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
 		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
 	</div>
-	
+<?php if (!$this->isFancyAjaxRequest){ ?>	
 	<div class="f-right">
 		<?php echo CHtml::link($this->trans->GENERAL_ADVANCE_SEARCH, array($advanceURL, $newRecSearch), array('class'=>'button')); ?><br>
 	</div>
-	
+<?php } ?>
 	<div class="clearfix"></div>
 
 <?php /*$form=$this->beginWidget('CActiveForm', array(

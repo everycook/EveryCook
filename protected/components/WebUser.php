@@ -83,7 +83,8 @@ class WebUser extends CWebUser {
 				$route=isset($url[0]) ? $url[0] : $app->defaultController;
 				$url=$app->createUrl($route,array_splice($url,1));
 			}
-			$request->redirect($url);
+			//$request->redirect($url);
+			Yii::app()->controller->forwardTo(array($url), false);
 		}
 		else
 			throw new CHttpException(403,Yii::t('yii','Login Required'));

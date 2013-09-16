@@ -70,6 +70,8 @@ function ajaxResponceHandler(data, type, asFancy){
 		jQuery.ajax({'type':'get', 'url':data.fancy,'cache':false,'success':function(data){
 			glob.setContentWithImageChangeToFancy(data, {});
 		}});
+	} else if (data.redirect){
+		window.location = "/" + data.redirect;
 	}else {
 		var JSONBegin = data.indexOf('{');
 		if (JSONBegin<5){

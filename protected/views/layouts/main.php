@@ -58,7 +58,7 @@ See GPLv3.htm in the main folder for details.
 					<?php
 					}
 					if(Yii::app()->user->isGuest) {
-						echo '<a class="nav_entry" href="'. Yii::app()->createUrl('site/login',array()) . '">';
+						echo '<a class="noAjax nav_entry" href="'. Yii::app()->createUrl('site/login',array()) . '">';
 					} else {
 						echo '<a class="noAjax nav_entry" href="' . Yii::app()->createUrl('site/logout',array()) . '">';
 					}
