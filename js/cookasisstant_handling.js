@@ -598,6 +598,10 @@ jQuery(function($){
 		if (socket != null){
 			connections[index] = {'index':index, 'active': true, 'type':'websocket', 'recipeStep': recipeStep, 'ip':ip, 'port':port, 'socket':socket, 'connected':connected};
 			socketToConnections[socket] = index;
+			if (connected){
+				recipeStep.find('.middleware').addClass('connected');
+				recipeStep.find('.middleware > div').attr('title', glob.trans.COOKASISSTANT_MIDDLEWARE_ONLINE);
+			}
 		} else {
 			connections[index] = {'index':index, 'active': true, 'type':'poll', 'recipeStep': recipeStep, 'ip':ip, 'port':port};
 		}
