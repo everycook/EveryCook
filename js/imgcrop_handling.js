@@ -26,10 +26,10 @@ jQuery(function($){
 		if (contentParent.find('#imagecrop_x').length == 0){
 			cropable.each(function(){
 				var parent = jQuery(this).parent();
-				parent.append(jQuery('<input type="hidden" id="imagecrop_x" name="imagecrop_x" />'));
-				parent.append(jQuery('<input type="hidden" id="imagecrop_y" name="imagecrop_y" />'));
-				parent.append(jQuery('<input type="hidden" id="imagecrop_w" name="imagecrop_w" />'));
-				parent.append(jQuery('<input type="hidden" id="imagecrop_h" name="imagecrop_h" />'));
+				parent.append(jQuery('<input type="hidden" id="imagecrop_x" name="imagecrop_x" value="0"/>'));
+				parent.append(jQuery('<input type="hidden" id="imagecrop_y" name="imagecrop_y" value="0"/>'));
+				parent.append(jQuery('<input type="hidden" id="imagecrop_w" name="imagecrop_w" value="' + IMG_WIDTH + '"/>'));
+				parent.append(jQuery('<input type="hidden" id="imagecrop_h" name="imagecrop_h" value="' + IMG_HEIGHT + '"/>'));
 			});
 		}
 		
@@ -57,16 +57,16 @@ jQuery(function($){
 			var imgWidth = jcrop_api.getBounds()[0];
 			var imgHeight = jcrop_api.getBounds()[1];
 			var currentAspectRatio = imgWidth/imgHeight;
-			if ((imgWidth>=(400*1.2) && imgHeight>=(400*1.2) && currentAspectRatio>0.5 && currentAspectRatio<2) || (imgWidth==400 && imgHeight==400)){
-				jcrop_api.setOptions({aspectRatio: 1, minSize: [400, 400],});
+			if ((imgWidth>=(IMG_WIDTH*1.2) && imgHeight>=(IMG_HEIGHT*1.2) && currentAspectRatio>0.5 && currentAspectRatio<2) || (imgWidth==IMG_WIDTH && imgHeight==IMG_HEIGHT)){
+				jcrop_api.setOptions({aspectRatio: 1, minSize: [IMG_WIDTH, IMG_HEIGHT],});
 			} else {
 				if (imgWidth>imgHeight){
-					jcrop_api.setOptions({minSize: [400, 40],});
+					jcrop_api.setOptions({minSize: [IMG_WIDTH, 40],});
 				} else {
-					jcrop_api.setOptions({minSize: [40, 400],});
+					jcrop_api.setOptions({minSize: [40, IMG_HEIGHT],});
 				}
 			}
-			jcrop_api.animateTo([0,0,400,400], function(test){
+			jcrop_api.animateTo([0,0,IMG_WIDTH,IMG_HEIGHT], function(test){
 				//jcrop_api.setOptions({onChange: checkSelectionValide,});
 				updateCoords(jcrop_api.tellSelect());
 			});
@@ -107,6 +107,9 @@ jQuery(function($){
 	*/
 	
 	function updateCoords(c){
+		if (isNaN(c.x)){
+			return;
+		}
 		jQuery('#imagecrop_x').val(c.x);
 		jQuery('#imagecrop_y').val(c.y);
 		jQuery('#imagecrop_w').val(c.w);

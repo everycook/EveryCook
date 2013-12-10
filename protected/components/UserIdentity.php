@@ -82,6 +82,9 @@ class UserIdentity extends CUserIdentity
 					}
 					$this->setState('shoppinglists', $shoppinglists);
 					
+					$this->setState('twitterOauthToken', $record->PRF_TWITTER_OAUTH);
+					$this->setState('twitterOauthTokenSecret', $record->PRF_TWITTER_OAUTH_TOKEN);
+					
 					$this->setState('demo', false);
 					$this->errorCode=self::ERROR_NONE;
 				}

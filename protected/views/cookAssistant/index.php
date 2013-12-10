@@ -46,7 +46,7 @@ See GPLv3.htm in the main folder for details.
 					echo '<input type="hidden" name="finishTime" value="' . $mealStep->finishedIn . '"/>';
 					echo '<input type="hidden" name="lowestFinishTime" value="' . $mealStep->lowestFinishedIn . '"/>';
 					if ($cookWith!=''){
-						echo '<div class="temp"><div><div>' . $this->trans->COOKASISSTANT_TEMPERATURE . ' <span class="panInfo"><span class="temp">'.$mealStep->currentTemp.'</span>°C</span></div><div>' . $this->trans->COOKASISSTANT_PRESSURE . ' <span class="panInfo"><span class="press">'.$mealStep->currentPress.'</span>kPa</span></div></div></div>';
+						echo '<div class="temp"><div><div>' . $this->trans->COOKASISSTANT_TEMPERATURE . ' <span class="panInfo"><span class="temp">'.$mealStep->currentTemp.'</span>&nbsp;°C</span></div><div>' . $this->trans->COOKASISSTANT_PRESSURE . ' <span class="panInfo"><span class="press">'.$mealStep->currentPress.'</span>&nbsp;kPa</span></div></div></div>';
 						echo '<div class="middleware"><div title="'. $this->trans->COOKASISSTANT_MIDDLEWARE_OFFLINE .'"></div></div>';
 					}
 					if (!$mealStep->endReached){

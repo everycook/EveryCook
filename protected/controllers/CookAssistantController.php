@@ -68,6 +68,49 @@ class CookAssistantController extends Controller {
 	
 	public $debugErrorLog=false;
 	
+	
+	/**
+	 * @return array action filters
+	 */
+	public function filters()
+	{
+		return array(
+			'accessControl', // perform access control
+		);
+	}
+	/**
+	 * Specifies the access control rules.
+	 * This method is used by the 'accessControl' filter.
+	 * @return array access control rules
+	 */
+	public function accessRules()
+	{
+		return array(
+			array('allow',  // allow all users to perform view actions
+				'actions'=>array('index','overview','updateState'),
+				'users'=>array('*'),
+			),
+			array('allow', // allow authenticated user to perform cooking actions
+				'actions'=>array('start','gotoCourse','next','nextCourse','abort','save','end','vote','voteReason'),
+				'users'=>array('@'),
+			),
+			array('allow', // allow admin user to perform 'admin' and 'delete' actions
+				'actions'=>array('prev'),
+				'roles'=>array('admin'),
+			),
+			array('deny',  // deny all users
+				'users'=>array('*'),
+			),
+		);
+	}
+	
+	private function checkCorrectUser($info){
+		if ($info->meal->PRF_UID != Yii::app()->user->id){
+			throw new CHttpException(403,'It\'s not allowed to continue cooking of other user.');
+		}
+	}
+	
+	
 	private function preloadData($info){
 		for ($courseNr=0; $courseNr<count($info->meal->meaToCous); ++$courseNr){
 			$course = $info->meal->meaToCous[$courseNr]->course;
@@ -132,6 +175,7 @@ class CookAssistantController extends Controller {
 			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
 			return;
 		}
+		$this->checkCorrectUser($info);
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		//error_log("actionGotoCourse, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		$meal = $info->meal;
@@ -258,6 +302,7 @@ class CookAssistantController extends Controller {
 			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
 			return;
 		}
+		$this->checkCorrectUser($info);
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		//error_log("actionNext, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		//if ($this->debug) {error_log("actionNext called with recipeNr: $recipeNr, step: $step\r\n");}
@@ -304,10 +349,10 @@ class CookAssistantController extends Controller {
 							if ($this->debugErrorLog) {error_log("actionNext, HWValues: ". CJSON::encode($state));}
 							$mealStep->HWValues = $state;
 							if (isset($mealStep->HWValues)){
-								if ($mealStep->HWValues->T0 > 0){
+								if (isset($mealStep->HWValues->T0) && $mealStep->HWValues->T0 > 0){
 									$mealStep->currentTemp = $mealStep->HWValues->T0;
 								}
-								if ($mealStep->HWValues->P0 > 0){
+								if (isset($mealStep->HWValues->P0) && $mealStep->HWValues->P0 > 0){
 									$mealStep->currentPress = $mealStep->HWValues->P0;
 								}
 							}
@@ -933,6 +978,7 @@ class CookAssistantController extends Controller {
 				}
 				
 				$allFinished = false;
+				$this->tweet($recipe->REC_ID, true, true);
 			} else {
 				$step = $info->recipeSteps[$recipeNr][$stepNr];
 				$coi_id = $info->cookWith[$recipeNr][1];
@@ -1380,10 +1426,14 @@ class CookAssistantController extends Controller {
 			if (isset($info->cookWith[$recipeNr]) && count($info->cookWith[$recipeNr])>0 && $info->cookWith[$recipeNr][0]!=self::COOK_WITH_OTHER){
 				if (isset($info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]])){
 					$step = $info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]];
+					$mealStep = $info->steps[$recipeNr];
+					$actionText = $mealStep->actionText;
+					$actionText = preg_replace("<span[^>]>([^<])</span>", "\$1", $actionText);
+					
 					if ($info->steps[$recipeNr]->endReached){
-						$command='{"T0":0,"P0":0,"M0RPM":0,"M0ON":0,"M0OFF":0,"W0":0,"STIME":0,"SMODE":'.self::RECIPE_END.',"SID":'.$step['detailStepNr'].'}';
+						$command='{"T0":0,"P0":0,"M0RPM":0,"M0ON":0,"M0OFF":0,"W0":0,"STIME":0,"SMODE":'.self::RECIPE_END.',"SID":'.$step['detailStepNr'].',"TEXT":"'.$actionText.'"}';
 					} else {
-						$command='{"T0":'.$step['STE_CELSIUS'].',"P0":'.$step['STE_KPA'].',"M0RPM":'.$step['STE_RPM'].',"M0ON":'.$step['STE_STIR_RUN'].',"M0OFF":'.$step['STE_STIR_PAUSE'].',"W0":'.$step['STE_GRAMS'].',"STIME":'.$step['CALC_DURATION'].',"SMODE":'.$step['STT_ID'].',"SID":'.$step['detailStepNr'].'}';
+						$command='{"T0":'.$step['STE_CELSIUS'].',"P0":'.$step['STE_KPA'].',"M0RPM":'.$step['STE_RPM'].',"M0ON":'.$step['STE_STIR_RUN'].',"M0OFF":'.$step['STE_STIR_PAUSE'].',"W0":'.$step['STE_GRAMS'].',"STIME":'.$step['CALC_DURATION'].',"SMODE":'.$step['STT_ID'].',"SID":'.$step['detailStepNr'].',"TEXT":"'.$actionText.'"}';
 					}
 					if ($this->debug){
 						echo '<script type="text/javascript"> if(console && console.log){ console.log(\'sendActionToFirmware, command: '.$command.'\')}</script>';
@@ -1520,11 +1570,12 @@ class CookAssistantController extends Controller {
 		$m_carb = 0.0;
 		foreach($info->ingredientWeightInPan[$recipeNr] as $ing_id=>$weight){
 			$nutrientData = $info->ingredientIdToNutrient[$ing_id];
-			
-			$m_H2O += $nutrientData->NUT_WATER * $weight / 100.0;
-			$m_lipid += $nutrientData->NUT_LIPID * $weight / 100.0;
-			$m_prot += $nutrientData->NUT_PROT * $weight / 100.0;
-			$m_carb += $nutrientData->NUT_CARB * $weight / 100.0;
+			if (isset($nutrientData) && $nutrientData != null){
+				$m_H2O += $nutrientData->NUT_WATER * $weight / 100.0;
+				$m_lipid += $nutrientData->NUT_LIPID * $weight / 100.0;
+				$m_prot += $nutrientData->NUT_PROT * $weight / 100.0;
+				$m_carb += $nutrientData->NUT_CARB * $weight / 100.0;
+			}
 			
 			if ($this->debug) {echo "\ting_id: " . $ing_id . ', weight: ' . $weight . "<br>\n";}
 			if ($this->debugErrorLog) {error_log("calcHeadUpTime:\ting_id: " . $ing_id . ', weight: ' . $weight);}
@@ -1596,6 +1647,7 @@ class CookAssistantController extends Controller {
 			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
 			return;
 		}
+		$this->checkCorrectUser($info);
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		//error_log("actionNextCourse, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		$this->actionGotoCourse($info->courseNr + 1);
@@ -1607,6 +1659,7 @@ class CookAssistantController extends Controller {
 			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
 			return;
 		}
+		$this->checkCorrectUser($info);
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		//error_log("actionAbort, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		$this->sendStopToFirmware($info);
@@ -1646,6 +1699,7 @@ class CookAssistantController extends Controller {
 			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
 			return;
 		}
+		$this->checkCorrectUser($info);
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		//error_log("actionSave, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		if(!isset($info) || $info == null){
@@ -1715,6 +1769,7 @@ class CookAssistantController extends Controller {
 			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
 			return;
 		}
+		$this->checkCorrectUser($info);
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		//error_log("actionEnd, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		sendStopToFirmware($info);
@@ -1727,6 +1782,7 @@ class CookAssistantController extends Controller {
 			$this->checkRenderAjax('error', array('errorMsg'=>$this->trans->COOKASISSTANT_ERROR_NO_RECIPE));
 			return;
 		}
+		$this->checkCorrectUser($info);
 		$this->cookingInfoChangeCounter = Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT);
 		//error_log("actionVote, cookingInfoChangeCounter: ". Functions::getFromCache(self::COOKING_INFOS_CHANGEAMOUNT));
 		if (isset($info->voted[$recipeNr]) && $info->voted[$recipeNr]>0){
@@ -1770,6 +1826,9 @@ class CookAssistantController extends Controller {
 		if ($vote===null){
 			throw new CHttpException(404,'The requested page does not exist.');
 		}
+		if($vote->PRF_UID != Yii::app()->user->id){
+			throw new CHttpException(403,'It\'s not allowed to change Vote of other user.');
+		}
 		if(isset($_POST['RecipeVotings'])){
 			$vote->setScenario('reason');
 			$vote->attributes = $_POST['RecipeVotings']; //$vote->RVR_ID / $vote->RVO_REASON
@@ -1784,6 +1843,32 @@ class CookAssistantController extends Controller {
 		throw new CHttpException(500, 'Error update vote for reason...');
 	}
 	
+	private function tweet($id, $start, $everycook){
+		if (Yii::app()->params['isDevice'] || Yii::app()->params['PageType'] != 'homepage'){
+			//if its on  a everycook, call on everycook.org Server
+			try {
+				//get credentials from file
+				$credentials = readfile(Yii::app()->params['syncCredentialsFile']);
+				//call remote action
+				require_once("remotefileinfo.php");
+				//$inhalt = remote_fileheader('http://www.everycook.org/db/tweet/tweet/id/'.$id.'/start/'.$start.'/everycook/'.$everycook.'/?'.$credentials);
+				$inhalt = remote_file('http://www.everycook.org/db/tweet/tweet/id/'.$id.'/start/'.$start.'/everycook/'.$everycook.'/?'.$credentials);
+			} catch (Exception $e){
+				$inhalt = 'ERROR: ' . $e;
+			}
+			if (is_string($inhalt) && strpos($inhalt, 'ERROR: ') !== false){
+				error_log('Error: cannot tweet, error was: ' . substr($inhalt, 8));
+			} else {
+				error_log('Tweet was succesfull.');
+			}
+		} else {
+			//If on Web, call local
+			$tweetController = Yii::app()->createController('tweet');
+			$tweetController = $tweetController[0];
+			$tweetController->actionTweet($id, $start, $everycook);
+		}
+	}
+	
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
@@ -1794,6 +1879,10 @@ class CookAssistantController extends Controller {
 		$model=Meals::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
+			
+		if ($model->PRF_UID != Yii::app()->user->id){
+			throw new CHttpException(403,'It\'s not allowed to Cook Meals of other user, please create your own.');
+		}
 		return $model;
 	}
 }

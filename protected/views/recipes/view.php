@@ -87,8 +87,7 @@ $this->mainButtons = array(
 		
 		<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>
 		<?php echo CHtml::encode($model->recipeTypes->__get('RET_DESC_' . Yii::app()->session['lang'])); ?>
-		<?php 
-		
+		<?php
 			$i = 1;
 			foreach($model->steps as $step){
 				echo '<div class="step">';
@@ -121,12 +120,10 @@ $this->mainButtons = array(
 						$replText = '<span class="pressure">' . $step->STE_KPA . 'kpa</span> ';
 						$text = str_replace('#press', $replText, $text);
 					}
-					/*
-					if ($step->STE_KPA){
-						$replText = '<span class="cookin">' . $step->STE_KPA . '</span> ';
+					if ($cookin != "#cookin"){
+						$replText = '<span class="cookin">' . $cookin . '</span> ';
 						$text = str_replace('#cookin', $replText, $text);
 					}
-					*/
 					echo '<span class="action">' . $text . '</span>';
 				}
 				echo '</div>';

@@ -1,0 +1,2 @@
+INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('MEALLIST_SHOW_ALL', 'show All', 'alle anzeigen', '');

@@ -27,7 +27,6 @@ See GPLv3.htm in the main folder for details.
  * @property integer $PRF_BIRTHDAY
  * @property string $PRF_EMAIL
  * @property string $PRF_LANG
- * @property string $PRF_IMG
  * @property string $PRF_IMG_FILENAME
  * @property string $PRF_IMG_ETAG
  * @property string $PRF_PW
@@ -47,6 +46,9 @@ See GPLv3.htm in the main folder for details.
  * @property string $PRF_ROLES
  * @property integer $PRF_ACTIVE
  * @property string $PRF_RND
+ * @property string $PRF_EVERYCOOP_IP
+ * @property string $PRF_TWITTER_OAUTH
+ * @property string $PRF_TWITTER_OAUTH_TOKEN
  * @property integer $CREATED_BY
  * @property integer $CREATED_ON
  * @property integer $CHANGED_BY
@@ -107,21 +109,22 @@ class Profiles extends ActiveRecordECPriv
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('PRF_NICK, PRF_EMAIL, PRF_PW, PRF_LANG', 'required'),
+			array('PRF_NICK, PRF_EMAIL, PRF_PW, PRF_LANG, PRF_IMG_ETAG, PRF_EVERYCOOP_IP', 'required'),
 			array('PRF_BIRTHDAY, PRF_VIEW_DISTANCE, PRF_ACTIVE, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG', 'numerical'),
-			array('PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_ROLES, PRF_RND', 'length', 'max'=>100),
+			array('PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_ROLES, PRF_RND, PRF_EVERYCOOP_IP', 'length', 'max'=>100),
 			array('PRF_GENDER', 'length', 'max'=>1),
 			array('PRF_LANG', 'length', 'max'=>10),
 			array('PRF_IMG_FILENAME', 'length', 'max'=>250),
-			array('PRF_IMG_ETAG', 'length', 'max'=>40),
+			array('PRF_IMG_ETAG, PRF_TWITTER_OAUTH_TOKEN', 'length', 'max'=>40),
 			array('PRF_PW', 'length', 'max'=>256),
 			array('PRF_DESIGN', 'length', 'max'=>20),
+			array('PRF_TWITTER_OAUTH', 'length', 'max'=>30),
 			array('PRF_IMG_FILENAME, PRF_IMG_ETAG', 'required', 'on'=>'withPic'),
 			array('new_pw, pw_repeat, birthday_day, birthday_month, birthday_year, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_GENDER, PRF_BIRTHDAY, PRF_EMAIL, PRF_LANG, PRF_IMG_FILENAME, PRF_IMG_ETAG, PRF_PW, PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_VIEW_DISTANCE, PRF_DESIGN, PRF_ROLES, PRF_ACTIVE, PRF_RND, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_GENDER, PRF_BIRTHDAY, PRF_EMAIL, PRF_LANG, PRF_IMG_FILENAME, PRF_IMG_ETAG, PRF_PW, PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_VIEW_DISTANCE, PRF_DESIGN, PRF_ROLES, PRF_ACTIVE, PRF_RND, PRF_EVERYCOOP_IP, PRF_TWITTER_OAUTH, PRF_TWITTER_OAUTH_TOKEN, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 			
 			// register
 			//array('pw_repeat','safe'),
@@ -180,6 +183,9 @@ class Profiles extends ActiveRecordECPriv
 			'PRF_ROLES' => 'Prf Roles',
 			//'PRF_ACTIVE' => 'Prf Active',
 			//'PRF_RND' => 'Prf Rnd',
+			'PRF_EVERYCOOP_IP' => 'Prf Everycoop Ip',
+			'PRF_TWITTER_OAUTH' => 'Prf Twitter Oauth',
+			'PRF_TWITTER_OAUTH_TOKEN' => 'Prf Twitter Oauth Token',
 			//'CREATED_BY' => 'Created By',
 			//'CREATED_ON' => 'Created On',
 			//'CHANGED_BY' => 'Changed By',
@@ -223,6 +229,9 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare($this->tableName().'.PRF_ROLES',$this->PRF_ROLES,true);
 		$criteria->compare($this->tableName().'.PRF_ACTIVE',$this->PRF_ACTIVE);
 		$criteria->compare($this->tableName().'.PRF_RND',$this->PRF_RND,true);
+		$criteria->compare($this->tableName().'.PRF_EVERYCOOP_IP',$this->PRF_EVERYCOOP_IP,true);
+		$criteria->compare($this->tableName().'.PRF_TWITTER_OAUTH',$this->PRF_TWITTER_OAUTH,true);
+		$criteria->compare($this->tableName().'.PRF_TWITTER_OAUTH_TOKEN',$this->PRF_TWITTER_OAUTH_TOKEN,true);
 		$criteria->compare($this->tableName().'.CREATED_BY',$this->CREATED_BY);
 		$criteria->compare($this->tableName().'.CREATED_ON',$this->CREATED_ON);
 		$criteria->compare($this->tableName().'.CHANGED_BY',$this->CHANGED_BY);
@@ -264,6 +273,9 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare('PRF_ROLES',$this->PRF_ROLES,true);
 		//$criteria->compare('PRF_ACTIVE',$this->PRF_ACTIVE);
 		//$criteria->compare('PRF_RND',$this->PRF_RND,true);
+		$criteria->compare('PRF_EVERYCOOP_IP',$this->PRF_EVERYCOOP_IP,true);
+		$criteria->compare('PRF_TWITTER_OAUTH',$this->PRF_TWITTER_OAUTH,true);
+		$criteria->compare('PRF_TWITTER_OAUTH_TOKEN',$this->PRF_TWITTER_OAUTH_TOKEN,true);
 		//$criteria->compare('CREATED_BY',$this->CREATED_BY);
 		//$criteria->compare('CREATED_ON',$this->CREATED_ON);
 		//$criteria->compare('CHANGED_BY',$this->CHANGED_BY);

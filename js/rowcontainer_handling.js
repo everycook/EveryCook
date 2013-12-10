@@ -961,10 +961,22 @@ jQuery(function($){
 						var recToCoi = data.recToCois[i]
 						cookIns.find('input[value=' + recToCoi.COI_ID+']').attr('checked','checked');
 					}
-					//TODO: Wait for reload so steps could add successfull...
-					//jQuery('input[name=updateCookIn]').click();
-				}
-				if (data.steps){
+					//Wait for reload after cookInUpdate so steps could add successfull...
+					$('#page').bind('newContent.recipeTemplateSelect', function(e, type, contentParent) {
+						$('#page').unbind('newContent.recipeTemplateSelect');
+						if (data.steps){
+							ingredients = data.ingredients;
+							var container = jQuery('.steps .addRowContainer');
+							//lastIndex = container.find('.odd').add(container.find('.even')).length;
+							var emptyLineContainer = container.find('#newLine');
+							var lastIndexElem = emptyLineContainer.find('input[name=lastIndex]')
+							lastIndexElem.attr('value', lastIndex);
+							initRecipeStepsRowContainerDoIt(container, data.steps, '[]', true);
+						}
+					});
+					jQuery('input[name=updateCookIn]').click();
+					jQuery.fancybox.close();
+				} else if (data.steps){
 					ingredients = data.ingredients;
 					var container = jQuery('.steps .addRowContainer');
 					//lastIndex = container.find('.odd').add(container.find('.even')).length;

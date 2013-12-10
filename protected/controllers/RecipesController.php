@@ -116,10 +116,16 @@ class RecipesController extends Controller
 		if (isset($_GET['nosearch']) && $_GET['nosearch'] == 'true'){
 			unset(Yii::app()->session[$this->searchBackup]);
 		}
-		
+		$model = $this->loadModel($id);
+		$cookin = "#cookin";
+		if (isset($model->recToCois) && count($model->recToCois)>0){
+			$coi_id = $model->recToCois[0]->COI_ID;
+			$cookin = Yii::app()->db->createCommand()->select('COI_DESC_'.Yii::app()->session['lang'])->from('cook_in')->where('COI_ID = :id',array(':id'=>$coi_id))->queryScalar();
+		}
 		$this->checkRenderAjax('view',array(
-			'model'=>$this->loadModel($id),
+			'model'=>$model,
 			'nutrientData'=>$this->calculateNutrientData($id),
+			'cookin'=>$cookin
 		));
 	}
 

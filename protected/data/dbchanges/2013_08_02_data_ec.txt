@@ -1,0 +1,3 @@
+INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('COOKASISSTANT_MIDDLEWARE_OFFLINE', 'Middleware not connected(polling active)', 'Middleware nicht verbunden(polling aktiv)', ''),
+('COOKASISSTANT_MIDDLEWARE_ONLINE', 'Middleware connected', 'Middleware verbunden', '');

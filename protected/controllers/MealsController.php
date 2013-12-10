@@ -130,14 +130,23 @@ class MealsController extends Controller
 	 * Lists all models.
 	 */
 	public function actionIndex() {
-		$selectDate = mktime(0,0,0, date("n"), date("j"), date("Y"));
-		$dataProvider=new CActiveDataProvider('Meals', array(
-			'criteria'=>array(
-				'condition'=>'PRF_UID = ' . Yii::app()->user->id,
-				'order'=>'MEA_DATE',
-				'condition'=>'MEA_DATE >= ' . $selectDate,
-			),
-		));
+		if(isset($_GET['showAll']) && $_GET['showAll'] == 'true'){
+			$dataProvider=new CActiveDataProvider('Meals', array(
+				'criteria'=>array(
+					'condition'=>'PRF_UID = ' . Yii::app()->user->id,
+					'order'=>'MEA_DATE desc',
+				),
+			));
+		} else {
+			$selectDate = mktime(0,0,0, date("n"), date("j"), date("Y"));
+			$dataProvider=new CActiveDataProvider('Meals', array(
+				'criteria'=>array(
+					'condition'=>'PRF_UID = ' . Yii::app()->user->id,
+					'order'=>'MEA_DATE',
+					'condition'=>'MEA_DATE >= ' . $selectDate,
+				),
+			));
+		}
 		$this->checkRenderAjax('index',array(
 			'dataProvider'=>$dataProvider,
 		));
