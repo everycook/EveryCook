@@ -15,9 +15,11 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 See GPLv3.htm in the main folder for details.
 */
 
+/*
 if ($this->route != 'site/index'){
 	Functions::browserCheck();
 }
+*/
 ?>
 <input type="hidden" id="route" name="route" value="<?php echo $this->route; ?>"/>
 <div id="container">
