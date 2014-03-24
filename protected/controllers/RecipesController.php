@@ -97,12 +97,14 @@ class RecipesController extends Controller
 		}
 	}
 
-	private function updateKCal($id){
-		$nutrientData = $this->calculateNutrientData($id);
-		if ($nutrientData != null){
-			$kcal = $nutrientData->NUT_ENERG;
-		} else {
-			$kcal = 0;
+	private function updateKCal($id, $kcal){
+		if ($kcal == null){
+			$nutrientData = $this->calculateNutrientData($id);
+			if ($nutrientData != null){
+				$kcal = round($nutrientData->NUT_ENERG);
+			} else {
+				$kcal = 0;
+			}
 		}
 		Yii::app()->db->createCommand()->update(Recipes::model()->tableName(), array('REC_KCAL'=>$kcal), 'REC_ID = :id', array(':id'=>$id));
 	}
@@ -122,9 +124,18 @@ class RecipesController extends Controller
 			$coi_id = $model->recToCois[0]->COI_ID;
 			$cookin = Yii::app()->db->createCommand()->select('COI_DESC_'.Yii::app()->session['lang'])->from('cook_in')->where('COI_ID = :id',array(':id'=>$coi_id))->queryScalar();
 		}
+		
+		$nutrientData = $this->calculateNutrientData($id);
+		if ($nutrientData != null){
+			$kcal = round($nutrientData->NUT_ENERG);
+			if ($this->debug) {echo 'recipe kcal:' . $model->REC_KCAL . ', calculate kcal:' . $kcal . '<br>'."\n";}
+			if ($model->REC_KCAL != $kcal){
+				$this->updateKCal($id, $kcal);
+			}
+		}
 		$this->checkRenderAjax('view',array(
 			'model'=>$model,
-			'nutrientData'=>$this->calculateNutrientData($id),
+			'nutrientData'=>$nutrientData,
 			'cookin'=>$cookin
 		));
 	}
@@ -689,7 +700,7 @@ class RecipesController extends Controller
 								
 								//finish save
 								if ($saveOK){
-									$this->updateKCal($model->REC_ID);
+									$this->updateKCal($model->REC_ID, null);
 									
 									$saveOK = true;
 									$changed = Functions::fixPicturePathAfterSave($model,'REC_IMG', $model->REC_IMG_FILENAME);
