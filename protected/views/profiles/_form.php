@@ -148,6 +148,15 @@ See GPLv3.htm in the main folder for details.
 			<?php echo $form->error($model,'PRF_VIEW_DISTANCE'); ?>
 		</div>
 		
+		<div class="row">
+			<?php if(isset($model->PRF_TWITTER_OAUTH_TOKEN) && $model->PRF_TWITTER_OAUTH_TOKEN != '' && isset($model->PRF_TWITTER_OAUTH_TOKEN_SECRET) && $model->PRF_TWITTER_OAUTH_TOKEN_SECRET != '') {
+				echo CHtml::link($this->trans->PROFILES_TWEETER_REMOVE, array('removeTwitter'), array('class'=>'button noAjax', 'id'=>'removeTwitter'));
+				echo CHtml::link($this->trans->PROFILES_TWEETER_CHANGE, array('changeTwitter'), array('class'=>'button noAjax', 'id'=>'changeTwitter'));
+			} else {
+				echo CHtml::link($this->trans->PROFILES_TWEETER_ADD, array('addTwitter'), array('class'=>'button noAjax', 'id'=>'addTwitter'));
+			} ?>
+		</div>
+		
 	<?php /*
 		<div class="row">
 			<?php echo $form->labelEx($model,'PRF_LOC_GPS_POINT'); ?>

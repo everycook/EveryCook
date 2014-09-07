@@ -107,6 +107,15 @@ function remote_filesize2($uri){
 }
 
 function remote_file($uri){
+	$inhalt = remote_file_and_header($uri);
+	if(is_array($inhalt)){
+		return $inhalt[1];
+	} else {
+		return $inhalt;
+	}
+}
+
+function remote_file_and_header($uri){
 	$array=parse_url($uri);
 	$path=$array['path'];
 	if (isset($array['query']) && strlen($array['query'])>0){
@@ -152,14 +161,14 @@ function remote_file($uri){
 				}
 			}
 			if ($contentLength > -1){
-				if ((strlen($wert) - $pos - 4) >= $contentLength){
+				if ((strlen($wert) - $pos - 4) >= $contentLength-1){
 					break;
 				}
 			}
 		}
 		fclose($fp);
 		$inhalt=explode("\r\n\r\n",$wert,2);
-		return $inhalt[1];
+		return $inhalt;
 	}
 }
 ?>

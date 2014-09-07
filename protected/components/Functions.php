@@ -351,7 +351,7 @@ class Functions extends CHtml{
 	}
 	
 	public static function resizePicturePart($file, $file_new, $destWidth, $destHeight, $qualitaet, $destType, $src_x, $src_y, $src_w, $src_h, $fillWhite){
-		echo 'resizePicturePart'."\r\n";
+//		echo 'resizePicturePart'."\r\n";
 		if(!file_exists($file))
 			return false;
 		$info = getimagesize($file);
@@ -402,10 +402,10 @@ class Functions extends CHtml{
 		
 		imagealphablending($imagetc, false);
 		imagesavealpha($imagetc, true);
-		echo "width:$width, src_w:$src_w, height:$height, src_h:$src_h, isCropping:$isCropping\r\n";
+//		echo "width:$width, src_w:$src_w, height:$height, src_h:$src_h, isCropping:$isCropping\r\n";
 		//if (($info[0] > $width) or ($info[1] > $height) or ($width != $src_w) or ($height != $src_h) or ($src_x != 0) or ($src_y != 0)){
 		if (($width != $src_w) or ($height != $src_h) or $isCropping){
-			echo 'do coropping image creation'."\r\n";
+//			echo 'do coropping image creation'."\r\n";
 			if ($fillWhite){
 				$xmove=0;
 				$ymove=0;
@@ -422,7 +422,7 @@ class Functions extends CHtml{
 				imagecopyresampled($imagetc, $image, 0, 0, $src_x, $src_y, $width, $height, $src_w, $src_h);
 			}
 		} else {
-			echo 'simply copy image'."\r\n";
+//			echo 'simply copy image'."\r\n";
 			if ($info[2] == $destType){
 				copy($file,$file_new);
 				return;
@@ -613,7 +613,7 @@ class Functions extends CHtml{
 	public static function updatePicture($model, $picFieldName, $oldPictureFilename){
 		$file = CUploadedFile::getInstance($model,'filename');
 		if (isset($file)){
-			echo 'updatePicture file is set'."\r\n";
+//			echo 'updatePicture file is set'."\r\n";
 			self::resizePicture($file->getTempName(), $file->getTempName(), self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG);
 			$img_md5 = md5(file_get_contents($file->getTempName()));
 			$filename = self::generatePictureName($model, true);
@@ -622,18 +622,18 @@ class Functions extends CHtml{
 			$model->__set($picFieldName . '_ETAG', $img_md5);
 			$model->setScenario('withPic');
 		} else {
-			echo 'updatePicture file not set'."\r\n";
+//			echo 'updatePicture file not set'."\r\n";
 			if ($model->__get($picFieldName . '_FILENAME') == '' && $oldPictureFilename != ''){
-				echo 'set missing filename'."\r\n";
+//				echo 'set missing filename'."\r\n";
 				$model->__set($picFieldName . '_FILENAME', $oldPictureFilename);
 				$img_md5 = md5(file_get_contents($oldPictureFilename));
 				$model->__set($picFieldName . '_ETAG', $img_md5);
 				$model->setScenario('withPic');
 			} else {
 				$cropInfosAvailable = isset($_POST['imagecrop_w']) && ($_POST['imagecrop_w'] > 0) && isset($_POST['imagecrop_h']) && ($_POST['imagecrop_h'] > 0);
-				echo 'cropping, info available:' . $cropInfosAvailable . ' filename is:' . $model->__get($picFieldName . '_FILENAME')."\r\n";
+//				echo 'cropping, info available:' . $cropInfosAvailable . ' filename is:' . $model->__get($picFieldName . '_FILENAME')."\r\n";
 				if (($model->imagechanged == true || $cropInfosAvailable) && $model->__get($picFieldName . '_FILENAME') != ''){
-					echo 'do cropping'."\r\n";
+//					echo 'do cropping'."\r\n";
 					$filename = $model->__get($picFieldName . '_FILENAME');
 					if (strpos($filename, '_temp') === false){
 						$tempfile = self::generatePictureName($model, true);

@@ -179,7 +179,8 @@ See GPLv3.htm in the main folder for details.
 						}
 						?>
 					</div>
-					<a class="nav_entry noAjax" href="<?php echo '/cms/' . strtolower(substr(Yii::app()->session['lang'],0,2)) . '/'; ?>">
+					<?php /*<a class="nav_entry noAjax" href="<?php echo '/cms/' . strtolower(substr(Yii::app()->session['lang'],0,2)) . '/'; ?>"> */ ?>
+					<a class="nav_entry noAjax" href="/">
 						<div class="nav_button" id="about">
 							<span><?php echo $this->trans->GENERAL_ABOUT; ?></span>
 						</div>

@@ -246,6 +246,7 @@ class CookAssistantController extends Controller {
 				//TODO: this is a data error!, or a recipe without ingredients .... ?
 				$rec_proz = 1;
 			}
+			if ($this->debug) {echo "meal_gda:$meal_gda, cou_gda:$cou_gda, rec_gda:$rec_gda, rec_kcal:$rec_kcal => rec_proz:$rec_proz\r\n";}
 			foreach($recipe->steps as $step){
 				$totalTime += $step->STE_STEP_DURATION;
 				if (isset($step->ingredient)){
@@ -253,10 +254,14 @@ class CookAssistantController extends Controller {
 					$ingredientIdToNutrient[$step->ingredient->ING_ID] = $step->ingredient->nutrientData;
 					$step->ingredient->nutrientData = null;
 				}
+				if ($this->debug) {echo $step->STE_STEP_NO + ". ";}
 				if ($step->STE_GRAMS > 0){
 					//$step->STE_GRAMS = round($step->STE_GRAMS * $rec_proz,2);
+					if ($this->debug) {echo "STE_GRAMS original: " . $step->STE_GRAMS;}
 					$step->STE_GRAMS = round($step->STE_GRAMS * $rec_proz);
+					if ($this->debug) {echo ", changed: " . $step->STE_GRAMS;}
 				}
+				if ($this->debug) {echo "\r\n";}
 			}
 			$totalTimes[] = $totalTime;
 			$prepareTimes[] = 0;
@@ -318,6 +323,8 @@ class CookAssistantController extends Controller {
 					$currentTime = time();
 					$course = $info->meal->meaToCous[$info->courseNr]->course;
 					if (!$info->started){
+						$REC_ID = $info->meal->meaToCous[$info->courseNr]->course->couToRecs[$recipeNr]->recipe->REC_ID;
+						$this->tweet($REC_ID, true, true);
 						for ($recipeNrLoop=0; $recipeNrLoop<count($course->couToRecs); ++$recipeNrLoop){
 							$info->stepStartTime[$recipeNrLoop] = $currentTime;
 						}
@@ -459,6 +466,9 @@ class CookAssistantController extends Controller {
 							if(!$cookedInfo->save()){
 								//TODO error while save recipeCookedInfos...
 							}
+							
+							$REC_ID = $info->meal->meaToCous[$info->courseNr]->course->couToRecs[$recipeNr]->recipe->REC_ID;
+							$this->tweet($REC_ID, false, true);
 						}
 						
 						//error_log("recipeNr: $recipeNr, stepNumber: ".$info->stepNumbers[$recipeNr]." after");
@@ -1428,7 +1438,10 @@ class CookAssistantController extends Controller {
 					$step = $info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]];
 					$mealStep = $info->steps[$recipeNr];
 					$actionText = $mealStep->actionText;
-					$actionText = preg_replace("<span[^>]>([^<])</span>", "\$1", $actionText);
+					$actionText = preg_replace("/^[0-9]+\. /i", "", $actionText);
+					$actionText = preg_replace("/<span[^>]*>([^<]*)<\\/span>/i", "\$1", $actionText);
+					$actionText = preg_replace("/ {2,}/i", " ", $actionText);
+					$actionText = preg_replace("/\"/i", "\\\\\"", $actionText);
 					
 					if ($info->steps[$recipeNr]->endReached){
 						$command='{"T0":0,"P0":0,"M0RPM":0,"M0ON":0,"M0OFF":0,"W0":0,"STIME":0,"SMODE":'.self::RECIPE_END.',"SID":'.$step['detailStepNr'].',"TEXT":"'.$actionText.'"}';
@@ -1848,19 +1861,30 @@ class CookAssistantController extends Controller {
 			//if its on  a everycook, call on everycook.org Server
 			try {
 				//get credentials from file
-				$credentials = readfile(Yii::app()->params['syncCredentialsFile']);
+				$credentials = file(Yii::app()->params['syncCredentialsFile']);
+				$credentials = trim(implode("", $credentials));
 				//call remote action
 				require_once("remotefileinfo.php");
 				//$inhalt = remote_fileheader('http://www.everycook.org/db/tweet/tweet/id/'.$id.'/start/'.$start.'/everycook/'.$everycook.'/?'.$credentials);
-				$inhalt = remote_file('http://www.everycook.org/db/tweet/tweet/id/'.$id.'/start/'.$start.'/everycook/'.$everycook.'/?'.$credentials);
+				$link = 'http://www.everycook.org/db/tweet/tweet/id/'.$id.'/start/'.$start.'/everycook/'.$everycook.'/?'.$credentials;
+				$inhalt = remote_file($link);
 			} catch (Exception $e){
 				$inhalt = 'ERROR: ' . $e;
 			}
 			if (is_string($inhalt) && strpos($inhalt, 'ERROR: ') !== false){
+				echo 'Error: cannot tweet, error was: ' . substr($inhalt, 8);
 				error_log('Error: cannot tweet, error was: ' . substr($inhalt, 8));
-			} else {
-				error_log('Tweet was succesfull.');
-			}
+			} else if (is_string($inhalt) && strlen(trim($inhalt))>0){
+				echo 'Tweet maybe not succesfull:' . "\r\n" . $inhalt;
+				error_log('Tweet maybe not succesfull:' . "\r\n" . $inhalt);
+			} else if (is_array($inhalt)){
+				echo 'Tweet maybe not succesfull:' . "\r\n";
+				print_r($inhalt);
+				error_log('Tweet maybe not succesfull: array output');
+			} /*else {
+				echo 'Tweet was succesfull';
+				error_log('Tweet was succesfull');
+			}*/
 		} else {
 			//If on Web, call local
 			$tweetController = Yii::app()->createController('tweet');

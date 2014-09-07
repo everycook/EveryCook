@@ -80,34 +80,38 @@ See GPLv3.htm in the main folder for details.
 					echo '</div>';
 					echo '<div class="cou_recipes">';
 						$couToRecs_index=0;
-						foreach($meaToCou->course->couToRecs as $couToRec) {
-							$recipe = $couToRec->recipe;
-							if (isset($recipe) && $recipe != null){
-								echo '<div class="cou_recipe">';
-									if(isset($editMode) && $editMode){
-										$inputName = Functions::resolveMultiArrayName($data, array('meaToCous', $meaToCous_index, 'course', 'couToRecs', $couToRecs_index, 'REC_ID'));
-										echo CHtml::hiddenField($inputName, $recipe['REC_ID']);
-									}
-									echo '<div class="list_img">';
-										echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), '', array('class'=>'cou_recipe', 'alt'=>$recipe['REC_NAME_' . Yii::app()->session['lang']], 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']]));
-										echo '<div class="img_auth">';
-										if ($recipe->REC_IMG_ETAG == '') { echo '&nbsp;'; } else {echo '© by ' . $recipe->REC_IMG_AUTH; } 
+						if (isset($meaToCou->course) and isset($meaToCou->course->couToRecs) and is_array($meaToCou->course->couToRecs)){
+							foreach($meaToCou->course->couToRecs as $couToRec) {
+								$recipe = $couToRec->recipe;
+								if (isset($recipe) && $recipe != null){
+									echo '<div class="cou_recipe">';
+										if(isset($editMode) && $editMode){
+											$inputName = Functions::resolveMultiArrayName($data, array('meaToCous', $meaToCous_index, 'course', 'couToRecs', $couToRecs_index, 'REC_ID'));
+											echo CHtml::hiddenField($inputName, $recipe['REC_ID']);
+										}
+										echo '<div class="list_img">';
+											echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), '', array('class'=>'cou_recipe', 'alt'=>$recipe['REC_NAME_' . Yii::app()->session['lang']], 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']]));
+											echo '<div class="img_auth">';
+											if ($recipe->REC_IMG_ETAG == '') { echo '&nbsp;'; } else {echo '© by ' . $recipe->REC_IMG_AUTH; } 
+											echo '</div>';
 										echo '</div>';
+										
+										echo '<br>';
+										echo '<span class="title">' . $recipe['REC_NAME_'.Yii::app()->session['lang']] . '</span><br>';
+										if(isset($editMode) && $editMode){
+											$inputName = Functions::resolveMultiArrayName($data, array('meaToCous', $meaToCous_index, 'course', 'couToRecs', $couToRecs_index, 'CTR_REC_PROC'));
+											echo '<div class="slider_holder">' . Functions::specialField($inputName, $couToRec->CTR_REC_PROC, 'range', array('min'=>0,'max'=>100)) . '</div>';
+											echo '<span class="prozValue"><span class="value">' . $couToRec->CTR_REC_PROC . '</span>%</span>';
+										} else {
+											echo '<span>' . $couToRec->CTR_REC_PROC . '</span>%';
+										}
 									echo '</div>';
 									
-									echo '<br>';
-									echo '<span class="title">' . $recipe['REC_NAME_'.Yii::app()->session['lang']] . '</span><br>';
-									if(isset($editMode) && $editMode){
-										$inputName = Functions::resolveMultiArrayName($data, array('meaToCous', $meaToCous_index, 'course', 'couToRecs', $couToRecs_index, 'CTR_REC_PROC'));
-										echo '<div class="slider_holder">' . Functions::specialField($inputName, $couToRec->CTR_REC_PROC, 'range', array('min'=>0,'max'=>100)) . '</div>';
-										echo '<span class="prozValue"><span class="value">' . $couToRec->CTR_REC_PROC . '</span>%</span>';
-									} else {
-										echo '<span>' . $couToRec->CTR_REC_PROC . '</span>%';
-									}
-								echo '</div>';
-								
-								++$couToRecs_index;
+									++$couToRecs_index;
+								}
 							}
+						} else {
+							echo '<span style="color:red;font-weight:bold;">Data Error please resync from Platform!</span>';
 						}
 						if ($meaToCou->MTC_EAT_CHILDREN>0){
 							if ($meaToCou->MTC_EAT_ADULTS>0){

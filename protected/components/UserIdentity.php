@@ -51,7 +51,7 @@ class UserIdentity extends CUserIdentity
 			$home_gps = array(47.557473, 7.592926, 'POINT(47.557473 7.592926)');
 			$this->setState('home_gps', $home_gps);
 			$this->setState('view_distance', 5);
-			$this->setState('design','Avocado');
+			$this->setState('design','Aubergine');
 		} else {
 			$record=Profiles::model()->findByAttributes(array('PRF_NICK'=>$this->username));
 			if($record===null) {
@@ -82,8 +82,9 @@ class UserIdentity extends CUserIdentity
 					}
 					$this->setState('shoppinglists', $shoppinglists);
 					
-					$this->setState('twitterOauthToken', $record->PRF_TWITTER_OAUTH);
-					$this->setState('twitterOauthTokenSecret', $record->PRF_TWITTER_OAUTH_TOKEN);
+					$this->setState('twitterOauthToken', $record->PRF_TWITTER_OAUTH_TOKEN);
+					$this->setState('twitterOauthTokenSecret', $record->PRF_TWITTER_OAUTH_TOKEN_SECRET);
+					
 					
 					$this->setState('demo', false);
 					$this->errorCode=self::ERROR_NONE;

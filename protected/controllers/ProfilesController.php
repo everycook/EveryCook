@@ -31,6 +31,12 @@ class ProfilesController extends Controller
 				'actions'=>array('index','view','create','update','uploadImage','admin','delete', 'ChangeLanguageMenu', 'changeDesignMenu','cancel'),
 				'users'=>array('@'),
 			),
+			
+			array('allow', // allow admin user to perform 'admin' and 'delete' actions
+				'actions'=>array('addTwitter','removeTwitter','changeTwitter','twitterCallback'),
+				//'roles'=>array('tweeter'),
+				'users'=>array('@'),
+			),
 			array('deny',  // deny all users
 				'users'=>array('*'),
 			),
@@ -534,13 +540,110 @@ class ProfilesController extends Controller
 			$model->save();
 		}
 	}
+	
+	
+	public function actionTwitterCallback() {
+		$this->saveLastAction = false;
+		/* If the oauth_token is old redirect to the connect page. */
+		if (isset($_REQUEST['oauth_token']) && isset($_SESSION['oauth_token']) && $_SESSION['oauth_token'] !== $_REQUEST['oauth_token']) {
+			$_SESSION['oauth_status'] = 'oldtoken';
+			//header('Location: ./clearsessions.php');
+		}
 
+		/* Create TwitteroAuth object with app key/secret and token key/secret from default phase */
+		$connection = new TwitterOAuth(Yii::app()->params['twitterConsumerKey'], Yii::app()->params['twitterConsumerSecret'], $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
+		
+		/* Request access tokens from twitter */
+		try {
+			$access_token = $connection->getAccessToken($_REQUEST['oauth_verifier']);
+		} catch (Exception $e){
+			echo "\r\naccess token expired\r\n";
+		}
+		
+		/* Save the access tokens. Normally these would be saved in a database for future use. */
+		$_SESSION['access_token'] = $access_token;
+		
+		if(!Yii::app()->user->demo){
+			$model = $this->loadModel(Yii::app()->user->id);
+			$model->PRF_TWITTER_OAUTH_TOKEN = $access_token['oauth_token'];
+			$model->PRF_TWITTER_OAUTH_TOKEN_SECRET = $access_token['oauth_token_secret'];
+			if ($model->save()){
+				/* Remove no longer needed request tokens */
+				unset($_SESSION['oauth_token']);
+				unset($_SESSION['oauth_token_secret']);
+				
+				Yii::app()->user->setState('twitterOauthToken', $access_token['oauth_token']);
+				Yii::app()->user->setState('twitterOauthTokenSecret', $access_token['oauth_token_secret']);
+				
+				echo "\r\nsave successfull\r\n";
+			} else {
+				print_r($model->getErrors());
+				echo "\r\nsave error\r\n";
+			}
+		}
+		
+		/* If HTTP response is 200 continue otherwise send to connect page to retry */
+		if (200 == $connection->http_code) {
+		  /* The user has been verified and the access tokens can be saved for future use */
+		  $_SESSION['status'] = 'verified';
+		  //header('Location: ./index.php');
+		} else {
+		  /* Save HTTP status for error dialog on connnect page.*/
+		  //header('Location: ./clearsessions.php');
+		}
+	}
+	
+	private function twitterAccessRequest($type) {
+		/* Build TwitterOAuth object with client credentials. */
+		$connection = new TwitterOAuth(Yii::app()->params['twitterConsumerKey'], Yii::app()->params['twitterConsumerSecret']);
+		 
+		/* Get temporary credentials. */
+		$request_token = $connection->getRequestToken($this->createAbsoluteUrl("profiles/twitterCallback", array('type'=>$type)));
+
+		/* Save temporary credentials to session. */
+		$_SESSION['oauth_token'] = $token = $request_token['oauth_token'];
+		$_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
+		 
+		/* If last connection failed don't display authorization link. */
+		switch ($connection->http_code) {
+		  case 200:
+			/* Build authorize URL and redirect user to Twitter. */
+			$url = $connection->getAuthorizeURL($token);
+			header('Location: ' . $url); 
+			break;
+		  default:
+			/* Show notification if something went wrong. */
+			echo 'Could not connect to Twitter. Refresh the page or try again later.';
+		}
+	}
+	
+	public function actionAddTwitter() {
+		$this->saveLastAction = false;
+		$this->twitterAccessRequest('add');
+	}
+	
+	public function actionChangeTwitter() {
+		$this->saveLastAction = false;
+		$this->twitterAccessRequest('change');
+	}
+	
+	public function actionRemoveTwitter() {
+		$this->saveLastAction = false;
+		
+		if(!Yii::app()->user->demo){
+			$model = $this->loadModel(Yii::app()->user->id);
+			$model->PRF_TWITTER_OAUTH_TOKEN = null;
+			$model->PRF_TWITTER_OAUTH_TOKEN_SECRET = null;
+			$model->save();
+		}
+	}
+	
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer the ID of the model to be loaded
 	 */
-	public static function loadModel($id)
+	public function loadModel($id)
 	{
 		if ($id == 'backup'){
 			$model=Yii::app()->session[$this->createBackup];
