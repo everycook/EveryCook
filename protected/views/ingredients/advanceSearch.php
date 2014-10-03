@@ -87,13 +87,33 @@ if ($this->isFancyAjaxRequest){
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'ING_CREATED'); ?>
-		<?php echo $form->textField($model,'ING_CREATED'); ?>
+		<?php echo $form->label($model,'NUT_ID'); ?>
+		<?php echo $form->textField($model,'NUT_ID'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'ING_CHANGED'); ?>
-		<?php echo $form->textField($model,'ING_CHANGED'); ?>
+		<?php echo $form->label($model,'GRP_ID'); ?>
+		<?php echo $form->textField($model,'GRP_ID'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'SGR_ID'); ?>
+		<?php echo $form->textField($model,'SGR_ID'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'IST_ID'); ?>
+		<?php echo $form->textField($model,'IST_ID'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'ICO_ID'); ?>
+		<?php echo $form->textField($model,'ICO_ID'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'STB_ID'); ?>
+		<?php echo $form->textField($model,'STB_ID'); ?>
 	</div>
 
 	<div class="row">
@@ -112,13 +132,52 @@ if ($this->isFancyAjaxRequest){
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'ING_NAME_EN'); ?>
-		<?php echo $form->textField($model,'ING_NAME_EN',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->label($model,'ING_HAS_ALLERGY_INFO'); ?>
+		<?php echo $form->textField($model,'ING_HAS_ALLERGY_INFO',array('size'=>1,'maxlength'=>1)); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'ING_NAME_DE'); ?>
-		<?php echo $form->textField($model,'ING_NAME_DE',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->label($model,'ING_NEED_PEELING'); ?>
+		<?php echo $form->textField($model,'ING_NEED_PEELING',array('size'=>1,'maxlength'=>1)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'ING_NEED_WASH'); ?>
+		<?php echo $form->textField($model,'ING_NEED_WASH',array('size'=>1,'maxlength'=>1)); ?>
+	</div>
+	<div class="row">
+		<?php echo $form->label($model,'ING_WIKI_LINK'); ?>
+		<?php echo $form->textField($model,'ING_WIKI_LINK',array('size'=>60,'maxlength'=>200)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'ING_WEIGHT_SMALL'); ?>
+		<?php echo $form->textField($model,'ING_WEIGHT_SMALL'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'ING_WEIGHT_BIG'); ?>
+		<?php echo $form->textField($model,'ING_WEIGHT_BIG'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'ING_SYNONYM_EN_GB'); ?>
+		<?php echo $form->textField($model,'ING_SYNONYM_EN_GB',array('size'=>60,'maxlength'=>200)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'ING_SYNONYM_DE_CH'); ?>
+		<?php echo $form->textField($model,'ING_SYNONYM_DE_CH',array('size'=>60,'maxlength'=>200)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'ING_NAME_EN_GB'); ?>
+		<?php echo $form->textField($model,'ING_NAME_EN_GB',array('size'=>60,'maxlength'=>100)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'ING_NAME_DE_CH'); ?>
+		<?php echo $form->textField($model,'ING_NAME_DE_CH',array('size'=>60,'maxlength'=>100)); ?>
 	</div>
 	
 	<div class="buttons">

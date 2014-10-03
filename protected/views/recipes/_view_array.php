@@ -74,6 +74,61 @@ See GPLv3.htm in the main folder for details.
 		<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>
 		<?php echo CHtml::encode($data['REC_IMG_AUTH']); ?>
 		<br />
+		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_HAS_ALLERGY_INFO')); ?>:</b>
+		<?php echo CHtml::encode($data->REC_HAS_ALLERGY_INFO); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_SUMMERY')); ?>:</b>
+		<?php echo CHtml::encode($data->REC_SUMMERY); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_APPROVED')); ?>:</b>
+		<?php echo CHtml::encode($data->REC_APPROVED); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_SERVING_COUNT')); ?>:</b>
+		<?php echo CHtml::encode($data->REC_SERVING_COUNT); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_WIKI_LINK')); ?>:</b>
+		<?php echo CHtml::encode($data->REC_WIKI_LINK); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_IS_PRIVATE')); ?>:</b>
+		<?php echo CHtml::encode($data->REC_IS_PRIVATE); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_COMPLEXITY')); ?>:</b>
+		<?php echo CHtml::encode($data->REC_COMPLEXITY); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('CUT_ID')); ?>:</b>
+		<?php echo CHtml::encode($data->CUT_ID); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('CST_ID')); ?>:</b>
+		<?php echo CHtml::encode($data->CST_ID); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_CUSINE_GPS_LAT')); ?>:</b>
+		<?php echo CHtml::encode($data->REC_CUSINE_GPS_LAT); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_CUSINE_GPS_LNG')); ?>:</b>
+		<?php echo CHtml::encode($data->REC_CUSINE_GPS_LNG); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_TOOLS')); ?>:</b>
+		<?php echo CHtml::encode($data->REC_TOOLS); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_SYNONYM_EN_GB')); ?>:</b>
+		<?php echo CHtml::encode($data->REC_SYNONYM_EN_GB); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_SYNONYM_DE_CH')); ?>:</b>
+		<?php echo CHtml::encode($data->REC_SYNONYM_DE_CH); ?>
+		<br />
 */ ?>
 
 		<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>

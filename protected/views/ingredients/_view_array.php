@@ -165,58 +165,122 @@ See GPLv3.htm in the main folder for details.
 	<?php
 	/*
 	
-		<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_ID')); ?>:</strong>
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_ID')); ?>:</b>
 		<?php echo CHtml::link(CHtml::encode($data->ING_ID), array('view', 'id'=>$data->ING_ID)); ?>
 		<br />
 
-		<strong><?php echo CHtml::encode($data->getAttributeLabel('PRF_UID')); ?>:</strong>
+		<b><?php echo CHtml::encode($data->getAttributeLabel('PRF_UID')); ?>:</b>
 		<?php echo CHtml::encode($data->PRF_UID); ?>
 		<br />
 
-		<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_CREATED')); ?>:</strong>
-		<?php echo CHtml::encode($data->ING_CREATED); ?>
+		<b><?php echo CHtml::encode($data->getAttributeLabel('NUT_ID')); ?>:</b>
+		<?php echo CHtml::encode($data->NUT_ID); ?>
 		<br />
 
-		<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_CHANGED')); ?>:</strong>
-		<?php echo CHtml::encode($data->ING_CHANGED); ?>
+		<b><?php echo CHtml::encode($data->getAttributeLabel('GRP_ID')); ?>:</b>
+		<?php echo CHtml::encode($data->GRP_ID); ?>
 		<br />
-		
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('IST_ID')); ?>:</strong>
-	<?php echo CHtml::encode($data->IST_ID); ?>
-	<br />
 
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('ICO_ID')); ?>:</strong>
-	<?php echo CHtml::encode($data->ICO_ID); ?>
-	<br />
+		<b><?php echo CHtml::encode($data->getAttributeLabel('SGR_ID')); ?>:</b>
+		<?php echo CHtml::encode($data->SGR_ID); ?>
+		<br />
 
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('STB_ID')); ?>:</strong>
-	<?php echo CHtml::encode($data->STB_ID); ?>
-	<br />
+		<b><?php echo CHtml::encode($data->getAttributeLabel('IST_ID')); ?>:</b>
+		<?php echo CHtml::encode($data->IST_ID); ?>
+		<br />
 
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_DENSITY')); ?>:</strong>
-	<?php echo CHtml::encode($data->ING_DENSITY); ?>
-	<br />
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_IMG_FILENAME')); ?>:</strong>
-	<?php echo CHtml::encode($data->ING_IMG); ?><br />
-	
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ICO_ID')); ?>:</b>
+		<?php echo CHtml::encode($data->ICO_ID); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('STB_ID')); ?>:</b>
+		<?php echo CHtml::encode($data->STB_ID); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_DENSITY')); ?>:</b>
+		<?php echo CHtml::encode($data->ING_DENSITY); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_IMG_FILENAME')); ?>:</b>
+		<?php echo CHtml::encode($data->ING_IMG_FILENAME); ?>
+		<br />
 	
 	<!-- STL show image -->
 	<?php echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data->ING_ID)), '', array('class'=>'ingredient')); ?><br />
 	
 	
 	
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_IMG_AUTH')); ?>:</strong>
-	<?php echo CHtml::encode($data->ING_IMG_AUTH); ?>
-	<br />
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_IMG_AUTH')); ?>:</b>
+		<?php echo CHtml::encode($data->ING_IMG_AUTH); ?>
+		<br />
 
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_NAME_EN')); ?>:</strong>
-	<?php echo CHtml::encode($data->ING_NAME_EN); ?>
-	<br />
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_IMG_ETAG')); ?>:</b>
+		<?php echo CHtml::encode($data->ING_IMG_ETAG); ?>
+		<br />
 
-	<strong><?php echo CHtml::encode($data->getAttributeLabel('ING_NAME_DE')); ?>:</strong>
-	<?php echo CHtml::encode($data->ING_NAME_DE); ?>
-	<br />
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_HAS_ALLERGY_INFO')); ?>:</b>
+		<?php echo CHtml::encode($data->ING_HAS_ALLERGY_INFO); ?>
+		<br />
 
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_NEED_PEELING')); ?>:</b>
+		<?php echo CHtml::encode($data->ING_NEED_PEELING); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_NEED_WASH')); ?>:</b>
+		<?php echo CHtml::encode($data->ING_NEED_WASH); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_SCALE_PRECISION')); ?>:</b>
+		<?php echo CHtml::encode($data->ING_SCALE_PRECISION); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_APPROVED')); ?>:</b>
+		<?php echo CHtml::encode($data->ING_APPROVED); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_WIKI_LINK')); ?>:</b>
+		<?php echo CHtml::encode($data->ING_WIKI_LINK); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_WEIGHT_SMALL')); ?>:</b>
+		<?php echo CHtml::encode($data->ING_WEIGHT_SMALL); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_WEIGHT_BIG')); ?>:</b>
+		<?php echo CHtml::encode($data->ING_WEIGHT_BIG); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_SYNONYM_EN_GB')); ?>:</b>
+		<?php echo CHtml::encode($data->ING_SYNONYM_EN_GB); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_SYNONYM_DE_CH')); ?>:</b>
+		<?php echo CHtml::encode($data->ING_SYNONYM_DE_CH); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_NAME_EN_GB')); ?>:</b>
+		<?php echo CHtml::encode($data->ING_NAME_EN_GB); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('ING_NAME_DE_CH')); ?>:</b>
+		<?php echo CHtml::encode($data->ING_NAME_DE_CH); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('CREATED_BY')); ?>:</b>
+		<?php echo CHtml::encode($data->CREATED_BY); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('CREATED_ON')); ?>:</b>
+		<?php echo CHtml::encode($data->CREATED_ON); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('CHANGED_BY')); ?>:</b>
+		<?php echo CHtml::encode($data->CHANGED_BY); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('CHANGED_ON')); ?>:</b>
+		<?php echo CHtml::encode($data->CHANGED_ON); ?>
+		<br />
 	*/ ?>
 
 </div>

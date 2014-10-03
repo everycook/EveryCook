@@ -41,6 +41,21 @@ See GPLv3.htm in the main folder for details.
  * @property string $PRF_NOTLIKES_R
  * @property string $PRF_NOTLIKES_P
  * @property string $PRF_SHOPLISTS
+ * @property string $PRF_LIKES_CUSINE
+ * @property string $PRF_LIKES_CUSINESUB
+ * @property string $PRF_ALLERGY
+ * @property string $PRF_DIET_PREF
+ * @property double $PRF_SPEED_PEELING
+ * @property double $PRF_ALDENTE_NOODLES
+ * @property double $PRF_ALDENTE_VEGETABLES
+ * @property string $PRF_TEMP_MEAT
+ * @property integer $PRF_COOKING_STOVE_STAGES
+ * @property string $PRF_COOKING_STOVE_MEASUREMENTS
+ * @property integer $COS_ID
+ * @property string $PRF_HAS_WATER_BOILER
+ * @property integer $PRF_KCAL
+ * @property string $PRF_ACTIVITY_CALCULATOR
+ * @property string $PRF_MISE_EN_PLACE
  * @property integer $PRF_VIEW_DISTANCE
  * @property string $PRF_DESIGN
  * @property string $PRF_ROLES
@@ -109,21 +124,24 @@ class Profiles extends ActiveRecordECPriv
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('PRF_NICK, PRF_EMAIL, PRF_PW, PRF_LANG', 'required'),
-			array('PRF_BIRTHDAY, PRF_VIEW_DISTANCE, PRF_ACTIVE, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
-			array('PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG', 'numerical'),
+			array('PRF_NICK, PRF_EMAIL, PRF_PW, PRF_LANG, PRF_IMG_ETAG, PRF_LIKES_CUSINE, PRF_LIKES_CUSINESUB, PRF_ALLERGY, PRF_DIET_PREF, PRF_COOKING_STOVE_MEASUREMENTS, COS_ID, PRF_KCAL, PRF_ACTIVITY_CALCULATOR', 'required'),
+			array('PRF_BIRTHDAY, PRF_COOKING_STOVE_STAGES, COS_ID, PRF_KCAL, PRF_VIEW_DISTANCE, PRF_ACTIVE, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG, PRF_SPEED_PEELING, PRF_ALDENTE_NOODLES, PRF_ALDENTE_VEGETABLES', 'numerical'),
 			array('PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_ROLES, PRF_RND, PRF_EVERYCOOP_IP', 'length', 'max'=>100),
-			array('PRF_GENDER', 'length', 'max'=>1),
+			array('PRF_GENDER, PRF_MISE_EN_PLACE', 'length', 'max'=>1),
 			array('PRF_LANG', 'length', 'max'=>10),
 			array('PRF_IMG_FILENAME', 'length', 'max'=>250),
-			array('PRF_IMG_ETAG, PRF_TWITTER_OAUTH_TOKEN PRF_TWITTER_OAUTH_TOKEN_SECRET', 'length', 'max'=>50),
+			array('PRF_IMG_ETAG', 'length', 'max'=>40),
 			array('PRF_PW', 'length', 'max'=>256),
+			array('PRF_ALLERGY, PRF_DIET_PREF, PRF_COOKING_STOVE_MEASUREMENTS, PRF_ACTIVITY_CALCULATOR', 'length', 'max'=>200),
+			array('PRF_TEMP_MEAT', 'length', 'max'=>11),
 			array('PRF_DESIGN', 'length', 'max'=>20),
+			array('PRF_TWITTER_OAUTH_TOKEN, PRF_TWITTER_OAUTH_TOKEN_SECRET', 'length', 'max'=>50),
 			array('PRF_IMG_FILENAME, PRF_IMG_ETAG', 'required', 'on'=>'withPic'),
-			array('new_pw, pw_repeat, birthday_day, birthday_month, birthday_year, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS', 'safe'),
+			array('new_pw, pw_repeat, birthday_day, birthday_month, birthday_year, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_HAS_WATER_BOILER', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_GENDER, PRF_BIRTHDAY, PRF_EMAIL, PRF_LANG, PRF_IMG_FILENAME, PRF_IMG_ETAG, PRF_PW, PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_VIEW_DISTANCE, PRF_DESIGN, PRF_ROLES, PRF_ACTIVE, PRF_RND, PRF_EVERYCOOP_IP, PRF_TWITTER_OAUTH_TOKEN, PRF_TWITTER_OAUTH_TOKEN_SECRET, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_GENDER, PRF_BIRTHDAY, PRF_EMAIL, PRF_LANG, PRF_IMG_FILENAME, PRF_IMG_ETAG, PRF_PW, PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_LIKES_CUSINE, PRF_LIKES_CUSINESUB, PRF_ALLERGY, PRF_DIET_PREF, PRF_SPEED_PEELING, PRF_ALDENTE_NOODLES, PRF_ALDENTE_VEGETABLES, PRF_TEMP_MEAT, PRF_COOKING_STOVE_STAGES, PRF_COOKING_STOVE_MEASUREMENTS, COS_ID, PRF_HAS_WATER_BOILER, PRF_KCAL, PRF_ACTIVITY_CALCULATOR, PRF_MISE_EN_PLACE, PRF_VIEW_DISTANCE, PRF_DESIGN, PRF_ROLES, PRF_ACTIVE, PRF_RND, PRF_EVERYCOOP_IP, PRF_TWITTER_OAUTH_TOKEN, PRF_TWITTER_OAUTH_TOKEN_SECRET, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 			
 			// register
 			//array('pw_repeat','safe'),
@@ -177,6 +195,21 @@ class Profiles extends ActiveRecordECPriv
 			'PRF_NOTLIKES_R' => 'Prf Notlikes R',
 			'PRF_NOTLIKES_P' => 'Prf Notlikes P',
 			'PRF_SHOPLISTS' => 'Prf Shoplists',
+			'PRF_LIKES_CUSINE' => 'Prf Likes Cusine',
+			'PRF_LIKES_CUSINESUB' => 'Prf Likes Cusinesub',
+			'PRF_ALLERGY' => 'Prf Allergy',
+			'PRF_DIET_PREF' => 'Prf Diet Pref',
+			'PRF_SPEED_PEELING' => 'Prf Speed Peeling',
+			'PRF_ALDENTE_NOODLES' => 'Prf Aldente Noodles',
+			'PRF_ALDENTE_VEGETABLES' => 'Prf Aldente Vegetables',
+			'PRF_TEMP_MEAT' => 'Prf Temp Meat',
+			'PRF_COOKING_STOVE_STAGES' => 'Prf Cooking Stove Stages',
+			'PRF_COOKING_STOVE_MEASUREMENTS' => 'Prf Cooking Stove Measurements',
+			'COS_ID' => 'Cos',
+			'PRF_HAS_WATER_BOILER' => 'Prf Has Water Boiler',
+			'PRF_KCAL' => 'Prf Kcal',
+			'PRF_ACTIVITY_CALCULATOR' => 'Prf Activity Calculator',
+			'PRF_MISE_EN_PLACE' => 'Prf Mise En Place',
 			'PRF_VIEW_DISTANCE' => 'Prf View Distance',
 			'PRF_DESIGN' => 'Prf Design',
 			'PRF_ROLES' => 'Prf Roles',
@@ -223,6 +256,21 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare($this->tableName().'.PRF_NOTLIKES_R',$this->PRF_NOTLIKES_R,true);
 		$criteria->compare($this->tableName().'.PRF_NOTLIKES_P',$this->PRF_NOTLIKES_P,true);
 		$criteria->compare($this->tableName().'.PRF_SHOPLISTS',$this->PRF_SHOPLISTS,true);
+		$criteria->compare($this->tableName().'.PRF_LIKES_CUSINE',$this->PRF_LIKES_CUSINE,true);
+		$criteria->compare($this->tableName().'.PRF_LIKES_CUSINESUB',$this->PRF_LIKES_CUSINESUB,true);
+		$criteria->compare($this->tableName().'.PRF_ALLERGY',$this->PRF_ALLERGY,true);
+		$criteria->compare($this->tableName().'.PRF_DIET_PREF',$this->PRF_DIET_PREF,true);
+		$criteria->compare($this->tableName().'.PRF_SPEED_PEELING',$this->PRF_SPEED_PEELING);
+		$criteria->compare($this->tableName().'.PRF_ALDENTE_NOODLES',$this->PRF_ALDENTE_NOODLES);
+		$criteria->compare($this->tableName().'.PRF_ALDENTE_VEGETABLES',$this->PRF_ALDENTE_VEGETABLES);
+		$criteria->compare($this->tableName().'.PRF_TEMP_MEAT',$this->PRF_TEMP_MEAT,true);
+		$criteria->compare($this->tableName().'.PRF_COOKING_STOVE_STAGES',$this->PRF_COOKING_STOVE_STAGES);
+		$criteria->compare($this->tableName().'.PRF_COOKING_STOVE_MEASUREMENTS',$this->PRF_COOKING_STOVE_MEASUREMENTS,true);
+		$criteria->compare($this->tableName().'.COS_ID',$this->COS_ID);
+		$criteria->compare($this->tableName().'.PRF_HAS_WATER_BOILER',$this->PRF_HAS_WATER_BOILER,true);
+		$criteria->compare($this->tableName().'.PRF_KCAL',$this->PRF_KCAL);
+		$criteria->compare($this->tableName().'.PRF_ACTIVITY_CALCULATOR',$this->PRF_ACTIVITY_CALCULATOR,true);
+		$criteria->compare($this->tableName().'.PRF_MISE_EN_PLACE',$this->PRF_MISE_EN_PLACE,true);
 		$criteria->compare($this->tableName().'.PRF_VIEW_DISTANCE',$this->PRF_VIEW_DISTANCE);
 		$criteria->compare($this->tableName().'.PRF_DESIGN',$this->PRF_DESIGN,true);
 		$criteria->compare($this->tableName().'.PRF_ROLES',$this->PRF_ROLES,true);
@@ -267,6 +315,21 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare('PRF_NOTLIKES_R',$this->PRF_NOTLIKES_R,true);
 		$criteria->compare('PRF_NOTLIKES_P',$this->PRF_NOTLIKES_P,true);
 		$criteria->compare('PRF_SHOPLISTS',$this->PRF_SHOPLISTS,true);
+		$criteria->compare('PRF_LIKES_CUSINE',$this->PRF_LIKES_CUSINE,true);
+		$criteria->compare('PRF_LIKES_CUSINESUB',$this->PRF_LIKES_CUSINESUB,true);
+		$criteria->compare('PRF_ALLERGY',$this->PRF_ALLERGY,true);
+		$criteria->compare('PRF_DIET_PREF',$this->PRF_DIET_PREF,true);
+		$criteria->compare('PRF_SPEED_PEELING',$this->PRF_SPEED_PEELING);
+		$criteria->compare('PRF_ALDENTE_NOODLES',$this->PRF_ALDENTE_NOODLES);
+		$criteria->compare('PRF_ALDENTE_VEGETABLES',$this->PRF_ALDENTE_VEGETABLES);
+		$criteria->compare('PRF_TEMP_MEAT',$this->PRF_TEMP_MEAT,true);
+		$criteria->compare('PRF_COOKING_STOVE_STAGES',$this->PRF_COOKING_STOVE_STAGES);
+		$criteria->compare('PRF_COOKING_STOVE_MEASUREMENTS',$this->PRF_COOKING_STOVE_MEASUREMENTS,true);
+		$criteria->compare('COS_ID',$this->COS_ID);
+		$criteria->compare('PRF_HAS_WATER_BOILER',$this->PRF_HAS_WATER_BOILER,true);
+		$criteria->compare('PRF_KCAL',$this->PRF_KCAL);
+		$criteria->compare('PRF_ACTIVITY_CALCULATOR',$this->PRF_ACTIVITY_CALCULATOR,true);
+		$criteria->compare('PRF_MISE_EN_PLACE',$this->PRF_MISE_EN_PLACE,true);
 		$criteria->compare('PRF_VIEW_DISTANCE',$this->PRF_VIEW_DISTANCE);
 		$criteria->compare('PRF_DESIGN',$this->PRF_DESIGN,true);
 		$criteria->compare('PRF_ROLES',$this->PRF_ROLES,true);

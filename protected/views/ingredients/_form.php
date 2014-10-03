@@ -134,6 +134,42 @@ See GPLv3.htm in the main folder for details.
 		<?php echo $form->error($model,'ING_IMG_AUTH'); ?>
 	</div>
 
+	<div class="row">
+		<?php echo $form->labelEx($model,'ING_NEED_PEELING'); ?>
+		<?php echo $form->textField($model,'ING_NEED_PEELING',array('size'=>1,'maxlength'=>1)); ?>
+		<?php echo $form->error($model,'ING_NEED_PEELING'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'ING_NEED_WASH'); ?>
+		<?php echo $form->textField($model,'ING_NEED_WASH',array('size'=>1,'maxlength'=>1)); ?>
+		<?php echo $form->error($model,'ING_NEED_WASH'); ?>
+	</div>
+	<div class="row">
+		<?php echo $form->labelEx($model,'ING_WIKI_LINK'); ?>
+		<?php echo $form->textField($model,'ING_WIKI_LINK',array('size'=>60,'maxlength'=>200)); ?>
+		<?php echo $form->error($model,'ING_WIKI_LINK'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'ING_WEIGHT_SMALL'); ?>
+		<?php echo $form->textField($model,'ING_WEIGHT_SMALL'); ?>
+		<?php echo $form->error($model,'ING_WEIGHT_SMALL'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'ING_WEIGHT_BIG'); ?>
+		<?php echo $form->textField($model,'ING_WEIGHT_BIG'); ?>
+		<?php echo $form->error($model,'ING_WEIGHT_BIG'); ?>
+	</div>
+
+	<?php foreach($this->allLanguages as $lang=>$name){ ?>
+	<div class="row">
+		<?php echo $form->labelEx($model,'ING_SYNONYM_'.$lang); ?>
+		<?php echo $form->textField($model,'ING_SYNONYM_'.$lang,array('size'=>60,'maxlength'=>200)); ?>
+		<?php echo $form->error($model,'ING_SYNONYM_'.$lang); ?>
+	</div>
+	<?php } ?>
 	<div class="buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE); ?>
 		<?php echo CHtml::link($this->trans->GENERAL_CANCEL, array('cancel'), array('class'=>'button', 'id'=>'cancel')); ?>

@@ -70,6 +70,14 @@ See GPLv3.htm in the main folder for details.
 	</div>
 	<?php } ?>
 	
+	<?php foreach($this->allLanguages as $lang=>$name){ ?>
+	<div class="row">
+		<?php echo $form->labelEx($model,'REC_SYNONYM_'.strtoupper($lang)); ?>
+		<?php echo $form->textField($model,'REC_SYNONYM_'.strtoupper($lang),array('size'=>60,'maxlength'=>200)); ?>
+		<?php echo $form->error($model,'REC_SYNONYM_'.strtoupper($lang)); ?>
+	</div>
+	<?php } ?>
+	
 	<?php
 	$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
 	echo Functions::createInput(null, $model, 'RET_ID', $recipeTypes, Functions::DROP_DOWN_LIST, 'recipeTypes', $htmlOptions_type0, $form);
@@ -82,6 +90,60 @@ See GPLv3.htm in the main folder for details.
 			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('REC_NAME_' . Yii::app()->session['lang'])));
 		}
 	?>
+	
+	<div class="row">
+		<?php echo $form->labelEx($model,'REC_SERVING_COUNT'); ?>
+		<?php echo $form->textField($model,'REC_SERVING_COUNT'); ?>
+		<?php echo $form->error($model,'REC_SERVING_COUNT'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'REC_WIKI_LINK'); ?>
+		<?php echo $form->textField($model,'REC_WIKI_LINK',array('size'=>60,'maxlength'=>200)); ?>
+		<?php echo $form->error($model,'REC_WIKI_LINK'); ?>
+	</div>
+<?php /*
+	<div class="row">
+		<?php echo $form->labelEx($model,'REC_IS_PRIVATE'); ?>
+		<?php echo $form->textField($model,'REC_IS_PRIVATE',array('size'=>1,'maxlength'=>1)); ?>
+		<?php echo $form->error($model,'REC_IS_PRIVATE'); ?>
+	</div>
+*/ ?>
+	<div class="row">
+		<?php echo $form->labelEx($model,'REC_COMPLEXITY'); ?>
+		<?php echo $form->textField($model,'REC_COMPLEXITY'); ?>
+		<?php echo $form->error($model,'REC_COMPLEXITY'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'CUT_ID'); ?>
+		<?php echo $form->textField($model,'CUT_ID'); ?>
+		<?php echo $form->error($model,'CUT_ID'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'CST_ID'); ?>
+		<?php echo $form->textField($model,'CST_ID'); ?>
+		<?php echo $form->error($model,'CST_ID'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'REC_CUSINE_GPS_LAT'); ?>
+		<?php echo $form->textField($model,'REC_CUSINE_GPS_LAT'); ?>
+		<?php echo $form->error($model,'REC_CUSINE_GPS_LAT'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'REC_CUSINE_GPS_LNG'); ?>
+		<?php echo $form->textField($model,'REC_CUSINE_GPS_LNG'); ?>
+		<?php echo $form->error($model,'REC_CUSINE_GPS_LNG'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'REC_TOOLS'); ?>
+		<?php echo $form->textField($model,'REC_TOOLS',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->error($model,'REC_TOOLS'); ?>
+	</div>
 	
 	<div class="row">
 		<?php echo $form->labelEx($model,'filename'); ?>

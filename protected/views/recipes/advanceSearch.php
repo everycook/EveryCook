@@ -68,6 +68,75 @@ if ($this->isFancyAjaxRequest){ ?>
 		<?php echo $form->textField($model,'RET_ID'); ?>
 	</div>
 
+	<div class="row">
+		<?php echo $form->label($model,'REC_HAS_ALLERGY_INFO'); ?>
+		<?php echo $form->textField($model,'REC_HAS_ALLERGY_INFO',array('size'=>1,'maxlength'=>1)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'REC_SUMMERY'); ?>
+		<?php echo $form->textField($model,'REC_SUMMERY',array('size'=>60,'maxlength'=>200)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'REC_APPROVED'); ?>
+		<?php echo $form->textField($model,'REC_APPROVED',array('size'=>1,'maxlength'=>1)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'REC_SERVING_COUNT'); ?>
+		<?php echo $form->textField($model,'REC_SERVING_COUNT'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'REC_WIKI_LINK'); ?>
+		<?php echo $form->textField($model,'REC_WIKI_LINK',array('size'=>60,'maxlength'=>200)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'REC_IS_PRIVATE'); ?>
+		<?php echo $form->textField($model,'REC_IS_PRIVATE',array('size'=>1,'maxlength'=>1)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'REC_COMPLEXITY'); ?>
+		<?php echo $form->textField($model,'REC_COMPLEXITY'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'CUT_ID'); ?>
+		<?php echo $form->textField($model,'CUT_ID'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'CST_ID'); ?>
+		<?php echo $form->textField($model,'CST_ID'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'REC_CUSINE_GPS_LAT'); ?>
+		<?php echo $form->textField($model,'REC_CUSINE_GPS_LAT'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'REC_CUSINE_GPS_LNG'); ?>
+		<?php echo $form->textField($model,'REC_CUSINE_GPS_LNG'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'REC_TOOLS'); ?>
+		<?php echo $form->textField($model,'REC_TOOLS',array('size'=>60,'maxlength'=>100)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'REC_SYNONYM_EN_GB'); ?>
+		<?php echo $form->textField($model,'REC_SYNONYM_EN_GB',array('size'=>60,'maxlength'=>200)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'REC_SYNONYM_DE_CH'); ?>
+		<?php echo $form->textField($model,'REC_SYNONYM_DE_CH',array('size'=>60,'maxlength'=>200)); ?>
+	</div>
 	<div class="buttons">
 		<?php echo CHtml::submitButton('Search'); ?>
 	</div>

@@ -26,6 +26,20 @@ See GPLv3.htm in the main folder for details.
  * @property string $REC_IMG_ETAG
  * @property integer $RET_ID
  * @property integer $REC_KCAL
+ * @property string $REC_HAS_ALLERGY_INFO
+ * @property string $REC_SUMMARY
+ * @property string $REC_APPROVED
+ * @property integer $REC_SERVING_COUNT
+ * @property string $REC_WIKI_LINK
+ * @property string $REC_IS_PRIVATE
+ * @property integer $REC_COMPLEXITY
+ * @property integer $CUT_ID
+ * @property integer $CST_ID
+ * @property double $REC_CUSINE_GPS_LAT
+ * @property double $REC_CUSINE_GPS_LNG
+ * @property string $REC_TOOLS
+ * @property string $REC_SYNONYM_EN_GB
+ * @property string $REC_SYNONYM_DE_CH
  * @property string $REC_NAME_EN_GB
  * @property string $REC_NAME_DE_CH
  * @property integer $CREATED_BY
@@ -60,17 +74,20 @@ class Recipes extends ActiveRecordEC
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('RET_ID, REC_NAME_EN_GB, CREATED_BY, CREATED_ON', 'required'),
+			array('RET_ID, REC_SERVING_COUNT, REC_NAME_EN_GB, CREATED_BY, CREATED_ON', 'required'),
 			array('REC_IMG_AUTH', 'required', 'on'=>'withPic'),
-			array('PRF_UID, RET_ID, REC_KCAL, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('PRF_UID, RET_ID, REC_KCAL, REC_SERVING_COUNT, REC_COMPLEXITY, CUT_ID, CST_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('REC_CUSINE_GPS_LAT, REC_CUSINE_GPS_LNG', 'numerical'),
 			array('REC_IMG_FILENAME', 'length', 'max'=>250),
 			array('REC_IMG_AUTH', 'length', 'max'=>30),
 			array('REC_IMG_ETAG', 'length', 'max'=>40),
-			array('REC_NAME_EN_GB, REC_NAME_DE_CH', 'length', 'max'=>100),
+			array('REC_HAS_ALLERGY_INFO, REC_APPROVED, REC_IS_PRIVATE', 'length', 'max'=>1),
+			array('REC_SUMMARY, REC_WIKI_LINK, REC_SYNONYM_EN_GB, REC_SYNONYM_DE_CH', 'length', 'max'=>200),
+			array('REC_TOOLS, REC_NAME_EN_GB, REC_NAME_DE_CH', 'length', 'max'=>100),
 			array('RET_ID, steps', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('REC_ID, PRF_UID, REC_IMG_FILENAME, REC_IMG_AUTH, REC_IMG_ETAG, RET_ID, REC_KCAL, REC_NAME_EN_GB, REC_NAME_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('REC_ID, PRF_UID, REC_IMG_FILENAME, REC_IMG_AUTH, REC_IMG_ETAG, RET_ID, REC_KCAL, REC_HAS_ALLERGY_INFO, REC_SUMMARY, REC_APPROVED, REC_SERVING_COUNT, REC_WIKI_LINK, REC_IS_PRIVATE, REC_COMPLEXITY, CUT_ID, CST_ID, REC_CUSINE_GPS_LAT, REC_CUSINE_GPS_LNG, REC_TOOLS, REC_SYNONYM_EN_GB, REC_SYNONYM_DE_CH, REC_NAME_EN_GB, REC_NAME_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -99,6 +116,20 @@ class Recipes extends ActiveRecordEC
 			'REC_IMG_ETAG' => 'Rec Img Etag',
 			'RET_ID' => 'Ret',
 			'REC_KCAL' => 'Rec Kcal',
+			'REC_HAS_ALLERGY_INFO' => 'Rec Has Allergy Info',
+			'REC_SUMMARY' => 'Rec Summary',
+			'REC_APPROVED' => 'Rec Approved',
+			'REC_SERVING_COUNT' => 'Rec Serving Count',
+			'REC_WIKI_LINK' => 'Rec Wiki Link',
+			'REC_IS_PRIVATE' => 'Rec Is Private',
+			'REC_COMPLEXITY' => 'Rec Complexity',
+			'CUT_ID' => 'Cut',
+			'CST_ID' => 'Cst',
+			'REC_CUSINE_GPS_LAT' => 'Rec Cusine Gps Lat',
+			'REC_CUSINE_GPS_LNG' => 'Rec Cusine Gps Lng',
+			'REC_TOOLS' => 'Rec Tools',
+			'REC_SYNONYM_EN_GB' => 'Rec Synonym En Gb',
+			'REC_SYNONYM_DE_CH' => 'Rec Synonym De Ch',
 			'REC_NAME_EN_GB' => 'Rec Name En Gb',
 			'REC_NAME_DE_CH' => 'Rec Name De Ch',
 			'CREATED_BY' => 'Created By',
@@ -123,6 +154,20 @@ class Recipes extends ActiveRecordEC
 		$criteria->compare($this->tableName().'.REC_IMG_ETAG',$this->REC_IMG_ETAG,true);
 		$criteria->compare($this->tableName().'.RET_ID',$this->RET_ID);
 		$criteria->compare($this->tableName().'.REC_KCAL',$this->REC_KCAL);
+		$criteria->compare($this->tableName().'.REC_HAS_ALLERGY_INFO',$this->REC_HAS_ALLERGY_INFO,true);
+		$criteria->compare($this->tableName().'.REC_SUMMARY',$this->REC_SUMMARY,true);
+		$criteria->compare($this->tableName().'.REC_APPROVED',$this->REC_APPROVED,true);
+		$criteria->compare($this->tableName().'.REC_SERVING_COUNT',$this->REC_SERVING_COUNT);
+		$criteria->compare($this->tableName().'.REC_WIKI_LINK',$this->REC_WIKI_LINK,true);
+		$criteria->compare($this->tableName().'.REC_IS_PRIVATE',$this->REC_IS_PRIVATE,true);
+		$criteria->compare($this->tableName().'.REC_COMPLEXITY',$this->REC_COMPLEXITY);
+		$criteria->compare($this->tableName().'.CUT_ID',$this->CUT_ID);
+		$criteria->compare($this->tableName().'.CST_ID',$this->CST_ID);
+		$criteria->compare($this->tableName().'.REC_CUSINE_GPS_LAT',$this->REC_CUSINE_GPS_LAT);
+		$criteria->compare($this->tableName().'.REC_CUSINE_GPS_LNG',$this->REC_CUSINE_GPS_LNG);
+		$criteria->compare($this->tableName().'.REC_TOOLS',$this->REC_TOOLS,true);
+		$criteria->compare($this->tableName().'.REC_SYNONYM_EN_GB',$this->REC_SYNONYM_EN_GB,true);
+		$criteria->compare($this->tableName().'.REC_SYNONYM_DE_CH',$this->REC_SYNONYM_DE_CH,true);
 		$criteria->compare($this->tableName().'.REC_NAME_EN_GB',$this->REC_NAME_EN_GB,true);
 		$criteria->compare($this->tableName().'.REC_NAME_DE_CH',$this->REC_NAME_DE_CH,true);
 		$criteria->compare($this->tableName().'.CREATED_BY',$this->CREATED_BY);
@@ -146,6 +191,20 @@ class Recipes extends ActiveRecordEC
 		$criteria->compare('REC_IMG_ETAG',$this->REC_IMG_ETAG,true);
 		$criteria->compare('RET_ID',$this->RET_ID);
 		$criteria->compare('REC_KCAL',$this->REC_KCAL);
+		$criteria->compare('REC_HAS_ALLERGY_INFO',$this->REC_HAS_ALLERGY_INFO,true);
+		$criteria->compare('REC_SUMMARY',$this->REC_SUMMARY,true);
+		$criteria->compare('REC_APPROVED',$this->REC_APPROVED,true);
+		$criteria->compare('REC_SERVING_COUNT',$this->REC_SERVING_COUNT);
+		$criteria->compare('REC_WIKI_LINK',$this->REC_WIKI_LINK,true);
+		$criteria->compare('REC_IS_PRIVATE',$this->REC_IS_PRIVATE,true);
+		$criteria->compare('REC_COMPLEXITY',$this->REC_COMPLEXITY);
+		$criteria->compare('CUT_ID',$this->CUT_ID);
+		$criteria->compare('CST_ID',$this->CST_ID);
+		$criteria->compare('REC_CUSINE_GPS_LAT',$this->REC_CUSINE_GPS_LAT);
+		$criteria->compare('REC_CUSINE_GPS_LNG',$this->REC_CUSINE_GPS_LNG);
+		$criteria->compare('REC_TOOLS',$this->REC_TOOLS,true);
+		$criteria->compare('REC_SYNONYM_EN_GB',$this->REC_SYNONYM_EN_GB,true);
+		$criteria->compare('REC_SYNONYM_DE_CH',$this->REC_SYNONYM_DE_CH,true);
 		$criteria->compare('REC_NAME_EN_GB',$this->REC_NAME_EN_GB,true);
 		$criteria->compare('REC_NAME_DE_CH',$this->REC_NAME_DE_CH,true);
 		$criteria->compare('CREATED_BY',$this->CREATED_BY);

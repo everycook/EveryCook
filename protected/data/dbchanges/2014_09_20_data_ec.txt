@@ -1,0 +1,69 @@
+INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('FIELD_CUT_ID', 'cusine type', 'Typ der Küche', ''),
+('FIELD_CUT_GPS_LAT', 'cusine location latitude', 'Küche Breitengrad', ''),
+('FIELD_CUT_GPS_LNG', 'cusine location longitude', 'Küche Längengrad', ''),
+('FIELD_CUT_GOOGLE_REGION', 'Google Region Name', 'Google Region Name', ''),
+('FIELD_CUT_DESC_EN_GB', 'Description English', 'Beschreibung Englisch', ''),
+('FIELD_CUT_DESC_DE_CH', 'Description German', 'Beschreibung Deutsch', ''),
+
+('FIELD_CST_ID', 'cusine sub type', 'Subtyp der Küche', ''),
+('FIELD_CST_GPS_LAT', 'cusine location latitude', 'Küche Breitengrad', ''),
+('FIELD_CST_GPS_LNG', 'cusine location longitude', 'Küche Längengrad', ''),
+('FIELD_CST_GOOGLE_REGION', 'Google Region Name', 'Google Region Name', ''),
+('FIELD_CST_DESC_EN_GB', 'Description English', 'Beschreibung Englisch', ''),
+('FIELD_CST_DESC_DE_CH', 'Description German', 'Beschreibung Deutsch', ''),
+
+('FIELD_REL_ID', 'relation', 'Beziehung', ''),
+('FIELD_REL_DESC_EN_GB', 'Description English', 'Beschreibung Englisch', ''),
+('FIELD_REL_DESC_DE_CH', 'Description German', 'Beschreibung Deutsch', ''),
+
+('FIELD_REC_ID1', 'Recipe 1', 'Rezept 1', ''),
+('FIELD_REC_ID2', 'Recipe 2', 'Rezept 2', ''),
+
+('FIELD_TAG_ID', 'tag', 'Tag', ''),
+('FIELD_TAG_IGNORE', 'Don\'t show this Tag.', 'Diese Tag nicht anzeigen.', ''),
+('FIELD_TAG_DESC_EN_GB', 'Tag English', 'Tag Englisch', ''),
+('FIELD_TAG_DESC_DE_CH', 'Tag German', 'Tag Deutsch', ''),
+
+('FIELD_FAL_ID', 'Food intolerance', 'Nahrungsmittelunverträglichkeit', ''),
+('FIELD_FAL_DESC_EN_GB', 'Description English', 'Beschreibung Englisch', ''),
+('FIELD_FAL_DESC_DE_CH', 'Description German', 'Beschreibung Deutsch', ''),
+
+('FIELD_DIE_ID', 'diet', 'Diät', ''),
+('FIELD_DIE_VALUES', 'diet values', 'Diät Werte', ''),
+('FIELD_DIE_DESC_EN_GB', 'Description English', 'Beschreibung Englisch', ''),
+('FIELD_DIE_DESC_DE_CH', 'Description German', 'Beschreibung Deutsch', ''),
+
+('FIELD_COS_ID', 'cooking stove', 'Kochherd', ''),
+('FIELD_COS_MANUFACTURE', 'manufacture', 'Hersteller', ''),
+('FIELD_COS_MODEL', 'model', 'Model', ''),
+('FIELD_COS_LEVELS', 'levels', 'Stufen', ''),
+('FIELD_COS_CONTINIOUS', 'continious', 'Stufenlos', ''),
+('FIELD_COS_MAESUREMENT', 'measurement', 'Messwerte', ''),
+
+('FIELD_ING_NEED_PEELING', 'need peeling', 'schälen notwendig', ''),
+('FIELD_ING_NEED_WASH', 'need wash', 'waschen notwendig ', ''),
+('FIELD_ING_SCALE_PRECISION', 'scale precicion', 'wäge Genauigkeit', ''),
+('FIELD_ING_APPROVED', 'approved', 'freigegeben', ''),
+('FIELD_ING_WIKI_LINK', 'wiki link (en)', 'wiki Link(en)', ''),
+('FIELD_ING_WEIGHT_SMALL', 'weight small', 'Gewicht klein', ''),
+('FIELD_ING_WEIGHT_BIG', 'weight big', 'Gewicht gross', ''),
+('FIELD_ING_SYNONYM_EN_GB', 'Synonym English', 'Synonym Englisch', ''),
+('FIELD_ING_SYNONYM_DE_CH', 'Synonym German', 'Synonym Deutsch', ''),
+
+('FIELD_REC_SUMMARY', 'summary', 'Übersicht', ''),
+('FIELD_REC_APPROVED', 'approved', 'freigegeben', ''),
+('FIELD_REC_SERVING_COUNT', 'serving count', 'Anzahl Portionen', ''),
+('FIELD_REC_WIKI_LINK', 'wiki link (en)', 'wiki Link(en)', ''),
+('FIELD_REC_IS_PRIVATE', 'is private', 'ist privat', ''),
+('FIELD_REC_COMPLEXITY', 'complexity', 'Schwierigkeitsgrad', ''),
+('FIELD_REC_CUSINE_GPS_LAT', 'cusine location latitude', 'Küche Breitengrad', ''),
+('FIELD_REC_CUSINE_GPS_LNG', 'cusine location longitude', 'Küche Längengrad', ''),
+('FIELD_REC_TOOLS', 'list of needed tools', 'Liste benötigter Hilfsmittel', ''),
+('FIELD_REC_SYNONYM_EN_GB', 'Synonym English', 'Synonym Englisch', ''),
+('FIELD_REC_SYNONYM_DE_CH', 'Synonym German', 'Synonym Deutsch', '');
+
+
+
+INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('CUSINE_TYPE_SELECT_LOCATION', 'select cusine location', 'Küche Ort/Gebiet wählen', ''),

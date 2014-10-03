@@ -31,12 +31,22 @@ See GPLv3.htm in the main folder for details.
  * @property string $ING_IMG_FILENAME
  * @property string $ING_IMG_AUTH
  * @property string $ING_IMG_ETAG
+ * @property string $ING_HAS_ALLERGY_INFO
+ * @property string $ING_NEED_PEELING
+ * @property string $ING_NEED_WASH
+ * @property integer $ING_SCALE_PRECISION
+ * @property string $ING_APPROVED
+ * @property string $ING_WIKI_LINK
+ * @property integer $ING_WEIGHT_SMALL
+ * @property integer $ING_WEIGHT_BIG
+ * @property string $ING_SYNONYM_EN_GB
+ * @property string $ING_SYNONYM_DE_CH
  * @property string $ING_NAME_EN_GB
  * @property string $ING_NAME_DE_CH
  * @property integer $CREATED_BY
- * @property string $CREATED_ON
+ * @property integer $CREATED_ON
  * @property integer $CHANGED_BY
- * @property string $CHANGED_ON
+ * @property integer $CHANGED_ON
  */
 class Ingredients extends ActiveRecordEC
 {
@@ -47,46 +57,45 @@ class Ingredients extends ActiveRecordEC
 	 * Returns the static model of the specified AR class.
 	 * @return Ingredients the static model class
 	 */
-	public static function model($className=__CLASS__)
-	{
+	public static function model($className=__CLASS__){
 		return parent::model($className);
 	}
 
 	/**
 	 * @return string the associated database table name
 	 */
-	public function tableName()
-	{
+	public function tableName(){
 		return 'ingredients';
 	}
 
 	/**
 	 * @return array validation rules for model attributes.
 	 */
-	public function rules()
-	{
+	public function rules(){
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
 			array('GRP_ID, IST_ID, ICO_ID, STB_ID, ING_NAME_EN_GB, CREATED_BY, CREATED_ON', 'required'),
 			array('ING_IMG_AUTH', 'required', 'on'=>'withPic'),
-			array('PRF_UID, NUT_ID, GRP_ID, SGR_ID, IST_ID, ICO_ID, STB_ID, CREATED_BY, CHANGED_BY', 'numerical', 'integerOnly'=>true),
+			array('PRF_UID, NUT_ID, GRP_ID, SGR_ID, IST_ID, ICO_ID, STB_ID, ING_SCALE_PRECISION, ING_WEIGHT_SMALL, ING_WEIGHT_BIG, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('ING_DENSITY', 'numerical'),
+			array('ING_IMG_FILENAME', 'length', 'max'=>250),
 			array('ING_IMG_AUTH', 'length', 'max'=>30),
 			array('ING_IMG_ETAG', 'length', 'max'=>40),
-			array('ING_NAME_EN_GB, ING_NAME_DE_CH, ING_IMG_FILENAME', 'length', 'max'=>100),
+			array('ING_HAS_ALLERGY_INFO, ING_NEED_PEELING, ING_NEED_WASH, ING_APPROVED', 'length', 'max'=>1),
+			array('ING_WIKI_LINK, ING_SYNONYM_EN_GB, ING_SYNONYM_DE_CH', 'length', 'max'=>200),
+			array('ING_NAME_EN_GB, ING_NAME_DE_CH', 'length', 'max'=>100),
 			array('CHANGED_ON, ING_IMG_ETAG, nutrientData, groupNames, subgroupNames, ingredientConveniences, storability, ingredientStates', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('ING_ID, PRF_UID, ING_CREATED, ING_CHANGED, NUT_ID, GRP_ID, SGR_ID, IST_ID, ICO_ID, STB_ID, ING_DENSITY, ING_IMG_FILENAME, ING_IMG_AUTH, ING_NAME_EN, ING_NAME_DE', 'safe', 'on'=>'search'),
+			array('ING_ID, PRF_UID, NUT_ID, GRP_ID, SGR_ID, IST_ID, ICO_ID, STB_ID, ING_DENSITY, ING_IMG_FILENAME, ING_IMG_AUTH, ING_IMG_ETAG, ING_HAS_ALLERGY_INFO, ING_NEED_PEELING, ING_NEED_WASH, ING_SCALE_PRECISION, ING_APPROVED, ING_WIKI_LINK, ING_WEIGHT_SMALL, ING_WEIGHT_BIG, ING_SYNONYM_EN_GB, ING_SYNONYM_DE_CH, ING_NAME_EN_GB, ING_NAME_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
 	/**
 	 * @return array relational rules.
 	 */
-	public function relations()
-	{
+	public function relations(){
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
@@ -102,8 +111,7 @@ class Ingredients extends ActiveRecordEC
 	/**
 	 * @return array customized attribute labels (name=>label)
 	 */
-	public function attributeLabels()
-	{
+	public function attributeLabels(){
 		return array(
 			'ING_ID' => 'Ing',
 			'PRF_UID' => 'Prf Uid',
@@ -117,6 +125,16 @@ class Ingredients extends ActiveRecordEC
 			'ING_IMG_FILENAME' => 'Ing Img Filename',
 			'ING_IMG_AUTH' => 'Ing Img Auth',
 			'ING_IMG_ETAG' => 'Ing Img Etag',
+			'ING_HAS_ALLERGY_INFO' => 'Ing Has Allergy Info',
+			'ING_NEED_PEELING' => 'Ing Need Peeling',
+			'ING_NEED_WASH' => 'Ing Need Wash',
+			'ING_SCALE_PRECISION' => 'Ing Scale Precision',
+			'ING_APPROVED' => 'Ing Approved',
+			'ING_WIKI_LINK' => 'Ing Wiki Link',
+			'ING_WEIGHT_SMALL' => 'Ing Weight Small',
+			'ING_WEIGHT_BIG' => 'Ing Weight Big',
+			'ING_SYNONYM_EN_GB' => 'Ing Synonym En Gb',
+			'ING_SYNONYM_DE_CH' => 'Ing Synonym De Ch',
 			'ING_NAME_EN_GB' => 'Ing Name En Gb',
 			'ING_NAME_DE_CH' => 'Ing Name De Ch',
 			'CREATED_BY' => 'Created By',
@@ -134,23 +152,33 @@ class Ingredients extends ActiveRecordEC
 		$criteria=new CDbCriteria;
 
 		$criteria->compare($this->tableName().'.ING_ID',$this->ING_ID);
-		$criteria->compare('PRF_UID',$this->PRF_UID);
+		$criteria->compare($this->tableName().'.PRF_UID',$this->PRF_UID);
 		$criteria->compare($this->tableName().'.NUT_ID',$this->NUT_ID);
 		$criteria->compare($this->tableName().'.GRP_ID',$this->GRP_ID);
 		$criteria->compare($this->tableName().'.SGR_ID',$this->SGR_ID);
 		$criteria->compare($this->tableName().'.IST_ID',$this->IST_ID);
 		$criteria->compare($this->tableName().'.ICO_ID',$this->ICO_ID);
 		$criteria->compare($this->tableName().'.STB_ID',$this->STB_ID);
-		$criteria->compare('ING_DENSITY',$this->ING_DENSITY);
-		$criteria->compare('ING_IMG_FILENAME',$this->ING_IMG_FILENAME,true);
-		$criteria->compare('ING_IMG_AUTH',$this->ING_IMG_AUTH,true);
-		$criteria->compare('ING_IMG_ETAG',$this->ING_IMG_ETAG,true);
-		$criteria->compare('ING_NAME_EN_GB',$this->ING_NAME_EN_GB,true);
-		$criteria->compare('ING_NAME_DE_CH',$this->ING_NAME_DE_CH,true);
-		$criteria->compare('CREATED_BY',$this->CREATED_BY);
-		$criteria->compare('CREATED_ON',$this->CREATED_ON,true);
-		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
-		$criteria->compare('CHANGED_ON',$this->CHANGED_ON,true);
+		$criteria->compare($this->tableName().'.ING_DENSITY',$this->ING_DENSITY);
+		$criteria->compare($this->tableName().'.ING_IMG_FILENAME',$this->ING_IMG_FILENAME,true);
+		$criteria->compare($this->tableName().'.ING_IMG_AUTH',$this->ING_IMG_AUTH,true);
+		$criteria->compare($this->tableName().'.ING_IMG_ETAG',$this->ING_IMG_ETAG,true);
+		$criteria->compare($this->tableName().'.ING_HAS_ALLERGY_INFO',$this->ING_HAS_ALLERGY_INFO,true);
+		$criteria->compare($this->tableName().'.ING_NEED_PEELING',$this->ING_NEED_PEELING,true);
+		$criteria->compare($this->tableName().'.ING_NEED_WASH',$this->ING_NEED_WASH,true);
+		$criteria->compare($this->tableName().'.ING_SCALE_PRECISION',$this->ING_SCALE_PRECISION);
+		$criteria->compare($this->tableName().'.ING_APPROVED',$this->ING_APPROVED,true);
+		$criteria->compare($this->tableName().'.ING_WIKI_LINK',$this->ING_WIKI_LINK,true);
+		$criteria->compare($this->tableName().'.ING_WEIGHT_SMALL',$this->ING_WEIGHT_SMALL);
+		$criteria->compare($this->tableName().'.ING_WEIGHT_BIG',$this->ING_WEIGHT_BIG);
+		$criteria->compare($this->tableName().'.ING_SYNONYM_EN_GB',$this->ING_SYNONYM_EN_GB,true);
+		$criteria->compare($this->tableName().'.ING_SYNONYM_DE_CH',$this->ING_SYNONYM_DE_CH,true);
+		$criteria->compare($this->tableName().'.ING_NAME_EN_GB',$this->ING_NAME_EN_GB,true);
+		$criteria->compare($this->tableName().'.ING_NAME_DE_CH',$this->ING_NAME_DE_CH,true);
+		$criteria->compare($this->tableName().'.CREATED_BY',$this->CREATED_BY);
+		$criteria->compare($this->tableName().'.CREATED_ON',$this->CREATED_ON);
+		$criteria->compare($this->tableName().'.CHANGED_BY',$this->CHANGED_BY);
+		$criteria->compare($this->tableName().'.CHANGED_ON',$this->CHANGED_ON);
 		
 		/*
 		$criteria->compare('nutrient_data.NUT_DESC',$this->nutrientData->NUT_DESC,true);
@@ -177,12 +205,22 @@ class Ingredients extends ActiveRecordEC
 		$criteria->compare('ING_IMG_FILENAME',$this->ING_IMG_FILENAME,true);
 		$criteria->compare('ING_IMG_AUTH',$this->ING_IMG_AUTH,true);
 		$criteria->compare('ING_IMG_ETAG',$this->ING_IMG_ETAG,true);
+		$criteria->compare('ING_HAS_ALLERGY_INFO',$this->ING_HAS_ALLERGY_INFO,true);
+		$criteria->compare('ING_NEED_PEELING',$this->ING_NEED_PEELING,true);
+		$criteria->compare('ING_NEED_WASH',$this->ING_NEED_WASH,true);
+		$criteria->compare('ING_SCALE_PRECISION',$this->ING_SCALE_PRECISION);
+		$criteria->compare('ING_APPROVED',$this->ING_APPROVED,true);
+		$criteria->compare('ING_WIKI_LINK',$this->ING_WIKI_LINK,true);
+		$criteria->compare('ING_WEIGHT_SMALL',$this->ING_WEIGHT_SMALL);
+		$criteria->compare('ING_WEIGHT_BIG',$this->ING_WEIGHT_BIG);
+		$criteria->compare('ING_SYNONYM_EN_GB',$this->ING_SYNONYM_EN_GB,true);
+		$criteria->compare('ING_SYNONYM_DE_CH',$this->ING_SYNONYM_DE_CH,true);
 		$criteria->compare('ING_NAME_EN_GB',$this->ING_NAME_EN_GB,true);
 		$criteria->compare('ING_NAME_DE_CH',$this->ING_NAME_DE_CH,true);
 		$criteria->compare('CREATED_BY',$this->CREATED_BY);
-		$criteria->compare('CREATED_ON',$this->CREATED_ON,true);
+		$criteria->compare('CREATED_ON',$this->CREATED_ON);
 		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
-		$criteria->compare('CHANGED_ON',$this->CHANGED_ON,true);
+		$criteria->compare('CHANGED_ON',$this->CHANGED_ON);
 		
 		$criteria->with = array('nutrientData' => array());
 		$criteria->with = array('groupNames' => array());
@@ -236,8 +274,7 @@ class Ingredients extends ActiveRecordEC
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
 	 */
-	public function search()
-	{
+	public function search(){
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$this->getCriteria(),
 			'sort'=>$this->getSort(),

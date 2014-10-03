@@ -57,6 +57,8 @@ var lastGeocodeMarker;
 var placesService;
 var infowindow;
 var placesResult = [];
+var rectangle;
+var nextResults;
 var placesLastDetail;
 var placesDetailRequestStartedFor;
 var weekdayNames = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
@@ -1142,19 +1144,27 @@ function showPlacesCallback(results, status, pagination) {
 		placesResult[i].searchResult.remove();
 		placesResult[i].marker = undefined;
 	}
+	if (typeof(rectangle) !== 'undefined'){
+		rectangle.setMap(null);
+		rectangle = undefined;
+	}
+	if (typeof(nextResults) !== 'undefined'){
+		nextResults.remove();
+		nextResults = undefined;
+	}
 	placesResult = [];
 	if (status == google.maps.places.PlacesServiceStatus.OK) {
 		for (var i = 0; i < results.length; ++i) {
 			showPlacesResult(results[i]);
 		}
 	}
-	/* //dont work... why???
 	if (pagination.hasNextPage) {
-		var nextResults = jQuery('<div class="places_moreResult"><div class="button">show next results</div></div>');
+		nextResults = jQuery('<div class="places_moreResult"><div class="button">show next results</div></div>');
 		jQuery('#places_results').append(nextResults);
-		nextResults.find('.button').get(0).onClick = pagination.nextPage;
+		nextResults.find('.button').click(function () {
+			pagination.nextPage();
+		});
 	}
-	*/
 }
 
 function showPlacesResult(place) {
@@ -1336,6 +1346,123 @@ jQuery(function($){
 		return false;
 	});
 });
+
+
+
+
+function regionSearchBounds(){
+	var request = {
+		/*location: pyrmont,
+		radius: '500',*/
+		bounds: map.getBounds(),
+		types: ['country', 'locality', 'continent', 'natural_feature'] //, 'establishment'
+	};
+	placesService.search(request, showRegionCallback);
+}
+
+function regionSearchQuery(queryString){
+	var request = {
+		/*location: pyrmont,
+		radius: '500',*/
+		bounds: map.getBounds(),
+		query: queryString
+	};
+	placesService.textSearch(request, showRegionCallback);
+}
+
+function showRegionCallback(results, status, pagination) {
+	jQuery('#places_results').get(0).scrollTop = 0;
+	for(var i=0; i< placesResult.length; ++i){
+		placesResult[i].marker.setMap(null);
+		placesResult[i].searchResult.remove();
+		placesResult[i].marker = undefined;
+	}
+	if (typeof(rectangle) !== 'undefined'){
+		rectangle.setMap(null);
+		rectangle = undefined;
+	}
+	if (typeof(nextResults) !== 'undefined'){
+		nextResults.remove();
+		nextResults = undefined;
+	}
+	placesResult = [];
+	if (status == google.maps.places.PlacesServiceStatus.OK) {
+		for (var i = 0; i < results.length; ++i) {
+			var types = results[i].types;
+			if (types.indexOf('country') >-1 || types.indexOf('locality') >-1 || types.indexOf('continent') >-1 || types.indexOf('natural_feature') >-1 || types.indexOf('intersection') >-1  || types.indexOf('colloquial_area') >-1 ){
+				showRegionResult(results[i]);
+			}
+		}
+	}
+	if (pagination.hasNextPage) {
+		nextResults = jQuery('<div class="places_moreResult"><div class="button">show next results</div></div>');
+		jQuery('#places_results').append(nextResults);
+		nextResults.find('.button').click(function () {
+			pagination.nextPage();
+		});
+	}
+}
+
+function showRegionResult(place) {
+	var placeLoc = place.geometry.location;
+	var marker = new google.maps.Marker({
+		map: map,
+		position: placeLoc,
+		icon: new google.maps.MarkerImage(
+              place.icon,
+              new google.maps.Size(71, 71),
+              new google.maps.Point(0, 0),
+              new google.maps.Point(17, 34),
+              new google.maps.Size(35, 35)),
+	});
+	var searchResult = jQuery('<div class="places_result"><img src="' + place.icon + '" style="float:left"/><div class="details"><div class="name">' + place.name + '</div><div class="address">' + ((place.formatted_address)?place.formatted_address:place.vicinity) + '</div><a href="' + placesResult.length + '" class="button">show on Map</a></div><div class="clearfix"></div></div>');
+	jQuery('#places_results').append(searchResult);
+	place.marker = marker;
+	place.searchResult = searchResult;
+	placesResult.push(place);
+
+	/*
+	google.maps.event.addListener(marker, 'click', function() {
+		showRegionDetails(place);
+	});
+	*/
+}
+
+jQuery(function($){
+	jQuery('body').undelegate('#regionByQuery','click').delegate('#regionByQuery','click', function(){
+		regionSearchQuery(jQuery('#regionQuery').val());
+		return false;
+	});
+	jQuery('body').undelegate('#regionQuery','keyup').delegate('#regionQuery','keyup', function(event){
+		if(event.keyCode == 13){
+			regionSearchQuery(jQuery('#regionQuery').val());
+		}
+	});
+	jQuery('body').undelegate('#regionByRange','click').delegate('#regionByRange','click', function(){
+		regionSearchBounds();
+		return false;
+	});
+	
+	jQuery('body').undelegate('.region #places_results .places_result .button','click').delegate('.region #places_results .places_result .button','click', function(){
+		var index = jQuery(this).attr('href');
+		map.setCenter(placesResult[index].geometry.location);
+		map.fitBounds(placesResult[index].geometry.viewport);
+		
+		rectangle = new google.maps.Rectangle({
+			strokeColor: '#FF0000',
+			strokeOpacity: 0.8,
+			strokeWeight: 2,
+			fillColor: '#FF0000',
+			fillOpacity: 0.35,
+			map: map,
+			bounds: placesResult[index].geometry.viewport
+		});
+
+		//showPlacesDetails(placesResult[index]);
+		return false;
+	});
+});
+
 
 
 /** Converts numeric degrees to radians */
