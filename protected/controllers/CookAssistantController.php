@@ -889,7 +889,10 @@ class CookAssistantController extends Controller {
 											--$detailStepNr;
 											array_pop($prepareSteps);
 										} else {
-											array_pop($otherSteps);
+											$poped = array_pop($otherSteps);
+											if ($poped['ATA_COI_PREP'] == 0){
+												$otherSteps[] = $poped;
+											}
 										}
 										//do state change anyway so it is realy reversed.
 										$cookInState = $this->changeCookInState($cookInState, $stepAttributes['AOU_CIS_CHANGE'], ($stepAttributes['aou_tool']==null)?$stepAttributes['step_tool']:$stepAttributes['aou_tool']);
@@ -946,6 +949,42 @@ class CookAssistantController extends Controller {
 					$info->totalTime[$recipeNr] = $totalTime;
 					$info->prepareTime[$recipeNr] = $prepareTime;
 					$info->cookTime[$recipeNr] = $cookTime;
+					
+					if ($this->debug) {
+						echo "<pre>";
+						//print_r($recipeSteps);
+						echo 
+						"detailStepNr" . " " .
+						"STE_STEP_NO" . " " .
+						"ATA_NO" . " / " .
+
+						"STE_PREP" . " " .
+						"ATA_COI_PREP" . " " .
+						"AIN_DEFAULT" . " " .
+						"AIN_PREP" . " " .
+						"AOU_PREP" . " / " .
+						
+						"AIN_DESC_DE_CH" . " / " .
+						"AOU_DESC_DE_CH" . " / " .
+						"ING_NAME" . "\n";
+						foreach($recipeSteps as $stepAttributes){
+							echo 
+							$stepAttributes["detailStepNr"] . " " .
+							$stepAttributes["STE_STEP_NO"] . " " .
+							$stepAttributes["ATA_NO"] . " / " .
+
+							$stepAttributes["STE_PREP"] . " " .
+							$stepAttributes["ATA_COI_PREP"] . " " .
+							$stepAttributes["AIN_DEFAULT"] . " " .
+							$stepAttributes["AIN_PREP"] . " " .
+							$stepAttributes["AOU_PREP"] . " / " .
+							
+							$stepAttributes["AIN_DESC_DE_CH"] . " / " .
+							$stepAttributes["AOU_DESC_DE_CH"] . " / " .
+							$stepAttributes["ING_NAME"] . "\n";
+						}
+						echo "</pre>";
+					}
 					
 					//Reset ingredientWeightInPan / totalWeight after simulation
 					//error_log("loadSteps: stepNr == -1, initialize ingredientWeightInPan zurücksetzen");
@@ -1474,7 +1513,7 @@ class CookAssistantController extends Controller {
 						//error_log("sendActionToFirmware, command not send, destination was $dest[0], command: $command");
 					}
 				} else {
-					error_log('sendActionToFirmware, $info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]] not set');
+					//error_log('sendActionToFirmware, $info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]] not set');
 					if ($this->debug){
 						echo '<script type="text/javascript"> if(console && console.log){';
 						echo 'console.log(\'sendActionToFirmware, $info->recipeSteps[$recipeNr][$info->stepNumbers[$recipeNr]] not set\');';
@@ -1484,9 +1523,9 @@ class CookAssistantController extends Controller {
 					}
 				}
 			} else {
-				error_log('sendActionToFirmware, isset($info->cookWith['.$recipeNr.'])='.isset($info->cookWith[$recipeNr]).'\'');
+				//error_log('sendActionToFirmware, isset($info->cookWith['.$recipeNr.'])='.isset($info->cookWith[$recipeNr]).'\'');
 				if (isset($info->cookWith[$recipeNr])){
-					error_log('sendActionToFirmware, count($info->cookWith['.$recipeNr.'])='.count($info->cookWith[$recipeNr]).' \'');
+					//error_log('sendActionToFirmware, count($info->cookWith['.$recipeNr.'])='.count($info->cookWith[$recipeNr]).' \'');
 					if (count($info->cookWith[$recipeNr])>0){
 						error_log('sendActionToFirmware, $info->cookWith['.$recipeNr.'][0]= '.$info->cookWith[$recipeNr][0].'\'');
 					}
@@ -1872,24 +1911,31 @@ class CookAssistantController extends Controller {
 				$inhalt = 'ERROR: ' . $e;
 			}
 			if (is_string($inhalt) && strpos($inhalt, 'ERROR: ') !== false){
-				echo 'Error: cannot tweet, error was: ' . substr($inhalt, 8);
+				if ($this->debug) {echo 'Error: cannot tweet, error was: ' . substr($inhalt, 8);}
 				error_log('Error: cannot tweet, error was: ' . substr($inhalt, 8));
 			} else if (is_string($inhalt) && strlen(trim($inhalt))>0){
-				echo 'Tweet maybe not succesfull:' . "\r\n" . $inhalt;
+				if ($this->debug) {echo 'Tweet maybe not succesfull:' . "\r\n" . $inhalt;}
 				error_log('Tweet maybe not succesfull:' . "\r\n" . $inhalt);
 			} else if (is_array($inhalt)){
-				echo 'Tweet maybe not succesfull:' . "\r\n";
-				print_r($inhalt);
+				if ($this->debug) {
+					echo 'Tweet maybe not succesfull:' . "\r\n";
+					print_r($inhalt);
+				}
 				error_log('Tweet maybe not succesfull: array output');
 			} /*else {
 				echo 'Tweet was succesfull';
 				error_log('Tweet was succesfull');
 			}*/
 		} else {
-			//If on Web, call local
-			$tweetController = Yii::app()->createController('tweet');
-			$tweetController = $tweetController[0];
-			$tweetController->actionTweet($id, $start, $everycook);
+			try {
+				//If on Web, call local
+				$tweetController = Yii::app()->createController('tweet');
+				$tweetController = $tweetController[0];
+				$tweetController->doTweet($id, $start, $everycook, true);
+			} catch (Exception $e){
+				if ($this->debug) {echo 'Error: cannot tweet, error was: ' . $e;}
+				error_log('Error: cannot tweet, error was: ' . $e);
+			}
 		}
 	}
 	

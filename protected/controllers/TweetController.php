@@ -65,7 +65,19 @@ class TweetController extends Controller
 		}
 	}
 	
+	private function returnError($code, $message, $internal){
+		if (!$internal){
+			http_response_code($code);
+			echo $message;
+		}
+	}
+	
 	public function actionTweet($id, $start, $everycook){
+		$this->doTweet($id, $start, $everycook, false);
+	}
+	
+	public function doTweet($id, $start, $everycook, $internal){
+		require_once("modernizeFunctions.php");
 		$this->saveLastAction = false;
 		if ($this->checkLogin()){
 			$recipe=Recipes::model()->findByPk($id);
@@ -98,28 +110,23 @@ class TweetController extends Controller
 					//https://dev.twitter.com/docs/error-codes-responses
 					if ($response->errors[0]->code == 187) {//Status is a duplicate
 						//Nothing to do, same message
-						http_response_code(500);
-						echo 'Status is a duplicate';
+						$this->returnError(500,'Status is a duplicate', $internal);
 					} else if ($response->errors[0]->code == 89) { //Invalid or expired token -> permission is revoced?
-						http_response_code(500);
-						echo 'ERROR: Please re grant everycook to post in your account: activate in twitter or relogin to your account on profile'."\r\n";
+						$this->returnError(500,'ERROR: Please re grant everycook to post in your account: activate in twitter or relogin to your account on profile'."\r\n", $internal);
 					} else {
-						http_response_code(500);
-						echo 'ERROR: Error tweeting: ' . $response->errors[0]->code . ': ' . $response->errors[0]->message;
+						$this->returnError(500,'ERROR: Error tweeting: ' . $response->errors[0]->code . ': ' . $response->errors[0]->message, $internal);
 						//print_r($connection);
 					}
 				} else {				
 					//Do something if the request was unsuccessful
-					http_response_code(500);
-					echo 'ERROR: There was an error posting the message.';
+					$this->returnError(500,'ERROR: There was an error posting the message.', $internal);
 				}
 //			} else {
 //				echo 'sucessfull';
 //				print_r($response);
 			}
 		} else {
-			http_response_code(403);
-			echo 'ERROR: invalid user';
+			$this->returnError(403,'ERROR: invalid user', $internal);
 		}
 	}
 }
