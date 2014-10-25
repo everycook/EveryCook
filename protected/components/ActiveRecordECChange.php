@@ -15,16 +15,24 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 See GPLv3.htm in the main folder for details.
 */
 
-class ActiveRecordECSimple extends CActiveRecord {
-	public function getAttributeLabel($attribute) {
-		$label = Yii::app()->controller->trans->__get('FIELD_' . $attribute);
-		if ($label != null){
-			return $label;
-		} else if (isset($label)){
-			return '???FIELD_' . $attribute . '(empty)???';
-		} else {
-			//return parent::getAttributeLabel($attribute);
-			return '???FIELD_' . $attribute . '???';
+class ActiveRecordECChange extends ActiveRecordECSimple {
+	protected function beforeValidate() {
+		if(!Yii::app()->user->isGuest) {
+			if (!isset($this->CHANGED_ON) || $this->CHANGED_ON == null){
+				$dateTime = new DateTime();
+				$this->CHANGED_ON = $dateTime->getTimestamp();
+			}
+			$this->CHANGED_BY = Yii::app()->user->id;
+			return true;
 		}
+		return parent::beforeValidate();
+	}
+
+	/**
+	* @return string the associated database table name
+	*/
+	public function tableName() {
+		preg_match("/dbname=([^;]+)/i", $this->dbConnection->connectionString, $matches);
+		return $matches[1].'.table_name';
 	}
 }

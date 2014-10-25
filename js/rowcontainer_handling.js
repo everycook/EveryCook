@@ -32,7 +32,12 @@ jQuery(function($){
 	var lastIndex = 0;
 	var newLineContent;
 	var updateRowTimeouts = new Array();
+	var updateTimeout = undefined;
+	var forceUpdateTimeout = undefined;
+	var changeList = new Array();
+	var undoList = new Array();
 	glob.rowContainer.SendDataToBackendRowTimeout = 5000;
+	glob.rowContainer.SendDataToBackendForceTimeout = 3000;
 	
 	function getIndexFromFieldName(name){
 		var currentIndex = name.match(/\[([^\]]+)\]/);
@@ -137,6 +142,33 @@ jQuery(function($){
 		
 		lastIndex = lastIndex-1;
 		
+		var rowIndex = getIndexFromFieldName(row.find('[name]:first').attr('name'));
+		
+		//run delayed updates:
+		for(var rowNr in updateRowTimeouts){
+			var timeoutInfo = updateRowTimeouts[rowNr];
+			if (typeof(timeoutInfo) !== 'undefined'){
+				window.clearTimeout(timeoutInfo['timeoutId']);
+				updateRowTimeouts[rowNr] = undefined;
+				SendDataToBackendRow(timeoutInfo['row'], rowNr, timeoutInfo['action'], timeoutInfo['prefIndex'], false);
+			}
+		}
+		if (typeof(forceUpdateTimeout) !== 'undefined'){
+			window.clearTimeout(forceUpdateTimeout['timeoutId']);
+			SendDataToBackendForceCallback();
+		}
+		if (typeof(updateTimeout) !== 'undefined'){
+			window.clearTimeout(updateTimeout['timeoutId']);
+			
+			var additional = updateTimeout['additional'];
+			if (typeof(updateTimeout['fields']) !== 'undefined'){
+				additional += '&fields='+updateTimeout['fields'];
+			}
+			var savedRowContainer = updateTimeout['rowContainer'];
+			updateTimeout = undefined;
+			SendDataToBackend(savedRowContainer, additional, false);
+		}
+		
 		var next = row.next();
 		var next2 = next.next();
 		if (next.attr('class') === 'addFields'){
@@ -154,7 +186,7 @@ jQuery(function($){
 			changeInputTableIndex(jQuery(this), -1);
 		});
 		
-		SendDataToBackend(rowContainer);
+		SendDataToBackend(rowContainer, '&remove='+rowIndex);
 	});
 	
 	jQuery('body').undelegate('.addRowContainer .up','click').delegate('.addRowContainer .up','click',function(){
@@ -196,8 +228,8 @@ jQuery(function($){
 				next.insertAfter(row);
 			}
 			
-			SendDataToBackendRowSetTimeout(row, rowNr);
-			SendDataToBackendRowSetTimeout(prevEntry, prevEntryNr);
+			SendDataToBackendRowSetTimeout(row, rowNr, 'UP', rowNr+1);
+			SendDataToBackendRowSetTimeout(prevEntry, prevEntryNr, 'IGNORE', prevEntryNr-1);
 		}
 	});
 
@@ -250,8 +282,8 @@ jQuery(function($){
 				next.insertAfter(row);
 			}
 			
-			SendDataToBackendRowSetTimeout(row, rowNr);
-			SendDataToBackendRowSetTimeout(nextEntry, nextEntryNr);
+			SendDataToBackendRowSetTimeout(row, rowNr, 'DOWN', rowNr-1);
+			SendDataToBackendRowSetTimeout(nextEntry, nextEntryNr, 'IGNORE', nextEntryNr+1);
 		}
 	});
 	
@@ -519,12 +551,21 @@ jQuery(function($){
 	
 	glob.rowContainer.clear = clearRowContainer;
 	
-	function SendDataToBackend(rowContainer){
+	function SendDataToBackend(rowContainer, additional, async){
+		if (typeof(forceUpdateTimeout) !== 'undefined'){
+			window.clearTimeout(forceUpdateTimeout['timeoutId']);
+			forceUpdateTimeout = undefined;
+		}
+		if (typeof(async) === 'undefined'){
+			async = true;
+		}
 		if (rowContainer.parent().is('.updateBackend')){
 			var url = jQuery('#updateSessionValuesLink').val();
 			var form = rowContainer.parents('form:first');
-			glob.ShowActivity = false;
-			jQuery.ajax({'type':'post', 'url':url, 'data': form.serialize(),'cache':false,/*'success':function(data){
+			if (async){
+				glob.ShowActivity = false;
+			}
+			jQuery.ajax({'type':'post', 'url':url, 'data': form.serialize() + additional,'async':async,'cache':false,/*'success':function(data){
 					//alert('success');
 				},
 				'error':function(xhr){
@@ -535,7 +576,56 @@ jQuery(function($){
 		}
 	}
 	
-	function SendDataToBackendRow(row, rowNr){
+	function SendDataToBackendCallback(){
+		if (typeof(forceUpdateTimeout) !== 'undefined'){
+			window.clearTimeout(forceUpdateTimeout['timeoutId']);
+			forceUpdateTimeout = undefined;
+			SendDataToBackendForceCallback();
+		}
+		if (typeof(updateTimeout) !== 'undefined'){
+			var additional = updateTimeout['additional'];
+			if (typeof(updateTimeout['fields']) !== 'undefined'){
+				additional += '&fields='+updateTimeout['fields'];
+			}
+			//run delayed updates:
+			for(var rowNr in updateRowTimeouts){
+				var timeoutInfo = updateRowTimeouts[rowNr];
+				if (typeof(timeoutInfo) !== 'undefined'){
+					window.clearTimeout(timeoutInfo['timeoutId']);
+					updateRowTimeouts[rowNr] = undefined;
+					SendDataToBackendRow(timeoutInfo['row'], rowNr, timeoutInfo['action'], timeoutInfo['prefIndex'], false);
+				}
+			}
+			
+			SendDataToBackend(updateTimeout['rowContainer'], additional);
+			updateTimeout = undefined;
+		}
+	}
+	glob.rowContainer.SendDataToBackendCallback = SendDataToBackendCallback;
+	
+	function SendDataToBackendSetTimeout(rowContainer, additional, field){
+		var fields = ',';
+		if (typeof(updateTimeout) !== 'undefined'){
+			window.clearTimeout(updateTimeout['timeoutId']);
+			fields=timeoutInfo['fields'];
+			updateTimeout = undefined;
+		}
+		timeoutInfo = new Array();
+		timeoutInfo['timeoutId'] = window.setTimeout('glob.rowContainer.SendDataToBackendCallback();', glob.rowContainer.SendDataToBackendRowTimeout);
+		timeoutInfo['rowContainer'] = rowContainer;
+		timeoutInfo['additional'] = additional;
+		if (fields.indexOf(','+field+',') === -1){
+			fields += field+',';
+		}
+		timeoutInfo['fields'] = fields;
+		
+		updateTimeout = timeoutInfo;
+	}
+	
+	function SendDataToBackendRow(row, rowNr, action, prefIndex, async){
+		if (typeof(async) === 'undefined'){
+			async = true;
+		}
 		updateRowTimeouts[rowNr] = undefined;
 		if (row.parents('.addRowContainer:first').parent().is('.updateBackend')){
 			var url = jQuery('#updateSessionValueLink').val();
@@ -561,8 +651,11 @@ jQuery(function($){
 				}
 				data += elem.attr('name') + '=' + elem.val();
 			});
-			glob.ShowActivity = false;
-			jQuery.ajax({'type':'post', 'url':url, 'data': data,'cache':false,/*'success':function(data){
+			data +='&action='+action+'&prefIndex='+prefIndex;
+			if (async){
+				glob.ShowActivity = false;
+			}
+			jQuery.ajax({'type':'post', 'url':url, 'data': data,'async':async,'cache':false,/*'success':function(data){
 					//alert('success');
 				},
 				'error':function(xhr){
@@ -576,30 +669,74 @@ jQuery(function($){
 	function SendDataToBackendRowCallback(rowNr){
 		var timeoutInfo = updateRowTimeouts[rowNr];
 		if (typeof(timeoutInfo) !== 'undefined'){
-			SendDataToBackendRow(timeoutInfo['row'], rowNr);
+			updateRowTimeouts[rowNr] = undefined;
+			SendDataToBackendRow(timeoutInfo['row'], rowNr, timeoutInfo['action'], timeoutInfo['prefIndex']);
 		}
 	}
 	glob.rowContainer.SendDataToBackendRowCallback = SendDataToBackendRowCallback;
 	
-	function SendDataToBackendRowSetTimeout(row, rowNr){
+	function SendDataToBackendRowSetTimeout(row, rowNr, action, prefIndex){
 		var timeoutInfo = updateRowTimeouts[rowNr];
 		if (typeof(timeoutInfo) !== 'undefined'){
 			window.clearTimeout(timeoutInfo['timeoutId']);
+			if (action !== "CHANGE"){
+				SendDataToBackendRow(timeoutInfo['row'], rowNr, timeoutInfo['action'], timeoutInfo['prefIndex'], false);
+			}
 		}
-		
-		timeoutInfo = new Array();
-		timeoutInfo['timeoutId'] = window.setTimeout('glob.rowContainer.SendDataToBackendRowCallback('+rowNr+');', glob.rowContainer.SendDataToBackendRowTimeout);
-		timeoutInfo['row'] = row;
-		
-		updateRowTimeouts[rowNr] = timeoutInfo;
+		if (action !== "CHANGE" || glob.rowContainer.SendDataToBackendRowTimeout === 0){
+			updateRowTimeouts[rowNr] = undefined;
+			SendDataToBackendRow(row, rowNr, action, prefIndex);
+		} else {
+			timeoutInfo = new Array();
+			timeoutInfo['timeoutId'] = window.setTimeout('glob.rowContainer.SendDataToBackendRowCallback('+rowNr+');', glob.rowContainer.SendDataToBackendRowTimeout);
+			timeoutInfo['row'] = row;
+			timeoutInfo['action'] = action;
+			timeoutInfo['prefIndex'] = prefIndex;
+			
+			updateRowTimeouts[rowNr] = timeoutInfo;
+		}
 	}
 	
-	jQuery('body').undelegate('.updateBackend .addRowContainer:not(.initializeRowContainer) input','change').delegate('.updateBackend .addRowContainer:not(.initializeRowContainer) input','change',function(){
+	function SendDataToBackendForceCallback(){
+		forceUpdateTimeout = undefined;
+		var focusedElement = $(document.activeElement);
+		if (focusedElement.is(":input")){
+			focusedElement.blur();
+			focusedElement.focus();
+		}
+	}
+	glob.rowContainer.SendDataToBackendForceCallback = SendDataToBackendForceCallback;
+	
+	jQuery('body').undelegate('.updateBackend .addRowContainer:not(.initializeRowContainer) input, .updateBackend .addRowContainer:not(.initializeRowContainer) select, #recipes-form [name^="Recipes"], #recipes-form [name^="COI_ID"]','keydown').delegate('.updateBackend .addRowContainer:not(.initializeRowContainer) input, .updateBackend .addRowContainer:not(.initializeRowContainer) select, #recipes-form [name^="Recipes"], #recipes-form [name^="COI_ID"]','keydown',function(){
+		if (typeof(forceUpdateTimeout) !== 'undefined'){
+			window.clearTimeout(forceUpdateTimeout['timeoutId']);
+			forceUpdateTimeout = undefined;
+		}
+		forceUpdateTimeout = new Array();
+		forceUpdateTimeout['timeoutId'] = window.setTimeout('glob.rowContainer.SendDataToBackendForceCallback();', glob.rowContainer.SendDataToBackendForceTimeout);
 		var dataField = jQuery(this);
 		var rowNr = getIndexFromFieldName(dataField.attr('name'));
 		
-		SendDataToBackendRowSetTimeout(dataField.parents('tr:first'), rowNr);
+		SendDataToBackendRowSetTimeout(dataField.parents('tr:first'), rowNr, 'CHANGE', rowNr);
 	});
+	
+	jQuery('body').undelegate('.updateBackend .addRowContainer:not(.initializeRowContainer) input, .updateBackend .addRowContainer:not(.initializeRowContainer) select','change').delegate('.updateBackend .addRowContainer:not(.initializeRowContainer) input, .updateBackend .addRowContainer:not(.initializeRowContainer) select','change',function(){
+		if (typeof(forceUpdateTimeout) !== 'undefined'){
+			window.clearTimeout(forceUpdateTimeout['timeoutId']);
+			forceUpdateTimeout = undefined;
+		}
+		var dataField = jQuery(this);
+		var rowNr = getIndexFromFieldName(dataField.attr('name'));
+		
+		SendDataToBackendRowSetTimeout(dataField.parents('tr:first'), rowNr, 'CHANGE', rowNr);
+	});
+	
+	jQuery('body').undelegate('#recipes-form [name^="Recipes"], #recipes-form [name^="COI_ID"]','change').delegate('#recipes-form [name^="Recipes"], #recipes-form [name^="COI_ID"]','change',function(){
+		var dataField = jQuery(this);
+		
+		SendDataToBackendSetTimeout(jQuery(this).parents('form:first').find('.addRowContainer'), '', dataField.attr('name'));
+	});
+	
 	
 	
 	//##################################################################################
@@ -780,10 +917,32 @@ jQuery(function($){
 	
 	jQuery('body').undelegate('.steps .addRowContainer .add','click').delegate('.steps .addRowContainer .add','click',function(){
 		var insertBefore = jQuery(this).parents('tr:first');
+		
+		//run delayed updates:
+		for(var rowNr in updateRowTimeouts){
+			var timeoutInfo = updateRowTimeouts[rowNr];
+			if (typeof(timeoutInfo) !== 'undefined'){
+				window.clearTimeout(timeoutInfo['timeoutId']);
+				updateRowTimeouts[rowNr] = undefined;
+				SendDataToBackendRow(timeoutInfo['row'], rowNr, timeoutInfo['action'], timeoutInfo['prefIndex'], false);
+			}
+		}
+		if (typeof(updateTimeout) !== 'undefined'){
+			var additional = updateTimeout['additional'];
+			if (typeof(updateTimeout['fields']) !== 'undefined'){
+				additional += '&fields='+updateTimeout['fields'];
+			}
+			var rowContainer = updateTimeout['rowContainer'];
+			updateTimeout = undefined;
+			SendDataToBackend(rowContainer, additional, false);
+		}
+		
 		var newRow = addEmptyRow(insertBefore);
 		updateFields(newRow.find('[id$=AIN_ID]'));
 		initMultiFancyCoose();
-		SendDataToBackend(jQuery(this).parents('.addRowContainer:first'));
+		
+		var rowIndex = getIndexFromFieldName(newRow.find('[name]:first').attr('name'));
+		SendDataToBackend(jQuery(this).parents('.addRowContainer:first'), '&add='+rowIndex);
 	});
 	
 	jQuery('body').undelegate('#recipes-form #cookInDisplay','change').delegate('#recipes-form #cookInDisplay','change',function(){

@@ -15,16 +15,32 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 See GPLv3.htm in the main folder for details.
 */
 
-class ActiveRecordECSimple extends CActiveRecord {
-	public function getAttributeLabel($attribute) {
-		$label = Yii::app()->controller->trans->__get('FIELD_' . $attribute);
-		if ($label != null){
-			return $label;
-		} else if (isset($label)){
-			return '???FIELD_' . $attribute . '(empty)???';
-		} else {
-			//return parent::getAttributeLabel($attribute);
-			return '???FIELD_' . $attribute . '???';
-		}
+/**
+ * This is the model class for table "rec_to_coi_history".
+ *
+ * The followings are the available columns in table 'rec_to_coi_history':
+ * @property integer $REC_ID
+ * @property integer $COI_ID
+ * @property integer $CREATED_BY
+ * @property integer $CREATED_ON
+ * @property integer $CHANGED_BY
+ * @property integer $CHANGED_ON
+ */
+class RecToCoiHistory extends RecToCoi
+{
+	/**
+	 * Returns the static model of the specified AR class.
+	 * @return RecToCoiHistory the static model class
+	 */
+	public static function model($className=__CLASS__){
+		return parent::model($className);
 	}
+
+	/**
+	 * @return string the associated database table name
+	 */
+	public function tableName(){
+		return 'rec_to_coi_history';
+	}
+
 }

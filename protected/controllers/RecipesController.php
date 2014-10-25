@@ -24,11 +24,11 @@ class RecipesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','chooseRecipe','advanceChooseRecipe','chooseTemplateRecipe','advanceChooseTemplateRecipe','updateSessionValues','updateSessionValue'),
+				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','chooseRecipe','advanceChooseRecipe','chooseTemplateRecipe','advanceChooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','uploadImage','delicious','disgusting','cancel','showLike', 'showNotLike', 'getRecipeInfos'),
+				'actions'=>array('create','update','uploadImage','delicious','disgusting','cancel','showLike', 'showNotLike', 'getRecipeInfos', 'setHistoryVersion'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -46,6 +46,12 @@ class RecipesController extends Controller
 		$Session_Backup = Yii::app()->session[$this->createBackup];
 		unset(Yii::app()->session[$this->createBackup.'_Time']);
 		if (isset($Session_Backup) && isset($Session_Backup->REC_ID)){
+			if (isset($id)){
+				$REC_CHANGED_ON = $Session_Backup->CHANGED_ON;
+				Yii::app()->db->createCommand()->delete(RecipeChanges::model()->tableName(), 'REC_ID = :id AND REC_CHANGED_ON = :change AND CHANGED_BY = :by', array(':id'=>$Session_Backup->REC_ID, ':change'=>$REC_CHANGED_ON, ':by'=>Yii::app()->user->id));
+				Yii::app()->db->createCommand()->delete(StepChanges::model()->tableName(), $updateFields, 'REC_ID = :id AND REC_CHANGED_ON = :change AND CHANGED_BY = :by', array(':id'=>$Session_Backup->REC_ID, ':change'=>$REC_CHANGED_ON, ':by'=>Yii::app()->user->id));
+				//TODO: remove all RecipeChanges & StepChanges without ID from this user
+			}
 			unset(Yii::app()->session[$this->createBackup]);
 			$this->forwardAfterSave(array('view', 'id'=>$Session_Backup->REC_ID));
 		} else {
@@ -136,7 +142,39 @@ class RecipesController extends Controller
 		$this->checkRenderAjax('view',array(
 			'model'=>$model,
 			'nutrientData'=>$nutrientData,
-			'cookin'=>$cookin
+			'cookin'=>$cookin,
+			'history'=>false
+		));
+	}
+	/**
+	 * Displays a particular model.
+	 * @param integer $id the ID of the model to be displayed
+	 */
+	public function actionViewHistory($id, $CHANGED_ON)
+	{
+		if (isset($_GET['nosearch']) && $_GET['nosearch'] == 'true'){
+			unset(Yii::app()->session[$this->searchBackup]);
+		}
+		$model=RecipesHistory::model()->findByPk(array('REC_ID'=>$id, 'CHANGED_ON'=>$CHANGED_ON));
+		$cookin = "#cookin";
+		if (isset($model->recToCois) && count($model->recToCois)>0){
+			$coi_id = $model->recToCois[0]->COI_ID;
+			$cookin = Yii::app()->db->createCommand()->select('COI_DESC_'.Yii::app()->session['lang'])->from('cook_in')->where('COI_ID = :id',array(':id'=>$coi_id))->queryScalar();
+		}
+		
+		$nutrientData = $this->calculateNutrientData($id);
+		if ($nutrientData != null){
+			$kcal = round($nutrientData->NUT_ENERG);
+			if ($this->debug) {echo 'recipe kcal:' . $model->REC_KCAL . ', calculate kcal:' . $kcal . '<br>'."\n";}
+			if ($model->REC_KCAL != $kcal){
+				$this->updateKCal($id, $kcal);
+			}
+		}
+		$this->checkRenderAjax('view',array(
+			'model'=>$model,
+			'nutrientData'=>$nutrientData,
+			'cookin'=>$cookin,
+			'history'=>true
 		));
 	}
 
@@ -427,14 +465,127 @@ class RecipesController extends Controller
 		return array($actionsInDetails, $actionsIn);
 	}
 	
+	private function prepareRecipeChanges($model){
+		$changes = array();
+		/*
+		if (isset($_POST['fields'])){
+			$fields = $_POST['fields'];
+			$fields = explode(',', $fields);
+			$changes = array();
+			foreach($fields as $field){
+				if ($field != ''){
+					if ($field == 'COI_ID[]'){
+						//TODO: should this be handled there also? (because  problems with ActionIn to ActionOut could occure).
+					} else {
+						$field = substr($field, 8, -1); // strlen('Recipes[')
+						$changeModel = new RecipeChanges;
+						$changeModel->REC_ID = $model->REC_ID;
+						$changeModel->RCH_FIELD = $field;
+						$changeModel->RCH_OLD_VALUE = $model->attributes[$field];
+						
+						$changes[$field] = $changeModel;
+					}
+				}
+			}
+		}
+		*/
+		foreach($model->attributes as $field=>$val){
+			if ($field != ''){
+				$changeModel = new RecipeChanges;
+				$changeModel->REC_ID = $model->REC_ID;
+				$changeModel->RCH_FIELD = $field;
+				$changeModel->REC_CHANGED_ON = $model->CHANGED_ON;
+				//$changeModel->RCH_OLD_VALUE = $model->attributes[$field];
+				$changeModel->RCH_OLD_VALUE = $val;
+				
+				$changes[$field] = $changeModel;
+			}
+		}
+		return $changes;
+	}
+	
+	private function logRecipeChanges($model, $changes, $timestamp){
+		$oldValues = array();
+		foreach($changes as $changeModel){
+			$changeModel->RCH_NEW_VALUE = $model->attributes[$changeModel->RCH_FIELD];
+			if ($changeModel->RCH_OLD_VALUE != $changeModel->RCH_NEW_VALUE){
+				$changeModel->CHANGED_ON = $timestamp;
+				$changeModel->save();
+				if ($this->debug) {echo $changeModel->RCH_FIELD . "\n";}
+				$oldValues[$changeModel->RCH_FIELD] = $changeModel->RCH_OLD_VALUE;
+			}
+		}
+		return $oldValues;
+	}
+	
+	private function getRecipeUndoKey($changeModel){
+		return $changeModel->REC_ID . "_" . $this->CHANGED_BY . "_" . $this->CHANGED_ON;
+	}
+	private function getStepUndoKey($changeModel){
+		return $changeModel->REC_ID . "_" . $this->STE_STEP_NO . "_" . $this->CHANGED_BY . "_" . $this->CHANGED_ON;
+	}
+	
 	public function actionUpdateSessionValues(){
 		if(isset($_POST['Recipes'])){
 			$model = Yii::app()->session[$this->createBackup];
 			if (isset($model)){
 				$recToCois = $model->recToCois;
+				$dateTime = new DateTime();
+				$timestamp = $dateTime->getTimestamp();
+				$changes = $this->prepareRecipeChanges($model);
 				$model->attributes=$_POST['Recipes'];
+				$oldValues = $this->logRecipeChanges($model, $changes, $timestamp);
+				
 				if (isset($_POST['Steps'])){
-					$model = Functions::arrayToRelatedObjects($model, array('steps'=> $_POST['Steps']));
+					$action = '';
+					$actionIndex = -1;
+					if (isset($_POST['remove'])){
+						$action = 'DELETE';
+						$actionIndex=$_POST['remove'];
+					} else if (isset($_POST['add'])){
+						$action = 'ADD';
+						$actionIndex=$_POST['add'];
+					}
+					if ($this->debug) {echo "action:$action,actionIndex:$actionIndex\n";}
+					$dataArray = $_POST['Steps'];
+					if ($actionIndex != -1){
+						$changeModel = new StepChanges;
+						$result;
+						if ($action == 'ADD'){
+							$entry = $dataArray[$actionIndex];
+							if ($this->debug) {print_r($entry);}
+							$changeModel->attributes = $entry;
+							$changeModel = Functions::arrayToRelatedObjects($changeModel, $entry);
+							$result = $entry;
+						} else {
+							$oldArray = $model['steps'];
+							if (isset($oldArray[$actionIndex-1])){
+								$oldEntry = $oldArray[$actionIndex-1];
+								$this->setStepChangesOldValues($changeModel, $oldEntry->attributes);
+								$result = $oldEntry->attributes;
+							}
+						}
+						if($changeModel->REC_ID == ''){
+							$changeModel->REC_ID = $model->REC_ID;
+						}
+						$changeModel->STE_STEP_NO = $actionIndex-1;
+						$changeModel->REC_CHANGED_ON = $model->CHANGED_ON;
+						
+						$changeModel->SCH_ACTION = $action ; //'CHANGE','ADD','DELETE','UP','DOWN'
+						$changeModel->CHANGED_ON = $timestamp;
+
+						if($changeModel->save()){
+							$result["REC_ID"] = $changeModel->REC_ID;
+							$result["STE_STEP_NO"] = $changeModel->STE_STEP_NO;
+							echo '{"action":"'.$action.'","stepNr":"'.$actionIndex.'","prefIndex":"'.($actionIndex).'","undoKey":"'.getStepUndoKey($changeModel).'","prevValues":'.CJSON::encode($result).'}';
+						} else {
+							if ($this->debug) {echo 'error on save: ';  print_r($changeModel->getErrors());}
+						}
+					} else {
+						echo '{"action":"RECIPE","undoKey":"'.getRecipeUndoKey($changeModel).'","prevValues":'.CJSON::encode($oldValues).'}';
+					}
+				
+					$model = Functions::arrayToRelatedObjects($model, array('steps'=>$dataArray));
 					$model->recToCois = $recToCois;
 				}
 				
@@ -444,6 +595,13 @@ class RecipesController extends Controller
 				if ($this->debug) {echo 'error on update session values';}
 			}
 		}
+	}
+	
+	private function setStepChangesOldValues($changeModel, $values){
+		foreach($values as $field=>$val){
+			$changeModel->setAttribute($field.'_OLD', $val);
+		}
+		return $changeModel;
 	}
 	
 	public function actionUpdateSessionValue($StepNr){
@@ -458,6 +616,47 @@ class RecipesController extends Controller
 				}
 				$dataArray = $_POST['Steps'];
 				$entry = $dataArray[$StepNr];
+				$action=$_POST['action'];
+				if ($action != 'IGNORE'){
+					$prefIndex=$_POST['prefIndex'];
+					$prefIndex--;
+					$changeModel = new StepChanges;
+					$changeModel->attributes = $entry;
+					$changeModel = Functions::arrayToRelatedObjects($changeModel, $entry);
+					if($changeModel->REC_ID == ''){
+						$changeModel->REC_ID = $model->REC_ID;
+					}
+					$changeModel->STE_STEP_NO = $prefIndex;
+					if ($action == 'CHANGE'){
+						if (isset($newArray[$prefIndex])){
+							$oldEntry = $newArray[$prefIndex];
+							$this->setStepChangesOldValues($changeModel, $oldEntry->attributes);
+							$result = $oldEntry->attributes;
+						}
+					}
+					$changeModel->REC_CHANGED_ON = $model->CHANGED_ON;
+					
+					if (isset($_POST['undoKey'])){
+						$changeModel->SCH_UNDO_KEY = $_POST['undoKey'];
+						$action = 'UNDO_' . $action;
+						$changeModel->SCH_ACTION = $action ; //'CHANGE','ADD','DELETE','UP','DOWN','UNDO_CHANGE','UNDO_ADD','UNDO_DELETE','UNDO_UP','UNDO_DOWN'
+					} else {
+						$changeModel->SCH_ACTION = $action ; //'CHANGE','ADD','DELETE','UP','DOWN','UNDO_CHANGE','UNDO_ADD','UNDO_DELETE','UNDO_UP','UNDO_DOWN'
+					}
+					//CHANGED_ON set in save
+					if($changeModel->save()){
+						if (isset($result)){
+							$result["REC_ID"] = $changeModel->REC_ID;
+							$result["STE_STEP_NO"] = $changeModel->STE_STEP_NO;
+							echo '{"action":"'.$action.'","stepNr":"'.$StepNr.'","prefIndex":"'.($prefIndex+1).'","undoKey":"'.getStepUndoKey($changeModel).'","prevValues":'.CJSON::encode($result).'}';
+						} else {
+							echo '{"action":"'.$action.'","stepNr":"'.$StepNr.'","prefIndex":"'.($prefIndex+1).'","undoKey":"'.getStepUndoKey($changeModel).'"}';
+						}
+					} else {
+						if ($this->debug) {echo 'error on save: ';  print_r($changeModel->getErrors());}
+					}
+				}
+				
 				$newModel->unsetAttributes();
 				$newModel->attributes = $entry;
 				$newArray[$StepNr-1] = Functions::arrayToRelatedObjects($newModel, $entry);
@@ -499,6 +698,7 @@ class RecipesController extends Controller
 		}
 		
 		$recToCois = array();
+		$recToCoiList_old = '';
 		if(isset($_POST['COI_ID'])){
 			foreach($_POST['COI_ID'] as $coi_id){
 				if (isset($coi_id) && $coi_id>0){
@@ -508,12 +708,28 @@ class RecipesController extends Controller
 					$recToCois[] = $recToCoi;
 				}
 			}
+			foreach($model->recToCois as $recToCoi){
+				$recToCoiList_old .= $recToCoi->COI_ID . ',';
+			}
 		} else {
 			$recToCois = $model->recToCois;
 		}
 		$coi_ids = array();
+		$recToCoiList_new = '';
 		foreach($recToCois as $recToCoi){
 			$coi_ids[] = $recToCoi->COI_ID;
+			$recToCoiList_new .= $recToCoi->COI_ID . ',';
+		}
+		if(isset($_POST['COI_ID'])){
+			if ($recToCoiList_old != $recToCoiList_new){
+				$changeModel = new RecipeChanges;
+				$changeModel->REC_ID = $id;
+				$changeModel->RCH_FIELD = 'rec_to_coi.COI_ID';
+				$changeModel->REC_CHANGED_ON = $model->CHANGED_ON;
+				$changeModel->RCH_OLD_VALUE = $recToCoiList_old;
+				$changeModel->RCH_NEW_VALUE = $recToCoiList_new;
+				$changeModel->save();
+			}
 		}
 		
 		//read StepType config and create indexed details List
@@ -570,7 +786,13 @@ class RecipesController extends Controller
 		}
 		
 		if(isset($_POST['Recipes'])){
+			$changes = $this->prepareRecipeChanges($model);
 			$model->attributes=$_POST['Recipes'];
+			
+			$dateTime = new DateTime();
+			$timestamp = $dateTime->getTimestamp();
+			$this->logRecipeChanges($model, $changes, $timestamp);
+			
 			$steps = array();
 			$stepsOK = true;
 			$ingredientPrepareSteps = array();
@@ -646,18 +868,25 @@ class RecipesController extends Controller
 					$model->validate();
 				} else {
 					if ($stepsOK){
+						$REC_CHANGED_ON = $model->CHANGED_ON;
 						$transaction=$model->dbConnection->beginTransaction();
 						try {
+							$model->CHANGED_ON = $timestamp;
+							$model->updateChangeTime = false;
 							if($model->save()){
 								$saveOK = true;
 								//Rec To Coi
 								Yii::app()->db->createCommand()->delete(RecToCoi::model()->tableName(), 'REC_ID = :id', array(':id'=>$model->REC_ID));
 								foreach($model->recToCois as $recToCoi){
 									$recToCoi->REC_ID = $model->REC_ID;
+									$recToCoi->CHANGED_ON = $timestamp;
+									$recToCoi->updateChangeTime = false;
 									$recToCoi->setIsNewRecord(true);
 									if(!$recToCoi->save()){
 										$saveOK = false;
 										if ($this->debug) {echo 'error on save recToCoi: errors:'; print_r($recToCoi->getErrors());}
+									} else {
+										$recToCoi->updateChangeTime = true;
 									}
 								}
 								
@@ -678,10 +907,14 @@ class RecipesController extends Controller
 											}
 										}
 										$step->STE_STEP_NO = $stepNo;
+										$step->CHANGED_ON = $timestamp;
+										$step->updateChangeTime = false;
 										$step->setIsNewRecord(true);
 										if(!$step->save()){
 											$saveOK = false;
 											if ($this->debug) {echo 'error on save Step: errors:'; print_r($step->getErrors());}
+										} else {
+											$step->updateChangeTime = true;
 										}
 										++$stepNo;
 									}
@@ -689,11 +922,15 @@ class RecipesController extends Controller
 										$step = new Steps();
 										$step->REC_ID = $model->REC_ID;
 										$step->STE_STEP_NO = $stepNo;
+										$step->CHANGED_ON = $timestamp;
+										$step->updateChangeTime = false;
 										$step->AIN_ID = Yii::app()->params['FinishedActionId'];
 										$step->STE_STEP_DURATION = 0;
 										if(!$step->save()){
 											$saveOK = false;
 											if ($this->debug) {echo 'error on save Step: errors:'; print_r($step->getErrors());}
+										} else {
+											$step->updateChangeTime = true;
 										}
 									}
 								}
@@ -705,12 +942,30 @@ class RecipesController extends Controller
 									$saveOK = true;
 									$changed = Functions::fixPicturePathAfterSave($model,'REC_IMG', $model->REC_IMG_FILENAME);
 									if ($changed){
+										$model->updateChangeTime = false;
 										if(!$model->save()){
 											if ($this->debug) {echo 'error on save after img file: ';  print_r($model->getErrors());}
 											$transaction->rollBack();
 											$saveOK = false;
 										}
 									}
+									
+									if (isset($id)){
+										$updateFields = array('RCH_SAVED'=>'Y');
+										Yii::app()->db->createCommand()->update(RecipeChanges::model()->tableName(), $updateFields, 'REC_ID = :id AND REC_CHANGED_ON = :change AND CHANGED_BY = :by', array(':id'=>$model->REC_ID, ':change'=>$REC_CHANGED_ON, ':by'=>Yii::app()->user->id));
+										$updateFields = array('SCH_SAVED'=>'Y');
+										Yii::app()->db->createCommand()->update(StepChanges::model()->tableName(), $updateFields, 'REC_ID = :id AND REC_CHANGED_ON = :change AND CHANGED_BY = :by', array(':id'=>$model->REC_ID, ':change'=>$REC_CHANGED_ON, ':by'=>Yii::app()->user->id));
+										//TODO: update all RecipeChanges & StepChanges without ID from this user to the new generated id: $model->REC_ID
+									}
+									
+									if ($saveOK){
+										//copy Entrys to History
+										$condition = array(':id'=>$model->REC_ID);
+										Yii::app()->db->createCommand()->setText('INSERT INTO recipes_history (SELECT * FROM `' . Recipes::model()->tableName() . '` WHERE REC_ID = :id)')->execute($condition);
+										Yii::app()->db->createCommand()->setText('INSERT INTO steps_history (SELECT * FROM `' . Steps::model()->tableName() . '` WHERE REC_ID = :id)')->execute($condition);
+										Yii::app()->db->createCommand()->setText('INSERT INTO rec_to_coi_history (SELECT * FROM `' . RecToCoi::model()->tableName() . '` WHERE REC_ID = :id)')->execute($condition);
+									}
+									
 									if ($saveOK){
 										$transaction->commit();
 										unset(Yii::app()->session[$this->createBackup]);
@@ -721,14 +976,21 @@ class RecipesController extends Controller
 								} else {
 									if ($this->debug) echo 'any errors occured, rollback';
 									$transaction->rollBack();
+									$saveOK = false;
 								}
 							} else {
 								if ($this->debug) {echo 'error on save: ';  print_r($model->getErrors());}
 								$transaction->rollBack();
+								$saveOK = false;
 							}
 						} catch(Exception $e) {
 							if ($this->debug) echo 'Exception occured -&gt; rollback. Exeption was: ' . $e;
 							$transaction->rollBack();
+							$saveOK = false;
+						}
+						$model->updateChangeTime = true;
+						if (!$saveOK){
+							$model->CHANGED_ON = REC_CHANGED_ON;	
 						}
 					} else {
 						//To show Recipe errors also
@@ -1132,7 +1394,7 @@ class RecipesController extends Controller
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
 	}
-
+	
 	/**
 	 * Performs the AJAX validation.
 	 * @param CModel the model to be validated
@@ -1173,4 +1435,181 @@ class RecipesController extends Controller
 		Functions::addLikeInfo($id, 'R', false);
 		$this->showLastAction();
 	}
+	
+	
+	/**
+	 * Check if there are unsaved Changes
+	 * @param integer the ID of the model to be loaded
+	 */
+	public function checkUnsavedChanges($id)
+	{
+		//TODO check if there are changes for the current $id.
+		return false;
+	}
+
+	/**
+	 * apply the unsaved Changes to the new loaded model
+	 * @param integer the ID of the model to be loaded
+	 */
+	public function applyUnsavedChanges($id)
+	{
+		//TODO check loop thrue all changes for the current $id and apply them.
+		return false;
+	}
+	
+	
+	/**
+	 * reactivate history version of recipe
+	 * @param integer the ID of the model to change
+	 * @param integer the time of the history entry
+	 */
+	public function actionSetHistoryVersion($id, $changeTime){
+		
+	}
+	
+	
+	/**
+	 * show history of recipe
+	 * @param integer the ID of the model to show history of
+	 */
+	public function actionHistory($id){
+		if (isset($_GET['nosearch']) && $_GET['nosearch'] == 'true'){
+			unset(Yii::app()->session[$this->searchBackup]);
+		}
+		$model = $this->loadModel($id);
+		$history = Yii::app()->db->createCommand()->select('REC_ID,REC_NAME_'.Yii::app()->session['lang'].',REC_SUMMARY,CHANGED_BY,CHANGED_ON')
+			->from('recipes_history')
+			->where('REC_ID = :id', array(':id'=>$id))
+			->order('CHANGED_ON desc')->queryAll();
+		
+		$this->checkRenderAjax('history',array(
+			'model'=>$model,
+			'history'=>$history
+		));
+	}
+	
+	private function stepToStr($step){
+		$result = $step['AIN_ID'] . ',' . 
+			$step['ING_ID'] . ',' . 
+			$step['STE_GRAMS'] . ',' . 
+			$step['STE_CELSIUS'] . ',' . 
+			$step['STE_KPA'] . ',' . 
+			$step['STE_RPM'] . ',' . 
+			$step['STE_CLOCKWISE'] . ',' . 
+			$step['STE_STIR_RUN'] . ',' . 
+			$step['STE_STIR_PAUSE'] . ',' . 
+			$step['STE_STEP_DURATION'] . ',' . 
+			$step['TOO_ID'];
+		return $result;
+	}
+	
+	/**
+	 * show history of recipe
+	 * @param integer the ID of the model to show history of
+	 */
+	public function actionHistoryCompare($id){
+		if (isset($_GET['nosearch']) && $_GET['nosearch'] == 'true'){
+			unset(Yii::app()->session[$this->searchBackup]);
+		}
+		$model = $this->loadModel($id);
+		if (isset($_GET['leftVersion'])){
+			$leftVersion = $_GET['leftVersion'];
+		} else {
+			$this->actionHistory($id);
+			return;
+		}
+		if (isset($_GET['rightVersion'])){
+			$rightVersion = $_GET['rightVersion'];
+		} else {
+			$this->actionHistory($id);
+			return;
+		}
+		
+		$left=RecipesHistory::model()->findByPk(array('REC_ID'=>$id, 'CHANGED_ON'=>$leftVersion));
+		$right=RecipesHistory::model()->findByPk(array('REC_ID'=>$id, 'CHANGED_ON'=>$rightVersion));
+		
+		$changes = array();
+		$changes[] = array('-', $model->getAttributeLabel('REC_IMG_FILENAME'), $left->REC_IMG_FILENAME,$right->REC_IMG_FILENAME);
+		$changes[] = array('-', $model->getAttributeLabel('REC_IMG_AUTH'), $left->REC_IMG_AUTH,$right->REC_IMG_AUTH);
+		$changes[] = array('-', $model->getAttributeLabel('REC_IMG_ETAG'), $left->REC_IMG_ETAG,$right->REC_IMG_ETAG);
+		$changes[] = array('-', $model->getAttributeLabel('RET_ID'), $left->RET_ID,$right->RET_ID);
+		$changes[] = array('-', $model->getAttributeLabel('REC_KCAL'), $left->REC_KCAL,$right->REC_KCAL);
+		$changes[] = array('-', $model->getAttributeLabel('REC_HAS_ALLERGY_INFO'), $left->REC_HAS_ALLERGY_INFO,$right->REC_HAS_ALLERGY_INFO);
+		$changes[] = array('-', $model->getAttributeLabel('REC_SUMMARY'), $left->REC_SUMMARY,$right->REC_SUMMARY);
+		$changes[] = array('-', $model->getAttributeLabel('REC_APPROVED'), $left->REC_APPROVED,$right->REC_APPROVED);
+		$changes[] = array('-', $model->getAttributeLabel('REC_SERVING_COUNT'), $left->REC_SERVING_COUNT,$right->REC_SERVING_COUNT);
+		$changes[] = array('-', $model->getAttributeLabel('REC_WIKI_LINK'), $left->REC_WIKI_LINK,$right->REC_WIKI_LINK);
+		$changes[] = array('-', $model->getAttributeLabel('REC_IS_PRIVATE'), $left->REC_IS_PRIVATE,$right->REC_IS_PRIVATE);
+		$changes[] = array('-', $model->getAttributeLabel('REC_COMPLEXITY'), $left->REC_COMPLEXITY,$right->REC_COMPLEXITY);
+		$changes[] = array('-', $model->getAttributeLabel('CUT_ID'), $left->CUT_ID,$right->CUT_ID);
+		$changes[] = array('-', $model->getAttributeLabel('CST_ID'), $left->CST_ID,$right->CST_ID);
+		$changes[] = array('-', $model->getAttributeLabel('REC_CUSINE_GPS_LAT'), $left->REC_CUSINE_GPS_LAT,$right->REC_CUSINE_GPS_LAT);
+		$changes[] = array('-', $model->getAttributeLabel('REC_CUSINE_GPS_LNG'), $left->REC_CUSINE_GPS_LNG,$right->REC_CUSINE_GPS_LNG);
+		$changes[] = array('-', $model->getAttributeLabel('REC_TOOLS'), $left->REC_TOOLS,$right->REC_TOOLS);
+		foreach($this->allLanguages as $lang=>$name){
+			$fieldName='REC_SYNONYM_'.strtoupper($lang);
+			$changes[] = array('-', $model->getAttributeLabel($fieldName), $left->__get($fieldName),$right->__get($fieldName));
+		}
+		foreach($this->allLanguages as $lang=>$name){
+			$fieldName='REC_NAME_'.strtoupper($lang);
+			$changes[] = array('-', $model->getAttributeLabel($fieldName), $left->__get($fieldName),$right->__get($fieldName));
+		}
+		
+		$length = count($changes);
+		for($i=0;$i<$length;$i++){
+			$change = $changes[$i];
+			if ($change[2] != $change[3]) {
+				if ($change[2] == '' || $change[2] == null || !isset($change[2])){
+					$change[0] = 1;
+				} else if ($change[3] == '' || $change[3] == null || !isset($change[3])){
+					$change[0] = -1;
+				} else {
+					$change[0] = 0;
+				}
+				$changes[$i] = $change;
+			}
+		}
+		
+		$stepStartIndex = count($changes);
+		$leftCount = count($left->steps);
+		$rightCount = count($right->steps);
+		$maxCount = ($leftCount>$rightCount)?$leftCount:$rightCount;
+		for($i=0;$i<$maxCount;$i++){
+			if ($leftCount>$i){
+				$leftStepLine = $this->stepToStr($left->steps[$i]);
+			} else {
+				$leftStepLine = '';
+			}
+			if ($rightCount>$i){
+				$rightStepLine = $this->stepToStr($right->steps[$i]);
+			} else {
+				$rightStepLine = '';
+			}
+			$changes[] = array('-', 'Step ' . ($i+1), $leftStepLine, $rightStepLine);
+		}
+		
+		$stepLength = count($changes);
+		for($i=$stepStartIndex;$i<$stepLength;$i++){
+			$change = $changes[$i];
+			if ($change[2] != $change[3]) {
+				if ($change[2] == '' || $change[2] == null || !isset($change[2])){
+					$change[0] = 1;
+				} else if ($change[3] == '' || $change[3] == null || !isset($change[3])){
+					$change[0] = -1;
+				} else {
+					$change[0] = 0;
+				}
+				$changes[$i] = $change;
+			}
+		}
+		
+		$this->checkRenderAjax('historyCompare',array(
+			'model'=>$model,
+			'leftModel'=>$left,
+			'rightModel'=>$right,
+			'changes'=>$changes,
+			'stepStartIndex'=>$stepStartIndex
+		));
+	}
+	
 }

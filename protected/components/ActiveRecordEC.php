@@ -16,16 +16,26 @@ See GPLv3.htm in the main folder for details.
 */
 
 class ActiveRecordEC extends ActiveRecordECSimple {
+	public $updateChangePointer = true;
+	public $updateChangeTime = true;
+	
 	protected function beforeValidate() {
 		if(!Yii::app()->user->isGuest) {
 			$dateTime = new DateTime();
 			if($this->getIsNewRecord()) {
 				// get UnixTimeStamp
-				$this->CREATED_ON = $dateTime->getTimestamp();
-				$this->CREATED_BY = Yii::app()->user->id;
+				if ($this->updateChangePointer || !isset($this->CREATED_ON) || $this->CREATED_ON == null){
+					$this->CREATED_ON = $dateTime->getTimestamp();
+					$this->CREATED_BY = Yii::app()->user->id;
+				}
 			}
-			$this->CHANGED_ON = $dateTime->getTimestamp();
-			$this->CHANGED_BY = Yii::app()->user->id;
+			
+			if ($this->updateChangePointer){
+				if ($this->updateChangeTime){
+					$this->CHANGED_ON = $dateTime->getTimestamp();
+				}
+				$this->CHANGED_BY = Yii::app()->user->id;
+			}
 			return true;
 		}
 		return parent::beforeValidate();

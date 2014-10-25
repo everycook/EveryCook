@@ -1,0 +1,30 @@
+-- copy current data to history tables
+
+INSERT INTO recipes_history (SELECT * FROM `recipes`);
+
+INSERT INTO steps_history (SELECT * FROM `steps`);
+-- make sure CHANGED_ON is exactly the same as recipe on all steps
+UPDATE steps_history steps INNER JOIN (
+    SELECT REC_ID, CHANGED_ON FROM recipes
+) recipes ON steps.REC_ID=recipes.REC_ID
+SET steps.CHANGED_ON=recipes.CHANGED_ON;
+
+
+INSERT INTO rec_to_coi_history (SELECT * FROM `rec_to_coi`);
+-- make sure CHANGED_ON is exactly the same as recipe on all values
+UPDATE rec_to_coi_history rec_to_coi INNER JOIN (
+    SELECT REC_ID, CHANGED_ON FROM recipes
+) recipes ON rec_to_coi.REC_ID=recipes.REC_ID
+SET rec_to_coi.CHANGED_ON=recipes.CHANGED_ON;
+
+
+UPDATE `textes` SET `EN_GB` = 'This recipe requires' WHERE `textes`.`TXT_NAME` = 'RECIPES_INGREDIENTS_NEEDED';
+
+INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('RECIPES_HISTORY', 'show history', 'History anzeigen', ''),
+('RECIPE_BACK_TO_RECIPE', 'back to recipe', 'Zurück zum Rezept', ''),
+('RECIPE_BACK_TO_HISTORY', 'back to recipe history', 'Zurück zur Rezepthistory', ''),
+('HISTORY_CURRENT', 'Current', 'Aktuell', ''),
+('HISTORY_PREV', 'Previous', 'Vorherige', ''),
+('HISTORY_DATE_FORMAT', 'Y-m-d H:i:s', 'H:i:s d.m.Y', ''),
+

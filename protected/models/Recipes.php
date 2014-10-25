@@ -74,9 +74,9 @@ class Recipes extends ActiveRecordEC
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('RET_ID, REC_SERVING_COUNT, REC_NAME_EN_GB, CREATED_BY, CREATED_ON', 'required'),
+			array('REC_ID, RET_ID, REC_SERVING_COUNT, REC_NAME_EN_GB, CREATED_BY, CREATED_ON', 'required'),
 			array('REC_IMG_AUTH', 'required', 'on'=>'withPic'),
-			array('PRF_UID, RET_ID, REC_KCAL, REC_SERVING_COUNT, REC_COMPLEXITY, CUT_ID, CST_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('REC_ID, PRF_UID, RET_ID, REC_KCAL, REC_SERVING_COUNT, REC_COMPLEXITY, CUT_ID, CST_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('REC_CUSINE_GPS_LAT, REC_CUSINE_GPS_LNG', 'numerical'),
 			array('REC_IMG_FILENAME', 'length', 'max'=>250),
 			array('REC_IMG_AUTH', 'length', 'max'=>30),

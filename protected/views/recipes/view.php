@@ -78,7 +78,17 @@ $this->mainButtons = array(
 	</div>
 	<div class="details">
 		<div class="name">
-			<?php echo CHtml::link(CHtml::encode($model->__get('REC_NAME_' . Yii::app()->session['lang'])), array('view', 'id'=>$model->REC_ID)); ?>
+			<?php
+				if ($history){
+					$dateFormat = $this->trans->HISTORY_DATE_FORMAT;
+					echo CHtml::link(CHtml::encode($model->__get('REC_NAME_' . Yii::app()->session['lang'])) . ' (' . date($dateFormat, $model->CHANGED_ON) . ')', array('viewHistory', 'id'=>$model->REC_ID, 'CHANGED_ON'=>$model->CHANGED_ON));
+				} else {
+					echo CHtml::link(CHtml::encode($model->__get('REC_NAME_' . Yii::app()->session['lang'])), array('view', 'id'=>$model->REC_ID));
+				}
+			?>
+		</div>
+		<div class="history">
+			<?php echo CHtml::link($this->trans->RECIPES_HISTORY, array('history', 'id'=>$model->REC_ID)); ?>
 		</div>
 		<div class="detail_img">
 			<?php echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']))); ?>
