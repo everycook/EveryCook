@@ -205,18 +205,10 @@ div.mealOverview {
 	border-top-color: #FF4D02;
 }
 
-.historyCompareView .col0 {
-	width: 20%;
-	float: left;
-}
 .historyCompareView .col1 {
-	width: 40%;
-	float: left;
 	background-color: lightgray;
 }
 .historyCompareView .col2 {
-	width: 40%;
-	float: left;
 	background-color: lightgray;
 }
 

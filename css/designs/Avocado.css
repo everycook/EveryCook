@@ -205,6 +205,14 @@ div.mealOverview {
 }
 
 
+.historyCompareView .col1 {
+	background-color: lightgray;
+}
+.historyCompareView .col2 {
+	background-color: lightgray;
+}
+
+
 .historyCompareView .change_up {
 	background: url('../../pics/up.png') no-repeat scroll 0 0 navajowhite;
 	background-size: auto 100%;
