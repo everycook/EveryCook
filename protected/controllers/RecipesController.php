@@ -103,24 +103,33 @@ class RecipesController extends Controller
 		}
 	}
 
-	private function updateKCal($id, $kcal){
-		if ($kcal == null){
-			$nutrientData = $this->calculateNutrientData($id);
-			if ($nutrientData != null){
-				$kcal = round($nutrientData->NUT_ENERG);
+	private function updateKCal($id, $servings, $old_kcal, $CHANGED_ON){
+		$nutrientData = $this->calculateNutrientData($id);
+		if ($nutrientData != null){
+			$kcal = round($nutrientData->NUT_ENERG);
+			if ($servings <= 0){
+				$servings = 1;
+			}
+			if ($this->debug) {echo 'recipe kcal:' . $old_kcal . ', calculate kcal:' . $kcal . ' / ' . $servings . ' Servings = ' . ( $kcal / $servings). '<br>'."\n";}
+			$kcal /= $servings;
+		} else {
+			$kcal = 0;
+		}
+		if ($old_kcal == null || $old_kcal != $kcal){
+			if ($CHANGED_ON == null){
+				Yii::app()->db->createCommand()->update(Recipes::model()->tableName(), array('REC_KCAL'=>$kcal), 'REC_ID = :id', array(':id'=>$id));
 			} else {
-				$kcal = 0;
+				Yii::app()->db->createCommand()->update(Recipes::model()->tableName(), array('REC_KCAL'=>$kcal), 'REC_ID = :id AND CHANGED_ON = :change', array(':id'=>$id, ':change'=>$CHANGED_ON));
 			}
 		}
-		Yii::app()->db->createCommand()->update(Recipes::model()->tableName(), array('REC_KCAL'=>$kcal), 'REC_ID = :id', array(':id'=>$id));
+		return $nutrientData;
 	}
 	
 	/**
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionView($id)
-	{
+	public function actionView($id){
 		if (isset($_GET['nosearch']) && $_GET['nosearch'] == 'true'){
 			unset(Yii::app()->session[$this->searchBackup]);
 		}
@@ -130,15 +139,7 @@ class RecipesController extends Controller
 			$coi_id = $model->recToCois[0]->COI_ID;
 			$cookin = Yii::app()->db->createCommand()->select('COI_DESC_'.Yii::app()->session['lang'])->from('cook_in')->where('COI_ID = :id',array(':id'=>$coi_id))->queryScalar();
 		}
-		
-		$nutrientData = $this->calculateNutrientData($id);
-		if ($nutrientData != null){
-			$kcal = round($nutrientData->NUT_ENERG);
-			if ($this->debug) {echo 'recipe kcal:' . $model->REC_KCAL . ', calculate kcal:' . $kcal . '<br>'."\n";}
-			if ($model->REC_KCAL != $kcal){
-				$this->updateKCal($id, $kcal);
-			}
-		}
+		$nutrientData = $this->updateKCal($id, $model->REC_SERVING_COUNT, $model->REC_KCAL, null);
 		$this->checkRenderAjax('view',array(
 			'model'=>$model,
 			'nutrientData'=>$nutrientData,
@@ -150,8 +151,7 @@ class RecipesController extends Controller
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionViewHistory($id, $CHANGED_ON)
-	{
+	public function actionViewHistory($id, $CHANGED_ON){
 		if (isset($_GET['nosearch']) && $_GET['nosearch'] == 'true'){
 			unset(Yii::app()->session[$this->searchBackup]);
 		}
@@ -162,14 +162,7 @@ class RecipesController extends Controller
 			$cookin = Yii::app()->db->createCommand()->select('COI_DESC_'.Yii::app()->session['lang'])->from('cook_in')->where('COI_ID = :id',array(':id'=>$coi_id))->queryScalar();
 		}
 		
-		$nutrientData = $this->calculateNutrientData($id);
-		if ($nutrientData != null){
-			$kcal = round($nutrientData->NUT_ENERG);
-			if ($this->debug) {echo 'recipe kcal:' . $model->REC_KCAL . ', calculate kcal:' . $kcal . '<br>'."\n";}
-			if ($model->REC_KCAL != $kcal){
-				$this->updateKCal($id, $kcal);
-			}
-		}
+		$nutrientData = $this->updateKCal($id, $model->REC_SERVING_COUNT, $model->REC_KCAL, $CHANGED_ON);
 		$this->checkRenderAjax('view',array(
 			'model'=>$model,
 			'nutrientData'=>$nutrientData,
@@ -937,7 +930,7 @@ class RecipesController extends Controller
 								
 								//finish save
 								if ($saveOK){
-									$this->updateKCal($model->REC_ID, null);
+									$this->updateKCal($model->REC_ID, $model->REC_SERVING_COUNT, null, null);
 									
 									$saveOK = true;
 									$changed = Functions::fixPicturePathAfterSave($model,'REC_IMG', $model->REC_IMG_FILENAME);
@@ -951,11 +944,11 @@ class RecipesController extends Controller
 									}
 									
 									if (isset($id)){
-										$updateFields = array('RCH_SAVED'=>'Y');
-										Yii::app()->db->createCommand()->update(RecipeChanges::model()->tableName(), $updateFields, 'REC_ID = :id AND REC_CHANGED_ON = :change AND CHANGED_BY = :by', array(':id'=>$model->REC_ID, ':change'=>$REC_CHANGED_ON, ':by'=>Yii::app()->user->id));
-										$updateFields = array('SCH_SAVED'=>'Y');
-										Yii::app()->db->createCommand()->update(StepChanges::model()->tableName(), $updateFields, 'REC_ID = :id AND REC_CHANGED_ON = :change AND CHANGED_BY = :by', array(':id'=>$model->REC_ID, ':change'=>$REC_CHANGED_ON, ':by'=>Yii::app()->user->id));
-										//TODO: update all RecipeChanges & StepChanges without ID from this user to the new generated id: $model->REC_ID
+										$updateFields = array('RCH_SAVED'=>$timestamp);
+										Yii::app()->db->createCommand()->update(RecipeChanges::model()->tableName(), $updateFields, 'REC_ID = :id AND REC_CHANGED_ON = :change AND CHANGED_BY = :by AND RCH_SAVED IS NULL', array(':id'=>$model->REC_ID, ':change'=>$REC_CHANGED_ON, ':by'=>Yii::app()->user->id));
+										$updateFields = array('SCH_SAVED'=>$timestamp);
+										Yii::app()->db->createCommand()->update(StepChanges::model()->tableName(), $updateFields, 'REC_ID = :id AND REC_CHANGED_ON = :change AND CHANGED_BY = :by AND SCH_SAVED IS NULL', array(':id'=>$model->REC_ID, ':change'=>$REC_CHANGED_ON, ':by'=>Yii::app()->user->id));
+										//TODO: update all RecipeChanges & StepChanges without REC_ID from this user to the new generated id: $model->REC_ID
 									}
 									
 									if ($saveOK){
@@ -1488,7 +1481,9 @@ class RecipesController extends Controller
 		));
 	}
 	
-	private function stepToStr($step){
+	private function stepToStr($i, $step){
+		$cookin = '#cookin';
+		/*
 		$result = $step['AIN_ID'] . ',' . 
 			$step['ING_ID'] . ',' . 
 			$step['STE_GRAMS'] . ',' . 
@@ -1501,6 +1496,227 @@ class RecipesController extends Controller
 			$step['STE_STEP_DURATION'] . ',' . 
 			$step['TOO_ID'];
 		return $result;
+		*/
+		$result = '<div class="step">';
+		//$result .= '<span class="stepNo">' . $i . '.</span> ';
+		if (isset($step->actionIn) && $step->actionIn != null){
+			$text = $step->actionIn->__get('AIN_DESC_' . Yii::app()->session['lang']);
+			if (isset($step->ingredient) && $step->ingredient != null){
+				$replText = '<span class="ingredient">' . $step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']) . '</span> ';
+				$text = str_replace('#ingredient', $replText, $text);
+			}
+			if ($step->STE_GRAMS){
+				$replText = '<span class="weight">' . $step->STE_GRAMS . 'g</span> ';
+				$text = str_replace('#weight', $replText, $text);
+			}
+			
+			if (isset($step->tool) && $step->tool != null){
+				$replText = '<span class="tool">' . $step->tool->__get('TOO_DESC_' . Yii::app()->session['lang']) . '</span> ';
+				$text = str_replace('#tool', $replText, $text);
+			}
+			if ($step->STE_STEP_DURATION){
+				$time = date('H:i:s', $step['STE_STEP_DURATION']-3600);
+				$replText = '<span class="time">' . $time . 'h</span> ';
+				$text = str_replace('#time', $replText, $text);
+			}
+			if ($step->STE_CELSIUS){
+				$replText = '<span class="temp">' . $step->STE_CELSIUS . '°C</span> ';
+				$text = str_replace('#temp', $replText, $text);
+			}
+			if ($step->STE_KPA){
+				$replText = '<span class="pressure">' . $step->STE_KPA . 'kpa</span> ';
+				$text = str_replace('#press', $replText, $text);
+			}
+			if ($cookin != "#cookin"){
+				$replText = '<span class="cookin">' . $cookin . '</span> ';
+				$text = str_replace('#cookin', $replText, $text);
+			}
+			$result .= '<span class="action">' . $text . '</span>';
+		}
+		$result .= '</div>';
+		return $result;
+	}
+	
+	private function getChangeClass(&$alignIndex, $leftIndex, $rightIndex, &$movedUp, &$skipped){
+		if ($leftIndex==$rightIndex+$alignIndex){
+			$changeSign = '';
+			if ($alignIndex>0){
+				$alignIndex--;
+			}
+		} else {
+			if ($leftIndex<$rightIndex+$alignIndex) {
+				$changeSign = ' change_up';
+				$moved = $leftIndex-$rightIndex+$alignIndex;
+				//if ($this->debug) {echo $rightIndex . ', up:' . $moved . ',' . $alignIndex  . "<br>\n";}
+				//$movedUp[$rightIndex] = $moved;
+				
+				if ($moved != 0){
+					if ($moved != -1){//if not exactly one row
+						$movedUp[$rightIndex] = $moved;
+					}
+					$alignIndex++;
+				}
+				if ($this->debug) {echo $rightIndex . ', up:' . $moved . ',' . $alignIndex  . "<br>\n";}
+				
+			} else {
+				$changeSign = ' change_down';
+				$moved = $rightIndex+$alignIndex-$leftIndex;
+				//if ($this->debug) {echo $rightIndex . ', down:' . $moved . ',' . $alignIndex  . "<br>\n";}
+				//$movedUp[$rightIndex] = $moved;
+				
+				if (!isset($skipped[$rightIndex])){//not change alignIndex if it is a removed line now new added as moved down
+					if ($moved != 0){
+						if ($moved != 1){//if not exactly one row
+							$movedUp[$rightIndex] = $moved;
+						}
+						$alignIndex--;
+					}
+					if ($this->debug) {echo $rightIndex . ', down:' . $moved . ',' . $alignIndex  . "<br>\n";}
+				}
+				
+			}
+		}
+		return $changeSign;
+	}
+	
+	private function fixMoveUp(&$alignIndex, $leftIndex, &$movedUp){
+		//return;
+		//not needed if call updateChangeClass at end of loop (will automatically fixed there)
+		if (isset($movedUp[$leftIndex])){
+			if ($movedUp[$leftIndex]>0){
+				$alignIndex--;
+			} else {
+				$alignIndex++;
+			}
+			if ($this->debug) {echo $leftIndex . ', movedUp:' . $movedUp[$leftIndex] . ',' . $alignIndex  . "<br>\n";}
+			//unset($movedUp[$leftIndex]);
+		}
+	}
+	
+	private function fixMoveDown(&$alignIndex, $leftIndex, $rightIndex, &$movedUp){
+		return;
+		//not needed if call updateChangeClass at end of loop (will automatically fixed there)
+		if (isset($movedUp[$rightIndex])){
+			if ($movedUp[$rightIndex]>0){
+				$alignIndex--;
+			} else {
+				$alignIndex++;
+			}
+			if ($this->debug) {echo $rightIndex . ', movedDown:' . $movedUp[$rightIndex] . ',' . $alignIndex  . "<br>\n";}
+			//unset($movedUp[$rightIndex]);
+		}
+	}
+	
+	private function checkSkipedLine(&$alignIndex, $leftIndex, $rightIndex, &$skipped, &$changes, $rightLastIndex, $rightSteps){
+		if ($rightLastIndex<$rightIndex){
+			for($k=$rightLastIndex;$k<$rightIndex;$k++){
+				if (isset($rightSteps[$k])){
+					$changes[] = array(' change_remove', (($this->debug)?'3 ':'') . 'Step -', '' . (($this->debug)?'('.$alignIndex.')':''), $rightSteps[$k] . ' (Step '.($k+1).')', -1, $k, $alignIndex);
+					//unset($rightSteps[$k]); // remove right step, so not reference 2 times
+					$skipped[$k] = count($changes)-1;
+					//need for remove, but movedown don't work...//$alignIndex--;
+					if ($this->debug) {echo $k . ', remove:' . 1 . ',' . $alignIndex  . "<br>\n";}
+				}
+			}
+		}
+	}
+	
+	private function removeSkipedLine(&$alignIndex, $leftIndex, $rightIndex, &$movedUp, &$skipped, &$changes){
+		$skipIndex = $rightIndex;
+		if (isset($skipped[$skipIndex])){
+			$changeIndex=$skipped[$skipIndex];
+			$oldAlignIndex = $changes[$changeIndex][6];
+			//need for remove, but movedown don't work...//$alignIndex++;
+			if ($this->debug) {echo $leftIndex . '-' . $skipIndex . ', skipped:' . -1 . ',' . $alignIndex  . "<br>\n";}
+			if ($this->debug) {
+				$changes[$changeIndex][1] = $changes[$changeIndex][1] . ' (removed step'.($leftIndex+1).')';
+			} else {
+				unset($changes[$changeIndex]);
+			}
+			unset($skipped[$skipIndex]);
+			//fix alignIndex
+			for ($i=$changeIndex+1;$i<count($changes);$i++){
+				if ($changes[$i][4]>=$leftIndex){ //change all where left step grater than new step line index
+					$changes[$i][6] = $changes[$i][6]+1;
+				} else if ($changes[$i][4]>=$rightIndex && $changes[$i][5]>=$rightIndex){ //change all where left&right index is greater then the removed right line index
+					//Perhaps fix (1st part) for => http://localhost/EveryCook/#recipes/historyCompare/8?leftVersion=1414287552&rightVersion=1414273740
+					$changes[$i][6] = $changes[$i][6]-2;
+				}
+				
+				//$changes[$i][6] = $changes[$i][6]+1;
+				/*
+				if ($oldAlignIndex!=0){
+					if ($changes[$i][6]>=$oldAlignIndex){
+						$changes[$i][6] = $changes[$i][6]-$oldAlignIndex;
+					} else {
+					//	$changes[$i][6] = $changes[$i][6]+1;
+					}
+				}
+				*/
+			}
+		}
+	}
+	
+	private function updateChangeClass($stepStartIndex, &$changes, $skipped, $movedUp){
+		/*//doesn't do anything
+		foreach ($movedUp as $rightIndex=>$amount){
+			for($i=$stepStartIndex;$i<count($changes);$i++){
+				if ($changes[$i][5] == $rightIndex){
+					break;
+				}
+				if ($changes[$i][4]>=$rightIndex){
+					$changes[$i][6] = $changes[$i][6]+$amount+$changes[$i][4];
+					echo "hello world<br>\n";
+				}
+			}
+		}
+		*/
+		
+		foreach ($skipped as $rightIndex=>$changeIndex){
+			for($i=$changeIndex+1;$i<count($changes);$i++){
+				$changes[$i][6] = $changes[$i][6]-2;
+			}
+		}
+		
+		
+		for($i=$stepStartIndex;$i<count($changes);$i++){
+			if (!isset($changes[$i])){
+				continue;
+			}
+			$leftIndex=$changes[$i][4];
+			$rightIndex	=$changes[$i][5];
+			$alignIndex=$changes[$i][6];
+			/* // try to remove "$alignIndex--;" in getChangeClass if it's "same" step
+			if ($alignIndex>$leftIndex){
+				$alignIndex=0;
+				$changes[$i][6]=$alignIndex;
+			}
+			*/
+			/*
+			if (isset($movedUp[$leftIndex])){
+				$alignIndex = $alignIndex+$movedUp[$leftIndex];
+				$changes[$i][6] = $alignIndex;
+			}
+			*/
+			
+			if ($leftIndex != -1){ //removed line
+				if ($rightIndex != -1){ // added line
+					if ($leftIndex==$rightIndex+$alignIndex){
+						$changeSign = '';
+					} else {
+						if ($leftIndex<$rightIndex+$alignIndex) {
+							$changeSign = ' change_up';
+						} else {
+							$changeSign = ' change_down';
+						}
+					}
+					if ($changes[$i][0] != $changeSign){
+						if ($this->debug) {echo $leftIndex . ', class:' . $changes[$i][0] . ' =&gt;' . $changeSign  . "<br>\n";}
+						$changes[$i][0] = $changeSign;	
+					}
+				}
+			}
+		}
 	}
 	
 	/**
@@ -1508,51 +1724,60 @@ class RecipesController extends Controller
 	 * @param integer the ID of the model to show history of
 	 */
 	public function actionHistoryCompare($id){
-		if (isset($_GET['nosearch']) && $_GET['nosearch'] == 'true'){
-			unset(Yii::app()->session[$this->searchBackup]);
-		}
 		$model = $this->loadModel($id);
 		if (isset($_GET['leftVersion'])){
 			$leftVersion = $_GET['leftVersion'];
 		} else {
+			//TODO: add message leftVersion missing
 			$this->actionHistory($id);
 			return;
 		}
 		if (isset($_GET['rightVersion'])){
 			$rightVersion = $_GET['rightVersion'];
 		} else {
+			//TODO: add message rightVersion missing
 			$this->actionHistory($id);
 			return;
 		}
 		
 		$left=RecipesHistory::model()->findByPk(array('REC_ID'=>$id, 'CHANGED_ON'=>$leftVersion));
+		if ($left == NULL){
+			//TODO: add message left not found
+			$this->actionHistory($id);
+			return;
+		}
 		$right=RecipesHistory::model()->findByPk(array('REC_ID'=>$id, 'CHANGED_ON'=>$rightVersion));
+		if ($left == NULL){
+			//TODO: add message right not found
+			$this->actionHistory($id);
+			return;
+		}
 		
 		$changes = array();
-		$changes[] = array('-', $model->getAttributeLabel('REC_IMG_FILENAME'), $left->REC_IMG_FILENAME,$right->REC_IMG_FILENAME);
-		$changes[] = array('-', $model->getAttributeLabel('REC_IMG_AUTH'), $left->REC_IMG_AUTH,$right->REC_IMG_AUTH);
-		$changes[] = array('-', $model->getAttributeLabel('REC_IMG_ETAG'), $left->REC_IMG_ETAG,$right->REC_IMG_ETAG);
-		$changes[] = array('-', $model->getAttributeLabel('RET_ID'), $left->RET_ID,$right->RET_ID);
-		$changes[] = array('-', $model->getAttributeLabel('REC_KCAL'), $left->REC_KCAL,$right->REC_KCAL);
-		$changes[] = array('-', $model->getAttributeLabel('REC_HAS_ALLERGY_INFO'), $left->REC_HAS_ALLERGY_INFO,$right->REC_HAS_ALLERGY_INFO);
-		$changes[] = array('-', $model->getAttributeLabel('REC_SUMMARY'), $left->REC_SUMMARY,$right->REC_SUMMARY);
-		$changes[] = array('-', $model->getAttributeLabel('REC_APPROVED'), $left->REC_APPROVED,$right->REC_APPROVED);
-		$changes[] = array('-', $model->getAttributeLabel('REC_SERVING_COUNT'), $left->REC_SERVING_COUNT,$right->REC_SERVING_COUNT);
-		$changes[] = array('-', $model->getAttributeLabel('REC_WIKI_LINK'), $left->REC_WIKI_LINK,$right->REC_WIKI_LINK);
-		$changes[] = array('-', $model->getAttributeLabel('REC_IS_PRIVATE'), $left->REC_IS_PRIVATE,$right->REC_IS_PRIVATE);
-		$changes[] = array('-', $model->getAttributeLabel('REC_COMPLEXITY'), $left->REC_COMPLEXITY,$right->REC_COMPLEXITY);
-		$changes[] = array('-', $model->getAttributeLabel('CUT_ID'), $left->CUT_ID,$right->CUT_ID);
-		$changes[] = array('-', $model->getAttributeLabel('CST_ID'), $left->CST_ID,$right->CST_ID);
-		$changes[] = array('-', $model->getAttributeLabel('REC_CUSINE_GPS_LAT'), $left->REC_CUSINE_GPS_LAT,$right->REC_CUSINE_GPS_LAT);
-		$changes[] = array('-', $model->getAttributeLabel('REC_CUSINE_GPS_LNG'), $left->REC_CUSINE_GPS_LNG,$right->REC_CUSINE_GPS_LNG);
-		$changes[] = array('-', $model->getAttributeLabel('REC_TOOLS'), $left->REC_TOOLS,$right->REC_TOOLS);
-		foreach($this->allLanguages as $lang=>$name){
-			$fieldName='REC_SYNONYM_'.strtoupper($lang);
-			$changes[] = array('-', $model->getAttributeLabel($fieldName), $left->__get($fieldName),$right->__get($fieldName));
-		}
+		//$changes[] = array('', $model->getAttributeLabel('REC_IMG_FILENAME'), $left->REC_IMG_FILENAME,$right->REC_IMG_FILENAME);
+		//$changes[] = array('', $model->getAttributeLabel('REC_IMG_AUTH'), $left->REC_IMG_AUTH,$right->REC_IMG_AUTH);
+		//$changes[] = array('', $model->getAttributeLabel('REC_IMG_ETAG'), $left->REC_IMG_ETAG,$right->REC_IMG_ETAG);
+		$changes[] = array('', $model->getAttributeLabel('RET_ID'), $left->RET_ID,$right->RET_ID);
+		$changes[] = array('', $model->getAttributeLabel('REC_KCAL'), $left->REC_KCAL,$right->REC_KCAL);
+		//$changes[] = array('', $model->getAttributeLabel('REC_HAS_ALLERGY_INFO'), $left->REC_HAS_ALLERGY_INFO,$right->REC_HAS_ALLERGY_INFO);
+		$changes[] = array('', $model->getAttributeLabel('REC_SUMMARY'), $left->REC_SUMMARY,$right->REC_SUMMARY);
+		$changes[] = array('', $model->getAttributeLabel('REC_APPROVED'), $left->REC_APPROVED,$right->REC_APPROVED);
+		$changes[] = array('', $model->getAttributeLabel('REC_SERVING_COUNT'), $left->REC_SERVING_COUNT,$right->REC_SERVING_COUNT);
+		$changes[] = array('', $model->getAttributeLabel('REC_WIKI_LINK'), $left->REC_WIKI_LINK,$right->REC_WIKI_LINK);
+		$changes[] = array('', $model->getAttributeLabel('REC_IS_PRIVATE'), $left->REC_IS_PRIVATE,$right->REC_IS_PRIVATE);
+		$changes[] = array('', $model->getAttributeLabel('REC_COMPLEXITY'), $left->REC_COMPLEXITY,$right->REC_COMPLEXITY);
+		$changes[] = array('', $model->getAttributeLabel('CUT_ID'), $left->CUT_ID,$right->CUT_ID);
+		$changes[] = array('', $model->getAttributeLabel('CST_ID'), $left->CST_ID,$right->CST_ID);
+		$changes[] = array('', $model->getAttributeLabel('REC_CUSINE_GPS_LAT'), $left->REC_CUSINE_GPS_LAT,$right->REC_CUSINE_GPS_LAT);
+		$changes[] = array('', $model->getAttributeLabel('REC_CUSINE_GPS_LNG'), $left->REC_CUSINE_GPS_LNG,$right->REC_CUSINE_GPS_LNG);
+		$changes[] = array('', $model->getAttributeLabel('REC_TOOLS'), $left->REC_TOOLS,$right->REC_TOOLS);
 		foreach($this->allLanguages as $lang=>$name){
 			$fieldName='REC_NAME_'.strtoupper($lang);
-			$changes[] = array('-', $model->getAttributeLabel($fieldName), $left->__get($fieldName),$right->__get($fieldName));
+			$changes[] = array(' ', $model->getAttributeLabel($fieldName), $left->__get($fieldName),$right->__get($fieldName));
+		}
+		foreach($this->allLanguages as $lang=>$name){
+			$fieldName='REC_SYNONYM_'.strtoupper($lang);
+			$changes[] = array(' ', $model->getAttributeLabel($fieldName), $left->__get($fieldName),$right->__get($fieldName));
 		}
 		
 		$length = count($changes);
@@ -1560,19 +1785,107 @@ class RecipesController extends Controller
 			$change = $changes[$i];
 			if ($change[2] != $change[3]) {
 				if ($change[2] == '' || $change[2] == null || !isset($change[2])){
-					$change[0] = 1;
+					$change[0] = ' change_red';
 				} else if ($change[3] == '' || $change[3] == null || !isset($change[3])){
-					$change[0] = -1;
+					$change[0] = ' change_green';
 				} else {
-					$change[0] = 0;
+					$change[0] = ' change_change';
 				}
 				$changes[$i] = $change;
 			}
 		}
 		
+		//check steps
 		$stepStartIndex = count($changes);
-		$leftCount = count($left->steps);
-		$rightCount = count($right->steps);
+		
+		$leftSteps = array();
+		foreach($left->steps as $i=>$step){
+			$leftSteps[] = $this->stepToStr($i, $step);
+		}
+		$rightSteps = array();
+		foreach($right->steps as $i=>$step){
+			$rightSteps[] = $this->stepToStr($i, $step);
+		}
+		$leftCount = count($leftSteps);
+		$rightCount = count($rightSteps);
+		//$rightLastIndex=-1; //complex logic
+		$rightLastIndex=0;
+		$skipped = array();
+		$added = array();
+		$movedUp = array();
+		$alignIndex = 0;
+		foreach($leftSteps as $i=>$leftStep){
+			$found=false;
+			/* complex logic, showing move up/down changes
+			$this->fixMoveUp($alignIndex, $i, $movedUp);
+			if (!$found && isset($rightSteps[$i-$alignIndex])){
+				$j=$i-$alignIndex;
+				if ($leftStep == $rightSteps[$j]){
+					//$this->addChange($alignIndex, $i, $j, $skipped, $changes, $rightLastIndex, $rightSteps, $changes,    $leftStep, $rightSteps[$j], 1);
+					$changeSign = $this->getChangeClass($alignIndex,$i,$j,$movedUp,$skipped);
+					$changes[] = array($changeSign, (($this->debug)?'1 ':'') . 'Step ' . ($i+1), $leftStep . (($this->debug)?'('.$alignIndex.')':''), $rightSteps[$j] . ' (Step '.($j+1).')', $i, $j, $alignIndex);
+					$this->removeSkipedLine($alignIndex, $i, $j, $movedUp, $skipped, $changes);
+					unset($rightSteps[$j]); // remove right step, so not reference 2 times
+					$this->fixMoveDown($alignIndex, $i, $j, $movedUp);
+					
+					$found = true;
+				}
+			}
+			if (!$found){
+				foreach($rightSteps as $j=>$rightStep){
+					if ($leftStep == $rightStep){
+						$this->checkSkipedLine($alignIndex, $i, $j, $skipped, $changes, $rightLastIndex, $rightSteps);
+						$rightLastIndex=$j;
+						
+						//$this->addChange($alignIndex, $i, $j, $skipped, $changes, $rightLastIndex, $rightSteps, $changes,    $leftStep, $rightStep, 4);
+						$changeSign = $this->getChangeClass($alignIndex,$i,$j,$movedUp,$skipped);
+						$changes[] = array($changeSign, (($this->debug)?'4 ':'') . 'Step ' . ($i+1), $leftStep . (($this->debug)?'('.$alignIndex.')':''), $rightStep . ' (Step '.($j+1).')', $i, $j, $alignIndex);
+						$this->removeSkipedLine($alignIndex, $i, $j, $movedUp, $skipped, $changes);
+						unset($rightSteps[$j]); // remove right step, so not reference 2 times
+						$this->fixMoveDown($alignIndex, $i, $j, $movedUp);
+						
+						$found = true;
+						break;
+					}
+				}
+			}
+			*/
+			//simple logic only add & remove
+			for ($j=$rightLastIndex; $j<$rightCount; $j++){
+				$rightStep = $rightSteps[$j];
+				if ($leftStep == $rightStep){
+					$this->checkSkipedLine($alignIndex, $i, $j, $skipped, $changes, $rightLastIndex, $rightSteps);
+					$rightLastIndex=$j+1;
+					
+					//$this->addChange($alignIndex, $i, $j, $skipped, $changes, $rightLastIndex, $rightSteps, $changes,    $leftStep, $rightStep, 4);
+					$changeSign = '';
+					$changes[] = array($changeSign, (($this->debug)?'4 ':'') . 'Step ' . ($i+1), $leftStep . (($this->debug)?'('.$alignIndex.')':''), $rightStep . ' (Step '.($j+1).')', $i, $j, $alignIndex);
+					unset($rightSteps[$j]); // remove right step, so not reference 2 times
+					$found = true;
+					break;
+				}
+			}
+			
+			if (!$found){
+				$changes[] = array(' change_add', (($this->debug)?'5 ':'') . 'Step ' . ($i+1), $leftStep . (($this->debug)?'('.$alignIndex.')':''), '', $i, -1, $alignIndex);
+				$added[$i] = count($changes)-1;
+			}
+		}
+		foreach($rightSteps as $k=>$skip){
+			if (!isset($skipped[$k])){
+				$changes[] = array(' change_remove', (($this->debug)?'6 ':'') . 'Step -', '', $skip . ' (Step '.($k+1).')', -1, $k, $alignIndex);
+				$skipped[$k] = count($changes)-1;
+			}
+		}
+		//$this->updateChangeClass($stepStartIndex, $changes, $skipped, $movedUp);
+		
+		/*
+		echo "<pre>\n";
+		print_r($changes);
+		echo "</pre>\n";
+		return;
+		*/
+		/*
 		$maxCount = ($leftCount>$rightCount)?$leftCount:$rightCount;
 		for($i=0;$i<$maxCount;$i++){
 			if ($leftCount>$i){
@@ -1585,7 +1898,7 @@ class RecipesController extends Controller
 			} else {
 				$rightStepLine = '';
 			}
-			$changes[] = array('-', 'Step ' . ($i+1), $leftStepLine, $rightStepLine);
+			$changes[] = array(' ', 'Step ' . ($i+1), $leftStepLine, $rightStepLine);
 		}
 		
 		$stepLength = count($changes);
@@ -1602,6 +1915,7 @@ class RecipesController extends Controller
 				$changes[$i] = $change;
 			}
 		}
+		*/
 		
 		$this->checkRenderAjax('historyCompare',array(
 			'model'=>$model,

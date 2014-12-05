@@ -170,9 +170,11 @@ See GPLv3.htm in the main folder for details.
 							try {
 								$data = array();
 								$returncode = -1;
-								exec('cat '. Yii::app()->params['lastSyncDateFile'], $data, $returncode);
-								if ($returncode == 0 && isset($data) && count($data)>0){
-									$lastUpdateDate = $data[0];
+								if (file_exists(Yii::app()->params['lastSyncDateFile'])){
+									exec('cat '. Yii::app()->params['lastSyncDateFile'], $data, $returncode);
+									if ($returncode == 0 && isset($data) && count($data)>0){
+										$lastUpdateDate = $data[0];
+									}
 								}
 							} catch(Exception $e){}
 							echo CHtml::link(sprintf($this->trans->GENERAL_SYNC_FROM_PLATFORM, $lastUpdateDate), array('site/syncFromPlatform'), array('class'=>'button navMenuListEntry syncButton' . $additionalClass)) . '<br>'."\n";

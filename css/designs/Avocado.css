@@ -205,20 +205,31 @@ div.mealOverview {
 }
 
 
-.historyCompareView .col0 {
-	width: 20%;
-	float: left;
+.historyCompareView .change_up {
+	background: url('../../pics/up.png') no-repeat scroll 0 0 navajowhite;
+	background-size: auto 100%;
+	padding-left: 2em;
+	box-sizing: border-box;
 }
-.historyCompareView .col1 {
-	width: 40%;
-	float: left;
-	background-color: lightgray;
+.historyCompareView .change_down {
+	background: url('../../pics/down.png') no-repeat scroll 0 0 navajowhite;
+	background-size: auto 100%;
+	padding-left: 2em;
+	box-sizing: border-box;
 }
-.historyCompareView .col2 {
-	width: 40%;
-	float: left;
-	background-color: lightgray;
+.historyCompareView .change_add {
+	background: url('../../pics/add.png') no-repeat scroll 0 0 lightgreen;
+	background-size: auto 100%;
+	padding-left: 2em;
+	box-sizing: border-box;
 }
+.historyCompareView .change_remove {
+	background: url('../../pics/remove.png') no-repeat scroll 0 0 lightcoral;
+	background-size: auto 100%;
+	padding-left: 2em;
+	box-sizing: border-box;
+}
+
 
 .historyCompareView .change_red {
 	background-color: lightcoral;
@@ -227,5 +238,20 @@ div.mealOverview {
 	background-color: lightgreen;
 }
 .historyCompareView .change_change {
-	background-color: lightgoldenrodyellow;
+	background-color: navajowhite;
+	/*
+bisque
+wheat
+navajowhite
+lightsalmon
+burlywood
+coral
+goldenrod
+sandybrown
+tan
+	*/
+}
+.historyCompareView .change {
+	color: red;
+	font-weight: bold;
 }

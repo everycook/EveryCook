@@ -20,24 +20,13 @@ $this->breadcrumbs=array(
 	$model->REC_ID=>array('view','id'=>$model->REC_ID),
 	'History',
 );
-
-$this->menu=array(
-	array('label'=>'List Recipes', 'url'=>array('index')),
-	array('label'=>'Update Recipes', 'url'=>array('update', 'id'=>$model->REC_ID)),
-	array('label'=>'Delete Recipes', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->REC_ID),'confirm'=>'Are you sure you want to delete this item?')),
-	array('label'=>'Manage Recipes', 'url'=>array('admin')),
-);
-
-$this->mainButtons = array(
-	array('label'=>$this->trans->GENERAL_EDIT, 'link_id'=>'middle_single', 'url'=>array('recipes/update',$this->getActionParams())),
-);
 ?>
 
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'recipes-history-form',
 	'enableAjaxValidation'=>false,
 	'method'=>'get',
-	'action'=>Yii::app()->createUrl('recipes/historyCompare', array_merge($this->getActionParams()/*, array('ajaxform'=>true)*/)),
+	'action'=>Yii::app()->createUrl('recipes/historyCompare', array_merge($this->getActionParams(), array('ajaxform'=>true))),
     //'htmlOptions'=>array(/*'enctype' => 'multipart/form-data', */'class'=>'ajaxupload'),
 )); ?>
 
@@ -47,17 +36,9 @@ $this->mainButtons = array(
 	?>
 	
 	<div class="details">
-		<div class="name">
-			<?php echo CHtml::link(CHtml::encode($model->__get('REC_NAME_' . Yii::app()->session['lang'])), array('view', 'id'=>$model->REC_ID)); ?>
-		</div>
-		<?php /*
-		<div class="detail_img">
-			<?php echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']))); ?>
-			<div class="img_auth"><?php if ($model->REC_IMG_ETAG == '') { echo '&nbsp;'; } else {echo '© by ' . $model->REC_IMG_AUTH; } ?></div>
-		</div>
-		*/ ?>
-		
-		<h1><?php printf($this->trans->TITLE_RECIPES_HISTORY); ?></h1>
+		<h1 class="name">
+			<?php echo CHtml::encode($model->__get('REC_NAME_' . Yii::app()->session['lang'])) . " - " . $this->trans->TITLE_RECIPES_HISTORY; ?>
+		</h1>
 		
 		<?php
 			$dateFormat = $this->trans->HISTORY_DATE_FORMAT;
@@ -81,15 +62,15 @@ $this->mainButtons = array(
 				echo ')</div>';
 				//compare version selection
 				echo '<div class="f-left">';
-					if ($i == 0){
+					if ($i == $last-1){
 						echo '<input type="radio" name="leftVersion" value="' . $historyEntry["CHANGED_ON"] . '" style="visibility:hidden"> ';
 					} else {
-						echo '<input type="radio" name="leftVersion" value="' . $historyEntry["CHANGED_ON"] . '"' . (($i == 1)?' checked="checked"':'') . '> ';
+						echo '<input type="radio" name="leftVersion" value="' . $historyEntry["CHANGED_ON"] . '"' . (($i == 0)?' checked="checked"':'') . '> ';
 					}
-					if ($i == $last){
+					if ($i == 0){
 						echo '<input type="radio" name="rightVersion" value="' . $historyEntry["CHANGED_ON"] . '" style="visibility:hidden"> ';
 					} else {
-						echo '<input type="radio" name="rightVersion" value="' . $historyEntry["CHANGED_ON"] . '"' . (($i == 0)?' checked="checked"':'') . '> ';
+						echo '<input type="radio" name="rightVersion" value="' . $historyEntry["CHANGED_ON"] . '"' . (($i == 1)?' checked="checked"':'') . '> ';
 					}
 				echo '</div>';
 				

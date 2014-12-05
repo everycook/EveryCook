@@ -20,16 +20,6 @@ $this->breadcrumbs=array(
 	$model->REC_ID,
 );
 
-$this->menu=array(
-	array('label'=>'List Recipes', 'url'=>array('index')),
-	array('label'=>'Update Recipes', 'url'=>array('update', 'id'=>$model->REC_ID)),
-	array('label'=>'Delete Recipes', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->REC_ID),'confirm'=>'Are you sure you want to delete this item?')),
-	array('label'=>'Manage Recipes', 'url'=>array('admin')),
-);
-
-$this->mainButtons = array(
-	array('label'=>$this->trans->GENERAL_EDIT, 'link_id'=>'middle_single', 'url'=>array('recipes/update',$this->getActionParams())),
-);
 ?>
 
 <div class="historyCompareView">
@@ -61,19 +51,23 @@ $this->mainButtons = array(
 			echo $rightModel["CHANGED_BY"] . '<br />';
 			echo '</div>';
 			echo '</div>';
-			$i = 1;
+			$i = 0;
 			foreach($changes as $change){
 				if ($i < $stepStartIndex){
 					echo '<div class="recipeChange clearfix">';
 					echo '<div class="col0">' . $change[1] . '&nbsp;</div>';
-					echo '<div class="col1' . (($change[0]==1)?' change_red':(($change[0]==-1)?' change_green':(($change[0]===0)?' change_change':''))) . '">' . $change[2] . '&nbsp;</div>';
-					echo '<div class="col2' . (($change[0]==-1)?' change_red':(($change[0]==1)?' change_green':(($change[0]===0)?' change_change':''))) . '">' . $change[3] . '&nbsp;</div>';
+					echo '<div class="col1' . $change[0]. '">' . $change[2] . '&nbsp;</div>';
+					echo '<div class="col2">' . $change[3] . '&nbsp;</div>';
 					echo '</div>';
 				} else {
-					echo '<div class="step clearfix">';
+					echo '<div class="stepChange clearfix">';
 					echo '<div class="col0">' . $change[1] . '&nbsp;</div>';
-					echo '<div class="col1' . (($change[0]==1)?' change_red':(($change[0]==-1)?' change_green':(($change[0]===0)?' change_change':''))) . '">' . $change[2] . '&nbsp;</div>';
-					echo '<div class="col2' . (($change[0]==-1)?' change_red':(($change[0]==1)?' change_green':(($change[0]===0)?' change_change':''))) . '">' . $change[3] . '&nbsp;</div>';
+					//complex logic
+					//echo '<div class="col1' . $change[0] . '">' . $change[2] . $change[6] . '&nbsp;</div>';
+					//echo '<div class="col2">' . $change[3] . '&nbsp;</div>';
+					//simple logic
+					echo '<div class="col1' . (($change[0]!=' change_remove')?$change[0]:'') . '">' . $change[2] . (($this->debug)?$change[6]:'') . '&nbsp;</div>';
+					echo '<div class="col2' . (($change[0]==' change_remove')?$change[0]:'') . '">' . $change[3] . '&nbsp;</div>';
 					echo '</div>';
 				}
 				$i++;

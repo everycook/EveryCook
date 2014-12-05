@@ -602,7 +602,7 @@ div.detailView .backbutton {
 	margin-bottom: 2em;
 }
 
-div.detailView div.name {
+div.detailView .details .name {
 	font-weight:bold;
 	font-size:2.0em;
 	margin-bottom:0.4em;
@@ -1503,6 +1503,31 @@ div.mealView span.value {
 
 .cookAssistant .recipeSteps .recipeStep .stepHeader .middleware.connected > div {
 	background-color: green;
+}
+
+
+.history.button {
+	margin-bottom: 0.7em;
+}
+
+
+div.historyOverview .backbutton {
+	margin-bottom:0.4em;
+}
+
+div.historyOverview .name {
+	font-weight:bold;
+	font-size:2.0em;
+	margin-bottom:0.4em;
+}
+div.historyOverview .buttons {
+	margin-top: 0.7em;
+}
+
+
+
+.historyCompareView .step {
+	display:inline-block
 }
 
 

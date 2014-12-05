@@ -240,8 +240,13 @@ class CookAssistantController extends Controller {
 			$cou_gda = $meal_gda * $meaToCou['MTC_PERC_MEAL'] / 100;
 			$rec_gda = $cou_gda * $couToRec['CTR_REC_PROC'] / 100;
 			$rec_kcal = $recipe->REC_KCAL;
+			$rec_servings = $recipe->REC_SERVING_COUNT;
 			if ($rec_kcal != 0){
-				$rec_proz = $rec_gda / $rec_kcal;
+				if ($rec_servings <= 0){
+					$rec_proz = $rec_gda / $rec_kcal;
+				} else {
+					$rec_proz = $rec_gda / ($rec_kcal * $rec_servings);
+				}
 			} else {
 				//TODO: this is a data error!, or a recipe without ingredients .... ?
 				$rec_proz = 1;

@@ -28,9 +28,11 @@ $this->menu=array(
 	array('label'=>'Manage Recipes', 'url'=>array('admin')),
 );
 
-$this->mainButtons = array(
-	array('label'=>$this->trans->GENERAL_EDIT, 'link_id'=>'middle_single', 'url'=>array('recipes/update',$this->getActionParams())),
-);
+if (!$history){
+	$this->mainButtons = array(
+		array('label'=>$this->trans->GENERAL_EDIT, 'link_id'=>'middle_single', 'url'=>array('recipes/update',$this->getActionParams())),
+	);
+}
 ?>
 
 <div class="detailView">
@@ -46,10 +48,12 @@ $this->mainButtons = array(
 	
 	<div class="options">
 		<?php
-		echo CHtml::link('&nbsp;', array('delicious', 'id'=>$model->REC_ID), array('class'=>'delicious_big noAjax backpic f-left', 'title'=>$this->trans->GENERAL_DELICIOUS));
-		//echo CHtml::link('+', array('user/addrecipes', 'id'=>$model->REC_ID), array('class'=>'button addRecipe', 'title'=>$this->trans->RECIPES_ADD));
-		echo CHtml::link('&nbsp;', array('meals/mealPlanner', 'rec_id'=>$model->REC_ID), array('class'=>'cookwith_big backpic f-right', 'title'=>$this->trans->RECIPES_MEALPLANNER));
-		echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$model->REC_ID), array('class'=>'disgusting_big noAjax backpic f-center','title'=>$this->trans->GENERAL_DISGUSTING));
+		if (!$history){
+			echo CHtml::link('&nbsp;', array('delicious', 'id'=>$model->REC_ID), array('class'=>'delicious_big noAjax backpic f-left', 'title'=>$this->trans->GENERAL_DELICIOUS));
+			//echo CHtml::link('+', array('user/addrecipes', 'id'=>$model->REC_ID), array('class'=>'button addRecipe', 'title'=>$this->trans->RECIPES_ADD));
+			echo CHtml::link('&nbsp;', array('meals/mealPlanner', 'rec_id'=>$model->REC_ID), array('class'=>'cookwith_big backpic f-right', 'title'=>$this->trans->RECIPES_MEALPLANNER));
+			echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$model->REC_ID), array('class'=>'disgusting_big noAjax backpic f-center','title'=>$this->trans->GENERAL_DISGUSTING));
+		}
 		?>
 		<div class="otherItems ingredients">
 			<?php echo CHtml::encode($this->trans->RECIPES_INGREDIENTS_NEEDED); ?>
@@ -77,7 +81,7 @@ $this->mainButtons = array(
 		</div>
 	</div>
 	<div class="details">
-		<div class="name">
+		<h1 class="name">
 			<?php
 				if ($history){
 					$dateFormat = $this->trans->HISTORY_DATE_FORMAT;
@@ -86,8 +90,8 @@ $this->mainButtons = array(
 					echo CHtml::link(CHtml::encode($model->__get('REC_NAME_' . Yii::app()->session['lang'])), array('view', 'id'=>$model->REC_ID));
 				}
 			?>
-		</div>
-		<div class="history">
+		</h1>
+		<div class="button history">
 			<?php echo CHtml::link($this->trans->RECIPES_HISTORY, array('history', 'id'=>$model->REC_ID)); ?>
 		</div>
 		<div class="detail_img">
