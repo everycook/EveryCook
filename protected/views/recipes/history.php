@@ -107,7 +107,7 @@ $this->breadcrumbs=array(
 		'RET_ID',
 		'REC_KCAL',
 		'REC_HAS_ALLERGY_INFO',
-		'REC_SUMMERY',
+		'REC_SUMMARY',
 		'REC_APPROVED',
 		'REC_SERVING_COUNT',
 		'REC_WIKI_LINK',

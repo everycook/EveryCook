@@ -74,8 +74,8 @@ if ($this->isFancyAjaxRequest){ ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'REC_SUMMERY'); ?>
-		<?php echo $form->textField($model,'REC_SUMMERY',array('size'=>60,'maxlength'=>200)); ?>
+		<?php echo $form->label($model,'REC_SUMMARY'); ?>
+		<?php echo $form->textField($model,'REC_SUMMARY',array('size'=>60,'maxlength'=>200)); ?>
 	</div>
 
 	<div class="row">

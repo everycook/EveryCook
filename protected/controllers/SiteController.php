@@ -29,10 +29,105 @@ class SiteController extends Controller
 		$this->checkRenderAjax('admin');
 	}
 	
+	private function getSuggestionRecipe($type, $param2){
+		if ($type == 1){ //random
+			/*
+			//$recipe=Recipes::model()->findByPk($id);
+			$recipe=null;
+			$tryCount=0;
+			while ($recipe===null && $tryCount < 10) {
+				$id = mt_rand(1, $param2);
+				//$recipe=Recipes::model()->findByPk($id);
+				$command = Yii::app()->db->createCommand()
+					->from('recipes')
+					->where('REC_ID = :id', array(':id'=>$id));
+				$recipe = $command->queryAll();
+				if (count($recipe) === 0){
+					$recipe = null;
+				}
+				$tryCount++;
+			}
+			*/
+			$pos = mt_rand(0, $param2-1);
+			$command = Yii::app()->db->createCommand()
+				->from('recipes')
+				->limit(1,$pos);
+			$recipe = $command->queryAll();
+			return $recipe[0];
+		} else if ($type == 2){ //most popular
+			$command = Yii::app()->db->createCommand()
+				->select('count(recipe_cooked_infos.RCI_ID) as timesCooked, recipes.*')
+				->from('recipes')
+				->leftJoin('recipe_cooked_infos', 'recipe_cooked_infos.REC_ID = recipes.REC_ID')
+				->group("recipes.REC_ID")
+				->order('timesCooked desc')
+				->limit(1,0);
+			$recipe = $command->queryAll();
+			return $recipe[0];
+		} else if ($type == 3){ //last cooked
+			$command = Yii::app()->db->createCommand()
+				->select('recipe_cooked_infos.RCI_COOK_DATE, recipes.*')
+				->from('recipes')
+				->leftJoin('recipe_cooked_infos', 'recipe_cooked_infos.REC_ID = recipes.REC_ID')
+				->where('recipe_cooked_infos.PRF_UID = :id', array(':id'=>$param2))
+				->order('recipe_cooked_infos.RCI_COOK_DATE desc')
+				->limit(1,0);
+			$recipe = $command->queryAll();
+			//print_r($command); die();
+			if (count($recipe) == 0){
+				return getSuggestionRecipe(2, '');
+			}
+			return $recipe[0];
+		}
+	}
+	
 	/**
 	 * This is the default 'index' action that is invoked
 	 * when an action is not explicitly requested by users.
 	 */
+	public function actionIndex()
+	{
+		if (!$this->getIsAjaxRequest() && isset(Yii::app()->session['ajaxSession']) && Yii::app()->session['ajaxSession']){
+			$this->layout='//layouts/main';
+			$this->checkRenderAjax('empty');
+		} else {
+			$this->useDefaultMainButtons();
+			// renders the view file 'protected/views/site/index.php'
+			// using the default layout 'protected/views/layouts/main.php'
+			
+				
+			//read max amount
+			$command = Yii::app()->db->createCommand()
+				->select('count(*)')
+				->from('recipes');
+			$recipeAmount = $command->queryScalar();
+			
+			$suggestedRecipes = array();
+			//Top left
+			$suggestedRecipes["top_left"] = array("Suggestion", $this->getSuggestionRecipe(1, $recipeAmount));
+			
+			//bottom_left
+			if(Yii::app()->user->isGuest) {
+				$suggestedRecipes["bottom_left"] = array("Most Popular", $this->getSuggestionRecipe(2, ''));
+			} else {
+				$suggestedRecipes["bottom_left"] = array("Suggestion", $this->getSuggestionRecipe(1, $recipeAmount));
+			}
+			
+			//top_right
+			if(Yii::app()->user->isGuest) {
+				//$suggestedRecipes["top_right"] = array("Wolrd cuisine");
+				$suggestedRecipes["top_right"] = array("Suggestion", $this->getSuggestionRecipe(1, $recipeAmount));
+			} else {
+				$suggestedRecipes["top_right"] = array("Last cooked", $this->getSuggestionRecipe(3, yii::app()->user->id));
+			}
+			
+			$this->checkRenderAjax('index', array(
+				'suggestedRecipes'=>$suggestedRecipes,
+			));
+		}
+	}
+	
+	/*
 	public function actionIndex()
 	{
 		if (!$this->getIsAjaxRequest() && isset(Yii::app()->session['ajaxSession']) && Yii::app()->session['ajaxSession']){
@@ -127,6 +222,7 @@ class SiteController extends Controller
 			echo ']}';
 		}
 	}
+	*/
 
 	/**
 	 * This is the action to handle external exceptions.

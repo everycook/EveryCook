@@ -78,8 +78,8 @@ See GPLv3.htm in the main folder for details.
 		<?php echo CHtml::encode($data->REC_HAS_ALLERGY_INFO); ?>
 		<br />
 
-		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_SUMMERY')); ?>:</b>
-		<?php echo CHtml::encode($data->REC_SUMMERY); ?>
+		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_SUMMARY')); ?>:</b>
+		<?php echo CHtml::encode($data->REC_SUMMARY); ?>
 		<br />
 
 		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_APPROVED')); ?>:</b>

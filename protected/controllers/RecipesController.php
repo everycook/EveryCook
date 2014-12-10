@@ -24,7 +24,7 @@ class RecipesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','chooseRecipe','advanceChooseRecipe','chooseTemplateRecipe','advanceChooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory'),
+				'actions'=>array('index','view','search','advanceSearch','searchFridge','displaySavedImage','chooseRecipe','advanceChooseRecipe','chooseTemplateRecipe','advanceChooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -1248,15 +1248,18 @@ class RecipesController extends Controller
 		if ($criteria != null){
 			Yii::app()->session[$this->searchBackup] = array('time'=>time());
 			
-			$rows = Yii::app()->db->createCommand()
+			$command = Yii::app()->db->createCommand()
 				->from('recipes')
-				->leftJoin('recipe_types', 'recipes.RET_ID=recipe_types.RET_ID')
+				->leftJoin('recipe_types', 'recipes.RET_ID=recipe_types.RET_ID');
+				if (strpos($criteria->condition, 'steps') !== false){
+					$command->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID');
+				}
 				//->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID')
 				//->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID')
 				//->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID')
-				->where($criteria->condition, $criteria->params)
+				$command->where($criteria->condition, $criteria->params);
 				//->order('steps.STE_STEP_NO')
-				->queryAll();
+			$rows = $command->queryAll();
 		} else if($ing_id !== null){
 			$Session_Recipe = array();
 			$Session_Recipe['ing_id'] = $ing_id;
@@ -1342,6 +1345,24 @@ class RecipesController extends Controller
 		$this->isFancyAjaxRequest = true;
 		$this->isTemplateChoose = true;
 		$this->prepareSearch('advanceSearch', 'none', null);
+	}
+	public function actionSearchFridge(){
+		if(!isset($_GET['query'])){
+			$this->prepareSearch('search', null, null);
+			return;
+		}
+		$query = $_GET['query'];
+		unset($_GET['query']);
+		$command = Yii::app()->db->createCommand()
+			->select('ING_ID')
+			->from('ingredients')
+			->where('ING_NAME_' . Yii::app()->session['lang'] . ' LIKE :query',array(':query'=>'%'.$query.'%'));
+		$ids = $command->queryColumn();
+		
+		$criteria=new CDbCriteria;
+		$criteria->compare(Steps::model()->tableName().'.ING_ID',$ids);
+		
+		$this->prepareSearch('search', null, $criteria);
 	}
 	
 	public function actionShowLike(){

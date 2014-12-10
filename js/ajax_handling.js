@@ -1141,6 +1141,7 @@ jQuery(function($){
 	});
 	
 	//Startpage
+	/*
 	jQuery('body').undelegate('.startpage .up','click').delegate('.startpage .up','click', function(){
 		nextStartPic(jQuery(this), -1);
 	});
@@ -1177,6 +1178,7 @@ jQuery(function($){
 			},
 		});
 	}
+	*/
 	
 	//ingredientDetail
 	jQuery('body').undelegate('.up-arrow','click').delegate('.up-arrow','click', function(){
