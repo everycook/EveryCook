@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -25,8 +25,12 @@
  * {@link setFetchMode FetchMode}. See {@link http://www.php.net/manual/en/function.PDOStatement-setFetchMode.php}
  * for more details.
  *
+ * @property boolean $isClosed Whether the reader is closed or not.
+ * @property integer $rowCount Number of rows contained in the result.
+ * @property integer $columnCount The number of columns in the result set.
+ * @property mixed $fetchMode Fetch mode.
+ *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: CDbDataReader.php 3204 2011-05-05 21:36:32Z alexander.makarow $
  * @package system.db
  * @since 1.0
  */
@@ -133,7 +137,7 @@ class CDbDataReader extends CComponent implements Iterator, Countable
 	/**
 	 * Closes the reader.
 	 * This frees up the resources allocated for executing this SQL statement.
-	 * Read attemps after this method call are unpredictable.
+	 * Read attempts after this method call are unpredictable.
 	 */
 	public function close()
 	{

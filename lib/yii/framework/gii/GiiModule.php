@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -62,8 +62,9 @@ Yii::import('system.gii.CCodeForm');
  *
  * http://localhost/path/to/index.php/gii
  *
+ * @property string $assetsUrl The base URL that contains all published asset files of gii.
+ *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: GiiModule.php 3276 2011-06-15 14:21:12Z alexander.makarow $
  * @package system.gii
  * @since 1.1.2
  */
@@ -113,16 +114,21 @@ class GiiModule extends CWebModule
 	public function init()
 	{
 		parent::init();
+		Yii::setPathOfAlias('gii',dirname(__FILE__));
 		Yii::app()->setComponents(array(
 			'errorHandler'=>array(
 				'class'=>'CErrorHandler',
-				'errorAction'=>'gii/default/error',
+				'errorAction'=>$this->getId().'/default/error',
 			),
 			'user'=>array(
 				'class'=>'CWebUser',
 				'stateKeyPrefix'=>'gii',
-				'loginUrl'=>Yii::app()->createUrl('gii/default/login'),
+				'loginUrl'=>Yii::app()->createUrl($this->getId().'/default/login'),
 			),
+			'widgetFactory' => array(
+				'class'=>'CWidgetFactory',
+				'widgets' => array()
+			)
 		), false);
 		$this->generatorPaths[]='gii.generators';
 		$this->controllerMap=$this->findGenerators();
@@ -152,6 +158,7 @@ class GiiModule extends CWebModule
 	 * to access actions other than "default/login" and "default/error".
 	 * @param CController $controller the controller to be accessed.
 	 * @param CAction $action the action to be accessed.
+	 * @throws CHttpException if access denied
 	 * @return boolean whether the action should be executed.
 	 */
 	public function beforeControllerAction($controller, $action)
@@ -193,6 +200,7 @@ class GiiModule extends CWebModule
 
 	/**
 	 * Finds all available code generators and their code templates.
+	 * @return array
 	 */
 	protected function findGenerators()
 	{

@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -22,8 +22,10 @@
  * Note, the user specified view can only contain word characters, dots and dashes and
  * the first letter must be a word letter.
  *
+ * @property string $requestedView The name of the view requested by the user.
+ * This is in the format of 'path.to.view'.
+ *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: CViewAction.php 2799 2011-01-01 19:31:13Z qiang.xue $
  * @package system.web.actions
  * @since 1.0
  */
@@ -79,7 +81,7 @@ class CViewAction extends CAction
 	{
 		if($this->_viewPath===null)
 		{
-			if(!empty($_GET[$this->viewParam]))
+			if(!empty($_GET[$this->viewParam]) && is_string($_GET[$this->viewParam]))
 				$this->_viewPath=$_GET[$this->viewParam];
 			else
 				$this->_viewPath=$this->defaultView;

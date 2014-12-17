@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -14,8 +14,12 @@
  * Do not create a CAuthAssignment instance using the 'new' operator.
  * Instead, call {@link IAuthManager::assign}.
  *
+ * @property mixed $userId User ID (see {@link IWebUser::getId}).
+ * @property string $itemName The authorization item name.
+ * @property string $bizRule The business rule associated with this assignment.
+ * @property mixed $data Additional data for this assignment.
+ *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: CAuthAssignment.php 3001 2011-02-24 16:42:44Z alexander.makarow $
  * @package system.web.auth
  * @since 1.0
  */

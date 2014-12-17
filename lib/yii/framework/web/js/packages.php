@@ -7,7 +7,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -44,7 +44,7 @@ return array(
 		'depends'=>array('jquery', 'bgiframe', 'ajaxqueue'),
 	),
 	'maskedinput'=>array(
-		'js'=>array('jquery.maskedinput.js'),
+		'js'=>array(YII_DEBUG ? 'jquery.maskedinput.js' : 'jquery.maskedinput.min.js'),
 		'depends'=>array('jquery'),
 	),
 	'cookie'=>array(
@@ -68,7 +68,14 @@ return array(
 		'depends'=>array('jquery'),
 	),
 	'bbq'=>array(
-		'js'=>array('jquery.ba-bbq.js'),
+		'js'=>array(YII_DEBUG ? 'jquery.ba-bbq.js' : 'jquery.ba-bbq.min.js'),
 		'depends'=>array('jquery'),
+	),
+	'history'=>array(
+		'js'=>array('jquery.history.js'),
+		'depends'=>array('jquery'),
+	),
+	'punycode'=>array(
+		'js'=>array(YII_DEBUG ? 'punycode.js' : 'punycode.min.js'),
 	),
 );

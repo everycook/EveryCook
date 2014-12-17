@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -35,8 +35,9 @@
  *
  * When {@link cachingDuration} is set as a positive number, message translations will be cached.
  *
+ * @property CDbConnection $dbConnection The DB connection used for the message source.
+ *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: CDbMessageSource.php 3069 2011-03-14 00:28:38Z qiang.xue $
  * @package system.i18n
  * @since 1.0
  */
@@ -64,7 +65,6 @@ class CDbMessageSource extends CMessageSource
 	 * @var string the ID of the cache application component that is used to cache the messages.
 	 * Defaults to 'cache' which refers to the primary cache application component.
 	 * Set this property to false if you want to disable caching the messages.
-	 * @since 1.0.10
 	 */
 	public $cacheID='cache';
 
@@ -95,6 +95,7 @@ class CDbMessageSource extends CMessageSource
 
 	/**
 	 * Returns the DB connection used for the message source.
+	 * @throws CException if {@link connectionID} application component is invalid
 	 * @return CDbConnection the DB connection used for the message source.
 	 * @since 1.1.5
 	 */

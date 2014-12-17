@@ -4,7 +4,7 @@
  *
  * @author Wei Zhuo <weizhuo[at]gamil[dot]com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -27,7 +27,6 @@
  * to the PHP manual for more information.
  *
  * @author Wei Zhuo <weizhuo[at]gmail[dot]com>
- * @version $Id: CTimestamp.php 3254 2011-06-11 00:10:54Z keyboard.idol@gmail.com $
  * @package system.utils
  * @since 1.0
  */
@@ -99,7 +98,7 @@ class CTimestamp
 		if ($year % 400 == 0)
 			return true;
 		// if gregorian calendar (>1582), century not-divisible by 400 is not leap
-		else if ($year > 1582 && $year % 100 == 0 )
+		elseif ($year > 1582 && $year % 100 == 0 )
 			return false;
 		return true;
 	}
@@ -198,7 +197,6 @@ class CTimestamp
 	 * @param integer $s second
 	 * @param boolean $hs24 whether the hours should be 0 through 23 (default) or 1 through 12.
 	 * @return boolean true if valid date, semantic check only.
-	 * @since 1.0.5
 	 */
 	public static function isValidTime($h,$m,$s,$hs24=true)
 	{
@@ -289,8 +287,8 @@ class CTimestamp
 			case 'S':
 				$d10 = $day % 10;
 				if ($d10 == 1) $dates .= 'st';
-				else if ($d10 == 2 && $day != 12) $dates .= 'nd';
-				else if ($d10 == 3) $dates .= 'rd';
+				elseif ($d10 == 2 && $day != 12) $dates .= 'nd';
+				elseif ($d10 == 3) $dates .= 'rd';
 				else $dates .= 'th';
 				break;
 

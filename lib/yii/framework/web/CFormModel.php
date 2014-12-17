@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -20,7 +20,6 @@
  * the attributes.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: CFormModel.php 2799 2011-01-01 19:31:13Z qiang.xue $
  * @package system.web
  * @since 1.0
  */
@@ -47,7 +46,6 @@ class CFormModel extends CModel
 	 * This method is invoked in the constructor right after {@link scenario} is set.
 	 * You may override this method to provide code that is needed to initialize the model (e.g. setting
 	 * initial property values.)
-	 * @since 1.0.8
 	 */
 	public function init()
 	{

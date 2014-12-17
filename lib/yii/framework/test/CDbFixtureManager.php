@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -12,7 +12,7 @@
  * CDbFixtureManager manages database fixtures during tests.
  *
  * A fixture represents a list of rows for a specific table. For a test method,
- * using a fixture means that at the begin of the method, the table has and only
+ * using a fixture means that at the beginning of the method, the table has and only
  * has the rows that are given in the fixture. Therefore, the table's state is
  * predictable.
  *
@@ -31,8 +31,10 @@
  * the database. If this file is not found, all available fixtures will be loaded
  * into the database.
  *
+ * @property CDbConnection $dbConnection The database connection.
+ * @property array $fixtures The information of the available fixtures (table name => fixture file).
+ *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: CDbFixtureManager.php 3001 2011-02-24 16:42:44Z alexander.makarow $
  * @package system.test
  * @since 1.1
  */
@@ -87,6 +89,7 @@ class CDbFixtureManager extends CApplicationComponent
 
 	/**
 	 * Returns the database connection used to load fixtures.
+	 * @throws CException if {@link connectionID} application component is invalid
 	 * @return CDbConnection the database connection
 	 */
 	public function getDbConnection()
@@ -173,7 +176,7 @@ class CDbFixtureManager extends CApplicationComponent
 			{
 				if(is_string($primaryKey) && !isset($row[$primaryKey]))
 					$row[$primaryKey]=$builder->getLastInsertID($table);
-				else if(is_array($primaryKey))
+				elseif(is_array($primaryKey))
 				{
 					foreach($primaryKey as $pk)
 					{
@@ -237,6 +240,7 @@ class CDbFixtureManager extends CApplicationComponent
 	 * You may need to call {@link checkIntegrity} to turn off integrity check temporarily
 	 * before you call this method.
 	 * @param string $tableName the table name
+	 * @throws CException if given table does not exist
 	 */
 	public function truncateTable($tableName)
 	{
@@ -296,9 +300,9 @@ class CDbFixtureManager extends CApplicationComponent
 			{
 				$modelClass=Yii::import($tableName,true);
 				$tableName=CActiveRecord::model($modelClass)->tableName();
-				if(($prefix=$this->getDbConnection()->tablePrefix)!==null)
-					$tableName=preg_replace('/{{(.*?)}}/',$prefix.'\1',$tableName);
 			}
+			if(($prefix=$this->getDbConnection()->tablePrefix)!==null)
+				$tableName=preg_replace('/{{(.*?)}}/',$prefix.'\1',$tableName);
 			$this->resetTable($tableName);
 			$rows=$this->loadFixture($tableName);
 			if(is_array($rows) && is_string($fixtureName))

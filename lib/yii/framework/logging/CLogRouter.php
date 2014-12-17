@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -32,7 +32,7 @@
  *                 array(
  *                     'class'=>'CEmailLogRoute',
  *                     'levels'=>'error, warning',
- *                     'email'=>'admin@example.com',
+ *                     'emails'=>array('admin@example.com'),
  *                 ),
  *             ),
  *         ),
@@ -43,8 +43,9 @@
  * You can specify multiple routes with different filtering conditions and different
  * targets, even if the routes are of the same type.
  *
+ * @property array $routes The currently initialized routes.
+ *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: CLogRouter.php 3066 2011-03-13 14:22:55Z qiang.xue $
  * @package system.logging
  * @since 1.0
  */

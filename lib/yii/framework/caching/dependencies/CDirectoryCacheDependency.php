@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -25,7 +25,6 @@
  * accessing modification time of multiple files under the directory.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: CDirectoryCacheDependency.php 2799 2011-01-01 19:31:13Z qiang.xue $
  * @package system.caching.dependencies
  * @since 1.0
  */
@@ -61,6 +60,7 @@ class CDirectoryCacheDependency extends CCacheDependency
 	/**
 	 * Generates the data needed to determine if dependency has been changed.
 	 * This method returns the modification timestamps for files under the directory.
+	 * @throws CException if {@link directory} is empty
 	 * @return mixed the data needed to determine if dependency has been changed.
 	 */
 	protected function generateDependentData()
@@ -76,6 +76,7 @@ class CDirectoryCacheDependency extends CCacheDependency
 	 * This method may go recursively into subdirectories if {@link recursiveLevel} is not 0.
 	 * @param string $directory the directory name
 	 * @param integer $level level of the recursion
+	 * @throws CException if given directory is not valid
 	 * @return array list of file modification time indexed by the file path
 	 */
 	protected function generateTimestamps($directory,$level=0)
@@ -99,7 +100,7 @@ class CDirectoryCacheDependency extends CCacheDependency
 			else
 			{
 				if(($this->recursiveLevel<0 || $level<$this->recursiveLevel) && $this->validateDirectory($path))
-					$timestamps=array_merge($this->generateTimestamps($path,$level+1));
+					$timestamps=array_merge($timestamps, $this->generateTimestamps($path,$level+1));
 			}
 		}
 		closedir($dir);

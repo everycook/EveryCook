@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -20,8 +20,9 @@
  * is NOT volatile. If you want to use {@link CDbCache} as storage medium, use {@link CDbHttpSession}
  * is a better choice.
  *
+ * @property boolean $useCustomStorage Whether to use custom storage.
+ *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: CCacheHttpSession.php 2799 2011-01-01 19:31:13Z qiang.xue $
  * @package system.web
  * @since 1.0
  */

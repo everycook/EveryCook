@@ -11,21 +11,6 @@
  */
 ?>
 <?php echo "<?php\n"; ?>
-/*
-This is the EveryCook Recipe Database. It is a web application for creating (and storing) machine (and human) readable recipes.
-These recipes are linked to foods and suppliers to allow meal planning and shopping list creation. It also guides the user step-by-step through the recipe with the CookAssistant
-EveryCook is an open source platform for collecting all data about food and make it available to all kinds of cooking devices.
-
-This program is copyright (C) by EveryCook. Written by Samuel Werder, Matthias Flierl and Alexis Wiasmitinow.
-
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-See GPLv3.htm in the main folder for details.
-*/
 
 /**
  * This is the model class for table "<?php echo $tableName; ?>".
@@ -68,15 +53,6 @@ See GPLv3.htm in the main folder for details.
 class <?php echo $modelClass; ?> extends <?php echo $this->baseClass."\n"; ?>
 {
 	/**
-	 * Returns the static model of the specified AR class.
-	 * @return <?php echo $modelClass; ?> the static model class
-	 */
-	public static function model($className=__CLASS__)
-	{
-		return parent::model($className);
-	}
-
-	/**
 	 * @return string the associated database table name
 	 */
 	public function tableName()
@@ -96,7 +72,7 @@ class <?php echo $modelClass; ?> extends <?php echo $this->baseClass."\n"; ?>
 			<?php echo $rule.",\n"; ?>
 <?php endforeach; ?>
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
+			// @todo Please remove those attributes that should not be searched.
 			array('<?php echo implode(', ', array_keys($columns)); ?>', 'safe', 'on'=>'search'),
 		);
 	}
@@ -129,12 +105,19 @@ class <?php echo $modelClass; ?> extends <?php echo $this->baseClass."\n"; ?>
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
-	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+	 *
+	 * Typical usecase:
+	 * - Initialize the model fields with values from filter form.
+	 * - Execute this method to get CActiveDataProvider instance which will filter
+	 * models according to data in model fields.
+	 * - Pass data provider to CGridView, CListView or any similar widget.
+	 *
+	 * @return CActiveDataProvider the data provider that can return the models
+	 * based on the search/filter conditions.
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
+		// @todo Please modify the following code to remove attributes that should not be searched.
 
 		$criteria=new CDbCriteria;
 
@@ -155,5 +138,26 @@ foreach($columns as $name=>$column)
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
+	}
+
+<?php if($connectionId!='db'):?>
+	/**
+	 * @return CDbConnection the database connection used for this class
+	 */
+	public function getDbConnection()
+	{
+		return Yii::app()-><?php echo $connectionId ?>;
+	}
+
+<?php endif?>
+	/**
+	 * Returns the static model of the specified AR class.
+	 * Please note that you should have this exact method in all your CActiveRecord descendants!
+	 * @param string $className active record class name.
+	 * @return <?php echo $modelClass; ?> the static model class
+	 */
+	public static function model($className=__CLASS__)
+	{
+		return parent::model($className);
 	}
 }

@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -57,7 +57,7 @@
  * }
  * catch(Exception $e)
  * {
- *    $transaction->rollBack();
+ *    $transaction->rollback();
  * }
  * </pre>
  *
@@ -78,8 +78,28 @@
  * )
  * </pre>
  *
+ * @property boolean $active Whether the DB connection is established.
+ * @property PDO $pdoInstance The PDO instance, null if the connection is not established yet.
+ * @property CDbTransaction $currentTransaction The currently active transaction. Null if no active transaction.
+ * @property CDbSchema $schema The database schema for the current connection.
+ * @property CDbCommandBuilder $commandBuilder The command builder.
+ * @property string $lastInsertID The row ID of the last row inserted, or the last value retrieved from the sequence object.
+ * @property mixed $columnCase The case of the column names.
+ * @property mixed $nullConversion How the null and empty strings are converted.
+ * @property boolean $autoCommit Whether creating or updating a DB record will be automatically committed.
+ * @property boolean $persistent Whether the connection is persistent or not.
+ * @property string $driverName Name of the DB driver.
+ * @property string $clientVersion The version information of the DB driver.
+ * @property string $connectionStatus The status of the connection.
+ * @property boolean $prefetch Whether the connection performs data prefetching.
+ * @property string $serverInfo The information of DBMS server.
+ * @property string $serverVersion The version information of DBMS server.
+ * @property integer $timeout Timeout settings for the connection.
+ * @property array $attributes Attributes (name=>value) that are previously explicitly set for the DB connection.
+ * @property array $stats The first element indicates the number of SQL statements executed,
+ * and the second element the total time spent in SQL execution.
+ *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: CDbConnection.php 3255 2011-06-13 12:39:41Z alexander.makarow $
  * @package system.db
  * @since 1.0
  */
@@ -118,7 +138,6 @@ class CDbConnection extends CApplicationComponent
 	 * @var string the ID of the cache application component that is used to cache the table metadata.
 	 * Defaults to 'cache' which refers to the primary cache application component.
 	 * Set this property to false if you want to disable caching table metadata.
-	 * @since 1.0.10
 	 */
 	public $schemaCacheID='cache';
 	/**
@@ -138,7 +157,7 @@ class CDbConnection extends CApplicationComponent
 	 */
 	public $queryCachingDuration=0;
 	/**
-	 * @var CCacheDependency the dependency that will be used when saving query results into cache.
+	 * @var CCacheDependency|ICacheDependency the dependency that will be used when saving query results into cache.
 	 * @see queryCachingDuration
 	 * @since 1.1.7
 	 */
@@ -188,14 +207,12 @@ class CDbConnection extends CApplicationComponent
 	 * so that parameter values bound to SQL statements are logged for debugging purpose.
 	 * You should be aware that logging parameter values could be expensive and have significant
 	 * impact on the performance of your application.
-	 * @since 1.0.5
 	 */
 	public $enableParamLogging=false;
 	/**
 	 * @var boolean whether to enable profiling the SQL statements being executed.
 	 * Defaults to false. This should be mainly enabled and used during development
 	 * to find out the bottleneck of SQL executions.
-	 * @since 1.0.6
 	 */
 	public $enableProfiling=false;
 	/**
@@ -326,7 +343,8 @@ class CDbConnection extends CApplicationComponent
 	 * without actually executing the SQL statement.
 	 * @param integer $duration the number of seconds that query results may remain valid in cache.
 	 * If this is 0, the caching will be disabled.
-	 * @param CCacheDependency $dependency the dependency that will be used when saving the query results into cache.
+	 * @param CCacheDependency|ICacheDependency $dependency the dependency that will be used when saving
+	 * the query results into cache.
 	 * @param integer $queryCount number of SQL queries that need to be cached after calling this method. Defaults to 1,
 	 * meaning that the next SQL query will be cached.
 	 * @return CDbConnection the connection instance itself.
@@ -349,7 +367,7 @@ class CDbConnection extends CApplicationComponent
 		if($this->_pdo===null)
 		{
 			if(empty($this->connectionString))
-				throw new CDbException(Yii::t('yii','CDbConnection.connectionString cannot be empty.'));
+				throw new CDbException('CDbConnection.connectionString cannot be empty.');
 			try
 			{
 				Yii::trace('Opening DB connection','system.db.CDbConnection');
@@ -361,13 +379,13 @@ class CDbConnection extends CApplicationComponent
 			{
 				if(YII_DEBUG)
 				{
-					throw new CDbException(Yii::t('yii','CDbConnection failed to open the DB connection: {error}',
-						array('{error}'=>$e->getMessage())),(int)$e->getCode(),$e->errorInfo);
+					throw new CDbException('CDbConnection failed to open the DB connection: '.
+						$e->getMessage(),(int)$e->getCode(),$e->errorInfo);
 				}
 				else
 				{
 					Yii::log($e->getMessage(),CLogger::LEVEL_ERROR,'exception.CDbException');
-					throw new CDbException(Yii::t('yii','CDbConnection failed to open the DB connection.'),(int)$e->getCode(),$e->errorInfo);
+					throw new CDbException('CDbConnection failed to open the DB connection.',(int)$e->getCode(),$e->errorInfo);
 				}
 			}
 		}
@@ -388,9 +406,9 @@ class CDbConnection extends CApplicationComponent
 	/**
 	 * Creates the PDO instance.
 	 * When some functionalities are missing in the pdo driver, we may use
-	 * an adapter class to provides them.
+	 * an adapter class to provide them.
+	 * @throws CDbException when failed to open DB connection
 	 * @return PDO the pdo instance
-	 * @since 1.0.4
 	 */
 	protected function createPdoInstance()
 	{
@@ -398,11 +416,22 @@ class CDbConnection extends CApplicationComponent
 		if(($pos=strpos($this->connectionString,':'))!==false)
 		{
 			$driver=strtolower(substr($this->connectionString,0,$pos));
-			if($driver==='mssql' || $driver==='dblib' || $driver==='sqlsrv')
+			if($driver==='mssql' || $driver==='dblib')
 				$pdoClass='CMssqlPdoAdapter';
+			elseif($driver==='sqlsrv')
+				$pdoClass='CMssqlSqlsrvPdoAdapter';
 		}
-		return new $pdoClass($this->connectionString,$this->username,
-									$this->password,$this->_attributes);
+
+		if(!class_exists($pdoClass))
+			throw new CDbException(Yii::t('yii','CDbConnection is unable to find PDO class "{className}". Make sure PDO is installed correctly.',
+				array('{className}'=>$pdoClass)));
+
+		@$instance=new $pdoClass($this->connectionString,$this->username,$this->password,$this->_attributes);
+
+		if(!$instance)
+			throw new CDbException(Yii::t('yii','CDbConnection failed to open the DB connection.'));
+
+		return $instance;
 	}
 
 	/**
@@ -480,6 +509,7 @@ class CDbConnection extends CApplicationComponent
 
 	/**
 	 * Returns the database schema for the current connection
+	 * @throws CDbException if CDbConnection does not support reading schema for specified database driver
 	 * @return CDbSchema the database schema for the current connection
 	 */
 	public function getSchema()
@@ -500,7 +530,6 @@ class CDbConnection extends CApplicationComponent
 	/**
 	 * Returns the SQL command builder for the current DB connection.
 	 * @return CDbCommandBuilder the command builder
-	 * @since 1.0.4
 	 */
 	public function getCommandBuilder()
 	{
@@ -571,6 +600,7 @@ class CDbConnection extends CApplicationComponent
 			'boolean'=>PDO::PARAM_BOOL,
 			'integer'=>PDO::PARAM_INT,
 			'string'=>PDO::PARAM_STR,
+			'resource'=>PDO::PARAM_LOB,
 			'NULL'=>PDO::PARAM_NULL,
 		);
 		return isset($map[$type]) ? $map[$type] : PDO::PARAM_STR;
@@ -778,7 +808,6 @@ class CDbConnection extends CApplicationComponent
 	 * In order to use this method, {@link enableProfiling} has to be set true.
 	 * @return array the first element indicates the number of SQL statements executed,
 	 * and the second element the total time spent in SQL execution.
-	 * @since 1.0.6
 	 */
 	public function getStats()
 	{

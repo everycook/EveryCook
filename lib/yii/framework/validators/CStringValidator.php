@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -13,8 +13,20 @@
  *
  * Note, this validator should only be used with string-typed attributes.
  *
+ * In addition to the {@link message} property for setting a custom error message,
+ * CStringValidator has a couple custom error messages you can set that correspond to different
+ * validation scenarios. For defining a custom message when the string is too short,
+ * you may use the {@link tooShort} property. Similarly with {@link tooLong}. The messages may contain
+ * placeholders that will be replaced with the actual content. In addition to the "{attribute}"
+ * placeholder, recognized by all validators (see {@link CValidator}), CStringValidator allows for the following
+ * placeholders to be specified:
+ * <ul>
+ * <li>{min}: when using {@link tooShort}, replaced with minimum length, {@link min}, if set.</li>
+ * <li>{max}: when using {@link tooLong}, replaced with the maximum length, {@link max}, if set.</li>
+ * <li>{length}: when using {@link message}, replaced with the exact required length, {@link is}, if set.</li>
+ * </ul>
+ *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: CStringValidator.php 3148 2011-03-31 21:44:00Z alexander.makarow $
  * @package system.validators
  * @since 1.0
  */
@@ -67,6 +79,13 @@ class CStringValidator extends CValidator
 		$value=$object->$attribute;
 		if($this->allowEmpty && $this->isEmpty($value))
 			return;
+
+		if(is_array($value))
+		{
+			// https://github.com/yiisoft/yii/issues/1955
+			$this->addError($object,$attribute,Yii::t('yii','{attribute} is invalid.'));
+			return;
+		}
 
 		if(function_exists('mb_strlen') && $this->encoding!==false)
 			$length=mb_strlen($value, $this->encoding ? $this->encoding : Yii::app()->charset);
@@ -152,7 +171,7 @@ if(value.length!={$this->is}) {
 		if($this->allowEmpty)
 		{
 			$js="
-if($.trim(value)!='') {
+if(jQuery.trim(value)!='') {
 	$js
 }
 ";

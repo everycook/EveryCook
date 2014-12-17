@@ -4,15 +4,21 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
 /**
  * CDbSchema is the base class for retrieving metadata information.
  *
+ * @property CDbConnection $dbConnection Database connection. The connection is active.
+ * @property array $tables The metadata for all tables in the database.
+ * Each array element is an instance of {@link CDbTableSchema} (or its child class).
+ * The array keys are table names.
+ * @property array $tableNames All table names in the database.
+ * @property CDbCommandBuilder $commandBuilder The SQL command builder for this connection.
+ *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: CDbSchema.php 3297 2011-06-22 21:46:11Z qiang.xue $
  * @package system.db.schema
  * @since 1.0
  */
@@ -22,7 +28,7 @@ abstract class CDbSchema extends CComponent
 	 * @var array the abstract column types mapped to physical column types.
 	 * @since 1.1.6
 	 */
-    public $columnTypes=array();
+	public $columnTypes=array();
 
 	private $_tableNames=array();
 	private $_tables=array();
@@ -59,11 +65,13 @@ abstract class CDbSchema extends CComponent
 	/**
 	 * Obtains the metadata for the named table.
 	 * @param string $name table name
+	 * @param boolean $refresh if we need to refresh schema cache for a table.
+	 * Parameter available since 1.1.9
 	 * @return CDbTableSchema table metadata. Null if the named table does not exist.
 	 */
-	public function getTable($name)
+	public function getTable($name,$refresh=false)
 	{
-		if(isset($this->_tables[$name]))
+		if($refresh===false && isset($this->_tables[$name]))
 			return $this->_tables[$name];
 		else
 		{
@@ -82,7 +90,8 @@ abstract class CDbSchema extends CComponent
 			if(!isset($this->_cacheExclude[$name]) && ($duration=$this->_connection->schemaCachingDuration)>0 && $this->_connection->schemaCacheID!==false && ($cache=Yii::app()->getComponent($this->_connection->schemaCacheID))!==null)
 			{
 				$key='yii:dbschema'.$this->_connection->connectionString.':'.$this->_connection->username.':'.$name;
-				if(($table=$cache->get($key))===false)
+				$table=$cache->get($key);
+				if($refresh===true || $table===false)
 				{
 					$table=$this->loadTable($realName);
 					if($table!==null)
@@ -106,7 +115,6 @@ abstract class CDbSchema extends CComponent
 	 * @return array the metadata for all tables in the database.
 	 * Each array element is an instance of {@link CDbTableSchema} (or its child class).
 	 * The array keys are table names.
-	 * @since 1.0.2
 	 */
 	public function getTables($schema='')
 	{
@@ -124,7 +132,6 @@ abstract class CDbSchema extends CComponent
 	 * @param string $schema the schema of the tables. Defaults to empty string, meaning the current or default schema.
 	 * If not empty, the returned table names will be prefixed with the schema name.
 	 * @return array all table names in the database.
-	 * @since 1.0.2
 	 */
 	public function getTableNames($schema='')
 	{
@@ -257,10 +264,11 @@ abstract class CDbSchema extends CComponent
 	/**
 	 * Resets the sequence value of a table's primary key.
 	 * The sequence will be reset such that the primary key of the next new row inserted
-	 * will have the specified value or 1.
+	 * will have the specified value or max value of a primary key plus one (i.e. sequence trimming).
 	 * @param CDbTableSchema $table the table schema whose primary key sequence will be reset
-	 * @param mixed $value the value for the primary key of the next new row inserted. If this is not set,
-	 * the next new row's primary key will have a value 1.
+	 * @param integer|null $value the value for the primary key of the next new row inserted.
+	 * If this is not set, the next new row's primary key will have the max value of a primary
+	 * key plus one (i.e. sequence trimming).
 	 * @since 1.1
 	 */
 	public function resetSequence($table,$value=null)
@@ -293,8 +301,8 @@ abstract class CDbSchema extends CComponent
 	 * because the default implementation simply throws an exception.
 	 * @param string $schema the schema of the tables. Defaults to empty string, meaning the current or default schema.
 	 * If not empty, the returned table names will be prefixed with the schema name.
+	 * @throws CDbException if current schema does not support fetching all table names
 	 * @return array all table names in the database.
-	 * @since 1.0.2
 	 */
 	protected function findTableNames($schema='')
 	{
@@ -329,18 +337,18 @@ abstract class CDbSchema extends CComponent
 	 * @return string physical column type.
 	 * @since 1.1.6
 	 */
-    public function getColumnType($type)
-    {
-    	if(isset($this->columnTypes[$type]))
-    		return $this->columnTypes[$type];
-    	else if(($pos=strpos($type,' '))!==false)
-    	{
-    		$t=substr($type,0,$pos);
-    		return (isset($this->columnTypes[$t]) ? $this->columnTypes[$t] : $t).substr($type,$pos);
-    	}
-    	else
-    		return $type;
-    }
+	public function getColumnType($type)
+	{
+		if(isset($this->columnTypes[$type]))
+			return $this->columnTypes[$type];
+		elseif(($pos=strpos($type,' '))!==false)
+		{
+			$t=substr($type,0,$pos);
+			return (isset($this->columnTypes[$t]) ? $this->columnTypes[$t] : $t).substr($type,$pos);
+		}
+		else
+			return $type;
+	}
 
 	/**
 	 * Builds a SQL statement for creating a new DB table.
@@ -419,11 +427,9 @@ abstract class CDbSchema extends CComponent
 	 */
 	public function addColumn($table, $column, $type)
 	{
-		$type=$this->getColumnType($type);
-		$sql='ALTER TABLE ' . $this->quoteTableName($table)
+		return 'ALTER TABLE ' . $this->quoteTableName($table)
 			. ' ADD ' . $this->quoteColumnName($column) . ' '
 			. $this->getColumnType($type);
-		return $sql;
 	}
 
 	/**
@@ -466,7 +472,6 @@ abstract class CDbSchema extends CComponent
 	 */
 	public function alterColumn($table, $column, $type)
 	{
-		$type=$this->getColumnType($type);
 		return 'ALTER TABLE ' . $this->quoteTableName($table) . ' CHANGE '
 			. $this->quoteColumnName($column) . ' '
 			. $this->quoteColumnName($column) . ' '
@@ -555,5 +560,38 @@ abstract class CDbSchema extends CComponent
 	public function dropIndex($name, $table)
 	{
 		return 'DROP INDEX '.$this->quoteTableName($name).' ON '.$this->quoteTableName($table);
+	}
+
+	/**
+	 * Builds a SQL statement for adding a primary key constraint to an existing table.
+	 * @param string $name the name of the primary key constraint.
+	 * @param string $table the table that the primary key constraint will be added to.
+	 * @param string|array $columns comma separated string or array of columns that the primary key will consist of.
+	 * Array value can be passed since 1.1.14.
+	 * @return string the SQL statement for adding a primary key constraint to an existing table.
+	 * @since 1.1.13
+	 */
+	public function addPrimaryKey($name,$table,$columns)
+	{
+		if(is_string($columns))
+			$columns=preg_split('/\s*,\s*/',$columns,-1,PREG_SPLIT_NO_EMPTY);
+		foreach($columns as $i=>$col)
+			$columns[$i]=$this->quoteColumnName($col);
+		return 'ALTER TABLE ' . $this->quoteTableName($table) . ' ADD CONSTRAINT '
+			. $this->quoteColumnName($name) . '  PRIMARY KEY ('
+			. implode(', ', $columns). ' )';
+	}
+
+	/**
+	 * Builds a SQL statement for removing a primary key constraint to an existing table.
+	 * @param string $name the name of the primary key constraint to be removed.
+	 * @param string $table the table that the primary key constraint will be removed from.
+	 * @return string the SQL statement for removing a primary key constraint from an existing table.
+	 * @since 1.1.13
+	 */
+	public function dropPrimaryKey($name,$table)
+	{
+		return 'ALTER TABLE ' . $this->quoteTableName($table) . ' DROP CONSTRAINT '
+			. $this->quoteColumnName($name);
 	}
 }

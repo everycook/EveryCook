@@ -4,15 +4,16 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
 /**
  * CFormStringElement represents a string in a form.
  *
+ * @property string $on Scenario names separated by commas. Defaults to null.
+ *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: CFormStringElement.php 3001 2011-02-24 16:42:44Z alexander.makarow $
  * @package system.web.form
  * @since 1.1
  */

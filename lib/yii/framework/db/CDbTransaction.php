@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -25,12 +25,14 @@
  * }
  * catch(Exception $e)
  * {
- *    $transaction->rollBack();
+ *    $transaction->rollback();
  * }
  * </pre>
  *
+ * @property CDbConnection $connection The DB connection for this transaction.
+ * @property boolean $active Whether this transaction is active.
+ *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: CDbTransaction.php 3069 2011-03-14 00:28:38Z qiang.xue $
  * @package system.db
  * @since 1.0
  */

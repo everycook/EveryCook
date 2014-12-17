@@ -5,7 +5,7 @@
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @author Christophe Boulain <Christophe.Boulain@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -14,12 +14,27 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @author Christophe Boulain <Christophe.Boulain@gmail.com>
- * @version $Id: CMssqlColumnSchema.php 3204 2011-05-05 21:36:32Z alexander.makarow $
  * @package system.db.schema.mssql
- * @since 1.0.4
  */
 class CMssqlColumnSchema extends CDbColumnSchema
 {
+
+	/**
+	 * Initializes the column with its DB type and default value.
+	 * This sets up the column's PHP type, size, precision, scale as well as default value.
+	 * @param string $dbType the column's DB type
+	 * @param mixed $defaultValue the default value
+	 */
+	public function init($dbType, $defaultValue)
+	{
+		if ($defaultValue=='(NULL)')
+		{
+			$defaultValue=null;
+		}
+		parent::init($dbType, $defaultValue);
+	}
+
+
 	/**
 	 * Extracts the PHP type from DB type.
 	 * @param string $dbType DB type
@@ -28,9 +43,9 @@ class CMssqlColumnSchema extends CDbColumnSchema
 	{
 		if(strpos($dbType,'float')!==false || strpos($dbType,'real')!==false)
 			$this->type='double';
-		else if(strpos($dbType,'bigint')===false && (strpos($dbType,'int')!==false || strpos($dbType,'smallint')!==false || strpos($dbType,'tinyint')))
+		elseif(strpos($dbType,'bigint')===false && (strpos($dbType,'int')!==false || strpos($dbType,'smallint')!==false || strpos($dbType,'tinyint')))
 			$this->type='integer';
-		else if(strpos($dbType,'bit')!==false)
+		elseif(strpos($dbType,'bit')!==false)
 			$this->type='boolean';
 		else
 			$this->type='string';

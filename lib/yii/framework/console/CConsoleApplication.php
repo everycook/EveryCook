@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -23,7 +23,7 @@
  *
  * The command classes reside in the directory {@link getCommandPath commandPath}.
  * The name of the class follows the pattern: &lt;command-name&gt;Command, and its
- * file name is the same the class name. For example, the 'ShellCommand' class defines
+ * file name is the same as the class name. For example, the 'ShellCommand' class defines
  * a 'shell' command and the class file name is 'ShellCommand.php'.
  *
  * To run the console application, enter the following on the command line:
@@ -36,8 +36,11 @@
  * php path/to/entry_script.php help <command name>
  * </pre>
  *
+ * @property string $commandPath The directory that contains the command classes. Defaults to 'protected/commands'.
+ * @property CConsoleCommandRunner $commandRunner The command runner.
+ * @property CConsoleCommand $command The currently active command.
+ *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: CConsoleApplication.php 3213 2011-05-12 23:19:59Z alexander.makarow $
  * @package system.console
  * @since 1.0
  */
@@ -81,11 +84,14 @@ class CConsoleApplication extends CApplication
 
 	/**
 	 * Processes the user request.
-	 * This method creates a console command runner to handle the particular user command.
+	 * This method uses a console command runner to handle the particular user command.
+	 * Since version 1.1.11 this method will exit application with an exit code if one is returned by the user command.
 	 */
 	public function processRequest()
 	{
-		$this->_runner->run($_SERVER['argv']);
+		$exitCode=$this->_runner->run($_SERVER['argv']);
+		if(is_int($exitCode))
+			$this->end($exitCode);
 	}
 
 	/**
@@ -169,5 +175,26 @@ class CConsoleApplication extends CApplication
 	public function getCommandRunner()
 	{
 		return $this->_runner;
+	}
+
+	/**
+	 * Returns the currently running command.
+	 * This is shortcut method for {@link CConsoleCommandRunner::getCommand()}.
+	 * @return CConsoleCommand|null the currently active command.
+	 * @since 1.1.14
+	 */
+	public function getCommand()
+	{
+		return $this->getCommandRunner()->getCommand();
+	}
+
+	/**
+	 * This is shortcut method for {@link CConsoleCommandRunner::setCommand()}.
+	 * @param CConsoleCommand $value the currently active command.
+	 * @since 1.1.14
+	 */
+	public function setCommand($value)
+	{
+		$this->getCommandRunner()->setCommand($value);
 	}
 }

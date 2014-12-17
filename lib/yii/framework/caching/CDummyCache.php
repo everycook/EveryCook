@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -17,7 +17,6 @@
  * non-caching mode to caching mode.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id: CDummyCache.php 2799 2011-01-01 19:31:13Z qiang.xue $
  * @package system.caching
  * @since 1.0
  */
@@ -58,7 +57,6 @@ class CDummyCache extends CApplicationComponent implements ICache, ArrayAccess
 	 * @return array list of cached values corresponding to the specified keys. The array
 	 * is returned in terms of (key,value) pairs.
 	 * If a value is not cached or expired, the corresponding array value will be false.
-	 * @since 1.0.8
 	 */
 	public function mget($ids)
 	{
