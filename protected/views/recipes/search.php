@@ -58,14 +58,104 @@ if ($this->isFancyAjaxRequest){ ?>
 		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
 		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
 	</div>
-<?php if (!$this->isFancyAjaxRequest){ ?>	
+<?php /*if (!$this->isFancyAjaxRequest){ ?>	
 	<div class="f-right">
 		<?php echo CHtml::link($this->trans->GENERAL_ADVANCE_SEARCH, array($advanceURL, $newRecSearch), array('class'=>'button')); ?><br>
 	</div>
-<?php } ?>
+<?php }*/ ?>
 	<div class="clearfix"></div>
+	<div id="recipeResultArea">
+		<div id="filters">
+		<?php /*
+			<div class="filter">
+				<div class="title"><?php echo $this->trans->RECIPES_CHEF; ?></div>
+				<div class="values">
+				<?php echo CHtml::checkBoxList('autor', $filters['selectedAutor'], $filters['possibleAutor'], array('class'=>'value')); ?>
+				</div>
+			</div>
+		*/ ?>
+			<div class="filter">
+				<div class="title"><?php echo $this->trans->RECIPES_TYPE; ?></div>
+				<div class="values">
+				<?php echo CHtml::checkBoxList('type', $filters['selectedTypes'], $filters['possibleTypes'], array('class'=>'value')); ?>
+				</div>
+			</div>
+		<?php /*
+			<div class="filter">
+				<div class="title"><?php echo $this->trans->RECIPES_BATCHES; ?></div>
+				<div class="values">
+				<?php echo CHtml::checkBoxList('batches', $filters['selectedBatches'], $filters['possibleBatches'], array('class'=>'value')); ?>
+				</div>
+			</div>
+		*/ ?>
+			<div class="filter">
+				<div class="title"><?php echo $this->trans->RECIPES_INGREDIENTS; ?></div>
+				<div class="values">
+					<?php echo $this->trans->RECIPES_CONTAINS; ?><br/>
+					<?php
+					echo CHtml::hiddenField('ing_id', $filters['ing_id'], array('id'=>'ingredients_contain'));
+					
+					$this->widget('ext.select2.ESelect2', array(
+						'target' => '#ingredients_contain',
+						'config' => array (
+							'multiple' => true,
+							'minimumInputLength' => 1,
+							'placeholder'=>$this->trans->RECIPES_TYPE_AN_INGREDIENT,
+							'ajax' => 'js:glob.select2.searchFridgeAjax',
+							'initSelection' =>'js:glob.select2.searchFridgeInitSelection',
+							'formatResult' => 'js:glob.select2.searchFridgeFormatResult', // omitted for brevity, see the source of this page
+							'formatSelection' => 'js:glob.select2.searchFridgeFormatSelection', // omitted for brevity, see the source of this page
+							//'dropdownCssClass' => 'search_query', // apply css that makes the dropdown taller
+							'containerCssClass' => 'search_query', // apply css that makes the dropdown taller
+							'escapeMarkup' => 'js:function (m) { return m; }' // we do not want to escape markup since we are displaying html in results
+						)
+					));
+					?>
+					<br/>
+					<?php echo $this->trans->RECIPES_NOT_CONTAINS; ?><br/>
+					<?php
+					echo CHtml::hiddenField('ing_id_not', $filters['ing_id_not'], array('id'=>'ingredients_not_contain'));
+					
+					$this->widget('ext.select2.ESelect2', array(
+						'target' => '#ingredients_not_contain',
+						'config' => array (
+							'multiple' => true,
+							'minimumInputLength' => 1,
+							'placeholder'=>$this->trans->RECIPES_TYPE_AN_INGREDIENT,
+							'ajax' => 'js:glob.select2.searchFridgeAjax',
+							'initSelection' =>'js:glob.select2.searchFridgeInitSelection',
+							'formatResult' => 'js:glob.select2.searchFridgeFormatResult', // omitted for brevity, see the source of this page
+							'formatSelection' => 'js:glob.select2.searchFridgeFormatSelection', // omitted for brevity, see the source of this page
+							//'dropdownCssClass' => 'search_query', // apply css that makes the dropdown taller
+							'containerCssClass' => 'search_query', // apply css that makes the dropdown taller
+							'escapeMarkup' => 'js:function (m) { return m; }' // we do not want to escape markup since we are displaying html in results
+						)
+					));
+					?>
+				</div>
+			</div>
+			<div class="filter">
+				<div class="title"><?php echo CHtml::encode($this->trans->FIELD_CUT_ID); ?></div>
+				<div class="values">
+				<?php echo CHtml::checkBoxList('typeOfCusine', $filters['selectedTypeOfCusine'], $filters['possibleTypeOfCusine'], array('class'=>'value')); ?>
+				</div>
+			</div>
+		</div>
+		<div id="recipeOrderBy"><?php
+			echo '<span>' . $this->trans->GENERAL_ORDER_BY . '</span>';
+			echo CHtml::dropDownList('orderby', $selectedOrderBy, $possibleOrderBys);
+		?>
+		</div>
+		<?php $this->widget('AjaxPagingListView', array(
+			'dataProvider'=>$dataProvider,
+			'itemView'=>'_view_array',
+			'id'=>'recipesResult',
+		)); ?>
+		<?php $this->endWidget(); ?>
 
-<?php /*$form=$this->beginWidget('CActiveForm', array(
+<?php /*
+//"advanceSearch" input fields
+$form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl($this->route),
 	'method'=>'get',
 )); ?>
@@ -115,12 +205,5 @@ if ($this->isFancyAjaxRequest){ ?>
 	</div>
 
 <?php $this->endWidget(); */?>
-
-<?php $this->widget('AjaxPagingListView', array(
-	'dataProvider'=>$dataProvider,
-	'itemView'=>'_view_array',
-	'id'=>'recipesResult',
-)); ?>
-
-<?php $this->endWidget(); ?>
+	</div>
 </div>

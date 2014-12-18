@@ -120,6 +120,9 @@ div.form label {
 	font-weight: bold;
 	font-size: 0.9em;
 	display: inline-block;
+	text-align: right;
+	width: 14em;
+	vertical-align: top;
 }
 
 div.form .row {
@@ -340,14 +343,6 @@ input, select {
 	text-align: center;
 }
 
-
-
-label {
-	text-align: right;
-	display: inline-block;
-	width: 14em;
-	vertical-align: top;
-}
 
 
 div.index_div_login{
@@ -584,13 +579,53 @@ div.ingInfo .value {
 	font-weight: bold;
 }
 
+#recipeResultArea {
+	display: table;
+	width: 100%;
+	position: relative;
+}
 
+#filters {
+	display: table-cell;
+	width: 14em;
+}
+
+.filter {
+	margin-bottom: 1em;
+}
+
+.filter .title {
+	font-weight: bold;
+}
+.filter .values {
+}
+.filter .values .value {
+}
+
+#filters  .search_query .select2-choices {
+	border-radius:0.8em;
+	padding:0 0.5em;
+	box-sizing: border-box;
+    width: 13em;
+}
+
+#recipesResult  {
+	display: table-cell;
+}
 #recipesResult div.resultArea div.options a {
 	margin-bottom: 0.8em;
 }
 
 #recipesResult div.resultArea div.options a.last {
 	margin-bottom: 0;
+}
+
+#recipeOrderBy {
+	position: absolute;
+	top: 0;
+}
+#recipeOrderBy span {
+	margin-right: 1em;
 }
 
 div.detailView {
@@ -706,10 +741,14 @@ div.search {
 	margin-right: 0.2em;
 }
 
-div.search  input.search_query{
+div.search  input.search_query , div.search  .search_query .select2-choices {
 	width:17em;
 	border-radius:0.8em;
-	padding:0 0.5em;
+	box-sizing: border-box;
+}
+
+div.search  input.search_query {
+	padding:6px 0.5em;
 }
 
 ul.search_choose {
@@ -1337,8 +1376,22 @@ div.mealView span.value {
 .startpage img {
 	width: 22.2em;
 	height: 22.2em;
-	border-radius:1.5em;
+	border-bottom-left-radius: 1.5em;
+    border-bottom-right-radius: 1.5em;
 }
+.teaser .title {
+	border-top-left-radius: 1.5em;
+	border-top-right-radius: 1.5em;
+	background-color: #ff9900;
+	padding: 1em;
+	color: white;
+	font-weight: bold;
+}
+
+.startpage .button {
+	min-width: 14em;
+}
+
 .up-arrow, .down-arrow {
 	/*
 	width: 21.5em;

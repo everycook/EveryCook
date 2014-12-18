@@ -16,7 +16,6 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->pageTitle=Yii::app()->name;
-$preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preloadedInfo = {};';
 ?>
 <input type="hidden" id="getNextLink" value="<?php echo $this->createUrl('site/getNext'); ?>"/>
 
@@ -38,7 +37,7 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 				<?php } ?>
 			</div>
 		</div>
-		
+		<br />
 		<div class="teaser">
 			<div class="title">
 				<?php echo $suggestedRecipes["bottom_left"][0]; ?>
@@ -69,7 +68,7 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 				<?php } ?>
 			</div>
 		</div>
-		
+		<br />
 		<div class="teaser">
 			<div class="title">
 				Your recipe!
@@ -87,14 +86,15 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 			'htmlOptions'=>array('class'=>'submitToUrl'),
 		)); ?>
 		<div class="search">
-			<?php echo Functions::specialField('query', '', 'search', array('class'=>'search_query', 'placeholder'=>'Type a dish here')); ?>
+			<?php echo Functions::specialField('query', '', 'search', array('class'=>'search_query', 'placeholder'=>$this->trans->RECIPES_TYPE_A_DISH)); ?>
 			<?php //echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
 			<?php echo CHtml::submitButton('Find me a recipe!', array('class'=>'button')); ?>
 		</div>
 		<?php $this->endWidget(); ?>
 		
 		<?php $form=$this->beginWidget('CActiveForm', array(
-			'action'=>Yii::app()->createUrl('recipes/searchFridge'),
+			//'action'=>Yii::app()->createUrl('recipes/searchFridge'),
+			'action'=>Yii::app()->createUrl('recipes/search'),
 			'id'=>'fridge_form',
 			'method'=>'post',
 			'htmlOptions'=>array('class'=>'submitToUrl'),
@@ -102,7 +102,26 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 		//recipes/search?ing_id=10
 		?>
 		<div class="search">
-			<?php echo Functions::specialField('query', '', 'search', array('class'=>'search_query', 'placeholder'=>'Type an ingredient')); ?>
+			<?php
+			//echo Functions::specialField('query', '', 'search', array('class'=>'search_query', 'placeholder'=>'Type an ingredient'));
+			echo CHtml::hiddenField('ing_id', '', array('id'=>'searchFridge', 'data-placeholder'=>$this->trans->RECIPES_TYPE_AN_INGREDIENT));
+			
+			$this->widget('ext.select2.ESelect2', array(
+				'target' => '#searchFridge',
+				'config' => array (
+					'multiple' => true,
+					'minimumInputLength' => 1,
+					'placeholder'=>$this->trans->RECIPES_TYPE_AN_INGREDIENT,
+					'ajax' => 'js:glob.select2.searchFridgeAjax',
+					'formatResult' => 'js:glob.select2.searchFridgeFormatResult', // omitted for brevity, see the source of this page
+					'formatSelection' => 'js:glob.select2.searchFridgeFormatSelection', // omitted for brevity, see the source of this page
+					//'dropdownCssClass' => 'search_query', // apply css that makes the dropdown taller
+					'containerCssClass' => 'search_query', // apply css that makes the dropdown taller
+					'escapeMarkup' => 'js:function (m) { return m; }' // we do not want to escape markup since we are displaying html in results
+				)
+			));
+			
+			?>
 			<?php //echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
 			<?php echo CHtml::submitButton('Show me what I can cook!', array('class'=>'button')); ?>
 		</div>
@@ -110,4 +129,3 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 	</div>
 	<div class="clearfix"></div>
 </div>
-<?php echo '<script>' . $preloadedInfoResetScript . "\r\n".'</script>'; ?>

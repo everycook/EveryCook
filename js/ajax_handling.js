@@ -50,6 +50,67 @@ glob.changeLinkUrlParam = function(elem, param, newValue){
 	elem.attr('href', url);
 };
 
+glob.select2 = {}
+glob.select2.searchFridgeAjax = {
+	url: "/EveryCook/ingredients/autocomplete",
+	dataType: 'json',
+	quietMillis: 250,
+	data: function (term, page) { // page is the one-based page number tracked by Select2
+		glob.ShowActivity = false;
+		return {
+			'query': term, //search term
+			'page': page, // page number
+			'light_weight':1 //say do not do so much things
+		};
+	},
+	results: function (data, page) {
+		glob.ShowActivity = true;
+		var more = (page * 30) < data.total_count; // whether or not there are more results available
+		
+		// notice we return the value of more so Select2 knows if more results can be loaded
+		return { results: data.items, more: more };
+	}
+};
+
+glob.select2.searchFridgeInitSelection = function(element, callback) {
+	var id = $(element).val();
+	if (id !== "") {
+		$.ajax("/EveryCook/ingredients/autocompleteId/?ids=" + id, {
+			dataType: "json"
+		}).done(function(data) { callback(data); });
+	}
+};
+
+glob.select2.searchFridgeFormatResult = function (ingredient) {
+	return glob.select2.searchFridgeFormatSelection(ingredient);
+	/*
+	var markup = '<div class="row-fluid">' +
+		'<div class="span2"><img src="' + repo.owner.avatar_url + '" /></div>' +
+		'<div class="span10">' +
+		'<div class="row-fluid">' +
+		'<div class="span6">' + repo.full_name + '</div>' +
+		'<div class="span3"><i class="fa fa-code-fork"></i> ' + repo.forks_count + '</div>' +
+		'<div class="span3"><i class="fa fa-star"></i> ' + repo.stargazers_count + '</div>' +
+		'</div>';
+
+	if (repo.description) {
+		markup += '<div>' + repo.description + '</div>';
+	}
+
+	markup += '</div></div>';
+
+	return markup;
+	*/
+};
+
+glob.select2.searchFridgeFormatSelection = function (ingredient) {
+	if (ingredient.synonym){
+		return ingredient.name + '(' + ingredient.synonym + ')';
+	} else {
+		return ingredient.name;
+	}
+}
+
 function ajaxResponceHandler(data, type, asFancy){
 	if (data.indexOf('{')===0){
 		eval('var data = ' + data + ';');
@@ -1391,6 +1452,13 @@ jQuery(function($){
 		}
 	});
 	*/
+	
+	//Recipe Search
+	//divers functions
+	jQuery('body').undelegate('#filters input, #filters select, #recipeOrderBy select','change').delegate('#filters input, #filters select, #recipeOrderBy select','change', function(){
+		jQuery(this).closest('form').submit();
+		return true;
+	});
 	
 	
 	//divers functions

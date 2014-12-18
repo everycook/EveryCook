@@ -39,11 +39,9 @@ See GPLv3.htm in the main folder for details.
 			echo '</div>';
 		echo '</div>';
 		echo '<div class="options">';
-			//echo CHtml::link('+', array('user/addrecipes', 'id'=>$data['REC_ID']), array('class'=>'button backpic addRecipe', 'title'=>$this->trans->RECIPES_ADD));
-			echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data['REC_ID']), array('class'=>'delicious noAjax backpic', 'title'=>$this->trans->GENERAL_DELICIOUS));
-			echo CHtml::link('&nbsp;', array('meals/mealPlanner', 'rec_id'=>$data['REC_ID']), array('class'=>'cookwith backpic', 'title'=>$this->trans->RECIPES_MEALPLANNER));
-			echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['REC_ID']), array('class'=>'disgusting noAjax backpic last','title'=>$this->trans->GENERAL_DISGUSTING)) . '<br>';
-			echo CHtml::link(CHtml::encode($this->trans->RECIPES_VIEW_RECIPE), array('view', 'id'=>$data['REC_ID']), array('class'=>'button last'));
+			echo CHtml::link(CHtml::encode($this->trans->RECIPES_DONT_LIKE_IT /*GENERAL_DISGUSTING*/), array('disgusting', 'id'=>$data['REC_ID']), array('class'=>'noAjax button')) . '<br>';
+			//echo CHtml::link(CHtml::encode($this->trans->RECIPES_NOT_TODAY), array('hide', 'id'=>$data['REC_ID']), array('class'=>'button')) . '<br>';
+			echo CHtml::link(CHtml::encode($this->trans->RECIPES_SAVE_FOR_LATER /*GENERAL_DELICIOUS*/), array('delicious', 'id'=>$data['REC_ID']), array('class'=>'noAjax button'));
 		echo '</div>';
 	}
 	?>
@@ -86,9 +84,6 @@ See GPLv3.htm in the main folder for details.
 		<?php echo CHtml::encode($data->REC_APPROVED); ?>
 		<br />
 
-		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_SERVING_COUNT')); ?>:</b>
-		<?php echo CHtml::encode($data->REC_SERVING_COUNT); ?>
-		<br />
 
 		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_WIKI_LINK')); ?>:</b>
 		<?php echo CHtml::encode($data->REC_WIKI_LINK); ?>
@@ -98,17 +93,6 @@ See GPLv3.htm in the main folder for details.
 		<?php echo CHtml::encode($data->REC_IS_PRIVATE); ?>
 		<br />
 
-		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_COMPLEXITY')); ?>:</b>
-		<?php echo CHtml::encode($data->REC_COMPLEXITY); ?>
-		<br />
-
-		<b><?php echo CHtml::encode($data->getAttributeLabel('CUT_ID')); ?>:</b>
-		<?php echo CHtml::encode($data->CUT_ID); ?>
-		<br />
-
-		<b><?php echo CHtml::encode($data->getAttributeLabel('CST_ID')); ?>:</b>
-		<?php echo CHtml::encode($data->CST_ID); ?>
-		<br />
 
 		<b><?php echo CHtml::encode($data->getAttributeLabel('REC_CUSINE_GPS_LAT')); ?>:</b>
 		<?php echo CHtml::encode($data->REC_CUSINE_GPS_LAT); ?>
@@ -134,6 +118,56 @@ See GPLv3.htm in the main folder for details.
 		<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>
 		<?php echo CHtml::encode($data['RET_DESC_' . Yii::app()->session['lang']]); ?>
 		<br />
+		
+		<b><?php echo CHtml::encode($this->trans->FIELD_CUT_ID); ?>:</b>
+		<?php if (!empty($data['CUT_DESC'])) {
+				echo CHtml::encode($data['CUT_DESC']); 
+			} else {
+				echo $this->trans->GENERAL_UNDEFINED;
+			}
+		?>
+		<br />
+
+		<b><?php echo CHtml::encode($this->trans->FIELD_CST_ID); ?>:</b>
+		<?php if (!empty($data['CST_DESC'])) {
+				echo CHtml::encode($data['CST_DESC']);
+			} else {
+				echo $this->trans->GENERAL_UNDEFINED;
+			}
+		?>
+		<br />
+		
+		<b><?php echo CHtml::encode($this->trans->FIELD_REC_COMPLEXITY); ?>:</b>
+		<?php if (!empty($data['CUT_DESC'])) {
+				echo CHtml::encode($data['REC_COMPLEXITY']); 
+			} else {
+				echo $this->trans->GENERAL_UNDEFINED;
+			}
+		?>
+		<br />
+		
+		<b><?php echo CHtml::encode($this->trans->FIELD_REC_SERVING_COUNT); ?>:</b>
+		<?php
+			if (!empty($data['REC_SERVING_COUNT'])){
+				echo CHtml::encode($data['REC_SERVING_COUNT']);
+			} else {
+				echo $this->trans->GENERAL_UNDEFINED;
+			}
+		?>
+		<br />
+		
+		<b><?php echo CHtml::encode($this->trans->FIELD_REC_KCAL); ?>:</b>
+		<?php echo CHtml::encode($data['REC_KCAL']) . ' ' . $this->trans->RECIPES_KCAL_PER_SERVING ?>
+		<br />
+		
+		<div class="buttons">
+			<?php
+			//echo CHtml::link('+', array('user/addrecipes', 'id'=>$data['REC_ID']), array('class'=>'button backpic addRecipe', 'title'=>$this->trans->RECIPES_ADD));
+			echo CHtml::link(CHtml::encode($this->trans->RECIPES_COOK_IT), array('meals/mealPlanner', 'rec_id'=>$data['REC_ID']), array('class'=>'button'));
+			//echo CHtml::link(CHtml::encode($this->trans->RECIPES_COOK_IT), array('shoppinglists/view', 'rec_id'=>$data['REC_ID']), array('class'=>'button'));
+			?>
+		</div>
+			
 	</div>
 	<div class="clearfix"></div>
 </div>

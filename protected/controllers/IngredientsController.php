@@ -47,7 +47,7 @@ class IngredientsController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','getSubGroupSearch','getSubGroupForm','chooseIngredient','advanceChooseIngredient','getNext','chooseIngredientInRecipe'),
+				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','getSubGroupSearch','getSubGroupForm','chooseIngredient','advanceChooseIngredient','getNext','chooseIngredientInRecipe','autocomplete','autocompleteId'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -434,6 +434,47 @@ class IngredientsController extends Controller
 		$this->checkRenderAjax('admin',array(
 			'model'=>$model,
 		));
+	}
+	
+	public function actionAutocomplete($query, $page){
+		$this->isFancyAjaxRequest = true;
+		$command = Yii::app()->db->createCommand()
+			->select('ING_ID as id, ING_NAME_' . Yii::app()->session['lang'] . ' as name, ING_SYNONYM_' . Yii::app()->session['lang'] . ' as synonym')
+			->from('ingredients')
+			->where('ING_NAME_' . Yii::app()->session['lang'] . ' LIKE :query OR ING_SYNONYM_' . Yii::app()->session['lang'] . ' LIKE :query2',array(':query'=>'%'.$query.'%', ':query2'=>'%'.$query.'%'))
+			->order('ING_NAME_' . Yii::app()->session['lang'] . ', ING_SYNONYM_' . Yii::app()->session['lang'])
+			->limit(30, ($page-1)*30);
+		$data = $command->queryAll();
+		
+		if (count($data) < 30){
+			$total_count = ($page-1)*30 + count($data);
+		} else {
+			$command = Yii::app()->db->createCommand()
+				->select('count(*)')
+				->from('ingredients')
+				->where('ING_NAME_' . Yii::app()->session['lang'] . ' LIKE :query OR ING_SYNONYM_' . Yii::app()->session['lang'] . ' LIKE :query2',array(':query'=>'%'.$query.'%', ':query2'=>'%'.$query.'%'));
+			$total_count = $command->queryScalar();
+		}
+		$result = array(
+			'total_count'=>$total_count,
+			'items'=>$data
+		);
+		echo $this->processOutput(CJSON::encode($result));
+	}
+	
+	public function actionAutocompleteId($ids){
+		$this->isFancyAjaxRequest = true;
+		
+		$criteria=new CDbCriteria;
+		$ids = explode(',', $ids);
+		$criteria->addInCondition('ING_ID',$ids);
+			
+		$command = Yii::app()->db->createCommand()
+			->select('ING_ID as id, ING_NAME_' . Yii::app()->session['lang'] . ' as name, ING_SYNONYM_' . Yii::app()->session['lang'] . ' as synonym')
+			->from('ingredients')
+			->where($criteria->condition, $criteria->params);
+		$data = $command->queryAll();
+		echo $this->processOutput(CJSON::encode($data));
 	}
 	
 	private function prepareSearch($view, $ajaxLayout, $criteria){

@@ -112,6 +112,9 @@ class Controller extends CController
 	
 	protected function beforeAction($action)
 	{
+		if (isset($_GET['light_weight']) && $_GET['light_weight']){
+			return true;
+		}
 		if (isset($_GET['setDebug'])){
 			Yii::app()->session['debugEnabled'] = $_GET['setDebug'];
 		}
@@ -166,6 +169,9 @@ class Controller extends CController
 	}
 	
 	protected function afterAction($action){
+		if (isset($_GET['light_weight']) && $_GET['light_weight']){
+			return;
+		}
 		if ($this->saveLastAction && !$this->isFancyAjaxRequest){
 			if (count($_POST) == 0 && $this->route != '' && (substr($this->route, 0, 5) != 'site/')){
 				Yii::app()->session['LAST_ACTION'] = $this->route;
@@ -324,6 +330,10 @@ class Controller extends CController
 				
 				$fancyBox = new EFancyBox();
 				$fancyBox->publishAssets();
+				
+				$select2 = new ESelect2();
+				$select2->publishAssets();
+				
 				$request_baseurl = Yii::app()->request->baseUrl ;
 				Yii::app()->clientscript->registerScriptFile($request_baseurl. '/js/jquery.iframe-post-form.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/ajax_handling.js', CClientScript::POS_HEAD);

@@ -24,11 +24,12 @@ class RecipesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','searchFridge','displaySavedImage','chooseRecipe','advanceChooseRecipe','chooseTemplateRecipe','advanceChooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory'),
+				'actions'=>array('index','view','search','searchFridge','displaySavedImage','chooseRecipe','chooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory'),
+				//'advanceSearch','advanceChooseRecipe','advanceChooseTemplateRecipe',
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','uploadImage','delicious','disgusting','cancel','showLike', 'showNotLike', 'getRecipeInfos', 'setHistoryVersion'),
+				'actions'=>array('create','update','uploadImage','delicious','disgusting','hide','cancel','showLike', 'showNotLike', 'getRecipeInfos', 'setHistoryVersion'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -546,7 +547,7 @@ class RecipesController extends Controller
 						$result;
 						if ($action == 'ADD'){
 							$entry = $dataArray[$actionIndex];
-							if ($this->debug) {print_r($entry);}
+							if ($this->debug) {var_dump($entry);}
 							$changeModel->attributes = $entry;
 							$changeModel = Functions::arrayToRelatedObjects($changeModel, $entry);
 							$result = $entry;
@@ -572,7 +573,7 @@ class RecipesController extends Controller
 							$result["STE_STEP_NO"] = $changeModel->STE_STEP_NO;
 							echo '{"action":"'.$action.'","stepNr":"'.$actionIndex.'","prefIndex":"'.($actionIndex).'","undoKey":"'.getStepUndoKey($changeModel).'","prevValues":'.CJSON::encode($result).'}';
 						} else {
-							if ($this->debug) {echo 'error on save: ';  print_r($changeModel->getErrors());}
+							if ($this->debug) {echo 'error on save: ';  var_dump($changeModel->getErrors());}
 						}
 					} else {
 						echo '{"action":"RECIPE","undoKey":"'.getRecipeUndoKey($changeModel).'","prevValues":'.CJSON::encode($oldValues).'}';
@@ -646,7 +647,7 @@ class RecipesController extends Controller
 							echo '{"action":"'.$action.'","stepNr":"'.$StepNr.'","prefIndex":"'.($prefIndex+1).'","undoKey":"'.getStepUndoKey($changeModel).'"}';
 						}
 					} else {
-						if ($this->debug) {echo 'error on save: ';  print_r($changeModel->getErrors());}
+						if ($this->debug) {echo 'error on save: ';  var_dump($changeModel->getErrors());}
 					}
 				}
 				
@@ -877,7 +878,7 @@ class RecipesController extends Controller
 									$recToCoi->setIsNewRecord(true);
 									if(!$recToCoi->save()){
 										$saveOK = false;
-										if ($this->debug) {echo 'error on save recToCoi: errors:'; print_r($recToCoi->getErrors());}
+										if ($this->debug) {echo 'error on save recToCoi: errors:'; var_dump($recToCoi->getErrors());}
 									} else {
 										$recToCoi->updateChangeTime = true;
 									}
@@ -905,7 +906,7 @@ class RecipesController extends Controller
 										$step->setIsNewRecord(true);
 										if(!$step->save()){
 											$saveOK = false;
-											if ($this->debug) {echo 'error on save Step: errors:'; print_r($step->getErrors());}
+											if ($this->debug) {echo 'error on save Step: errors:'; var_dump($step->getErrors());}
 										} else {
 											$step->updateChangeTime = true;
 										}
@@ -921,7 +922,7 @@ class RecipesController extends Controller
 										$step->STE_STEP_DURATION = 0;
 										if(!$step->save()){
 											$saveOK = false;
-											if ($this->debug) {echo 'error on save Step: errors:'; print_r($step->getErrors());}
+											if ($this->debug) {echo 'error on save Step: errors:'; var_dump($step->getErrors());}
 										} else {
 											$step->updateChangeTime = true;
 										}
@@ -937,7 +938,7 @@ class RecipesController extends Controller
 									if ($changed){
 										$model->updateChangeTime = false;
 										if(!$model->save()){
-											if ($this->debug) {echo 'error on save after img file: ';  print_r($model->getErrors());}
+											if ($this->debug) {echo 'error on save after img file: ';  var_dump($model->getErrors());}
 											$transaction->rollBack();
 											$saveOK = false;
 										}
@@ -972,7 +973,7 @@ class RecipesController extends Controller
 									$saveOK = false;
 								}
 							} else {
-								if ($this->debug) {echo 'error on save: ';  print_r($model->getErrors());}
+								if ($this->debug) {echo 'error on save: ';  var_dump($model->getErrors());}
 								$transaction->rollBack();
 								$saveOK = false;
 							}
@@ -1195,6 +1196,56 @@ class RecipesController extends Controller
 		));
 	}
 	
+	private function criteriaToCommand($criteria){
+		$command = Yii::app()->db->createCommand();
+		$command->distinct = $criteria->distinct;
+		if (isset($criteria->select)){
+			//$command->select('recipes.*, recipe_types.*' . $criteria->select);
+			$command->select($criteria->select);
+		}
+		$command->from('recipes');
+		if (isset($criteria->join)){
+			$command->join = $criteria->join;
+		}
+		if (strpos($criteria->condition, 'ingredients.') !== false){
+			$command->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID');
+			$command->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID');
+			if (strpos($criteria->condition, 'step_types.') !== false){
+				$command->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID');
+			}
+		} else if (strpos($criteria->condition, 'step_types.') !== false){
+			$command->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID');
+			$command->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID');
+		} else if (strpos($criteria->condition, 'steps.') !== false){
+			$command->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID');
+		}
+		
+		if (isset($criteria->condition)){
+			$command->where($criteria->condition);
+		}
+		if (isset($criteria->group)){
+			$command->group($criteria->group);
+		}
+		if (isset($criteria->having)){
+			$command->having($criteria->having);
+		}
+		if (isset($criteria->order)){
+			$command->order($criteria->order);
+		}
+		$command->bindValues($criteria->params);
+		return $command;
+	}
+	
+	private function mergeConditions($cond1, $cond2){
+		if (!isset($cond1) || $cond1 == ''){
+			return $cond2;
+		}
+		if (!isset($cond2) || $cond2 == ''){
+			return $cond1;
+		}
+		return '(' . $cond1 . ') AND (' . $cond2 . ')';
+	}
+	
 	private function prepareSearch($view, $ajaxLayout, $criteria)
 	{
 		$model=new Recipes('search');
@@ -1215,90 +1266,161 @@ class RecipesController extends Controller
 		} else {
 			$query = $model2->query;
 		}
+		$filters = array();
+		$additionalSelect = '';
+		if ($criteria == null){
+			$criteria=new CDbCriteria;
+			$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'recipes.');
+			$criteria->condition = $criteriaString;
+		}
 		
-		$ing_id = null;
 		if(isset($_GET['ing_id'])){
 			$ing_id = $_GET['ing_id'];
+		} else if(isset($_POST['ing_id'])){
+			$ing_id = $_POST['ing_id'];
+		}
+		if(isset($ing_id) && strlen($ing_id) > 0){
+			$filters['ing_id'] = $ing_id;
+			$ids = explode(',', $ing_id);
+			//$criteria->addInCondition(Steps::model()->tableName().'.ING_ID',$ids);
+			
+			$idsCount = count($ids);
+			$stepModel = new Steps;
+			$ingCriteria=new CDbCriteria;
+			$ingCriteria->select = 'count(DISTINCT i.ING_ID) as amount'; // $ingModel->getTableSchema()->primaryKey;
+			$ingCriteria->join = 'LEFT JOIN ingredients i ON s.ING_ID=i.ING_ID';
+			$ingCriteria->condition = 's.REC_ID = recipes.REC_ID';
+			$ingCriteria->addInCondition('i.ING_ID',$ids);
+			$subQuery=$stepModel->getCommandBuilder()->createFindCommand($stepModel->getTableSchema(),$ingCriteria, 's')->getText();
+			
+			//$criteria->addCondition('(' . $subQuery . ') = ' . $idsCount);
+			$additionalSelect = $additionalSelect . ',(' . $subQuery . ') as ingCount';
+			$criteria->select = $criteria->select . ',(' . $subQuery . ') as ingCount';
+			$criteria->having=$this->mergeConditions($criteria->having, 'ingCount = ' . $idsCount);
+			$criteria->params = array_merge($criteria->params, $ingCriteria->params);
+		}else {
+			$filters['ing_id'] = '';
 		}
 		
-		if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Recipes']) && !isset($_GET['ing_id'])  && (!isset($_GET['newSearch']) || $_GET['newSearch'] < Yii::app()->session[$this->searchBackup]['time'])){
-			$Session_Recipe = Yii::app()->session[$this->searchBackup];
-			if (isset($Session_Recipe)){
-				if (isset($Session_Recipe['query'])){
-					$query = $Session_Recipe['query'];
-					$model2->query = $query;
-					//echo "query from session\n";
-				}
-				if (isset($Session_Recipe['ing_id'])){
-					$ing_id = $Session_Recipe['ing_id'];
-					//echo "ing_id from session\n";
-				}
-				if (isset($Session_Recipe['model'])){
-					$model = $Session_Recipe['model'];
-					$modelAvailable = true;
-					//echo "model from session\n";
-				}
-			}
+		if(isset($_GET['ing_id_not'])){
+			$ing_id_not = $_GET['ing_id_not'];
+		} else if(isset($_POST['ing_id_not'])){
+			$ing_id_not = $_POST['ing_id_not'];
 		}
-		if ($query != $model2->query){
-			$model2->query = $query;
-		}
-		
-		$rows = null;
-		if ($criteria != null){
-			Yii::app()->session[$this->searchBackup] = array('time'=>time());
+		if(isset($ing_id_not) && strlen($ing_id_not) > 0){
+			$filters['ing_id_not'] = $ing_id_not;
+			$ids = explode(',', $ing_id_not);
+			//$criteria->addNotInCondition(Steps::model()->tableName().'.ING_ID',$ids);
 			
-			$command = Yii::app()->db->createCommand()
-				->from('recipes')
-				->leftJoin('recipe_types', 'recipes.RET_ID=recipe_types.RET_ID');
-				if (strpos($criteria->condition, 'steps') !== false){
-					$command->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID');
-				}
-				//->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID')
-				//->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID')
-				//->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID')
-				$command->where($criteria->condition, $criteria->params);
-				//->order('steps.STE_STEP_NO')
-			$rows = $command->queryAll();
-		} else if($ing_id !== null){
-			$Session_Recipe = array();
-			$Session_Recipe['ing_id'] = $ing_id;
-			$Session_Recipe['time'] = time();
-			Yii::app()->session[$this->searchBackup] = $Session_Recipe;
+			$stepModel = new Steps;
+			$ingCriteria=new CDbCriteria;
+			$ingCriteria->select = 'count(DISTINCT i.ING_ID) as amount'; // $ingModel->getTableSchema()->primaryKey;
+			$ingCriteria->join = 'LEFT JOIN ingredients i ON s.ING_ID=i.ING_ID';
+			$ingCriteria->condition = 's.REC_ID = recipes.REC_ID';
+			$ingCriteria->addInCondition('i.ING_ID',$ids);
+			$subQuery=$stepModel->getCommandBuilder()->createFindCommand($stepModel->getTableSchema(),$ingCriteria, 's')->getText();
 			
-			$rows = Yii::app()->db->createCommand()
-				//->select('recipes.*')
-				->from('recipes')
-				->leftJoin('recipe_types', 'recipes.RET_ID=recipe_types.RET_ID')
-				//->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID')
-				->join('steps', 'recipes.REC_ID=steps.REC_ID')
-				//->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID')
-				//->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID')
-				//->where('ingredients.ING_ID=:id', array(':id'=>$ing_id))
-				->where('steps.ING_ID=:id', array(':id'=>$ing_id))
-				//->order('steps.STE_STEP_NO')
-				->queryAll();
+			//$criteria->addCondition('(' . $subQuery . ') = 0');
+			$additionalSelect = $additionalSelect . ',(' . $subQuery . ') as ingNotCount';
+			$criteria->select = $criteria->select . ',(' . $subQuery . ') as ingNotCount';
+			$criteria->having=$this->mergeConditions($criteria->having, 'ingNotCount = 0');
+			$criteria->params = array_merge($criteria->params, $ingCriteria->params);
 		} else {
-			$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'recipes.');
-			if ($criteriaString != ''){
-				$Session_Recipe = array();
-				$Session_Recipe['query'] = $query;
-				$Session_Recipe['time'] = time();
-				Yii::app()->session[$this->searchBackup] = $Session_Recipe;
-				
-				$rows = Yii::app()->db->createCommand()
-					->from('recipes')
-					->leftJoin('recipe_types', 'recipes.RET_ID=recipe_types.RET_ID')
-					//->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID')
-					//->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID')
-					//->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID')
-					->where($criteriaString)
-					//->order('steps.STE_STEP_NO')
-					->queryAll();
-			} else {
-				$rows = array();
-				unset(Yii::app()->session[$this->searchBackup]);
+			$filters['ing_id_not'] = '';
+		}
+		
+		$filters['selectedAutor'] = array();
+		$filters['selectedBatches'] = array();
+		$filters['selectedTypeOfCusine'] = array();
+		$filters['selectedTypes'] = array();
+		$selectedOrderBy = 'N';
+		
+		/*
+		if(isset($_GET['autor'])){
+			$autor = $_GET['autor'];
+		} else if(isset($_POST['autor'])){
+			$autor = $_POST['autor'];
+		}
+		if(isset($autor)){
+			//$autor = explode(',', $autor); // as array already
+			$filters['selectedAutor'] = $autor;
+			//TODO: change to user relativ groups
+			$criteria->addInCondition('recipes.CREATED_BY ',$autor);
+		}
+		if(isset($_GET['batches'])){
+			$batches = $_GET['batches'];
+		} else if(isset($_POST['batches'])){
+			$batches = $_POST['batches'];
+		}
+		if(isset($batches)){
+			//$batches = explode(',', $batches); // as array already
+			$filters['selectedBatches'] = $batches;
+			//TODO: add Batches Logic
+			//$criteria->addInCondition('recipes.REC_BATCHES ',$batches);
+		}
+		*/
+		
+		if(isset($_GET['typeOfCusine'])){
+			$typeOfCusine = $_GET['typeOfCusine'];
+		} else if(isset($_POST['typeOfCusine'])){
+			$typeOfCusine = $_POST['typeOfCusine'];
+		}
+		if(isset($typeOfCusine)){
+			//$typeOfCusine = explode(',', $typeOfCusine); // as array already
+			$filters['selectedTypeOfCusine'] = $typeOfCusine;
+			foreach($typeOfCusine as $key=>$value){
+				if ($value === ''){
+					$typeOfCusine[$key] = null;
+					break;
+				}
 			}
+			$criteria->addInCondition('recipes.CUT_ID ',$typeOfCusine);
+			//TODO concatinate with OR, not the complete existing condition but the above and the next one
+			//$criteria->addInCondition('recipes.CST_ID ',$typeOfCusine, 'OR');
+		}
+		
+		if(isset($_GET['type'])){
+			$type = $_GET['type'];
+		} else if(isset($_POST['type'])){
+			$type = $_POST['type'];
+		}
+		if(isset($type)){
+			//$type = explode(',', $type); // as array already
+			$filters['selectedTypes'] = $type;
+			$criteria->addInCondition('recipes.RET_ID ',$type);
+		}
+		
+		if(isset($_GET['orderby'])){
+			$selectedOrderBy = $_GET['orderby'];
+		} else if(isset($_POST['orderby'])){
+			$selectedOrderBy = $_POST['orderby'];
+		}
+		
+		//Additional display criterias
+		$criteriaDisplay=new CDbCriteria;
+		$criteriaDisplay->join = '';
+		$criteriaDisplay->mergeWith($criteria);
+		$criteriaDisplay->mergeWith(array(
+			'join'=>'LEFT JOIN cusine_types cut ON cut.CUT_ID = recipes.CUT_ID'.
+			' LEFT JOIN cusine_sub_types cst ON cst.CST_ID = recipes.CST_ID'.
+			' LEFT JOIN recipe_types ret ON recipes.RET_ID=ret.RET_ID'
+		));
+		$criteriaDisplay->select = $criteriaDisplay->select . ', cut.CUT_DESC_' . Yii::app()->session['lang'] . ' as CUT_DESC, cst.CST_DESC_' . Yii::app()->session['lang'] . ' as CST_DESC';
+		
+		
+		$orderByKeyToField = array('N'=>'REC_NAME_' . Yii::app()->session['lang'],'n'=>'REC_NAME_' . Yii::app()->session['lang'] . ' DESC','K'=>'REC_KCAL','k'=>'REC_KCAL DESC','C'=>'REC_COMPLEXITY','c'=>'REC_COMPLEXITY DESC'/*,'P'=>'PreparationTime','R'=>'Rating',''=>'',*/);
+		if (isset($orderByKeyToField[$selectedOrderBy])){
+			$criteriaDisplay->order = $orderByKeyToField[$selectedOrderBy];
+		} else {
+			$criteriaDisplay->order = 'REC_NAME_' . Yii::app()->session['lang'];
+		}
+		
+		$command = $this->criteriaToCommand($criteriaDisplay);
+		$rows = $command->queryAll();
+		
+		if ($this->debug) {
+			echo $command->text .'<br/>';
+			var_dump($criteria->params);
 		}
 		
 		$dataProvider=new CArrayDataProvider($rows, array(
@@ -1308,18 +1430,90 @@ class RecipesController extends Controller
 				'pageSize'=>10,
 			),
 		));
-		$this->checkRenderAjax($view,array(
-			'model'=>$model,
-			'model2'=>$model2,
-			'dataProvider'=>$dataProvider,
-		), $ajaxLayout);
+		if ($view == 'search'){
+			if (isset($command)){
+				//TypeOfCusine
+				$criteriaTypeOfCusine=new CDbCriteria;
+				$criteriaTypeOfCusine->join = 'LEFT JOIN cusine_types cut ON cut.CUT_ID = recipes.CUT_ID';
+				$criteriaTypeOfCusine->mergeWith($criteria);
+				$criteriaTypeOfCusine->distinct = true;
+				$criteriaTypeOfCusine->select = 'cut.CUT_ID,cut.CUT_DESC_' . Yii::app()->session['lang'] . $additionalSelect;
+				$commandTypeOfCusine = $this->criteriaToCommand($criteriaTypeOfCusine);
+				$commandTypeOfCusine->bindValues($criteriaTypeOfCusine->params);
+				$typeOfCusine = $commandTypeOfCusine->queryAll();
+				if ($this->debug) {
+					echo $commandTypeOfCusine->text . '<br>';
+					var_dump($criteriaTypeOfCusine->params);
+				}
+				$typeOfCusine = CHtml::listData($typeOfCusine,'CUT_ID','CUT_DESC_'.Yii::app()->session['lang']);
+				if(array_key_exists(null,$typeOfCusine)){
+					$typeOfCusine[null] = $this->trans->GENERAL_UNDEFINED;
+				}
+				$filters['possibleTypeOfCusine'] = $typeOfCusine;
+				
+				//Type
+				$criteriaType=new CDbCriteria;
+				$criteriaType->join = 'LEFT JOIN recipe_types ret ON recipes.RET_ID=ret.RET_ID';
+				$criteriaType->mergeWith($criteria);
+				$criteriaType->distinct = true;
+				$criteriaType->select = 'ret.RET_ID,ret.RET_DESC_' . Yii::app()->session['lang'] . $additionalSelect;
+				$commandType = $this->criteriaToCommand($criteriaType);
+				$commandType->bindValues($criteriaType->params);
+				$typeOfCusine = $commandType->queryAll();
+				if ($this->debug) {
+					echo $commandType->text . '<br>';
+					var_dump($criteriaType->params);
+				}
+				$type = CHtml::listData($typeOfCusine,'RET_ID','RET_DESC_'.Yii::app()->session['lang']);
+				if(array_key_exists(null,$type)){
+					$type[null] = $this->trans->GENERAL_UNDEFINED;
+				}
+				$filters['possibleTypes'] = $type;
+				
+			} else {
+				$commandTypeOfCusine = Yii::app()->db->createCommand()
+					->select('DISTINCT CUT_ID,CUT_DESC_' . Yii::app()->session['lang'])
+					->from('cusine_types');
+				$typeOfCusine = $commandTypeOfCusine->queryAll();
+//				echo $commandTypeOfCusine->text . '<br>';
+				$typeOfCusine = CHtml::listData($typeOfCusine,'CUT_ID','CUT_DESC_'.Yii::app()->session['lang']);
+				if(array_key_exists(null,$typeOfCusine)){
+					$typeOfCusine[null] = $this->trans->GENERAL_UNDEFINED;
+				}
+				$filters['possibleTypeOfCusine'] = $typeOfCusine;
+			}
+			
+			$possibleAutor = array('5'=>'Professionals','2'=>'MyFriends','3'=>'MyFamily','O'=>'other users');
+			$possibleBatches = array('1'=>'Vetegarian');
+			$possibleTypeOfCusine = array('P'=>'Professionals','2'=>'MyFriends','3'=>'MyFamily','O'=>'other users');
+			
+			$filters['possibleAutor'] = $possibleAutor;
+			$filters['possibleBatches'] = $possibleBatches;
+			
+			$possibleOrderBys = array('N'=>$this->trans->RECIPES_ORDER_REC_NAME,'n'=>$this->trans->RECIPES_ORDER_REC_NAME_DESC,'K'=>$this->trans->RECIPES_ORDER_REC_KCAL,'k'=>$this->trans->RECIPES_ORDER_REC_KCAL_DESC,'C'=>$this->trans->RECIPES_ORDER_REC_COMPLEXITY,'c'=>$this->trans->RECIPES_ORDER_REC_COMPLEXITY_DESC/*,'P'=>'PreparationTime','R'=>'Rating',''=>'',*/);
+			
+			$this->checkRenderAjax($view,array(
+				'model'=>$model,
+				'model2'=>$model2,
+				'dataProvider'=>$dataProvider,			
+				'filters'=>$filters,
+				'selectedOrderBy'=>$selectedOrderBy,
+				'possibleOrderBys'=>$possibleOrderBys
+				), $ajaxLayout);
+		} else {
+			$this->checkRenderAjax($view,array(
+				'model'=>$model,
+				'model2'=>$model2,
+				'dataProvider'=>$dataProvider,
+				), $ajaxLayout);
+		}
 	}
-	
+	/*
 	public function actionAdvanceSearch()
 	{
 		$this->prepareSearch('advanceSearch', null, null);
 	}
-	
+	*/
 	public function actionSearch()
 	{
 		$this->prepareSearch('search', null, null);
@@ -1329,23 +1523,26 @@ class RecipesController extends Controller
 		$this->isFancyAjaxRequest = true;
 		$this->prepareSearch('search', 'none', null);
 	}
-	
+	/*
 	public function actionAdvanceChooseRecipe(){
 		$this->isFancyAjaxRequest = true;
 		$this->prepareSearch('advanceSearch', 'none', null);
 	}
+	*/
 	
 	public function actionChooseTemplateRecipe(){
 		$this->isFancyAjaxRequest = true;
 		$this->isTemplateChoose = true;
 		$this->prepareSearch('search', 'none', null);
 	}
-	
+	/*
 	public function actionAdvanceChooseTemplateRecipe(){
 		$this->isFancyAjaxRequest = true;
 		$this->isTemplateChoose = true;
 		$this->prepareSearch('advanceSearch', 'none', null);
 	}
+	*/
+	
 	public function actionSearchFridge(){
 		if(!isset($_GET['query'])){
 			$this->prepareSearch('search', null, null);
@@ -1447,6 +1644,11 @@ class RecipesController extends Controller
 	public function actionDisgusting($id){
 		$this->saveLastAction = false;
 		Functions::addLikeInfo($id, 'R', false);
+		$this->showLastAction();
+	}
+	public function actionHide($id){
+		$this->saveLastAction = false;
+		Functions::addLikeInfo($id, 'RH', false);
 		$this->showLastAction();
 	}
 	
@@ -1902,7 +2104,7 @@ class RecipesController extends Controller
 		
 		/*
 		echo "<pre>\n";
-		print_r($changes);
+		var_dump($changes);
 		echo "</pre>\n";
 		return;
 		*/

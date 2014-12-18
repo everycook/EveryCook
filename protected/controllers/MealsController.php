@@ -454,7 +454,7 @@ class MealsController extends Controller
 				$cou_gda = $meal_gda * $meaToCou['MTC_PERC_MEAL'] / 100;
 				$rec_gda = $cou_gda * $row['CTR_REC_PROC'] / 100;
 				$rec_kcal = $row['REC_KCAL'];
-				$rec_servings = $recipe->REC_SERVING_COUNT;
+				$rec_servings = $row['REC_SERVING_COUNT'];
 				if ($rec_kcal != 0){
 					if ($rec_servings <= 0){
 						$rec_proz = $rec_gda / $rec_kcal;
