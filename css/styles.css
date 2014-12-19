@@ -628,6 +628,14 @@ div.ingInfo .value {
 	margin-right: 1em;
 }
 
+#recipesResult .empty {
+	background: none repeat scroll 0 0 white;
+	border-radius: 1em;
+	display: block;
+	margin-top: 1em;
+	padding: 1em;
+}
+
 div.detailView {
 	border-radius:1.7em;
 	padding:0.8em;
@@ -742,13 +750,38 @@ div.search {
 }
 
 div.search  input.search_query , div.search  .search_query .select2-choices {
-	width:17em;
+	width: 14em;
 	border-radius:0.8em;
 	box-sizing: border-box;
 }
+.startpage  div.search  input.search_query, .startpage  div.search  .search_query .select2-choices {
+	width: 100%;
+}
 
 div.search  input.search_query {
-	padding:6px 0.5em;
+	padding: 6px 0.5em;
+	border: 1px solid lightgray;
+}
+.startpage div.search  .search_query {
+	width: 100%;
+}
+/* the problem is, there is a fix size on syle attribute, this would not change if resize the windows...
+with this change (fix 100%) it will brake to 2. line also if it's not needed...
+*/
+.startpage div.search  .select2-container-multi .select2-choices .select2-search-field input {
+	width: 100% !important;
+}
+
+
+div.search .select2-container-multi .select2-choices {
+	padding: 0 0.5em;	
+}
+.select2-container-multi .select2-choices .select2-search-choice {
+	line-height: 1em !important;
+}
+.select2-choices .select2-search-choice-close {
+	font-size: inherit;
+	top: 0.3em;
 }
 
 ul.search_choose {
@@ -1389,7 +1422,9 @@ div.mealView span.value {
 }
 
 .startpage .button {
-	min-width: 14em;
+	/*min-width: 14em;*/
+	width: 100%;
+	margin-top: 1em;
 }
 
 .up-arrow, .down-arrow {
@@ -1444,15 +1479,29 @@ div.mealView span.value {
 	top: 0.5em;
 }
 
+.startpage {
+	display: table;
+	width: 100%;
+}
+
+.leftTeaser, .centerTeaser, .rightTeaser{
+	display: table-cell;
+}
+
 .startpage div.search {
 	width: auto;
 	margin-bottom: 0;
 }
-.startpage .f-left {
-	margin-right: 1em;
+.leftTeaser {
+	padding-right: 1em;
+    width: 22.2em;
 }
-.startpage .f-right {
-	margin-left: 1em;
+.centerTeaser {
+	font-size: 1.6em;
+}
+.rightTeaser {
+	padding-left: 1em;
+    width: 22.2em;
 }
 
 .placeholder

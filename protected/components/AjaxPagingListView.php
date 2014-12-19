@@ -57,8 +57,10 @@ class AjaxPagingListView extends CListView
 			}
 			$this->renderPagerNext();
 		}
-		else
+		else {
+			echo '&nbsp;';
 			$this->renderEmptyText();
+		}
 		if (!isset($_GET['ajaxPaging']) || !$_GET['ajaxPaging']){
 			echo CHtml::closeTag($this->itemsTagName);
 		}

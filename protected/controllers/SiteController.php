@@ -104,21 +104,21 @@ class SiteController extends Controller
 			
 			$suggestedRecipes = array();
 			//Top left
-			$suggestedRecipes["top_left"] = array("Suggestion", $this->getSuggestionRecipe(1, $recipeAmount));
+			$suggestedRecipes["top_left"] = array($this->trans->HOME_SUGGESTION, $this->getSuggestionRecipe(1, $recipeAmount));
 			
 			//bottom_left
 			if(Yii::app()->user->isGuest) {
-				$suggestedRecipes["bottom_left"] = array("Most Popular", $this->getSuggestionRecipe(2, ''));
+				$suggestedRecipes["bottom_left"] = array($this->trans->HOME_MOST_POPULAR, $this->getSuggestionRecipe(2, ''));
 			} else {
-				$suggestedRecipes["bottom_left"] = array("Suggestion", $this->getSuggestionRecipe(1, $recipeAmount));
+				$suggestedRecipes["bottom_left"] = array($this->trans->HOME_SUGGESTION, $this->getSuggestionRecipe(1, $recipeAmount));
 			}
 			
 			//top_right
 			if(Yii::app()->user->isGuest) {
-				//$suggestedRecipes["top_right"] = array("Wolrd cuisine");
-				$suggestedRecipes["top_right"] = array("Suggestion", $this->getSuggestionRecipe(1, $recipeAmount));
+				//$suggestedRecipes["top_right"] = array("World cuisine");
+				$suggestedRecipes["top_right"] = array($this->trans->HOME_SUGGESTION, $this->getSuggestionRecipe(1, $recipeAmount));
 			} else {
-				$suggestedRecipes["top_right"] = array("Last cooked", $this->getSuggestionRecipe(3, yii::app()->user->id));
+				$suggestedRecipes["top_right"] = array($this->trans->HOME_LAST_COOKED, $this->getSuggestionRecipe(3, yii::app()->user->id));
 			}
 			
 			$this->checkRenderAjax('index', array(

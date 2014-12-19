@@ -38,11 +38,13 @@ See GPLv3.htm in the main folder for details.
 			if ($data['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $data['REC_IMG_AUTH']; } 
 			echo '</div>';
 		echo '</div>';
-		echo '<div class="options">';
-			echo CHtml::link(CHtml::encode($this->trans->RECIPES_DONT_LIKE_IT /*GENERAL_DISGUSTING*/), array('disgusting', 'id'=>$data['REC_ID']), array('class'=>'noAjax button')) . '<br>';
-			//echo CHtml::link(CHtml::encode($this->trans->RECIPES_NOT_TODAY), array('hide', 'id'=>$data['REC_ID']), array('class'=>'button')) . '<br>';
-			echo CHtml::link(CHtml::encode($this->trans->RECIPES_SAVE_FOR_LATER /*GENERAL_DELICIOUS*/), array('delicious', 'id'=>$data['REC_ID']), array('class'=>'noAjax button'));
-		echo '</div>';
+		if(!Yii::app()->user->isGuest) {
+			echo '<div class="options">';
+				echo CHtml::link(CHtml::encode($this->trans->RECIPES_DONT_LIKE_IT /*GENERAL_DISGUSTING*/), array('disgusting', 'id'=>$data['REC_ID']), array('class'=>'noAjax button')) . '<br>';
+				//echo CHtml::link(CHtml::encode($this->trans->RECIPES_NOT_TODAY), array('hide', 'id'=>$data['REC_ID']), array('class'=>'button')) . '<br>';
+				echo CHtml::link(CHtml::encode($this->trans->RECIPES_SAVE_FOR_LATER /*GENERAL_DELICIOUS*/), array('delicious', 'id'=>$data['REC_ID']), array('class'=>'noAjax button'));
+			echo '</div>';
+		}
 	}
 	?>
 	
@@ -159,6 +161,12 @@ See GPLv3.htm in the main folder for details.
 		<b><?php echo CHtml::encode($this->trans->FIELD_REC_KCAL); ?>:</b>
 		<?php echo CHtml::encode($data['REC_KCAL']) . ' ' . $this->trans->RECIPES_KCAL_PER_SERVING ?>
 		<br />
+		
+		<?php /* //Preparation Time
+		<b><?php echo CHtml::encode($this->trans->FIELD_REC_KCAL); ?>:</b>
+		<?php echo CHtml::encode($data['REC_KCAL']) . ' ' . $this->trans->RECIPES_KCAL_PER_SERVING ?>
+		<br />
+		*/ ?>
 		
 		<div class="buttons">
 			<?php

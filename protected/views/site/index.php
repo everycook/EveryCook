@@ -22,7 +22,7 @@ $this->pageTitle=Yii::app()->name;
 <h1><?php printf($this->trans->TITLE_SITE_INDEX, CHtml::encode(Yii::app()->name)); ?></h1>
 
 <div class="startpage">
-	<div class="f-left">
+	<div class="leftTeaser">
 		<div class="teaser">
 			<div class="title">
 				<?php echo $suggestedRecipes["top_left"][0]; ?>
@@ -53,32 +53,7 @@ $this->pageTitle=Yii::app()->name;
 			</div>
 		</div>
 	</div>
-	<div class="f-right">
-		<div class="teaser">
-			<div class="title">
-				<?php echo $suggestedRecipes["top_right"][0]; ?>
-			</div>
-			<div class="recipePic">
-				<?php
-					$recipe = $suggestedRecipes["top_right"][1];
-					if ($recipe != null && count($recipe)>0){
-				?>
-				<?php echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$recipe['REC_NAME_' . Yii::app()->session['lang']], 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']])), array('recipes/view', 'id'=>$recipe['REC_ID'], 'nosearch'=>'true')); ?>
-				<div class="img_auth"><?php if ($recipe['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $recipe['REC_IMG_AUTH']; } ?></div>
-				<?php } ?>
-			</div>
-		</div>
-		<br />
-		<div class="teaser">
-			<div class="title">
-				Your recipe!
-			</div>
-			<div class="recipePic">
-			<?php echo CHtml::link('Click to create your recpie', array('recipes/create')); ?>
-			</div>
-		</div>
-	</div>
-	<div class="f-center">
+	<div class="centerTeaser">
 		<?php $form=$this->beginWidget('CActiveForm', array(
 			'action'=>Yii::app()->createUrl('recipes/search'),
 			'id'=>'recipes_form',
@@ -86,12 +61,16 @@ $this->pageTitle=Yii::app()->name;
 			'htmlOptions'=>array('class'=>'submitToUrl'),
 		)); ?>
 		<div class="search">
-			<?php echo Functions::specialField('query', '', 'search', array('class'=>'search_query', 'placeholder'=>$this->trans->RECIPES_TYPE_A_DISH)); ?>
-			<?php //echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
-			<?php echo CHtml::submitButton('Find me a recipe!', array('class'=>'button')); ?>
+			<?php
+			echo '<span>' . $this->trans->HOME_WHAT_WANT_TO_COOK . '</span><br />';
+			echo Functions::specialField('query', '', 'search', array('class'=>'search_query', 'placeholder'=>$this->trans->RECIPES_TYPE_A_DISH));
+			echo '<br />';
+			//echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH));
+			echo CHtml::submitButton($this->trans->HOME_FIND_RECIPE, array('class'=>'button'));
+			?>
 		</div>
 		<?php $this->endWidget(); ?>
-		
+		<br /><br />
 		<?php $form=$this->beginWidget('CActiveForm', array(
 			//'action'=>Yii::app()->createUrl('recipes/searchFridge'),
 			'action'=>Yii::app()->createUrl('recipes/search'),
@@ -103,6 +82,7 @@ $this->pageTitle=Yii::app()->name;
 		?>
 		<div class="search">
 			<?php
+			echo '<span>' . $this->trans->HOME_WHAT_IN_FRIDGE . '</span><br />';
 			//echo Functions::specialField('query', '', 'search', array('class'=>'search_query', 'placeholder'=>'Type an ingredient'));
 			echo CHtml::hiddenField('ing_id', '', array('id'=>'searchFridge', 'data-placeholder'=>$this->trans->RECIPES_TYPE_AN_INGREDIENT));
 			
@@ -121,11 +101,36 @@ $this->pageTitle=Yii::app()->name;
 				)
 			));
 			
+			echo '<br />';
+			//echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH));
+			echo CHtml::submitButton($this->trans->HOME_SHOW_WHAT_CAN_COOK, array('class'=>'button'));
 			?>
-			<?php //echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
-			<?php echo CHtml::submitButton('Show me what I can cook!', array('class'=>'button')); ?>
 		</div>
 		<?php $this->endWidget(); ?>
 	</div>
-	<div class="clearfix"></div>
+	<div class="rightTeaser">
+		<div class="teaser">
+			<div class="title">
+				<?php echo $suggestedRecipes["top_right"][0]; ?>
+			</div>
+			<div class="recipePic">
+				<?php
+					$recipe = $suggestedRecipes["top_right"][1];
+					if ($recipe != null && count($recipe)>0){
+				?>
+				<?php echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$recipe['REC_NAME_' . Yii::app()->session['lang']], 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']])), array('recipes/view', 'id'=>$recipe['REC_ID'], 'nosearch'=>'true')); ?>
+				<div class="img_auth"><?php if ($recipe['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $recipe['REC_IMG_AUTH']; } ?></div>
+				<?php } ?>
+			</div>
+		</div>
+		<br />
+		<div class="teaser">
+			<div class="title">
+				<?php echo $this->trans->HOME_YOUR_RECIPE; ?>
+			</div>
+			<div class="recipePic">
+			<?php echo CHtml::link($this->trans->HOME_CREATE_RECIPE, array('recipes/create')); ?>
+			</div>
+		</div>
+	</div>
 </div>
