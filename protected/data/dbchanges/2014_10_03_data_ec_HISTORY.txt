@@ -1,4 +1,4 @@
--- copy current data to history tables
+﻿-- copy current data to history tables
 
 INSERT INTO recipes_history (SELECT * FROM `recipes`);
 
@@ -26,5 +26,5 @@ INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
 ('RECIPE_BACK_TO_HISTORY', 'back to recipe history', 'Zurück zur Rezepthistory', ''),
 ('HISTORY_CURRENT', 'Current', 'Aktuell', ''),
 ('HISTORY_PREV', 'Previous', 'Vorherige', ''),
-('HISTORY_DATE_FORMAT', 'Y-m-d H:i:s', 'H:i:s d.m.Y', ''),
+('HISTORY_DATE_FORMAT', 'Y-m-d H:i:s', 'H:i:s d.m.Y', '');
 

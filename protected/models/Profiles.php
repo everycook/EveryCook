@@ -124,7 +124,7 @@ class Profiles extends ActiveRecordECPriv
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('PRF_NICK, PRF_EMAIL, PRF_PW, PRF_LANG, PRF_IMG_ETAG, PRF_LIKES_CUSINE, PRF_LIKES_CUSINESUB, PRF_ALLERGY, PRF_DIET_PREF, PRF_COOKING_STOVE_MEASUREMENTS, COS_ID, PRF_KCAL, PRF_ACTIVITY_CALCULATOR', 'required'),
+			array('PRF_NICK, PRF_EMAIL', 'required'),
 			array('PRF_BIRTHDAY, PRF_COOKING_STOVE_STAGES, COS_ID, PRF_KCAL, PRF_VIEW_DISTANCE, PRF_ACTIVE, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG, PRF_SPEED_PEELING, PRF_ALDENTE_NOODLES, PRF_ALDENTE_VEGETABLES', 'numerical'),
 			array('PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_EMAIL, PRF_ROLES, PRF_RND, PRF_EVERYCOOP_IP', 'length', 'max'=>100),
@@ -145,6 +145,7 @@ class Profiles extends ActiveRecordECPriv
 			
 			// register
 			//array('pw_repeat','safe'),
+			array('PRF_IMG_ETAG', 'required', 'on'=>'with_pic'),
 			array('pw_repeat, verifyCaptcha', 'required', 'on'=>'register'),
 			array('pw_repeat', 'compare', 'compareAttribute'=>'PRF_PW', 'on'=>'register'),
 			array('PRF_NICK, PRF_EMAIL','unique', 'on'=>'register'),

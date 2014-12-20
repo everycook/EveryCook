@@ -984,7 +984,7 @@ class RecipesController extends Controller
 						}
 						$model->updateChangeTime = true;
 						if (!$saveOK){
-							$model->CHANGED_ON = REC_CHANGED_ON;	
+							$model->CHANGED_ON = $REC_CHANGED_ON;
 						}
 					} else {
 						//To show Recipe errors also
