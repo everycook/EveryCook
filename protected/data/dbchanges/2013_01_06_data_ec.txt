@@ -1,4 +1,4 @@
-INSERT INTO `recipes_voting_reason` (`RVR_ID` ,`RVR_DESC_DE_CH` ,`RVR_DESC_EN_GB`) VALUES
+ï»¿INSERT INTO `recipes_voting_reason` (`RVR_ID` ,`RVR_DESC_DE_CH` ,`RVR_DESC_EN_GB`) VALUES
 ('1', 'Zu lange gekockt.', 'it''s cooked to long.'),
 ('2', 'Zuwenig lang gekockt.', 'Not cooked long enough.');
 
@@ -6,7 +6,7 @@ INSERT INTO `recipes_voting_reason` (`RVR_ID` ,`RVR_DESC_DE_CH` ,`RVR_DESC_EN_GB
 
 
 INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
-('COOKASISSTANT_SELECT_COOK_IN_FOR_TIME', 'Select "cook in" Option for time information.', 'Wählen Sie eine "Kochen in" Einstellung für Anzeige der Kochdauer.', ''),
+('COOKASISSTANT_SELECT_COOK_IN_FOR_TIME', 'Select "cook in" Option for time information.', 'WÃ¤hlen Sie eine "Kochen in" Einstellung fÃ¼r Anzeige der Kochdauer.', ''),
 ('COOKASISSTANT_VOTE_FOR_RECIPE', 'Vote: Is the Recipe good?', 'Abstimmen: Ist das Rezept gut?', ''),
 ('COOKASISSTANT_VOTE_GOOD', 'Good', 'Gut', ''),
 ('COOKASISSTANT_VOTE_BAD', 'Bad', 'Schlecht', ''),
@@ -14,4 +14,4 @@ INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
 ('COOKASISSTANT_VOTE_REASON_SAVE', 'save', 'speichern', ''),
 ('FIELD_RVR_ID', 'Reason', 'Grund', ''),
 ('FIELD_RVO_REASON', 'Other Reason', 'Anderer Grund', ''),
-('COOKASISSTANT_CHANGE_RECIPE', 'change Recipe', 'Rezept ändern', '');
+('COOKASISSTANT_CHANGE_RECIPE', 'change Recipe', 'Rezept Ã¤ndern', '');

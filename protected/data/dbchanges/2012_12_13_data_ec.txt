@@ -1,5 +1,5 @@
-DELETE from `textes` WHERE TXT_NAME IN ('GENERAL_YES');
+﻿DELETE from `textes` WHERE TXT_NAME IN ('GENERAL_YES');
 INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
-('FIELD_AIN_DEFAULT', 'Defaults for Steps', 'Standartwerte f�r Steps', ''),
+('FIELD_AIN_DEFAULT', 'Defaults for Steps', 'Standartwerte für Steps', ''),
 ('FIELD_AIN_PREP', 'Is Prepare Action', 'Ist eine Vorbereitungs Aktion', ''),
 ('GENERAL_YES', 'Yes', 'Ja', '');

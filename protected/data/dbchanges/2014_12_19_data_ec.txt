@@ -1,6 +1,6 @@
-INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
-('HOME_WHAT_WANT_TO_COOK', 'What do you want to cook today?', 'Was möchten Sie heute kochen?', ''),
-('HOME_WHAT_IN_FRIDGE', 'What do you have in your fridge?', 'Was haben Sie in ihrem Kühlschrank?', ''),
+ï»¿INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('HOME_WHAT_WANT_TO_COOK', 'What do you want to cook today?', 'Was mÃ¶chten Sie heute kochen?', ''),
+('HOME_WHAT_IN_FRIDGE', 'What do you have in your fridge?', 'Was haben Sie in ihrem KÃ¼hlschrank?', ''),
 ('HOME_FIND_RECIPE', 'Find me a recipe!', 'Finde mir ein Rezept!', ''),
 ('HOME_SHOW_WHAT_CAN_COOK', 'Show me what I can cook!', 'Zeig mir was ich kochen kann!', ''),
 ('HOME_YOUR_RECIPE', 'Your recipe!', 'Ihr Rezept!', ''),

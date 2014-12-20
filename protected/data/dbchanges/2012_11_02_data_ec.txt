@@ -1,4 +1,4 @@
-
+ï»¿
 INSERT INTO `cook_in_prep` (`COI_PREP` ,`COI_PREP_DESC`) VALUES
 ('0', 'not a prepare step'),
 ('1', 'prepare for condition'),
@@ -25,11 +25,11 @@ INSERT INTO `cook_in_state` (`COI_ID`, `CIS_ID`, `CIS_DESC`) VALUES
 
 INSERT INTO `tools` (`TOO_ID`, `TOO_DESC_DE_CH`, `TOO_DESC_EN_GB`) VALUES 
 ('1', 'Messer und Schneidbrett', 'Knife and cutting board'), 
-('2', 'Schäler', 'Peeler'), ('3', 'Gabel', 'Fork'), 
-('4', 'Löffel', 'Spoon'), 
+('2', 'SchÃ¤ler', 'Peeler'), ('3', 'Gabel', 'Fork'), 
+('4', 'LÃ¶ffel', 'Spoon'), 
 ('5', 'EveryCook Mutter', 'EveryCook Nut'), 
 ('6', 'EveryCook Messerscheibe No. 6', 'EveryCook Cutting Disk No. 6'), 
-('7', 'EveryCook Stössel', 'EveryCook Pusher'), 
+('7', 'EveryCook StÃ¶ssel', 'EveryCook Pusher'), 
 ('8', 'Schale', 'Bowl'), 
 ('9', 'EveryCook', 'EveryCook'), 
 ('10', 'Bratpfanne', 'Skillet'),
@@ -42,11 +42,11 @@ INSERT INTO `tools` (`TOO_ID`, `TOO_DESC_DE_CH`, `TOO_DESC_EN_GB`) VALUES
 ('17', 'EveryCook Messerscheibe No. 5', 'EveryCook Cutting Disk No. 5'), 
 ('18', 'EveryCook Deckel', 'EveryCook lid'), 
 ('19', 'EveryCook Waage', 'EveryCook scale'),
-('20', 'EveryCook Wägeschale', 'EveryCook scale pot'),
+('20', 'EveryCook WÃ¤geschale', 'EveryCook scale pot'),
 ('21', 'EveryCook Deckel schrauben', 'EveryCook lid screw'), 
 ('22', 'Kochplate / Kochhert', 'cooking plate'), 
 ('23', 'Waage', 'Scale'), 
-('24', 'EveryCook Rührer', 'EveryCook stirrer');
+('24', 'EveryCook RÃ¼hrer', 'EveryCook stirrer');
 
 INSERT INTO `tools` (`TOO_ID`, `TOO_DESC_DE_CH`, `TOO_DESC_EN_GB`) VALUES 
 ('25', 'Keine Hilfsmittel', 'No Tools');
@@ -56,8 +56,8 @@ UPDATE `tools` SET `TOO_ID` = '0' WHERE `tools`.`TOO_ID` =25;
 INSERT INTO `actions_in` (`AIN_ID`, `AIN_DESC_DE_CH`, `AIN_DESC_EN_GB`) VALUES 
 ('1', '#ingredient in feine Streifen schneiden und in #tool geben', 'cut #ingredient into fine stripes and put in #tool'), 
 ('2', '#ingredient in feine Scheiben schneiden und in #tool geben', 'cut #ingredient into fine slices and put in #tool'), 
-('3', '#ingredient #weight abwägen und in #tool geben', 'scale #ingredient #weight and put in #tool'), 
-('4', '#ingredient #weight abwägen', 'scale #ingredient #weight'), 
+('3', '#ingredient #weight abwÃ¤gen und in #tool geben', 'scale #ingredient #weight and put in #tool'), 
+('4', '#ingredient #weight abwÃ¤gen', 'scale #ingredient #weight'), 
 ('5', 'kochen #time bei #temp', 'cook #time by #temp'), 
 ('6', 'aufheizen auf #temp', 'headup to #temp');
 
@@ -193,32 +193,32 @@ INSERT INTO `ain_to_aou` (`AIN_ID`, `COI_ID`, `ATA_NO`, `AOU_ID`, `ATA_COI_PREP`
 
 
 INSERT INTO `actions_out` (`AOU_ID`, `STT_ID`, `TOO_ID`, `AOU_PREP`, `AOU_DURATION`, `AOU_DUR_PRO`, `CIS_ID`, `AOU_DESC_DE_CH`, `AOU_DESC_EN_GB`) VALUES
-('1', '0', '2', 'Y', '120', '1000', '', '#ingredient waschen und schälen', 'wash and peel #ingredient'),
+('1', '0', '2', 'Y', '120', '1000', '', '#ingredient waschen und schÃ¤len', 'wash and peel #ingredient'),
 ('2', '0', '1', 'Y', '30', '1000', '', '#ingredient grob schneiden', 'cut roughly #ingredient'),
 ('3', '0', '7', 'N', '15', '0', '2', 'Messer No 6 einsetzen', 'Insert Cutting Disk No 6'),
 ('4', '0', '6', 'N', '15', '0', '', 'Mutter anziehen', 'Tighten nut'),
-('5', '1', '8', 'N', '-1', '0', '', '#ingredient zum schneiden einfüllen', 'fill in #ingredient for cutting'),
+('5', '1', '8', 'N', '-1', '0', '', '#ingredient zum schneiden einfÃ¼llen', 'fill in #ingredient for cutting'),
 ('6', '0', '1', 'Y', '240', '1000', '', '#ingredient in feine Streifen schneiden', 'cut fine stripes of #ingredient'),
-('7', '0', '9', 'Y', '15', '0', '', '#ingredient in eine Schale füllen', 'fill #ingredient into a bowl'),
+('7', '0', '9', 'Y', '15', '0', '', '#ingredient in eine Schale fÃ¼llen', 'fill #ingredient into a bowl'),
 ('8', '0', '11', 'N', '30', '1000', '', '#ingredient in #tool geben', 'put #ingredient in #tool'),
 ('9', '0', '12', 'N', '30', '1000', '', '#ingredient in #tool geben', 'put #ingredient in #tool'),
 ('10', '0', '13', 'N', '30', '1000', '', '#ingredient in #tool geben', 'put #ingredient in #tool'),
 ('11', '0', '14', 'N', '30', '1000', '', '#ingredient in #tool geben', 'put #ingredient in #tool'),
-('12', '0', '-1', 'N', '45', '1000', '', '#ingredient gleichmässig in #tool verteilen', 'put #ingredient evenly in #tool'),
+('12', '0', '-1', 'N', '45', '1000', '', '#ingredient gleichmÃ¤ssig in #tool verteilen', 'put #ingredient evenly in #tool'),
 ('13', '0', '17', 'N', '15', '0', '2', 'Messer No 5 einsetzen', 'Insert Cutting Disk No 5'),
 ('14', '0', '1', 'Y', '240', '1000', '', '#ingredient in feine Scheiben schneiden', 'cut fine slices of #ingredient'),
-('15', '0', '18', 'N', '15', '0', '-17', 'Deckel öffnen', 'open lid'),
+('15', '0', '18', 'N', '15', '0', '-17', 'Deckel Ã¶ffnen', 'open lid'),
 ('16', '0', '18', 'N', '15', '0', '1', 'Deckel Schliessen', 'close lid'),
-('17', '2', '0', 'N', '30', '0', '', 'langsam #ingredient #weight einfüllen bis zum piepston', 'insert slowly #ingredient #weight until peep'),
-('18', '0', '23', 'Y', '30', '0', '', '#ingredient #weight auf #tool abwägen', 'scale #ingredient #weight on #tool'),
-('19', '0', '20', 'N', '15', '0', '32', 'Wägeschalte aufsetzen', 'put scale pot'),
-('20', '0', '20', 'N', '15', '0', '-32', 'Wägeschalte entfernen', 'remove scale pot'),
+('17', '2', '0', 'N', '30', '0', '', 'langsam #ingredient #weight einfÃ¼llen bis zum piepston', 'insert slowly #ingredient #weight until peep'),
+('18', '0', '23', 'Y', '30', '0', '', '#ingredient #weight auf #tool abwÃ¤gen', 'scale #ingredient #weight on #tool'),
+('19', '0', '20', 'N', '15', '0', '32', 'WÃ¤geschalte aufsetzen', 'put scale pot'),
+('20', '0', '20', 'N', '15', '0', '-32', 'WÃ¤geschalte entfernen', 'remove scale pot'),
 ('21', '0', '21', 'N', '15', '0', '16', 'Deckel Schrauben anziehen', 'Tighten lid screw'),
 ('24', '11', '0', 'N', '-1', '0', '', 'kochen #time bei #temp', 'cook #time by #temp'),
 ('25', '10', '0', 'N', '-1', '0', '', 'aufheizen auf #temp', 'headup to #temp'),
 ('26', '0', '22', 'N', '-1', '0', '', 'kochen #time auf 2/3 max stufe (#temp)', 'cook #time on 2/3 of max heat (#temp)'),
-('27', '0', '22', 'N', '-1', '0', '', 'aufheizen auf max stufe(für #time) bis es heiss ist (#temp)', 'headup on max heat (for #time) until its heat(#temp)'),
+('27', '0', '22', 'N', '-1', '0', '', 'aufheizen auf max stufe(fÃ¼r #time) bis es heiss ist (#temp)', 'headup on max heat (for #time) until its heat(#temp)'),
 ('28', '0', '16', 'N', '15', '0', '1', '#tool in backofen stellen', 'put #tool in Oven'),
 ('29', '0', '15', 'N', '-1', '0', '', 'backen #time bei #temp', 'backing #time bei #temp'),
 ('30', '0', '15', 'Y', '-1', '0', '', 'aufheizen auf #temp', 'headup to #temp'),
-('31', '0', '15', 'N', '-1', '0', '', 'Temperatur erhöhen auf #temp', 'Increase head to #temp');
+('31', '0', '15', 'N', '-1', '0', '', 'Temperatur erhÃ¶hen auf #temp', 'Increase head to #temp');

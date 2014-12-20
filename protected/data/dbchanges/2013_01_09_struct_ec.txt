@@ -1,4 +1,4 @@
-CREATE TABLE `recipe_cooked_infos` (
+﻿CREATE TABLE `recipe_cooked_infos` (
 `RCI_ID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `PRF_UID` INT NULL ,
 `MEA_ID` INT NOT NULL ,

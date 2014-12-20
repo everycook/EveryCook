@@ -1,4 +1,4 @@
-INSERT INTO `action_types` (`ATY_ID` ,`ATY_DESC_EN_GB` ,`ATY_DESC_DE_CH` ,`CREATED_BY` ,`CREATED_ON` ,`CHANGED_BY` ,`CHANGED_ON`) VALUES
+﻿INSERT INTO `action_types` (`ATY_ID` ,`ATY_DESC_EN_GB` ,`ATY_DESC_DE_CH` ,`CREATED_BY` ,`CREATED_ON` ,`CHANGED_BY` ,`CHANGED_ON`) VALUES
 (NULL , 'prepare machine', 'Machine vorbereiten', '3', 1373264266 , NULL , NULL);
 
 UPDATE `actions_out` SET `ATY_ID` = '3' WHERE `actions_out`.`AOU_ID` =2;

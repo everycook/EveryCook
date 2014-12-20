@@ -1,4 +1,4 @@
-INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+﻿INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
 ('GENERAL_COMPARE', 'compare', 'vergleichen', ''),
 ('TITLE_RECIPES_HISTORY', 'history', 'Versionsgeschichte', ''),
 ('FIELD_REC_KCAL', 'kcal / serving', 'kcal / Portion', '');

@@ -1,4 +1,4 @@
-ALTER TABLE `actions_out` DROP PRIMARY KEY ;
+﻿ALTER TABLE `actions_out` DROP PRIMARY KEY ;
 
 ALTER TABLE `actions_out` DROP `AIN_ID` ,
 DROP `COI_ID` ,

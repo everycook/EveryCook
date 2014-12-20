@@ -1,5 +1,5 @@
-INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
-('ACTIONSGENERATOR_ACTIONS_CHANGE', 'Change', 'Ändern', ''),
+ï»¿INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('ACTIONSGENERATOR_ACTIONS_CHANGE', 'Change', 'Ã„ndern', ''),
 ('ACTIONSGENERATOR_ACTIONS_COPY', 'Copy', 'Kopieren', ''),
 ('ACTIONSGENERATOR_ACTIONS_CREATE', 'Create', 'Erstellen', ''),
 ('ACTIONSGENERATOR_ACTIONS_OUT', 'Actions Out', 'Actions Out', ''),
@@ -23,9 +23,9 @@ INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
 ('FIELD_AOU_PREP', 'Prepare Step', 'Vorbereitungs Step', ''),
 ('FIELD_AOU_DURATION', 'Duration', 'Dauer', ''),
 ('FIELD_AOU_DUR_PRO', 'Duration pro x g', 'Dauer pro x g', ''),
-('FIELD_AOU_CIS_CHANGE', 'CookIn State change', 'CookIn Status änderung', ''),
+('FIELD_AOU_CIS_CHANGE', 'CookIn State change', 'CookIn Status Ã¤nderung', ''),
 ('FIELD_STT_DESC_EN_GB', 'Description English', 'Beschreibung Englisch', ''),
 ('FIELD_STT_DESC_DE_CH', 'Description German', 'Beschreibung Deutsch', ''),
 ('FIELD_STT_DEFAULT', 'Default values', 'Standard Werte', ''),
 ('FIELD_STT_REQUIRED', 'Required Fields', 'Muss Felder', ''),
-('GENERAL_ADMIN', 'Admin Interface', 'Admin Oberfläche', '');
+('GENERAL_ADMIN', 'Admin Interface', 'Admin OberflÃ¤che', '');

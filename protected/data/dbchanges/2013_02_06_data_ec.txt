@@ -1,4 +1,4 @@
-UPDATE `step_types` SET `STT_DEFAULT` = 'STE_CLOCKWISE=0;STE_STIR_RUN=0;STE_STIR_PAUSE=0',
+﻿UPDATE `step_types` SET `STT_DEFAULT` = 'STE_CLOCKWISE=0;STE_STIR_RUN=0;STE_STIR_PAUSE=0',
 `STT_REQUIRED` = 'STE_CELSIUS;STE_RPM;STE_STIR_RUN;STE_STIR_PAUSE' WHERE `step_types`.`STT_ID` =10;
 UPDATE `step_types` SET `STT_DEFAULT` = '',
 `STT_REQUIRED` = 'STE_CELSIUS' WHERE `step_types`.`STT_ID` =12;
@@ -16,5 +16,5 @@ UPDATE `actions_out` SET `AOU_DURATION` = '-3' WHERE `actions_out`.`AOU_ID` =35;
 
 INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
 ('RECIPES_PREPARE', 'Prepare', 'Vorbereitung', '');
-('GENERAL_BACK_TO_SEARCH', 'Back to search', 'Zur�ck zur Suche', ''),
+('GENERAL_BACK_TO_SEARCH', 'Back to search', 'Zurück zur Suche', ''),
 ('FIELD_AOU_ID', 'Action Out', 'Action Out', '');

@@ -1,4 +1,4 @@
-CREATE TABLE `physics_assumptions` (
+﻿CREATE TABLE `physics_assumptions` (
 `PHA_NAME` VARCHAR( 100 ) NOT NULL ,
 `PHA_UNIT` VARCHAR( 50 ) NOT NULL ,
 `PHA_VALUE` FLOAT NOT NULL ,

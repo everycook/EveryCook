@@ -1,2 +1,2 @@
-INSERT INTO `textes` (`TXT_NAME`, `EN_GB`, `DE_CH`, `FR_FR`) VALUES
+﻿INSERT INTO `textes` (`TXT_NAME`, `EN_GB`, `DE_CH`, `FR_FR`) VALUES
 ('GENERAL_SYNC_FROM_PLATFORM', 'Sync from Platform', 'Platform updates runterladen', '');

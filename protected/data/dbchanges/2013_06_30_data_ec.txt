@@ -1,6 +1,6 @@
-INSERT INTO `action_types` (`ATY_ID`, `ATY_DESC_EN_GB`, `ATY_DESC_DE_CH`, `CREATED_BY`, `CREATED_ON`, `CHANGED_BY`, `CHANGED_ON`) VALUES
+﻿INSERT INTO `action_types` (`ATY_ID`, `ATY_DESC_EN_GB`, `ATY_DESC_DE_CH`, `CREATED_BY`, `CREATED_ON`, `CHANGED_BY`, `CHANGED_ON`) VALUES
 ('1', 'No Special', 'Nichts spezielles', '3', UNIX_TIMESTAMP( ), NULL, NULL),
-('2', 'Put in CookIn', 'in CookIn eingef�gen', '3', UNIX_TIMESTAMP( ), NULL, NULL);
+('2', 'Put in CookIn', 'in CookIn eingefügen', '3', UNIX_TIMESTAMP( ), NULL, NULL);
 
 UPDATE `actions_out` SET `ATY_ID` = '1' WHERE `actions_out`. `ATY_ID` = 0;
 

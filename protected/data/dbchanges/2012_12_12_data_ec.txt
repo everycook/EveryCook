@@ -1,4 +1,4 @@
-INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
-('COOKASISSTANT_COOK_WITH_NONE_NOT_DEVICE', 'You can only cook this recipe with everycook, please open CookAssistant on your device.', 'Dieses Rezept kann nur mit everycook gekocht werden, bitte öffnen sie den KochAssistenten auf dem Gerät.', ''),
+ï»¿INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('COOKASISSTANT_COOK_WITH_NONE_NOT_DEVICE', 'You can only cook this recipe with everycook, please open CookAssistant on your device.', 'Dieses Rezept kann nur mit everycook gekocht werden, bitte Ã¶ffnen sie den KochAssistenten auf dem GerÃ¤t.', ''),
 ('COOKASISSTANT_COOK_WITH_NONE', 'Error in Recipe, there is no Cook in / with setting for recipe.', 'Error im Rezept, es ist keine Kochen in / mit Einstellung vorhanden.', ''),
-('COOKASISSTANT_COOK_WITH_NOT_DEVICE', 'To cook this recipe with everycook, please open CookAssistant on your device.', 'Um dieses Rezept mit everycook zukochen, öffnen sie bitte den KochAssistenten auf dem Gerät.', '');
+('COOKASISSTANT_COOK_WITH_NOT_DEVICE', 'To cook this recipe with everycook, please open CookAssistant on your device.', 'Um dieses Rezept mit everycook zukochen, Ã¶ffnen sie bitte den KochAssistenten auf dem GerÃ¤t.', '');

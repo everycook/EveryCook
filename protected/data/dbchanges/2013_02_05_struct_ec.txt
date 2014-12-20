@@ -1,4 +1,4 @@
-DROP TABLE `actions`;
+﻿DROP TABLE `actions`;
 ALTER TABLE `ingredients` DROP `ING_IMG`;
 ALTER TABLE `products` DROP `PRO_IMG`;
 ALTER TABLE `recipes` DROP `REC_IMG`;

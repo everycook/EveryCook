@@ -1,4 +1,4 @@
-CREATE TABLE `recipe_changes` (
+﻿CREATE TABLE `recipe_changes` (
 `REC_ID` INT NOT NULL ,
 `RCH_FIELD` VARCHAR( 30 ) NOT NULL ,
 `CHANGED_BY` INT NOT NULL ,

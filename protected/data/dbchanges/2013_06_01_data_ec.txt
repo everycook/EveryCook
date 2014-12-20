@@ -1,2 +1,2 @@
-INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
-('GENERAL_MY_MACHINE', 'Open My Machine', 'Meine Gerät öffnen', '');
+ï»¿INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('GENERAL_MY_MACHINE', 'Open My Machine', 'Meine GerÃ¤t Ã¶ffnen', '');

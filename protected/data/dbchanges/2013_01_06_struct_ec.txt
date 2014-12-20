@@ -1,4 +1,4 @@
-CREATE TABLE `recipes_voting` (
+﻿CREATE TABLE `recipes_voting` (
 `RVO_ID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `PRF_UID` INT NULL ,
 `MEA_ID` INT NOT NULL ,

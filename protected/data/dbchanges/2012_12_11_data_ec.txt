@@ -1,4 +1,4 @@
-UPDATE `actions_out` SET `AOU_CIS_CHANGE` = '' WHERE `AOU_CIS_CHANGE` = '0';
+ï»¿UPDATE `actions_out` SET `AOU_CIS_CHANGE` = '' WHERE `AOU_CIS_CHANGE` = '0';
 UPDATE `actions_out` SET `AOU_CIS_CHANGE` = '{"1":{"cutter":"#tool"}}' WHERE `actions_out`.`AOU_ID` =3;
 UPDATE `actions_out` SET `AOU_CIS_CHANGE` = '{"1":{"cutter":"#tool"}}' WHERE `actions_out`.`AOU_ID` =13;
 UPDATE `actions_out` SET `AOU_CIS_CHANGE` = '{"1":{"lid":false, "lidcrew":false}}' WHERE `actions_out`.`AOU_ID` =15;
@@ -34,8 +34,8 @@ INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
 INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
 ('COOKASISSTANT_TEMPERATURE', 'Temperature:', 'Temperatur:', ''),
 ('COOKASISSTANT_PRESSURE', 'Pressure:', 'Druck:', ''),
-('COOKASISSTANT_NEXT_STEP_IN', 'Next Step in:', 'Nächster Step in:', ''),
-('COOKASISSTANT_OVERVIEW', 'overview', 'Übersicht', ''),
+('COOKASISSTANT_NEXT_STEP_IN', 'Next Step in:', 'NÃ¤chster Step in:', ''),
+('COOKASISSTANT_OVERVIEW', 'overview', 'Ãœbersicht', ''),
 ('COOKASISSTANT_START', 'start', 'Beginnen', ''),
 ('COOKASISSTANT_CONTINUE', 'continue', 'Weiter kochen', ''),
 ('COOKASISSTANT_CHANGE_COOK_WITH', 'change CookWith Setting', 'Kochen mit Einstellung speichern', '');
