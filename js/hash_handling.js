@@ -17,7 +17,7 @@ See GPLv3.htm in the main folder for details.
 var glob = glob || {};
 var _gaq = _gaq || [];
 
-glob.prefix = window.location.pathname.substr(0,window.location.pathname.indexOf('/',1)+1);
+glob.prefix = glob.prefix || window.location.pathname.substr(0,window.location.pathname.indexOf('/',1)+1);
 glob.hashToUrl = function(url){
 	return glob.prefix + url;
 };

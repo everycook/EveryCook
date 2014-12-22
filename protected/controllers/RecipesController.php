@@ -24,7 +24,7 @@ class RecipesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','searchFridge','displaySavedImage','chooseRecipe','chooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory'),
+				'actions'=>array('index','view','search','searchFridge','displaySavedImage','chooseRecipe','chooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory', 'autocomplete','autocompleteId'),
 				//'advanceSearch','advanceChooseRecipe','advanceChooseTemplateRecipe',
 				'users'=>array('*'),
 			),
@@ -1246,6 +1246,81 @@ class RecipesController extends Controller
 		return '(' . $cond1 . ') AND (' . $cond2 . ')';
 	}
 	
+	private function mergeORConditionList($conditions){
+		$result = '';
+		foreach($conditions as $condition){
+			if ($result != ''){
+				$result.=' OR ' . $condition;
+			} else {
+				$result.=$condition;
+			}
+		}
+		return '(' . $result. ')';
+	}
+	
+	public function actionAutocomplete($query, $page){
+		$this->isFancyAjaxRequest = true;
+		$command = Yii::app()->db->createCommand()
+			->select('("recipe") as type, concat("id:", REC_ID) as id, REC_NAME_' . Yii::app()->session['lang'] . ' as name, REC_SYNONYM_' . Yii::app()->session['lang'] . ' as synonym')
+			->from('recipes')
+			->where('REC_NAME_' . Yii::app()->session['lang'] . ' LIKE :query OR REC_SYNONYM_' . Yii::app()->session['lang'] . ' LIKE :query2',array(':query'=>'%'.$query.'%', ':query2'=>'%'.$query.'%'))
+			//->where('MATCH (REC_NAME_' . Yii::app()->session['lang'] . ', REC_SYNONYM_' . Yii::app()->session['lang'] .') AGAINST (:query IN BOOLEAN MODE)', array(':query'=>$query.'*'))
+			->order('REC_NAME_' . Yii::app()->session['lang'] . ', REC_SYNONYM_' . Yii::app()->session['lang'])
+			->limit(30, ($page-1)*30);
+		$data = $command->queryAll();
+		//if ($this->debug){echo $command->text;}
+		
+		if (count($data) < 30){
+			$total_count = ($page-1)*30 + count($data);
+		} else {
+			$command = Yii::app()->db->createCommand()
+				->select('count(*)')
+				->from('recipes')
+				->where('REC_NAME_' . Yii::app()->session['lang'] . ' LIKE :query OR REC_SYNONYM_' . Yii::app()->session['lang'] . ' LIKE :query2',array(':query'=>'%'.$query.'%', ':query2'=>'%'.$query.'%'));
+			$total_count = $command->queryScalar();
+		}
+		$result = array(
+			'total_count'=>$total_count,
+			'items'=>$data
+		);
+		echo $this->processOutput(CJSON::encode($result));
+	}
+	
+	public function actionAutocompleteId($ids){
+		$this->isFancyAjaxRequest = true;
+		
+		$criteria=new CDbCriteria;
+		if (strlen($ids)>0){
+			$querys = explode(',', $ids);
+			$rec_ids = array();
+			$result = array();
+			foreach($querys as $queryText){
+				if (strlen($queryText)>0){
+					if (substr($queryText,0,3) == 'id:'){
+						$rec_ids[] = substr($queryText,3);
+					} else if (substr($queryText,0,2) == 'q:'){
+						$result[] = array('id' => substr($queryText,0,2), 'name' => substr($queryText,0,2), 'type'=>'query');
+					} else {
+						$result[] = array('id' => $queryText, 'name' => $queryText, 'type'=>'query');
+					}
+				}
+			}
+			if (count($rec_ids)>0){
+				$criteria=new CDbCriteria;
+				$criteria->addInCondition('REC_ID',$rec_ids);
+				$command = Yii::app()->db->createCommand()
+					->select('("recipe") as type, concat("id:", REC_ID) as id, REC_NAME_' . Yii::app()->session['lang'] . ' as name, REC_SYNONYM_' . Yii::app()->session['lang'] . ' as synonym')
+					->from('recipes');
+				$command->where($criteria->condition, $criteria->params);
+				$data = $command->queryAll();
+				$result = array_merge($result, $data);
+			}
+			echo $this->processOutput(CJSON::encode($result));
+		} else {
+			echo '[]';
+		}
+	}
+	
 	private function prepareSearch($view, $ajaxLayout, $criteria)
 	{
 		$model=new Recipes('search');
@@ -1263,15 +1338,44 @@ class RecipesController extends Controller
 		
 		if(isset($_GET['query'])){
 			$query = $_GET['query'];
+			$model2->query = $query;
+		} else if(isset($_POST['query'])){
+			$query = $_POST['query'];
+			$model2->query = $query;
 		} else {
 			$query = $model2->query;
 		}
 		$filters = array();
+		$filterValues = array();
 		$additionalSelect = '';
 		if ($criteria == null){
 			$criteria=new CDbCriteria;
-			$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$query, 'recipes.');
-			$criteria->condition = $criteriaString;
+			if (strlen($query)>0){
+				$querys = explode(',', $query);
+				$rec_ids = array();
+				$searches = array();
+				foreach($querys as $queryText){
+					if (strlen($queryText)>0){
+						if (substr($queryText,0,3) == 'id:'){
+							$rec_ids[] = substr($queryText,3);
+						} else if (substr($queryText,0,2) == 'q:'){
+							$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),substr($queryText,2), 'recipes.');
+							$searches[] = $criteriaString;
+						} else {
+							$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$queryText, 'recipes.');
+							$searches[] = $criteriaString;
+						}
+					}
+				}
+				if (count($rec_ids)>0){
+					$criteriaString = $model->commandBuilder->createInCondition($model->tableName(), 'REC_ID', $rec_ids, 'recipes.');
+					$searches[] = $criteriaString;
+				}
+				if (count($searches)>0){
+					$filterValues['recipe']=$searches;
+					$criteria->condition = $this->mergeORConditionList($searches);
+				}
+			}
 		}
 		
 		if(isset($_GET['ing_id'])){

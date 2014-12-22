@@ -16,6 +16,8 @@ See GPLv3.htm in the main folder for details.
 
 var glob = glob || {};
 
+glob.prefix = glob.prefix || window.location.pathname.substr(0,window.location.pathname.indexOf('/',1)+1);
+
 glob.fancyImages = {};
 
 glob.removeUrlParam = function(url, key){
@@ -51,8 +53,8 @@ glob.changeLinkUrlParam = function(elem, param, newValue){
 };
 
 glob.select2 = {}
-glob.select2.searchFridgeAjax = {
-	url: "/EveryCook/ingredients/autocomplete",
+glob.select2.searchRecipeAjax = {
+	url: glob.prefix + "recipes/autocomplete",
 	dataType: 'json',
 	quietMillis: 250,
 	data: function (term, page) { // page is the one-based page number tracked by Select2
@@ -72,42 +74,88 @@ glob.select2.searchFridgeAjax = {
 	}
 };
 
-glob.select2.searchFridgeInitSelection = function(element, callback) {
+glob.select2.searchRecipeInitSelection = function(element, callback) {
 	var id = $(element).val();
 	if (id !== "") {
-		$.ajax("/EveryCook/ingredients/autocompleteId/?ids=" + id, {
+		if (id.indexOf('id:')>0){
+			$.ajax(glob.prefix + "recipes/autocompleteId/?ids=" + id, {
+				dataType: "json"
+			}).done(function(data) { callback(data); });
+		} else {
+			var data = [];
+			var ids = id.split(',');
+			for(var i=0;i<ids.length;i++){
+				var idValue = ids[i];
+				/*
+				if (idValue.substr(0,2)=='q:'){
+					idValue = idValue.substr(2);
+				}
+				*/
+				data.push({'id':idValue, 'name':idValue.replace(/_/g, ','), 'type':'query'});
+			}
+			callback(data);
+		}
+	}
+};
+
+glob.select2.searchRecipeFormatResult = function (recipe) {
+	return glob.select2.searchRecipeFormatSelection(recipe);
+};
+
+glob.select2.searchRecipeFormatSelection = function (recipe) {
+	if (recipe.synonym){
+		return recipe.name + '(' + recipe.synonym + ')';
+	} else {
+		return ((recipe.type == 'query')?'query: ':'') + recipe.name;
+	}
+}
+
+glob.select2.createSearchChoice = function(term, data) {
+	if ($(data).filter(function() {return this.name.localeCompare(term)===0; }).length===0) {
+		//return {'id':'q:' + term.replace(/,/g, '_'), 'name':term, 'type':'query'};
+		return {'id':term.replace(/,/g, '_'), 'name':term, 'type':'query'};
+	}
+}
+
+glob.select2.searchIngredientAjax = {
+	url: glob.prefix + "ingredients/autocomplete",
+	dataType: 'json',
+	quietMillis: 250,
+	data: function (term, page) { // page is the one-based page number tracked by Select2
+		glob.ShowActivity = false;
+		return {
+			'query': term, //search term
+			'page': page, // page number
+			'light_weight':1 //say do not do so much things
+		};
+	},
+	results: function (data, page) {
+		glob.ShowActivity = true;
+		var more = (page * 30) < data.total_count; // whether or not there are more results available
+		
+		// notice we return the value of more so Select2 knows if more results can be loaded
+		return { results: data.items, more: more };
+	}
+};
+
+glob.select2.searchIngredientInitSelection = function(element, callback) {
+	var id = $(element).val();
+	if (id !== "") {
+		$.ajax(glob.prefix + "ingredients/autocompleteId/?ids=" + id, {
 			dataType: "json"
 		}).done(function(data) { callback(data); });
 	}
 };
 
-glob.select2.searchFridgeFormatResult = function (ingredient) {
-	return glob.select2.searchFridgeFormatSelection(ingredient);
-	/*
-	var markup = '<div class="row-fluid">' +
-		'<div class="span2"><img src="' + repo.owner.avatar_url + '" /></div>' +
-		'<div class="span10">' +
-		'<div class="row-fluid">' +
-		'<div class="span6">' + repo.full_name + '</div>' +
-		'<div class="span3"><i class="fa fa-code-fork"></i> ' + repo.forks_count + '</div>' +
-		'<div class="span3"><i class="fa fa-star"></i> ' + repo.stargazers_count + '</div>' +
-		'</div>';
-
-	if (repo.description) {
-		markup += '<div>' + repo.description + '</div>';
-	}
-
-	markup += '</div></div>';
-
-	return markup;
-	*/
+glob.select2.searchIngredientFormatResult = function (ingredient) {
+	return glob.select2.searchIngredientFormatSelection(ingredient);
 };
 
-glob.select2.searchFridgeFormatSelection = function (ingredient) {
+glob.select2.searchIngredientFormatSelection = function (ingredient) {
 	if (ingredient.synonym){
 		return ingredient.name + '(' + ingredient.synonym + ')';
 	} else {
-		return ingredient.name;
+		return /*ingredient.type + ': ' +*/ ingredient.name;
 	}
 }
 

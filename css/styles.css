@@ -579,6 +579,33 @@ div.ingInfo .value {
 	font-weight: bold;
 }
 
+
+#recipeSearchArea div.search {
+	width: 100%;
+	display: table;
+}
+
+#recipeSearchArea div.search  input.search_query, #recipeSearchArea  div.search  .search_query .select2-choices {
+	width: auto;
+}
+
+#recipeSearchArea div.search  .search_query {
+	width: 100%;
+	display: table-cell;
+}
+#recipeSearchArea div.search .search_button {
+	display: table-cell;
+	margin-left: 0.5em;
+}
+
+/* the problem is, there is a fix size on syle attribute, this would not change if resize the windows...
+with this change (fix 100%) it will brake to 2. line also if it's not needed...
+*/
+#recipeSearchArea div.search  .select2-container-multi .select2-choices .select2-search-field input {
+	width: 100% !important;
+}
+
+
 #recipeResultArea {
 	display: table;
 	width: 100%;

@@ -63,7 +63,25 @@ $this->pageTitle=Yii::app()->name;
 		<div class="search">
 			<?php
 			echo '<span>' . $this->trans->HOME_WHAT_WANT_TO_COOK . '</span><br />';
-			echo Functions::specialField('query', '', 'search', array('class'=>'search_query', 'placeholder'=>$this->trans->RECIPES_TYPE_A_DISH));
+			//echo Functions::specialField('query', '', 'search', array('class'=>'search_query', 'placeholder'=>$this->trans->RECIPES_TYPE_A_DISH));
+			echo CHtml::hiddenField('query', '', array('id'=>'searchRecipe', 'data-placeholder'=>$this->trans->RECIPES_TYPE_A_DISH));
+			
+			$this->widget('ext.select2.ESelect2', array(
+				'target' => '#searchRecipe',
+				'config' => array (
+					'multiple' => true,
+					'minimumInputLength' => 1,
+					'placeholder'=>$this->trans->RECIPES_TYPE_A_DISH,
+					'ajax' => 'js:glob.select2.searchRecipeAjax',
+					'formatResult' => 'js:glob.select2.searchRecipeFormatResult', // omitted for brevity, see the source of this page
+					'formatSelection' => 'js:glob.select2.searchRecipeFormatSelection', // omitted for brevity, see the source of this page
+					//'dropdownCssClass' => 'search_query', // apply css that makes the dropdown taller
+					'containerCssClass' => 'search_query', // apply css that makes the dropdown taller
+					'escapeMarkup' => 'js:function (m) { return m; }', // we do not want to escape markup since we are displaying html in results
+					'createSearchChoice' => 'js:glob.select2.createSearchChoice',
+				)
+			));
+			
 			echo '<br />';
 			//echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH));
 			echo CHtml::submitButton($this->trans->HOME_FIND_RECIPE, array('class'=>'button'));
@@ -92,12 +110,13 @@ $this->pageTitle=Yii::app()->name;
 					'multiple' => true,
 					'minimumInputLength' => 1,
 					'placeholder'=>$this->trans->RECIPES_TYPE_AN_INGREDIENT,
-					'ajax' => 'js:glob.select2.searchFridgeAjax',
-					'formatResult' => 'js:glob.select2.searchFridgeFormatResult', // omitted for brevity, see the source of this page
-					'formatSelection' => 'js:glob.select2.searchFridgeFormatSelection', // omitted for brevity, see the source of this page
+					'ajax' => 'js:glob.select2.searchIngredientAjax',
+					'formatResult' => 'js:glob.select2.searchIngredientFormatResult', // omitted for brevity, see the source of this page
+					'formatSelection' => 'js:glob.select2.searchIngredientFormatSelection', // omitted for brevity, see the source of this page
 					//'dropdownCssClass' => 'search_query', // apply css that makes the dropdown taller
 					'containerCssClass' => 'search_query', // apply css that makes the dropdown taller
-					'escapeMarkup' => 'js:function (m) { return m; }' // we do not want to escape markup since we are displaying html in results
+					'escapeMarkup' => 'js:function (m) { return m; }', // we do not want to escape markup since we are displaying html in results
+					//'createSearchChoice' => 'js:glob.select2.createSearchChoice',
 				)
 			));
 			

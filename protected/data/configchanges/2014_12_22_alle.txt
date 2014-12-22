@@ -1,0 +1,5 @@
+
+	'import'=>array(
+		...
+		'application.extensions.select2.ESelect2',
+	),

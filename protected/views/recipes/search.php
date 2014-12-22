@@ -48,15 +48,35 @@ if ($this->isFancyAjaxRequest){ ?>
 }
 ?>
 
-<div>
+<div id="recipeSearchArea">
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'action'=>Yii::app()->createUrl($this->route),
 	'method'=>'post',
 	'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 )); ?>
 	<div class="f-left search">
-		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
-		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
+		<?php
+		//echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query'));
+		echo CHtml::hiddenField('query', $model2->query, array('id'=>'searchRecipe', 'data-placeholder'=>$this->trans->RECIPES_TYPE_A_DISH));
+		
+		$this->widget('ext.select2.ESelect2', array(
+			'target' => '#searchRecipe',
+			'config' => array (
+				'multiple' => true,
+				'minimumInputLength' => 1,
+				'placeholder'=>$this->trans->RECIPES_TYPE_A_DISH,
+				'ajax' => 'js:glob.select2.searchRecipeAjax',
+				'initSelection' =>'js:glob.select2.searchRecipeInitSelection',
+				'formatResult' => 'js:glob.select2.searchRecipeFormatResult', // omitted for brevity, see the source of this page
+				'formatSelection' => 'js:glob.select2.searchRecipeFormatSelection', // omitted for brevity, see the source of this page
+				//'dropdownCssClass' => 'search_query', // apply css that makes the dropdown taller
+				'containerCssClass' => 'search_query', // apply css that makes the dropdown taller
+				'escapeMarkup' => 'js:function (m) { return m; }', // we do not want to escape markup since we are displaying html in results
+				'createSearchChoice' => 'js:glob.select2.createSearchChoice',
+			)
+		));
+		echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH));
+		?>
 	</div>
 <?php /*if (!$this->isFancyAjaxRequest){ ?>	
 	<div class="f-right">
@@ -101,10 +121,10 @@ if ($this->isFancyAjaxRequest){ ?>
 							'multiple' => true,
 							'minimumInputLength' => 1,
 							'placeholder'=>$this->trans->RECIPES_TYPE_AN_INGREDIENT,
-							'ajax' => 'js:glob.select2.searchFridgeAjax',
-							'initSelection' =>'js:glob.select2.searchFridgeInitSelection',
-							'formatResult' => 'js:glob.select2.searchFridgeFormatResult', // omitted for brevity, see the source of this page
-							'formatSelection' => 'js:glob.select2.searchFridgeFormatSelection', // omitted for brevity, see the source of this page
+							'ajax' => 'js:glob.select2.searchIngredientAjax',
+							'initSelection' =>'js:glob.select2.searchIngredientInitSelection',
+							'formatResult' => 'js:glob.select2.searchIngredientFormatResult', // omitted for brevity, see the source of this page
+							'formatSelection' => 'js:glob.select2.searchIngredientFormatSelection', // omitted for brevity, see the source of this page
 							//'dropdownCssClass' => 'search_query', // apply css that makes the dropdown taller
 							'containerCssClass' => 'search_query', // apply css that makes the dropdown taller
 							'escapeMarkup' => 'js:function (m) { return m; }' // we do not want to escape markup since we are displaying html in results
@@ -122,10 +142,10 @@ if ($this->isFancyAjaxRequest){ ?>
 							'multiple' => true,
 							'minimumInputLength' => 1,
 							'placeholder'=>$this->trans->RECIPES_TYPE_AN_INGREDIENT,
-							'ajax' => 'js:glob.select2.searchFridgeAjax',
-							'initSelection' =>'js:glob.select2.searchFridgeInitSelection',
-							'formatResult' => 'js:glob.select2.searchFridgeFormatResult', // omitted for brevity, see the source of this page
-							'formatSelection' => 'js:glob.select2.searchFridgeFormatSelection', // omitted for brevity, see the source of this page
+							'ajax' => 'js:glob.select2.searchIngredientAjax',
+							'initSelection' =>'js:glob.select2.searchIngredientInitSelection',
+							'formatResult' => 'js:glob.select2.searchIngredientFormatResult', // omitted for brevity, see the source of this page
+							'formatSelection' => 'js:glob.select2.searchIngredientFormatSelection', // omitted for brevity, see the source of this page
 							//'dropdownCssClass' => 'search_query', // apply css that makes the dropdown taller
 							'containerCssClass' => 'search_query', // apply css that makes the dropdown taller
 							'escapeMarkup' => 'js:function (m) { return m; }' // we do not want to escape markup since we are displaying html in results
