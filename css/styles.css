@@ -579,6 +579,9 @@ div.ingInfo .value {
 	font-weight: bold;
 }
 
+.select2-results .matchingText{
+	font-weight: bold;
+}
 
 #recipeSearchArea div.search {
 	width: 100%;
@@ -764,6 +767,88 @@ div#ingredients.detailView div.nutrientTable {
 .detailView #map_canvas {
 	margin-bottom: 1em;
 }
+
+
+
+
+/* @group redesign */
+div#recipes.detailView  {
+	display: table;
+	box-sizing: border-box;
+	width: 100%;
+}
+div#recipes.detailView .shoppingList, div#recipes.detailView .recipe{
+	display: table-cell;
+}
+
+div#recipes.detailView .shoppingList {
+	padding-right: 1em;
+}
+
+div.detailView div.shoppingList div.otherItems img {
+	width:6em;
+	height:6em;
+	border-radius:0.8em;
+}
+div.detailView div.shoppingList div.otherItems ul {
+	padding: 0;
+	margin: 0;
+}
+div.detailView div.shoppingList div.otherItems li {
+	list-style: none outside none;
+/*	width: 10em;*/
+}
+
+div#recipes.detailView .recipe {
+	width: 100%;
+}
+
+div#recipes.detailView .recipe .backbutton {
+	float: right;
+}
+
+.cookitbar {
+	margin-bottom: 1em;
+}
+
+div#recipes.detailView  div.nutrientTable {
+	margin: 0 0 1em;
+}
+
+div#recipes.detailView  div.nutrientTable .title::before {
+	content: "> ";
+}
+
+div#recipes.detailView  div.nutrientTable .title {
+	font-weight: bold;
+	font-size: 1.2em;
+	cursor: pointer;
+	display: block;
+}
+
+div#recipes.detailView  div.nutrientTable div {
+	display: none;
+}
+
+div#recipes.detailView  .step {
+	background-color: white;
+	border: 2px solid black;
+	border-radius: 0.5em;
+	margin-bottom: 0.5em;
+	padding: 0.25em 0.5em;
+}
+div#recipes.detailView  .step .stepNo {
+	background-color: black;
+	text-align: center;
+	border-radius: 1em;
+	display: inline-block;
+	height: 1.6em;
+	width: 1.6em;
+	color: white;
+}
+/* @end redesign */
+
+
 
 div.search {
 	margin-bottom: 0.8em;
@@ -1636,18 +1721,20 @@ div.mealView span.value {
 
 
 .history.button {
+	float: right;
 	margin-bottom: 0.7em;
+	margin-left: 0.5em;
 }
 
 
 div.historyOverview .backbutton {
-	margin-bottom:0.4em;
+	margin-bottom: 0.4em;
 }
 
 div.historyOverview .name {
-	font-weight:bold;
-	font-size:2.0em;
-	margin-bottom:0.4em;
+	font-weight: bold;
+	font-size: 2.0em;
+	margin-bottom: 0.4em;
 }
 div.historyOverview .buttons {
 	margin-top: 0.7em;

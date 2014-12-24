@@ -35,26 +35,24 @@ if (!$history){
 }
 ?>
 
-<div class="detailView">
-	<?php
-	if (isset(Yii::app()->session['Recipes'])){
-		if (isset(Yii::app()->session['Recipes']['model'])){
-			echo CHtml::link($this->trans->SEARCH_BACK_TO_RESULTS, array('recipes/advancesearch'), array('class'=>'button backbutton'));
-		} else {
-			echo CHtml::link($this->trans->SEARCH_BACK_TO_RESULTS, array('recipes/search'), array('class'=>'button backbutton'));
-		}
-	}
-	?>
-	
-	<div class="options">
+<div id="recipes" class="detailView">
+	<div class="shoppingList">
+		&nbsp;
+		<div class="detail_img">
+			<?php echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']))); ?>
+			<div class="img_auth"><?php if ($model->REC_IMG_ETAG == '') { echo '&nbsp;'; } else {echo '<C2><A9> by ' . $model->REC_IMG_AUTH; } ?></div>
+		</div>
 		<?php
+		/*
 		if (!$history){
 			echo CHtml::link('&nbsp;', array('delicious', 'id'=>$model->REC_ID), array('class'=>'delicious_big noAjax backpic f-left', 'title'=>$this->trans->GENERAL_DELICIOUS));
 			//echo CHtml::link('+', array('user/addrecipes', 'id'=>$model->REC_ID), array('class'=>'button addRecipe', 'title'=>$this->trans->RECIPES_ADD));
 			echo CHtml::link('&nbsp;', array('meals/mealPlanner', 'rec_id'=>$model->REC_ID), array('class'=>'cookwith_big backpic f-right', 'title'=>$this->trans->RECIPES_MEALPLANNER));
 			echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$model->REC_ID), array('class'=>'disgusting_big noAjax backpic f-center','title'=>$this->trans->GENERAL_DISGUSTING));
 		}
+		*/
 		?>
+		<?php //echo CHtml::link(CHtml::encode($this->trans->MEALPLANNER_SAVE_TO_SHOPPINGLIST), array('shoppinglists/view', 'rec_id'=>$model->REC_ID), array('class'=>'button')); ?>
 		<div class="otherItems ingredients">
 			<?php echo CHtml::encode($this->trans->RECIPES_INGREDIENTS_NEEDED); ?>
 			<ul>
@@ -80,27 +78,230 @@ if (!$history){
 			</ul>
 		</div>
 	</div>
-	<div class="details">
-		<h1 class="name">
-			<?php
-				if ($history){
-					$dateFormat = $this->trans->HISTORY_DATE_FORMAT;
-					echo CHtml::link(CHtml::encode($model->__get('REC_NAME_' . Yii::app()->session['lang'])) . ' (' . date($dateFormat, $model->CHANGED_ON) . ')', array('viewHistory', 'id'=>$model->REC_ID, 'CHANGED_ON'=>$model->CHANGED_ON));
-				} else {
-					echo CHtml::link(CHtml::encode($model->__get('REC_NAME_' . Yii::app()->session['lang'])), array('view', 'id'=>$model->REC_ID));
-				}
-			?>
-		</h1>
+	<div class="recipe">
 		<div class="button history">
 			<?php echo CHtml::link($this->trans->RECIPES_HISTORY, array('history', 'id'=>$model->REC_ID)); ?>
 		</div>
-		<div class="detail_img">
-			<?php echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']))); ?>
-			<div class="img_auth"><?php if ($model->REC_IMG_ETAG == '') { echo '&nbsp;'; } else {echo '© by ' . $model->REC_IMG_AUTH; } ?></div>
+		<?php
+		if (isset(Yii::app()->session['Recipes'])){
+			if (isset(Yii::app()->session['Recipes']['model'])){
+				echo CHtml::link($this->trans->SEARCH_BACK_TO_RESULTS, array('recipes/advancesearch'), array('class'=>'button backbutton'));
+			} else {
+				echo CHtml::link($this->trans->SEARCH_BACK_TO_RESULTS, array('recipes/search'), array('class'=>'button backbutton'));
+			}
+		}
+		?>
+		<?php if (!$history){ ?>
+			<div class="buttons cookitbar">
+			<?php echo CHtml::link(CHtml::encode($this->trans->RECIPES_COOK_IT), array('meals/mealPlanner', 'rec_id'=>$model->REC_ID), array('class'=>'button')); ?>
+			</div>
+		<?php } ?>
+		<div class="details">
+			<h1 class="name">
+				<?php
+					if ($history){
+						$dateFormat = $this->trans->HISTORY_DATE_FORMAT;
+						echo CHtml::link(CHtml::encode($model->__get('REC_NAME_' . Yii::app()->session['lang'])) . ' (' . date($dateFormat, $model->CHANGED_ON) . ')', array('viewHistory', 'id'=>$model->REC_ID, 'CHANGED_ON'=>$model->CHANGED_ON));
+					} else {
+						echo CHtml::link(CHtml::encode($model->__get('REC_NAME_' . Yii::app()->session['lang'])), array('view', 'id'=>$model->REC_ID));
+					}
+				?>
+			</h1>
+			
+			<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>
+			<?php echo CHtml::encode($model->recipeTypes->__get('RET_DESC_' . Yii::app()->session['lang'])); ?>
+			<br />
+			
+			<b><?php echo CHtml::encode($this->trans->FIELD_CUT_ID); ?>:</b>
+			<?php if (!empty($model->cusineTypes)) {
+					echo CHtml::encode($model->cusineTypes->__get('CUT_DESC_' . Yii::app()->session['lang']));
+				} else {
+					echo $this->trans->GENERAL_UNDEFINED;
+				}
+			?>
+			<br />
+
+			<b><?php echo CHtml::encode($this->trans->FIELD_CST_ID); ?>:</b>
+			<?php if (!empty($model->cusineSubTypes)) {
+					echo CHtml::encode($model->cusineSubTypes->__get('CST_DESC_' . Yii::app()->session['lang']));
+				} else {
+					echo $this->trans->GENERAL_UNDEFINED;
+				}
+			?>
+			<br />
+			
+			<b><?php echo CHtml::encode($this->trans->FIELD_REC_COMPLEXITY); ?>:</b>
+			<?php if (!empty($model->REC_COMPLEXITY)) {
+					echo CHtml::encode($model->REC_COMPLEXITY); 
+				} else {
+					echo $this->trans->GENERAL_UNDEFINED;
+				}
+			?>
+			<br />
+			
+			<b><?php echo CHtml::encode($this->trans->FIELD_REC_SERVING_COUNT); ?>:</b>
+			<?php
+				if (!empty($model->REC_SERVING_COUNT)){
+					echo CHtml::encode($model->REC_SERVING_COUNT);
+				} else {
+					echo $this->trans->GENERAL_UNDEFINED;
+				}
+			?>
+			<br />
+			
+			<b><?php echo CHtml::encode($this->trans->FIELD_REC_KCAL); ?>:</b>
+			<?php echo CHtml::encode($model->REC_KCAL) /*. ' ' . $this->trans->RECIPES_KCAL_PER_SERVING*/ ?>
+			<br />
 		</div>
 		
-		<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>
-		<?php echo CHtml::encode($model->recipeTypes->__get('RET_DESC_' . Yii::app()->session['lang'])); ?>
+		
+		<?php
+		if ($nutrientData != null){
+			/*
+			'NUT_ID',
+			'NUT_DESC',
+			*/
+			$fields = array();
+			$fields[0] = array(
+				'NUT_WATER',
+				'NUT_ENERG',
+				'NUT_PROT',
+				'NUT_LIPID',
+				'NUT_ASH',
+				'NUT_CARB',
+				'NUT_FIBER',
+				'NUT_SUGAR',
+			);
+			$fields[1] = array(
+				'NUT_FA_SAT',
+				'NUT_FA_MONO',
+				'NUT_FA_POLY',
+				'NUT_CHOLEST',
+				'NUT_REFUSE',
+			);
+			$fields[3] = array(
+				'NUT_VIT_C',
+				'NUT_THIAM',
+				'NUT_RIBOF',
+				'NUT_NIAC',
+				'NUT_PANTO',
+				'NUT_VIT_B6',
+				'NUT_FOLAT_TOT',
+				'NUT_FOLIC',
+				'NUT_FOLATE_FD',
+				'NUT_FOLATE_DFE',
+				'NUT_CHOLINE',
+				'NUT_VIT_B12',
+				'NUT_VIT_A_IU',
+				'NUT_VIT_A_RAE',
+				'NUT_RETINOL',
+				'NUT_ALPHA_CAROT',
+				'NUT_BETA_CAROT',
+				'NUT_BETA_CRYPT',
+				'NUT_LYCOP',
+				'NUT_LUT_ZEA',
+				'NUT_VIT_E',
+				'NUT_VIT_D',
+				'NUT_VIT_D_IU',
+				'NUT_VIT_K',
+			);
+			$fields[2] = array(
+				'NUT_CALC',
+				'NUT_IRON',
+				'NUT_MAGN',
+				'NUT_PHOS',
+				'NUT_POTAS',
+				'NUT_SODIUM',
+				'NUT_ZINC',
+				'NUT_COPP',
+				'NUT_MANG',
+				'NUT_SELEN',
+			);
+			
+			
+			$units = array();
+			$units[0] = array(
+				'g',
+				'kcal',
+				'g',
+				'g',
+				'g',
+				'g',
+				'g',
+				'g',
+			);
+			$units[1] = array(
+				'g',
+				'g',
+				'g',
+				'mg',
+				'g',
+			);
+			$units[3] = array(
+				'mg',
+				'mg',
+				'mg',
+				'mg',
+				'mg',
+				'mg',
+				'µg',
+				'µ',
+				'µ',
+				'µ dietary folate equivalents',
+				'mg',
+				'µ',
+				'IU',
+				'µ retinol activity equivalents',
+				'µ',
+				'µ',
+				'µ',
+				'µ',
+				'µ',
+				'µ',
+				'alpha-tocopherol',
+				'µ',
+				'IU',
+				'phylloquinone',
+			);
+			$units[2] = array(
+				'mg',
+				'mg',
+				'mg',
+				'mg',
+				'mg',
+				'mg',
+				'mg',
+				'mg',
+				'mg',
+				'µg',
+			);
+			
+			echo '<div class="nutrientTable">';
+			echo '<span class="title">' . $this->trans->GENERAL_NUTRIENTS . '</span>';
+			echo '<div class="f-left">';
+			for($group=0; $group<count($fields); $group++){
+				if ($group == 3){
+					echo '</div>';
+					echo '<div class="f-left">';
+				}
+				echo '<div class="nutrientDataGroup">';
+					for($field=0; $field<count($fields[$group]); $field++){
+						$nut_field = $fields[$group][$field];
+						echo '<div class="nutrient_row' . (($field == count($fields[$group])-1)?' last':'') . '">';
+						echo '<span class="name">' . CHtml::encode($this->trans->__get('FIELD_'.$nut_field)) . '</span>';
+						echo '<span class="value">'; printf('%1.2f',$nutrientData->$nut_field); echo '</span>';
+						echo '<span class="unit">' . $units[$group][$field] . '</span>';
+						echo '</div>';
+					}
+				echo '</div>';
+			}
+			echo '</div>';
+			echo '<div class="clearfix"></div>';
+			echo '</div>';
+		}
+		?>
+		
+		<div class="steps">
 		<?php
 			$i = 1;
 			foreach($model->steps as $step){
@@ -144,155 +345,14 @@ if (!$history){
 				$i++;
 			}
 		?>
-		<br />
-		<br />
+		</div>
+		<?php if (!$history){ ?>
+			<div class="buttons cookitbar">
+			<?php echo CHtml::link(CHtml::encode($this->trans->RECIPES_COOK_IT), array('meals/mealPlanner', 'rec_id'=>$model->REC_ID), array('class'=>'button')); ?>
+			</div>
+		<?php } ?>
 	</div>
-	<div class="clearfix"></div>
 	
-	<?php
-	if ($nutrientData != null){
-		/*
-		'NUT_ID',
-		'NUT_DESC',
-		*/
-		$fields = array();
-		$fields[0] = array(
-			'NUT_WATER',
-			'NUT_ENERG',
-			'NUT_PROT',
-			'NUT_LIPID',
-			'NUT_ASH',
-			'NUT_CARB',
-			'NUT_FIBER',
-			'NUT_SUGAR',
-		);
-		$fields[1] = array(
-			'NUT_FA_SAT',
-			'NUT_FA_MONO',
-			'NUT_FA_POLY',
-			'NUT_CHOLEST',
-			'NUT_REFUSE',
-		);
-		$fields[3] = array(
-			'NUT_VIT_C',
-			'NUT_THIAM',
-			'NUT_RIBOF',
-			'NUT_NIAC',
-			'NUT_PANTO',
-			'NUT_VIT_B6',
-			'NUT_FOLAT_TOT',
-			'NUT_FOLIC',
-			'NUT_FOLATE_FD',
-			'NUT_FOLATE_DFE',
-			'NUT_CHOLINE',
-			'NUT_VIT_B12',
-			'NUT_VIT_A_IU',
-			'NUT_VIT_A_RAE',
-			'NUT_RETINOL',
-			'NUT_ALPHA_CAROT',
-			'NUT_BETA_CAROT',
-			'NUT_BETA_CRYPT',
-			'NUT_LYCOP',
-			'NUT_LUT_ZEA',
-			'NUT_VIT_E',
-			'NUT_VIT_D',
-			'NUT_VIT_D_IU',
-			'NUT_VIT_K',
-		);
-		$fields[2] = array(
-			'NUT_CALC',
-			'NUT_IRON',
-			'NUT_MAGN',
-			'NUT_PHOS',
-			'NUT_POTAS',
-			'NUT_SODIUM',
-			'NUT_ZINC',
-			'NUT_COPP',
-			'NUT_MANG',
-			'NUT_SELEN',
-		);
-		
-		
-		$units = array();
-		$units[0] = array(
-			'g',
-			'kcal',
-			'g',
-			'g',
-			'g',
-			'g',
-			'g',
-			'g',
-		);
-		$units[1] = array(
-			'g',
-			'g',
-			'g',
-			'mg',
-			'g',
-		);
-		$units[3] = array(
-			'mg',
-			'mg',
-			'mg',
-			'mg',
-			'mg',
-			'mg',
-			'µg',
-			'µ',
-			'µ',
-			'µ dietary folate equivalents',
-			'mg',
-			'µ',
-			'IU',
-			'µ retinol activity equivalents',
-			'µ',
-			'µ',
-			'µ',
-			'µ',
-			'µ',
-			'µ',
-			'alpha-tocopherol',
-			'µ',
-			'IU',
-			'phylloquinone',
-		);
-		$units[2] = array(
-			'mg',
-			'mg',
-			'mg',
-			'mg',
-			'mg',
-			'mg',
-			'mg',
-			'mg',
-			'mg',
-			'µg',
-		);
-		
-		echo '<div class="nutrientTable">';
-		echo '<div class="f-left">';
-		for($group=0; $group<count($fields); $group++){
-			if ($group == 3){
-				echo '</div>';
-				echo '<div class="f-left">';
-			}
-			echo '<div class="nutrientDataGroup">';
-				for($field=0; $field<count($fields[$group]); $field++){
-					$nut_field = $fields[$group][$field];
-					echo '<div class="nutrient_row' . (($field == count($fields[$group])-1)?' last':'') . '">';
-					echo '<span class="name">' . CHtml::encode($this->trans->__get('FIELD_'.$nut_field)) . '</span>';
-					echo '<span class="value">'; printf('%1.2f',$nutrientData->$nut_field); echo '</span>';
-					echo '<span class="unit">' . $units[$group][$field] . '</span>';
-					echo '</div>';
-				}
-			echo '</div>';
-		}
-		echo '</div>';
-		echo '</div>';
-	}
-?>
-<div class="clearfix"></div>
 
 </div>
 

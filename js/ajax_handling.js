@@ -98,8 +98,22 @@ glob.select2.searchRecipeInitSelection = function(element, callback) {
 	}
 };
 
-glob.select2.searchRecipeFormatResult = function (recipe) {
-	return glob.select2.searchRecipeFormatSelection(recipe);
+glob.select2.searchRecipeFormatResult = function (recipe, elem, query) {
+	var text = glob.select2.searchRecipeFormatSelection(recipe);
+	var searchstart = 0;
+	if (recipe.type == 'query'){
+		searchstart = 7;
+	}
+	var pos=text.toLowerCase().indexOf(query.term.toLowerCase(), searchstart);
+	var result = '';
+	if (pos>0){
+		result = '<span>' + text.substr(0, pos) + '</span>';
+	}
+	result = result + '<span class="matchingText">' + text.substr(pos, query.term.length) + '</span>';
+	if (text.length > pos + query.term.length){
+		result = result + '<span>' + text.substr(pos + query.term.length) + '</span>';
+	}
+	return result;
 };
 
 glob.select2.searchRecipeFormatSelection = function (recipe) {
@@ -1508,6 +1522,11 @@ jQuery(function($){
 		return true;
 	});
 	
+	//Recipe detail
+	jQuery('body').undelegate('.nutrientTable .title','click').delegate('.nutrientTable .title','click', function(){
+		jQuery(this).closest('div').find('div').toggle();
+		return true;
+	});
 	
 	//divers functions
 	jQuery('body').undelegate('.closeFancy','click').delegate('.closeFancy','click', function(){

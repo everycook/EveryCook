@@ -263,3 +263,15 @@ tan
 	color: red;
 	font-weight: bold;
 }
+
+
+/* @group redesign recipe */
+div#recipes.detailView  .step {
+	background-color: white;
+	border-color: #ff9900;
+}
+div#recipes.detailView  .step .stepNo {
+	background-color: #ff9900;
+	color: white;
+}
+/* @end redesign recipe */

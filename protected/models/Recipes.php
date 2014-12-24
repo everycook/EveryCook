@@ -99,6 +99,8 @@ class Recipes extends ActiveRecordEC
 		// class name for the relations automatically generated below.
 		return array(
 			'recipeTypes' => array(self::BELONGS_TO, 'RecipeTypes', 'RET_ID'),
+			'cusineTypes' => array(self::BELONGS_TO, 'CusineTypes', 'CUT_ID'),
+			'cusineSubTypes' => array(self::BELONGS_TO, 'CusineSubTypes', 'CST_ID'),
 			'recToCois' => array(self::HAS_MANY, 'RecToCoi', 'REC_ID'),
 			'steps' => array(self::HAS_MANY, 'Steps', 'REC_ID'),
 		);

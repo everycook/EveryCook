@@ -140,7 +140,7 @@ See GPLv3.htm in the main folder for details.
 		<br />
 		
 		<b><?php echo CHtml::encode($this->trans->FIELD_REC_COMPLEXITY); ?>:</b>
-		<?php if (!empty($data['CUT_DESC'])) {
+		<?php if (!empty($data['REC_COMPLEXITY'])) {
 				echo CHtml::encode($data['REC_COMPLEXITY']); 
 			} else {
 				echo $this->trans->GENERAL_UNDEFINED;
@@ -159,7 +159,7 @@ See GPLv3.htm in the main folder for details.
 		<br />
 		
 		<b><?php echo CHtml::encode($this->trans->FIELD_REC_KCAL); ?>:</b>
-		<?php echo CHtml::encode($data['REC_KCAL']) . ' ' . $this->trans->RECIPES_KCAL_PER_SERVING ?>
+		<?php echo CHtml::encode($data['REC_KCAL']) /*. ' ' . $this->trans->RECIPES_KCAL_PER_SERVING*/ ?>
 		<br />
 		
 		<?php /* //Preparation Time
@@ -172,7 +172,7 @@ See GPLv3.htm in the main folder for details.
 			<?php
 			//echo CHtml::link('+', array('user/addrecipes', 'id'=>$data['REC_ID']), array('class'=>'button backpic addRecipe', 'title'=>$this->trans->RECIPES_ADD));
 			echo CHtml::link(CHtml::encode($this->trans->RECIPES_COOK_IT), array('meals/mealPlanner', 'rec_id'=>$data['REC_ID']), array('class'=>'button'));
-			//echo CHtml::link(CHtml::encode($this->trans->RECIPES_COOK_IT), array('shoppinglists/view', 'rec_id'=>$data['REC_ID']), array('class'=>'button'));
+			//echo CHtml::link(CHtml::encode($this->trans->MEALPLANNER_SAVE_TO_SHOPPINGLIST), array('shoppinglists/view', 'rec_id'=>$data['REC_ID']), array('class'=>'button'));
 			?>
 		</div>
 			

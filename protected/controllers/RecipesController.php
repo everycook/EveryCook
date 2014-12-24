@@ -1260,18 +1260,39 @@ class RecipesController extends Controller
 	
 	public function actionAutocomplete($query, $page){
 		$this->isFancyAjaxRequest = true;
+		
+		$commandQuery = Yii::app()->db->createCommand()
+			->select('("query") as type, RID_TEXT as id, RID_TEXT as name')
+			->from('recipe_index_data')
+			->where('RID_LANG = :lang AND RID_TEXT LIKE :query',array(':lang'=>Yii::app()->session['lang'], ':query'=>'%'.$query.'%'))
+			->order('RID_TEXT, RID_COUNT desc')
+			->limit(20, ($page-1)*20);
+		$dataQuery = $commandQuery->queryAll();
+		
 		$command = Yii::app()->db->createCommand()
 			->select('("recipe") as type, concat("id:", REC_ID) as id, REC_NAME_' . Yii::app()->session['lang'] . ' as name, REC_SYNONYM_' . Yii::app()->session['lang'] . ' as synonym')
 			->from('recipes')
 			->where('REC_NAME_' . Yii::app()->session['lang'] . ' LIKE :query OR REC_SYNONYM_' . Yii::app()->session['lang'] . ' LIKE :query2',array(':query'=>'%'.$query.'%', ':query2'=>'%'.$query.'%'))
 			//->where('MATCH (REC_NAME_' . Yii::app()->session['lang'] . ', REC_SYNONYM_' . Yii::app()->session['lang'] .') AGAINST (:query IN BOOLEAN MODE)', array(':query'=>$query.'*'))
 			->order('REC_NAME_' . Yii::app()->session['lang'] . ', REC_SYNONYM_' . Yii::app()->session['lang'])
-			->limit(30, ($page-1)*30);
+			->limit(10, ($page-1)*10);
 		$data = $command->queryAll();
 		//if ($this->debug){echo $command->text;}
 		
-		if (count($data) < 30){
-			$total_count = ($page-1)*30 + count($data);
+		if(count($dataQuery) < 20){
+			$total_countQuery = ($page-1)*20 + count($dataQuery);
+		} else {
+			$commandQuery = Yii::app()->db->createCommand()
+				->select('count(*)')
+				->from('recipe_index_data')
+				->where('RID_LANG = :lang AND RID_TEXT LIKE :query',array(':lang'=>Yii::app()->session['lang'], ':query'=>'%'.$query.'%'));
+			$total_countQuery = $commandQuery->queryScalar();
+		}
+		
+		$data = array_merge($dataQuery, $data);
+		
+		if (count($data) < 10){
+			$total_count = ($page-1)*10 + count($data);
 		} else {
 			$command = Yii::app()->db->createCommand()
 				->select('count(*)')
@@ -1280,7 +1301,7 @@ class RecipesController extends Controller
 			$total_count = $command->queryScalar();
 		}
 		$result = array(
-			'total_count'=>$total_count,
+			'total_count'=>$total_countQuery + $total_count,
 			'items'=>$data
 		);
 		echo $this->processOutput(CJSON::encode($result));

@@ -248,3 +248,15 @@ div.mealOverview {
 .historyCompareView .change_change {
 	background-color: lightgoldenrodyellow;
 }
+
+
+/* @group redesign recipe */
+div#recipes.detailView  .step {
+	background-color: #ff4d02;
+	border-color: #6d0000;
+}
+div#recipes.detailView  .step .stepNo {
+	background-color: #6d0000;
+	color: white;
+}
+/* @end redesign recipe */
