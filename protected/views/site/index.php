@@ -55,7 +55,7 @@ $this->pageTitle=Yii::app()->name;
 	</div>
 	<div class="centerTeaser">
 		<?php $form=$this->beginWidget('CActiveForm', array(
-			'action'=>Yii::app()->createUrl('recipes/search'),
+			'action'=>Yii::app()->createUrl('recipes/search', array('newSearch'=>time())),
 			'id'=>'recipes_form',
 			'method'=>'post',
 			'htmlOptions'=>array('class'=>'submitToUrl'),
@@ -92,7 +92,7 @@ $this->pageTitle=Yii::app()->name;
 		<br /><br />
 		<?php $form=$this->beginWidget('CActiveForm', array(
 			//'action'=>Yii::app()->createUrl('recipes/searchFridge'),
-			'action'=>Yii::app()->createUrl('recipes/search'),
+			'action'=>Yii::app()->createUrl('recipes/search', array('newSearch'=>time())),
 			'id'=>'fridge_form',
 			'method'=>'post',
 			'htmlOptions'=>array('class'=>'submitToUrl'),

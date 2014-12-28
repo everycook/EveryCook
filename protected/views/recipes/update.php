@@ -34,6 +34,8 @@ $this->menu=array(
 <?php echo $this->renderPartial('_form', array(
 	'model'=>$model,
 	'recipeTypes'=>$recipeTypes,
+	'cusineTypes'=>$cusineTypes,
+	'cusineSubTypes'=>$cusineSubTypes,
 	'actionsIn'=>$actionsIn,
 	'cookIns'=>$cookIns,
 	'cookInsSelected'=>$cookInsSelected,

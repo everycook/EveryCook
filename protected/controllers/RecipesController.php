@@ -1000,6 +1000,12 @@ class RecipesController extends Controller
 		$recipeTypes = Yii::app()->db->createCommand()->select('RET_ID,RET_DESC_'.Yii::app()->session['lang'])->from('recipe_types')->queryAll();
 		$recipeTypes = CHtml::listData($recipeTypes,'RET_ID','RET_DESC_'.Yii::app()->session['lang']);
 		
+		$cusineTypes = Yii::app()->db->createCommand()->select('CUT_ID,CUT_DESC_'.Yii::app()->session['lang'])->from('cusine_types')->queryAll();
+		$cusineTypes = CHtml::listData($cusineTypes,'CUT_ID','CUT_DESC_'.Yii::app()->session['lang']);
+		
+		$cusineSubTypes = Yii::app()->db->createCommand()->select('CST_ID,CST_DESC_'.Yii::app()->session['lang'])->from('cusine_sub_types')->queryAll();
+		$cusineSubTypes = CHtml::listData($cusineSubTypes,'CST_ID','CST_DESC_'.Yii::app()->session['lang']);
+		
 		$stepTypes = CHtml::listData($stepTypeConfig,'STT_ID','STT_DESC_'.Yii::app()->session['lang']);
 		//$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
 		//$ingredients = CHtml::listData($ingredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
@@ -1053,6 +1059,8 @@ class RecipesController extends Controller
 		$this->checkRenderAjax($view,array(
 			'model'=>$model,
 			'recipeTypes'=>$recipeTypes,
+			'cusineTypes'=>$cusineTypes,
+			'cusineSubTypes'=>$cusineSubTypes,
 			'actionsIn'=>$actionsIn,
 			'cookIns'=>$cookIns,
 			'cookInsSelected'=>$cookInsSelected,
@@ -1526,6 +1534,37 @@ class RecipesController extends Controller
 			$selectedOrderBy = $_POST['orderby'];
 		}
 		
+		
+		$Session_RecipeSearch = Yii::app()->session[$this->searchBackup];
+		$searchFromSession = false;
+		if (isset($Session_RecipeSearch)){
+			if ($criteria->condition == '' && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_RecipeSearch['time'])){
+				$searchFromSession = true;
+				if (isset($Session_RecipeSearch['query'])){
+					$query = $Session_RecipeSearch['query'];
+					$model2->query = $query;
+				}
+				if (isset($Session_RecipeSearch['criteria'])){
+					$criteria = $Session_RecipeSearch['criteria'];
+				}
+				if (isset($Session_RecipeSearch['selectedOrderBy'])){
+					$selectedOrderBy = $Session_RecipeSearch['selectedOrderBy'];
+				}
+				if (isset($Session_RecipeSearch['filters'])){
+					$filters = $Session_RecipeSearch['filters'];
+				}
+			}
+		}
+		if (!$searchFromSession){
+			$Session_RecipeSearch = array();
+			$Session_RecipeSearch['query'] = $query;
+			$Session_RecipeSearch['criteria'] = $criteria;;
+			$Session_RecipeSearch['selectedOrderBy'] = $selectedOrderBy;
+			$Session_RecipeSearch['filters'] = $filters;
+			$Session_RecipeSearch['time'] = time();
+			Yii::app()->session[$this->searchBackup] = $Session_RecipeSearch;
+		}
+		
 		//Additional display criterias
 		$criteriaDisplay=new CDbCriteria;
 		$criteriaDisplay->join = '';
@@ -1566,6 +1605,7 @@ class RecipesController extends Controller
 				$criteriaTypeOfCusine=new CDbCriteria;
 				$criteriaTypeOfCusine->join = 'LEFT JOIN cusine_types cut ON cut.CUT_ID = recipes.CUT_ID';
 				$criteriaTypeOfCusine->mergeWith($criteria);
+				unset($criteriaTypeOfCusine->having);
 				$criteriaTypeOfCusine->distinct = true;
 				$criteriaTypeOfCusine->select = 'cut.CUT_ID,cut.CUT_DESC_' . Yii::app()->session['lang'] . $additionalSelect;
 				$commandTypeOfCusine = $this->criteriaToCommand($criteriaTypeOfCusine);
@@ -1585,6 +1625,7 @@ class RecipesController extends Controller
 				$criteriaType=new CDbCriteria;
 				$criteriaType->join = 'LEFT JOIN recipe_types ret ON recipes.RET_ID=ret.RET_ID';
 				$criteriaType->mergeWith($criteria);
+				unset($criteriaType->having);
 				$criteriaType->distinct = true;
 				$criteriaType->select = 'ret.RET_ID,ret.RET_DESC_' . Yii::app()->session['lang'] . $additionalSelect;
 				$commandType = $this->criteriaToCommand($criteriaType);

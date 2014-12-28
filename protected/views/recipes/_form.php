@@ -115,18 +115,17 @@ See GPLv3.htm in the main folder for details.
 		<?php echo $form->error($model,'REC_COMPLEXITY'); ?>
 	</div>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'CUT_ID'); ?>
-		<?php echo $form->textField($model,'CUT_ID'); ?>
-		<?php echo $form->error($model,'CUT_ID'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'CST_ID'); ?>
-		<?php echo $form->textField($model,'CST_ID'); ?>
-		<?php echo $form->error($model,'CST_ID'); ?>
-	</div>
-
+	<?php
+	$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
+	echo Functions::createInput(null, $model, 'CUT_ID', $cusineTypes, Functions::DROP_DOWN_LIST, 'cusineTypes', $htmlOptions_type0, $form);
+	?>
+	
+	<?php
+	$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
+	echo Functions::createInput(null, $model, 'CST_ID', $cusineSubTypes, Functions::DROP_DOWN_LIST, 'cusineSubTypes', $htmlOptions_type0, $form);
+	?>
+	
+	<?php /*
 	<div class="row">
 		<?php echo $form->labelEx($model,'REC_CUSINE_GPS_LAT'); ?>
 		<?php echo $form->textField($model,'REC_CUSINE_GPS_LAT'); ?>
@@ -144,6 +143,7 @@ See GPLv3.htm in the main folder for details.
 		<?php echo $form->textField($model,'REC_TOOLS',array('size'=>60,'maxlength'=>100)); ?>
 		<?php echo $form->error($model,'REC_TOOLS'); ?>
 	</div>
+	*/ ?>
 	
 	<div class="row">
 		<?php echo $form->labelEx($model,'filename'); ?>
