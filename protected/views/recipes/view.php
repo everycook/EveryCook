@@ -112,46 +112,55 @@ if (!$history){
 			<?php echo CHtml::encode($model->recipeTypes->__get('RET_DESC_' . Yii::app()->session['lang'])); ?>
 			<br />
 			
-			<b><?php echo CHtml::encode($this->trans->FIELD_CUT_ID); ?>:</b>
-			<?php if (!empty($model->cusineTypes)) {
-					echo CHtml::encode($model->cusineTypes->__get('CUT_DESC_' . Yii::app()->session['lang']));
-				} else {
-					echo $this->trans->GENERAL_UNDEFINED;
-				}
-			?>
-			<br />
-
-			<b><?php echo CHtml::encode($this->trans->FIELD_CST_ID); ?>:</b>
-			<?php if (!empty($model->cusineSubTypes)) {
-					echo CHtml::encode($model->cusineSubTypes->__get('CST_DESC_' . Yii::app()->session['lang']));
-				} else {
-					echo $this->trans->GENERAL_UNDEFINED;
-				}
-			?>
-			<br />
-			
-			<b><?php echo CHtml::encode($this->trans->FIELD_REC_COMPLEXITY); ?>:</b>
-			<?php if (!empty($model->REC_COMPLEXITY)) {
-					echo CHtml::encode($model->REC_COMPLEXITY); 
-				} else {
-					echo $this->trans->GENERAL_UNDEFINED;
-				}
-			?>
-			<br />
-			
-			<b><?php echo CHtml::encode($this->trans->FIELD_REC_SERVING_COUNT); ?>:</b>
 			<?php
-				if (!empty($model->REC_SERVING_COUNT)){
-					echo CHtml::encode($model->REC_SERVING_COUNT);
-				} else {
+			if (!empty($model->cusineTypes)) {
+				echo '<b>' . CHtml::encode($this->trans->FIELD_CUT_ID) . '</b>';
+				//if (!empty($model->cusineTypes)) {
+					echo CHtml::encode($model->cusineTypes->__get('CUT_DESC_' . Yii::app()->session['lang']));
+				/*} else {
 					echo $this->trans->GENERAL_UNDEFINED;
-				}
-			?>
-			<br />
+				}*/
+				echo '<br />';
+			} ?>
 			
-			<b><?php echo CHtml::encode($this->trans->FIELD_REC_KCAL); ?>:</b>
-			<?php echo CHtml::encode($model->REC_KCAL) /*. ' ' . $this->trans->RECIPES_KCAL_PER_SERVING*/ ?>
-			<br />
+			<?php
+			if (!empty($model->cusineSubTypes)) {
+				echo '<b>' . CHtml::encode($this->trans->FIELD_CST_ID) . '</b>';
+				//if (!empty($model->cusineSubTypes)) {
+					echo CHtml::encode($model->cusineSubTypes->__get('CST_DESC_' . Yii::app()->session['lang']));
+				/*} else {
+					echo $this->trans->GENERAL_UNDEFINED;
+				}*/
+				echo '<br />';
+			} ?>
+			
+			<?php
+			if (!empty($model->REC_COMPLEXITY)) {
+				echo '<b>' . CHtml::encode($this->trans->FIELD_REC_COMPLEXITY) . '</b>';
+				//if (!empty($model->REC_COMPLEXITY)) {
+					echo CHtml::encode($model->REC_COMPLEXITY); 
+				/*} else {
+					echo $this->trans->GENERAL_UNDEFINED;
+				}*/
+				echo '<br />';
+			} ?>
+			
+			<?php
+			if (!empty($model->REC_SERVING_COUNT)){
+				echo '<b>' . CHtml::encode($this->trans->FIELD_REC_SERVING_COUNT) . '</b>';
+				//if (!empty($model->REC_SERVING_COUNT)){
+					echo CHtml::encode($model->REC_SERVING_COUNT);
+				/*} else {
+					echo $this->trans->GENERAL_UNDEFINED;
+				}*/
+				echo '<br />';
+			} ?>
+			
+			<?php 
+			echo '<b>' . CHtml::encode($this->trans->FIELD_REC_KCAL) . '</b>';
+			echo CHtml::encode($model->REC_KCAL); /*. ' ' . $this->trans->RECIPES_KCAL_PER_SERVING*/
+			echo '<br />';
+			?>
 		</div>
 		
 		

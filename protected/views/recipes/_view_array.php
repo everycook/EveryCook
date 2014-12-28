@@ -121,42 +121,49 @@ See GPLv3.htm in the main folder for details.
 		<?php echo CHtml::encode($data['RET_DESC_' . Yii::app()->session['lang']]); ?>
 		<br />
 		
-		<b><?php echo CHtml::encode($this->trans->FIELD_CUT_ID); ?>:</b>
-		<?php if (!empty($data['CUT_DESC'])) {
-				echo CHtml::encode($data['CUT_DESC']); 
-			} else {
-				echo $this->trans->GENERAL_UNDEFINED;
-			}
-		?>
-		<br />
-
-		<b><?php echo CHtml::encode($this->trans->FIELD_CST_ID); ?>:</b>
-		<?php if (!empty($data['CST_DESC'])) {
-				echo CHtml::encode($data['CST_DESC']);
-			} else {
-				echo $this->trans->GENERAL_UNDEFINED;
-			}
-		?>
-		<br />
-		
-		<b><?php echo CHtml::encode($this->trans->FIELD_REC_COMPLEXITY); ?>:</b>
-		<?php if (!empty($data['REC_COMPLEXITY'])) {
-				echo CHtml::encode($data['REC_COMPLEXITY']); 
-			} else {
-				echo $this->trans->GENERAL_UNDEFINED;
-			}
-		?>
-		<br />
-		
-		<b><?php echo CHtml::encode($this->trans->FIELD_REC_SERVING_COUNT); ?>:</b>
 		<?php
-			if (!empty($data['REC_SERVING_COUNT'])){
-				echo CHtml::encode($data['REC_SERVING_COUNT']);
-			} else {
+		if (!empty($data['CUT_DESC'])) {
+			echo '<b>' . CHtml::encode($this->trans->FIELD_CUT_ID) . '</b>';
+			//if (!empty($data['CUT_DESC'])) {
+				echo CHtml::encode($data['CUT_DESC']); 
+			/*} else {
 				echo $this->trans->GENERAL_UNDEFINED;
-			}
-		?>
-		<br />
+			}*/
+			echo '<br />';
+		} ?>
+		
+		<?php
+		if (!empty($data['CST_DESC'])) {
+			echo '<b>' . CHtml::encode($this->trans->FIELD_CST_ID) . '</b>';
+			//if (!empty($data['CST_DESC'])) {
+				echo CHtml::encode($data['CST_DESC']);
+			/*} else {
+				echo $this->trans->GENERAL_UNDEFINED;
+			}*/
+			echo '<br />';
+		} ?>
+		
+		<?php
+			if (!empty($data['REC_COMPLEXITY'])) {
+			echo '<b>' . CHtml::encode($this->trans->FIELD_REC_COMPLEXITY) . '</b>';
+			//if (!empty($data['REC_COMPLEXITY'])) {
+				echo CHtml::encode($data['REC_COMPLEXITY']); 
+			/*} else {
+				echo $this->trans->GENERAL_UNDEFINED;
+			}*/
+			echo '<br />';
+		} ?>
+		
+		<?php
+		if (!empty($data['REC_SERVING_COUNT'])){
+			echo '<b>' . CHtml::encode($this->trans->FIELD_REC_SERVING_COUNT) . '</b>';
+			//if (!empty($data['REC_SERVING_COUNT'])){
+				echo CHtml::encode($data['REC_SERVING_COUNT']);
+			/*} else {
+				echo $this->trans->GENERAL_UNDEFINED;
+			}*/
+			echo '<br />';
+		} ?>
 		
 		<b><?php echo CHtml::encode($this->trans->FIELD_REC_KCAL); ?>:</b>
 		<?php echo CHtml::encode($data['REC_KCAL']) /*. ' ' . $this->trans->RECIPES_KCAL_PER_SERVING*/ ?>

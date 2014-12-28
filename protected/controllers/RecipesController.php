@@ -1246,11 +1246,11 @@ class RecipesController extends Controller
 		return '(' . $cond1 . ') AND (' . $cond2 . ')';
 	}
 	
-	private function mergeORConditionList($conditions){
+	private function mergeConditionList($conditions, $op = "OR"){
 		$result = '';
 		foreach($conditions as $condition){
 			if ($result != ''){
-				$result.=' OR ' . $condition;
+				$result.=' ' . $op . ' ' . $condition;
 			} else {
 				$result.=$condition;
 			}
@@ -1380,21 +1380,26 @@ class RecipesController extends Controller
 						if (substr($queryText,0,3) == 'id:'){
 							$rec_ids[] = substr($queryText,3);
 						} else if (substr($queryText,0,2) == 'q:'){
-							$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),substr($queryText,2), 'recipes.');
+							$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),array('REC_NAME_' . Yii::app()->session['lang']),substr($queryText,2), 'recipes.'); //$model->getSearchFields()
 							$searches[] = $criteriaString;
 						} else {
-							$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),$model->getSearchFields(),$queryText, 'recipes.');
+							$criteriaString = $model->commandBuilder->createSearchCondition($model->tableName(),array('REC_NAME_' . Yii::app()->session['lang']),$queryText, 'recipes.'); //$model->getSearchFields()
 							$searches[] = $criteriaString;
 						}
 					}
 				}
+				$searches2 = array();
+				if (count($searches)>0){
+					$searches2[] = $this->mergeConditionList($searches, 'AND');
+				}
 				if (count($rec_ids)>0){
 					$criteriaString = $model->commandBuilder->createInCondition($model->tableName(), 'REC_ID', $rec_ids, 'recipes.');
-					$searches[] = $criteriaString;
+					$searches["id"] = $criteriaString;
+					$searches2[] = $criteriaString;
 				}
-				if (count($searches)>0){
+				if (count($searches2)>0){
 					$filterValues['recipe']=$searches;
-					$criteria->condition = $this->mergeORConditionList($searches);
+					$criteria->condition = $this->mergeConditionList($searches2);
 				}
 			}
 		}

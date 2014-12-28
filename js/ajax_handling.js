@@ -77,7 +77,7 @@ glob.select2.searchRecipeAjax = {
 glob.select2.searchRecipeInitSelection = function(element, callback) {
 	var id = $(element).val();
 	if (id !== "") {
-		if (id.indexOf('id:')>0){
+		if (id.indexOf('id:') != -1){
 			$.ajax(glob.prefix + "recipes/autocompleteId/?ids=" + id, {
 				dataType: "json"
 			}).done(function(data) { callback(data); });
@@ -101,9 +101,11 @@ glob.select2.searchRecipeInitSelection = function(element, callback) {
 glob.select2.searchRecipeFormatResult = function (recipe, elem, query) {
 	var text = glob.select2.searchRecipeFormatSelection(recipe);
 	var searchstart = 0;
+	/*
 	if (recipe.type == 'query'){
 		searchstart = 7;
 	}
+	*/
 	var pos=text.toLowerCase().indexOf(query.term.toLowerCase(), searchstart);
 	var result = '';
 	if (pos>0){
@@ -120,7 +122,8 @@ glob.select2.searchRecipeFormatSelection = function (recipe) {
 	if (recipe.synonym){
 		return recipe.name + '(' + recipe.synonym + ')';
 	} else {
-		return ((recipe.type == 'query')?'query: ':'') + recipe.name;
+		//return ((recipe.type == 'query')?'query: ':'') + recipe.name;
+		return recipe.name;
 	}
 }
 
@@ -1516,11 +1519,21 @@ jQuery(function($){
 	*/
 	
 	//Recipe Search
-	//divers functions
 	jQuery('body').undelegate('#filters input, #filters select, #recipeOrderBy select','change').delegate('#filters input, #filters select, #recipeOrderBy select','change', function(){
 		jQuery(this).closest('form').submit();
 		return true;
 	});
+	
+	jQuery('body').undelegate('.search .select2-input','keypress').delegate('.search .select2-input','keypress', function(event){
+		if (jQuery(this).val == ''){
+			if (event.which == 13){
+				jQuery(this).closest('form').submit();
+				event.preventDefault();
+			}
+		}
+	});
+	
+	
 	
 	//Recipe detail
 	jQuery('body').undelegate('.nutrientTable .title','click').delegate('.nutrientTable .title','click', function(){
