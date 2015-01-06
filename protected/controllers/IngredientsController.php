@@ -418,7 +418,7 @@ class IngredientsController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$this->prepareSearch('search');
+		$this->prepareSearch('search', null, null);
 	}
 	
 	/**

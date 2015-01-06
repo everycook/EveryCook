@@ -48,8 +48,18 @@ See GPLv3.htm in the main folder for details.
 		</div>
 		<div class="meal_courses">
 			<?php
+			/*
+			echo "<pre>\n";
+			print_r($data);
+			echo "</pre>\n";
+			*/
 			$meaToCous_index=0;
 			foreach($data->meaToCous as $meaToCou) {
+				/*
+				echo "<pre>\n";
+				print_r($meaToCou);
+				echo "</pre>\n";
+				*/
 				echo '<div class="meal_course">';
 					echo '<div class="cou_header">';
 					if(isset($editMode) && $editMode){
@@ -81,6 +91,11 @@ See GPLv3.htm in the main folder for details.
 					echo '<div class="cou_recipes">';
 						$couToRecs_index=0;
 						if (isset($meaToCou->course) and isset($meaToCou->course->couToRecs) and is_array($meaToCou->course->couToRecs)){
+							/*
+							echo "<pre>\n";
+							print_r($meaToCou->course);
+							echo "</pre>\n";
+							*/
 							foreach($meaToCou->course->couToRecs as $couToRec) {
 								$recipe = $couToRec->recipe;
 								if (isset($recipe) && $recipe != null){

@@ -82,7 +82,7 @@ class MeaToCou extends ActiveRecordECSimple
 		return array(
 			//'course' => array(self::HAS_ONE, 'Courses', 'COU_ID', 'through'=>'test'),
 			//'test' => array(self::BELONGS_TO, 'MeaToCou', 'MEA_ID, MTC_ORDER'),
-			'course' => array(self::HAS_ONE, 'Courses', 'COU_ID'),
+			'course' => array(self::BELONGS_TO, 'Courses', 'COU_ID'),
 		);
 	}
 	

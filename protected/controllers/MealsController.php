@@ -189,6 +189,11 @@ class MealsController extends Controller
 				$oldmodel = $this->loadModel($_GET['id'], true);
 			}
 		}
+		/*
+		print_r($_GET);
+		print_r($_POST);
+		die();
+		*/
 		
 		if (isset($oldmodel)){
 			$model = $oldmodel;
