@@ -29,13 +29,12 @@ See GPLv3.htm in the main folder for details.
 	font-weight: normal;
 }
 #recipes-form .recipeDetails {
-	display: none;
 }
 
-#recipes-form .recipeCreator {
+#recipes-form #recipeCreator {
 	display: table;
 	width: 100%;
-	height: 100%;
+	height: calc(100vh - 19em);
 }
 #recipes-form .leftBar {
 	display: table-cell;
@@ -55,16 +54,16 @@ See GPLv3.htm in the main folder for details.
 	width: 7em;
 	margin-bottom: 0.5em;
 }
-#recipes-form .recipeCreator .ingredientEntry .small_img {
+#recipes-form #recipeCreator .ingredientEntry .small_img {
 	height: 7.15em;
 }
-#recipes-form .recipeCreator .ingredientEntry .small_img img {
+#recipes-form #recipeCreator .ingredientEntry .small_img img {
 	border: 2px solid orange;
 }
-#recipes-form .recipeCreator .ingredientEntry.selected .small_img img {
+#recipes-form #recipeCreator .ingredientEntry.selected .small_img img {
 	border-color: red;
 }
-#recipes-form .recipeCreator .ingredientEntry .small_img .img_auth {
+#recipes-form #recipeCreator .ingredientEntry .small_img .img_auth {
 	clear: both;
 	height: 1.3em;
 	overflow: hidden;
@@ -87,27 +86,29 @@ See GPLv3.htm in the main folder for details.
 	height: 6em;
 	display: block;
 }
-#recipes-form .recipeCreator .ingredientEntry .name {
+#recipes-form #recipeCreator .ingredientEntry .name {
 	font-weight: bold;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
-#recipes-form .recipeCreator .ingredientEntry .amount {
+#recipes-form #recipeCreator .ingredientEntry .amount {
 }
-#recipes-form .recipeCreator .ingredientEntry .add {
+#recipes-form #recipeCreator .ingredientEntry .add {
 	font-weight: bold;
 }
 
-#recipes-form .recipeCreator .ingredientEntry.ui-draggable {
+#recipes-form #recipeCreator .ingredientEntry.ui-draggable {
 	cursor: move;
 	cursor: --moz-grab;
 	cursor: --webkit-grab;
 	cursor: grab;
 }
 
-#recipes-form .recipeCreator .ingredientEntry.ui-draggable-dragging {
+#recipes-form #recipeCreator .ingredientEntry.ui-draggable-dragging {
 	cursor: no-drop;
 }
 
-#recipes-form .recipeCreator .ingredientEntry.ui-draggable-dragging.dropOK {
+#recipes-form #recipeCreator .ingredientEntry.ui-draggable-dragging.dropOK {
 	cursor: move;
 	cursor: --moz-grabbing;
 	cursor: --webkit-grabbing;
@@ -122,12 +123,13 @@ See GPLv3.htm in the main folder for details.
 	position: relative;
 }
 /*#recipes-form*/ #stepList {
-	height: 80%;
+	height: calc(100vh - 38em);
+	min-height: 10em;
 	overflow-x: hidden;
 	overflow-y: scroll;
 }
 
-#recipes-form .step {
+#recipes-form .ui-sortable .step {
 	cursor: ns-resize;
 	margin-right: 1em;
 	margin-left: 1em;
@@ -153,7 +155,7 @@ See GPLv3.htm in the main folder for details.
 	margin: 0.25em auto;
 }
 #recipes-form .steps .addstep.last {
-	margin-bottom: 40px;
+	margin-bottom: 3em;
 }
 #recipes-form .steps .buttons {
 	bottom: 0;
@@ -186,11 +188,15 @@ See GPLv3.htm in the main folder for details.
 }
 
 #recipes-form #actionList {
-	height:80%;
+	height:40vh;
 	overflow-x: auto;
 	overflow-y: scroll;
 }
-#recipes-form #actionList .action {
+#recipes-form #actionList .actionlistType {
+	display: inline-block;
+	border: 1px solid black;
+}
+#recipes-form #actionList .action.ui-draggable {
 	cursor: move;
 	cursor: --moz-grab;
 	cursor: --webkit-grab;
@@ -253,11 +259,11 @@ See GPLv3.htm in the main folder for details.
 /* @end recipe creator*/
 
 
-#recipes-form {
+#recipes-form.useScreenHeight {
 	height: calc(100vh - 14em);
-	overflow-y: scroll;
+	overflow-y: auto;
 }
 
-@media only screen and (max-width : 1300px) and (min-width : 1181px) { #recipes-form { height: calc(100vh - 14.5em); } }
-@media only screen and (max-width : 1180px) and (min-width : 1051px) { #recipes-form { height: calc(100vh - 14.5em); } }
-@media only screen and (max-width : 1050px) { #recipes-form { height: calc(100vh - 15em); } }
+@media only screen and (max-width : 1300px) and (min-width : 1181px) { #recipes-form.useScreenHeight { height: calc(100vh - 14.5em); } }
+@media only screen and (max-width : 1180px) and (min-width : 1051px) { #recipes-form.useScreenHeight { height: calc(100vh - 14.5em); } }
+@media only screen and (max-width : 1050px) { #recipes-form.useScreenHeight { height: calc(100vh - 15em); } }

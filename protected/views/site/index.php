@@ -150,7 +150,7 @@ $this->pageTitle=Yii::app()->name;
 				<?php echo $this->trans->HOME_YOUR_RECIPE; ?>
 			</div>
 			<div class="recipePic">
-			<?php echo CHtml::link($this->trans->HOME_CREATE_RECIPE, array('recipes/create')); ?>
+			<?php echo CHtml::link('<span>' . $this->trans->HOME_CREATE_RECIPE . '</span>', array('recipes/create', 'newModel'=>time()), array('class'=>'newRecipe')); ?>
 			</div>
 		</div>
 	</div>

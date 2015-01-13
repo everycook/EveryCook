@@ -1545,6 +1545,21 @@ div.mealView span.value {
 	font-weight: bold;
 }
 
+.startpage .newRecipe {
+	display: block;
+	width: 22.2em;
+	height: 22.2em;
+    border: 1px solid black;
+	border-bottom-left-radius: 1.5em;
+    border-bottom-right-radius: 1.5em;
+}
+.startpage .newRecipe span {
+	display: block;
+	font-size: 3em;
+	text-align: center;
+	padding-top: 1em;
+	/*line-height: 1em;*/
+}
 .startpage .button {
 	/*min-width: 14em;*/
 	width: 100%;

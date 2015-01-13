@@ -16,7 +16,7 @@ See GPLv3.htm in the main folder for details.
 
 var glob = glob || {};
 
-glob.rowContainer = {};
+glob.recipeCreator = {};
 
 jQuery(function($){
 	
@@ -28,6 +28,7 @@ jQuery(function($){
 	var ingredientsList = {};
 	var currentIngredientField = $([]);
 	var currentIngredientCooseLink = $([]);
+	var currentIngredientCooseLinkDefaultText = '';
 	var currentIngredientImg = $([]);
 	var currentIngredientAmountField = $([]);
 	var currentIngredientAmountParam = $([]);
@@ -37,19 +38,16 @@ jQuery(function($){
 
 	function initIngredientDraggable(ingredients){
 		ingredients.draggable({
-			appendTo: '.recipeCreator',
+			appendTo: '#recipeCreator',
 			helper: 'clone',
 			revert: 'invalid',
 			scope: 'ingredient',
 			cursor: 'crosshair',
 			//opacity: 0.35,
-			/*start: function( event, ui ) {
-				ui.helper.addClass('dragging');
-			},*/
-		 });
+		});
 	}
 	
-	function initDroppable(steps){
+	function initStepDroppable(steps){
 		steps.droppable({
 			tolerance: 'pointer',
 			hoverClass: 'drop-hover',
@@ -83,20 +81,11 @@ jQuery(function($){
 			out: function( event, ui ) {
 				ingredientDragHover.removeClass('dropOK');
 			},
-		 });
+		});
 	}
-	
-	glob.initRecipeCreator = function(){
-		fieldToCssClass = $.parseJSON($('#fieldToCssJSON').val());
-		currentStepIndexField = $('#Steps_STE_STEP_NO');
-		ingredientsList = $.parseJSON($('#ingredientsJSON').val());
-		currentIngredientField =  $('#Steps_ING_ID');
-		currentIngredientCooseLink =  $('#Steps_ING_ID_DESC');
-		currentIngredientImg =  $('#Steps_ING_ID_IMG');
-		currentIngredientAmountField =  $('#Steps_STE_GRAMS');
-		currentIngredientAmountParam = $('#param_STE_GRAMS');
-		
-		$( "#stepList" ).sortable({
+
+	function initStepSortable(stepList){
+		stepList.sortable({
 			placeholder: "addstep",
 			stop: function( event, ui ) {
 				var sender = ui.sender;
@@ -121,7 +110,7 @@ jQuery(function($){
 					var newItem = $('<div class="step"><span class="stepNo">' + (newIndex+1) + '</span> <span class="actionText">' + actionText + '</span><input type="hidden" id="Steps_' + newIndex + '_json" class="json" name="Steps[' + newIndex + '][json]" value="' + JSON.stringify(jsonValues).replace(/"/g, '&quot;') + '"></div>');
 					newItem.insertAfter(item);
 					item.remove();
-					initDroppable(newItem.has('.ingredient'));
+					initStepDroppable(newItem.has('.ingredient'));
 					stepAdded(newItem, newIndex);
 				} else {
 					var stepNo = item.find('.stepNo');
@@ -130,22 +119,44 @@ jQuery(function($){
 					stepMoved(item, newIndex, oldIndex-1);
 				}
 			},
-		 });
-		 $( ".actionList > .action" ).draggable({
-			 connectToSortable: "#stepList",
-			 //appendTo: "#stepList",
-			 //helper: "clone",
-			 helper: function(event){
-				 var id = $(event.target).data('id');
-				 return $('<div class="step"><span class="stepNo">?</span> <span class="actionText">' + $(event.target).text() + '</span></div>'); 
-			 },
-			 revert: "invalid"
-		 });
-		 $('.step').disableSelection();
-		 $('.step:first').click();
-		 
-		 initIngredientDraggable($('.ingredientList .ingredientEntry'));
-		 initDroppable($('.step:has(.ingredient)'));
+		});
+	}
+
+	function initActionDraggable(actions){
+		actions.draggable({
+			connectToSortable: "#stepList",
+			//appendTo: "#stepList",
+			//helper: "clone",
+			helper: function(event){
+				var id = $(event.target).data('id');
+				return $('<div class="step"><span class="stepNo">?</span> <span class="actionText">' + $(event.target).text() + '</span></div>'); 
+			},
+			revert: "invalid"
+		});
+		actions.disableSelection();
+	}
+	
+	glob.recipeCreator.init = function(){
+		fieldToCssClass = $.parseJSON($('#fieldToCssJSON').val());
+		currentStepIndexField = $('#Steps_STE_STEP_NO');
+		ingredientsList = $.parseJSON($('#ingredientsJSON').val());
+		currentIngredientField =  $('#Steps_ING_ID');
+		currentIngredientCooseLink =  $('#Steps_ING_ID_DESC');
+		currentIngredientCooseLinkDefaultText = currentIngredientCooseLink.text();
+		currentIngredientImg =  $('#Steps_ING_ID_IMG');
+		currentIngredientAmountField =  $('#Steps_STE_GRAMS');
+		currentIngredientAmountParam = $('#param_STE_GRAMS');
+		
+
+		initStepSortable($('#stepList'));
+		$('.step').disableSelection();
+		initActionDraggable($('#actionList > .action'));
+		$('.propertyList .param').hide();
+		$('.step:first').click();
+		
+		initIngredientDraggable($('.ingredientList .ingredientEntry:not(.newEntry):not(#ingNew)'));
+		initStepDroppable($('.step:has(.ingredient)'));
+		$('#recipeCreator').addClass('initialized');
 	}
 	
 	jQuery('body').undelegate('#recipes-form .step','click').delegate('#recipes-form .step','click',function(){
@@ -186,7 +197,11 @@ jQuery(function($){
 					currentIngredientImg.attr('src', imgsrc);
 					$('#ing' + jsonValues['ING_ID']).addClass('selected');
 					updateStepSuggestion(jsonValues['ING_ID']);
+				} else {
+					currentIngredientCooseLink.text(currentIngredientCooseLinkDefaultText);
 				}
+			} else {
+				currentIngredientCooseLink.text(currentIngredientCooseLinkDefaultText);
 			}
 			$('#Steps_STE_STEP_NO').val(elem.index());
 		} catch(ex){}
@@ -395,21 +410,54 @@ jQuery(function($){
 		return true;
 	});
 	
+	glob.recipeCreator.ingredientSelect = function(caller){
+		var insertPos = $('.ingredientEntry.newEntry');
+		var ing_id = caller.attr('href');
+		var name = caller.parent().find('.name').text().trim();
+		var img_auth = caller.closest('.resultArea').find('.img_auth').text().trim();
+		
+		var activeField = $('.activeFancyField');
+		if (typeof(ingredientsList[ing_id]) === 'undefined'){
+			ingredientsList[ing_id] = name;
+			
+			var content = $('#newIngredientMarkup').html();
+			content = content.replace(/newIndex/gi, (insertPos.index()-1));
+			content = content.replace(/newIng\.png/gi, ing_id + '.png');
+			var newElem = $(content);
+			newElem.attr('id', 'ing' + ing_id);
+			newElem.find('.name').text(name);
+			newElem.find('.img_auth').text(img_auth);
+			newElem.find('[id$="_ING_ID"]').val(ing_id);
+			newElem.insertBefore(insertPos);
+			initIngredientDraggable(newElem);
+		}
+		if (!activeField.parent().parent().is('.newEntry')){
+			//if it's not the "add ingredient" button, add value to selected action too.
+			currentIngredientField.val(ing_id);
+			changeValue(currentIngredientField, ing_id, ingredientsList[ing_id]);
+			currentIngredientCooseLink.text(ingredientsList[ing_id]);
+		}
+		
+		activeField.removeClass('activeFancyField');
+		jQuery.fancybox.close();
+		return false;
+	};
+	
 	
 
+
+	jQuery('body').undelegate('#recipes-form input[type="submit"]','click').delegate('#recipes-form input[type="submit"]','click', function(){
+		//jQuery('[name^="Steps[]["]').attr('disabled','disabled');
+		jQuery('[name^="Steps[]["]').prop('disabled',true);
+		return true;
+	});
 	
-	/*
-	//Wait for reload after cookInUpdate so steps could add successfull...
 	$('#page').bind('newContent.recipeCreator', function(e, type, contentParent) {
-		if (data.steps){
-			ingredients = data.ingredients;
-			var container = jQuery('.steps .addRowContainer');
-			//lastIndex = container.find('.odd').add(container.find('.even')).length;
-			var emptyLineContainer = container.find('#newLine');
-			var lastIndexElem = emptyLineContainer.find('input[name=lastIndex]')
-			lastIndexElem.attr('value', lastIndex);
-			initRecipeStepsRowContainerDoIt(container, data.steps, '[]', true);
+		if(type == 'initial' || type == 'hash' || type == 'form'){
+			if (contentParent.find('#recipeCreator:not(.initialized)')){
+				glob.recipeCreator.init();
+			}
 		}
 	});
-	*/
+	$('#recipeCreator').not('.initialized').each(glob.recipeCreator.init);
 });

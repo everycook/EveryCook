@@ -14,10 +14,21 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 
 See GPLv3.htm in the main folder for details.
 */
+
+if(isset($_GET['ajaxform'])){
+	Yii::app()->clientScript->registerScript('iFrame.jQuery', "var jQuery = jQuery || window.parent.jQuery;");
+}
 $request_baseurl = Yii::app()->request->baseUrl;
 Yii::app()->clientscript->registerCssFile($request_baseurl . '/css/recipe_creator.css');
 $emptySteps = new Steps();
 $emptySteps->unsetAttributes();
+
+$coi_ids = array();
+foreach ($model->recToCois as $recToCoi){
+	if (isset($recToCoi->COI_ID) && $recToCoi->COI_ID > 0){
+		$coi_ids[] = $recToCoi->COI_ID;
+	}
+}
 ?>
 <input type="hidden" id="uploadImageLink" value="<?php echo $this->createUrl('recipes/uploadImage',array('id'=>$model->REC_ID)); ?>"/>
 <input type="hidden" id="imageLink" value="<?php echo $this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
@@ -43,13 +54,14 @@ $emptySteps->unsetAttributes();
 	'id'=>'recipes-form',
 	'enableAjaxValidation'=>false,
 	'action'=>Yii::app()->createUrl($this->route, array_merge($this->getActionParams(), array('ajaxform'=>true))),
-    'htmlOptions'=>array(/*'enctype' => 'multipart/form-data', */'class'=>'ajaxupload'),
+    'htmlOptions'=>array(/*'enctype' => 'multipart/form-data', */'class'=>'ajaxupload' . ((count($coi_ids)>0)?' useScreenHeight':'')),
 )); ?>
+	<?php if (count($coi_ids)>0){ ?>
 	<h1 class="name"><?php echo CHtml::link(CHtml::encode($model->__get('REC_NAME_' . Yii::app()->session['lang'])), array('view', 'id'=>$model->REC_ID)); ?></h1>
 	
 	<div class="recipeDetailsTitle"><?php echo $this->trans->RECIPES_SHOW_DETAILS; ?> <span class="subText"><?php echo $this->trans->RECIPES_SHOW_DETAILS2; ?></span></div>
-	
-	<div class="recipeDetails">
+	<?php } ?>
+	<div class="recipeDetails"<?php if (count($coi_ids)>0){ echo 'style="display: none;"';} ?>>
 		<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
 		
 		<?php
@@ -100,42 +112,6 @@ $emptySteps->unsetAttributes();
 				echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('REC_NAME_' . Yii::app()->session['lang'])));
 			}
 		?>
-		
-		<div class="row">
-			<?php echo $form->labelEx($model,'REC_SERVING_COUNT'); ?>
-			<?php echo $form->textField($model,'REC_SERVING_COUNT'); ?>
-			<?php echo $form->error($model,'REC_SERVING_COUNT'); ?>
-		</div>
-	
-		<div class="row">
-			<?php echo $form->labelEx($model,'REC_WIKI_LINK'); ?>
-			<?php echo $form->textField($model,'REC_WIKI_LINK',array('size'=>60,'maxlength'=>200)); ?>
-			<?php echo $form->error($model,'REC_WIKI_LINK'); ?>
-		</div>
-	<?php /*
-		<div class="row">
-			<?php echo $form->labelEx($model,'REC_IS_PRIVATE'); ?>
-			<?php echo $form->textField($model,'REC_IS_PRIVATE',array('size'=>1,'maxlength'=>1)); ?>
-			<?php echo $form->error($model,'REC_IS_PRIVATE'); ?>
-		</div>
-	*/ ?>
-		<div class="row">
-			<?php echo $form->labelEx($model,'REC_COMPLEXITY'); ?>
-			<?php echo $form->textField($model,'REC_COMPLEXITY'); ?>
-			<?php echo $form->error($model,'REC_COMPLEXITY'); ?>
-		</div>
-	
-		<div class="row">
-			<?php echo $form->labelEx($model,'CUT_ID'); ?>
-			<?php echo $form->textField($model,'CUT_ID'); ?>
-			<?php echo $form->error($model,'CUT_ID'); ?>
-		</div>
-	
-		<div class="row">
-			<?php echo $form->labelEx($model,'CST_ID'); ?>
-			<?php echo $form->textField($model,'CST_ID'); ?>
-			<?php echo $form->error($model,'CST_ID'); ?>
-		</div>
 		
 		<div class="row">
 			<?php echo $form->labelEx($model,'REC_SERVING_COUNT'); ?>
@@ -213,12 +189,6 @@ $emptySteps->unsetAttributes();
 		
 		<div class="row" id="cookIns">
 			<?php
-			$coi_ids = array();
-			foreach ($model->recToCois as $recToCoi){
-				if (isset($recToCoi->COI_ID) && $recToCoi->COI_ID > 0){
-					$coi_ids[] = $recToCoi->COI_ID;
-				}
-			}
 			$htmlOptions_type2 = array('empty'=>$this->trans->GENERAL_CHOOSE, 'size'=>8, 'multiple'=>true);
 			//echo Functions::createInput(null, $model->recToCois, 'COI_ID', $cookIns, Functions::MULTI_LIST, 'cookIns', $htmlOptions_type2, $form);
 			
@@ -239,7 +209,7 @@ $emptySteps->unsetAttributes();
 	<?php
 	if (count($coi_ids)>0){
 	?>
-	<div class="recipeCreator">
+	<div id="recipeCreator">
 		<div class="leftBar">
 		<div class="leftBarTable">
 			<div class="ingredientList">
@@ -261,13 +231,29 @@ $emptySteps->unsetAttributes();
 				echo '</div>';
 				$ing_index++;
 			}
-			echo '<div class="ingredientEntry">';
+			
+			$emptyIngredient  = '<div class="ingredientEntry" id="ingNew">';
+			$emptyIngredient .= '<div class="small_img">';
+				$emptyIngredient .= CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'newIng', 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>'new', 'title'=>'new'));
+				$emptyIngredient .= '<div class="img_auth" title="' . '">';
+					$emptyIngredient .= '&nbsp;';
+				$emptyIngredient .= '</div>';
+			$emptyIngredient .= '</div>';
+			$emptyIngredient .= '<div class="name">' . '</div>';
+			$emptyIngredient .= '<div class="amount">'.'</div>';
+			$emptyIngredient .= CHtml::hiddenField('ingredients['.'newIndex'.'][ING_ID]', 'new');
+			$emptyIngredient .= CHtml::hiddenField('ingredients['.'newIndex'.'][AMOUNT]', '');
+			$emptyIngredient .= '</div>';
+			
+			echo '<div class="ingredientEntry newEntry">';
 				echo '<div class="small_img">';
 					echo CHtml::link('&nbsp;', array('ingredients/chooseIngredient'), array('class'=>'addIngredient fancyChoose IngredientSelect', 'title'=>$this->trans->RECIPES_ADD_INGREDIENT));
+					echo CHtml::hiddenField('newIngredient', '', array('class'=>'fancyValue', 'disabled'=>'disabled'));
 					echo '<div class="img_auth">';
 					echo '</div>';
 				echo '</div>';
 				echo '<div class="add">' . $this->trans->RECIPES_ADD_INGREDIENT . '</div>';
+				echo '<div id="newIngredientMarkup" style="display:none">' . $emptyIngredient . '</div>';
 			echo '</div>';
 			echo '<div class="clearfix"></div>';
 			?>
@@ -348,7 +334,10 @@ $emptySteps->unsetAttributes();
 			<div class="rightBarTable">
 			<div class="actions">
 				<div id="actionList">
-					<div class="title">Add step defaults  most common</div>
+					<div class="title">Add step</div>
+					<div class="actionlistType">Suggestion</div>
+					<div class="actionlistType">My list</div>
+					<div class="actionlistType">Most used</div>
 					<?php
 						foreach($actionsIn as $key=>$value){
 							echo '<div class="action" data-id="' . $key . '">' . $value . '</div>';
@@ -366,7 +355,4 @@ $emptySteps->unsetAttributes();
 	<?php } ?>
 
 <?php $this->endWidget(); ?>
-	<script type="text/javascript">
-		glob.initRecipeCreator();
-	</script>
 </div><!-- form -->

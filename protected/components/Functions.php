@@ -992,9 +992,15 @@ class Functions extends CHtml{
 					} else {
 						$newModel = new $relation->className;
 					}
+					$attributeValues = $data[$relation->name];
+					if (is_array($attributeValues) && count($attributeValues) == 1 && isset($attributeValues['json'])){
+						try {
+							$attributeValue = CJSON::decode($attributeValues['json']);
+						} catch (exception $e){}
+					}
 					$newModel->unsetAttributes();
-					$newModel->attributes = $data[$relation->name];
-					$model->$relationName = self::arrayToRelatedObjects($newModel, $data[$relation->name]);
+					$newModel->attributes = $attributeValues;
+					$model->$relationName = self::arrayToRelatedObjects($newModel, $attributeValues);
 				} else if(($relation instanceof CManyManyRelation) || ($relation instanceof CHasManyRelation)){
 					if (isset($model->$relationName)){
 						$newArray = $model->$relationName;
@@ -1008,6 +1014,11 @@ class Functions extends CHtml{
 							$newModel = $newArray[$i];
 						} else {
 							$newModel = new $relation->className;
+						}
+						if (is_array($entry) && count($entry) == 1 && isset($entry['json'])){
+							try {
+								$entry = CJSON::decode($entry['json']);
+							} catch (exception $e){}
 						}
 						$newModel->unsetAttributes();
 						$newModel->attributes = $entry;

@@ -754,6 +754,9 @@ jQuery(function($){
 	
 	jQuery('body').undelegate('.fancyForm .button.IngredientSelect','click').delegate('.fancyForm .button.IngredientSelect','click', function(){
 		var caller = jQuery(this);
+		if ($('#recipeCreator'.length>0)){
+			return glob.recipeCreator.ingredientSelect(caller);
+		}
 		if (caller.is('.RecipeAddPrepare')){
 			var fieldIdentifier = 'IngredientSelect';
 			//use fancyChooseSelect logic
