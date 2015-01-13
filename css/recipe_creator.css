@@ -1,0 +1,263 @@
+/*
+This is the EveryCook Recipe Database. It is a web application for creating (and storing) machine (and human) readable recipes.
+These recipes are linked to foods and suppliers to allow meal planning and shopping list creation. It also guides the user step-by-step through the recipe with the CookAssistant
+EveryCook is an open source platform for collecting all data about food and make it available to all kinds of cooking devices.
+
+This program is copyright (C) by EveryCook. Written by Samuel Werder, Matthias Flierl and Alexis Wiasmitinow.
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+See GPLv3.htm in the main folder for details.
+*/
+
+/* @group recipe creator*/
+#recipes-form h1 {
+	margin: 0;
+}
+#recipes-form .recipeDetailsTitle:before {
+	content: "> ";
+}
+#recipes-form .recipeDetailsTitle {
+	cursor: pointer;
+	font-weight: bold;
+}
+#recipes-form .recipeDetailsTitle .subText {
+	font-weight: normal;
+}
+#recipes-form .recipeDetails {
+	display: none;
+}
+
+#recipes-form .recipeCreator {
+	display: table;
+	width: 100%;
+	height: 100%;
+}
+#recipes-form .leftBar {
+	display: table-cell;
+}
+#recipes-form .leftBarTable {
+	display: table;
+	height: 100%;
+	width: 100%;
+}
+#recipes-form .ingredientList {
+	overflow-x: scroll;
+	display: table-row;
+	height: 10em;
+}
+#recipes-form .ingredientList .ingredientEntry {
+	float: left;
+	width: 7em;
+	margin-bottom: 0.5em;
+}
+#recipes-form .recipeCreator .ingredientEntry .small_img {
+	height: 7.15em;
+}
+#recipes-form .recipeCreator .ingredientEntry .small_img img {
+	border: 2px solid orange;
+}
+#recipes-form .recipeCreator .ingredientEntry.selected .small_img img {
+	border-color: red;
+}
+#recipes-form .recipeCreator .ingredientEntry .small_img .img_auth {
+	clear: both;
+	height: 1.3em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+#recipes-form .ingredientList .ingredientEntry .small_img a {
+	border: 2px dashed orange;
+}
+
+#recipes-form .ingredientList .ingredientEntry .small_img a.addIngredient::before {
+	content: "+";
+	color: orange;
+	font-size: 6em;
+	line-height: 1em;
+	padding-left: 0.2em;
+}
+#recipes-form .ingredientList .ingredientEntry .small_img a.addIngredient {
+	width: 6em;
+	height: 6em;
+	display: block;
+}
+#recipes-form .recipeCreator .ingredientEntry .name {
+	font-weight: bold;
+}
+#recipes-form .recipeCreator .ingredientEntry .amount {
+}
+#recipes-form .recipeCreator .ingredientEntry .add {
+	font-weight: bold;
+}
+
+#recipes-form .recipeCreator .ingredientEntry.ui-draggable {
+	cursor: move;
+	cursor: --moz-grab;
+	cursor: --webkit-grab;
+	cursor: grab;
+}
+
+#recipes-form .recipeCreator .ingredientEntry.ui-draggable-dragging {
+	cursor: no-drop;
+}
+
+#recipes-form .recipeCreator .ingredientEntry.ui-draggable-dragging.dropOK {
+	cursor: move;
+	cursor: --moz-grabbing;
+	cursor: --webkit-grabbing;
+	cursor: grabbing;
+}
+
+#recipes-form .steps {
+	display: table-row;
+	border-bottom: 1px solid black;
+	background-color: white;
+	padding: 0 1em;
+	position: relative;
+}
+/*#recipes-form*/ #stepList {
+	height: 80%;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
+#recipes-form .step {
+	cursor: ns-resize;
+	margin-right: 1em;
+	margin-left: 1em;
+}
+
+#recipes-form .step.drop-hover{
+	border-style: dashed;
+}
+
+#recipes-form .steps .addstep::before {
+	content: "+";
+	color: green;
+	font-size: 2em;
+	line-height: 1em;
+	padding-left: 0.2em;
+}
+#recipes-form .steps .addstep {
+	width: 2em;
+	height: 2em;
+	display: block;
+	border: 2px solid green;
+	border-radius: 2em;
+	margin: 0.25em auto;
+}
+#recipes-form .steps .addstep.last {
+	margin-bottom: 40px;
+}
+#recipes-form .steps .buttons {
+	bottom: 0;
+	position: absolute;
+}
+
+
+#recipes-form .ingredientList .ingredient .small_img img {
+	border: 2px solid orange;
+}
+
+#recipes-form .rightBar {
+	display: table-cell;
+	width: 20%;
+	position: relative;
+	padding-left: 1em;
+}
+#recipes-form .rightBarTable {
+	display: table;
+	width: 100%;
+	height: 100%;
+}
+#recipes-form .actions {
+	display: table-row;
+}
+#recipes-form .actions .title {
+	font-size: 2em;
+	font-weight: bold;
+	line-height: 1em;
+}
+
+#recipes-form #actionList {
+	height:80%;
+	overflow-x: auto;
+	overflow-y: scroll;
+}
+#recipes-form #actionList .action {
+	cursor: move;
+	cursor: --moz-grab;
+	cursor: --webkit-grab;
+	cursor: grab;
+}
+
+#recipes-form #actionList .step {
+	cursor: move;
+	cursor: --moz-grabbing;
+	cursor: --webkit-grabbing;
+	cursor: grabbing;
+}
+
+#recipes-form .propertyList {
+/*	bottom: 0;
+	position: absolute;*/
+	display: table-row;
+	vertical-align: bottom;
+}
+#recipes-form .propertyList .title {
+	font-size: 2em;
+	font-weight: bold;
+	line-height: 1em;
+}
+
+#recipes-form .propertyList .desc label {
+	text-align: left;
+	width: auto;
+}
+
+#recipes-form .propertyList .value {
+	box-sizing: border-box;
+}
+#recipes-form .propertyList .value select,
+#recipes-form .propertyList .value input {
+	width: 100%;
+	box-sizing: border-box;
+	vertical-align: top;
+}
+
+#recipes-form .propertyList .value.fullwidth {
+	width: 100%;
+}
+#recipes-form .propertyList .value.fullwidth .viewWithUnit, 
+#recipes-form .propertyList .value.fullwidth input[type="range"] {
+	width: 80%;
+}
+#recipes-form .propertyList .value.fullwidth .unit, 
+#recipes-form .propertyList .value.fullwidth .slider_value{
+	width: 20%;
+}
+/*
+#recipes-form .propertyList .value.fullwidth select,
+#recipes-form .propertyList .value.fullwidth input[type="text"],
+#recipes-form .propertyList .value.fullwidth input[type="number"],
+#recipes-form .propertyList .value.fullwidth input[type="range"] {
+	box-sizing: border-box;
+}
+*/
+/* @end recipe creator*/
+
+
+#recipes-form {
+	height: calc(100vh - 14em);
+	overflow-y: scroll;
+}
+
+@media only screen and (max-width : 1300px) and (min-width : 1181px) { #recipes-form { height: calc(100vh - 14.5em); } }
+@media only screen and (max-width : 1180px) and (min-width : 1051px) { #recipes-form { height: calc(100vh - 14.5em); } }
+@media only screen and (max-width : 1050px) { #recipes-form { height: calc(100vh - 15em); } }

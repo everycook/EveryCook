@@ -6,3 +6,6 @@ protected/config/*
 !protected/config/entw.php
 img/*
 !img/info.txt
+.settings
+.project
+lib/yii/_*

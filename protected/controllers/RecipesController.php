@@ -260,6 +260,9 @@ class RecipesController extends Controller
 			'STE_KPA'=>'#press',
 			);
 		
+		$emptyStep = new Steps();
+		$emptyStep->unsetAttributes();
+		
 		//loop thru ainToAou, collect all data for actionsIn and prepare details text to show.
 		$actionsInDetails = array();
 		$last_ain_id = -1;
@@ -283,7 +286,7 @@ class RecipesController extends Controller
 						}
 						$defaultNew = array();
 						foreach($default as $key=>$val){
-							$defaultNew[] = $key . '='.$val;
+							$defaultNew[$key] =  $val;
 						}
 						$coiInfos['aou'] = $aous;
 						$coiInfos['required'] = $requiredNew;
@@ -314,12 +317,13 @@ class RecipesController extends Controller
 					}
 					$defaultNew = array();
 					foreach($defaultAction as $key=>$val){
-						$defaultNew[] = $key.'='.$val;
+						$defaultNew[$key] =  $val;
 					}
 					$details['cookIns'] = $cois;
 					$details['required'] = $requiredNew;
 					$details['default'] = $defaultNew;
-					$details['desc'] = '<span class="ain_desc" id="ain_desc_'.$last_ain_id.'"><input type="hidden" class="actionRequireds" value="'.CHtml::encode(CJSON::encode($requiredNew)).'"/><input type="hidden" class="actionDefaults" value="'.CHtml::encode(CJSON::encode($defaultNew)).'"/>'.$ain_desc.'</span>';
+					$actionHtml = Steps::getHTMLString($emptyStep, $actionsIn[$last_ain_id]);
+					$details['desc'] = '<span class="ain_desc" id="ain_desc_'.$last_ain_id.'"><input type="hidden" class="actionRequireds" value="'.CHtml::encode(CJSON::encode($requiredNew)).'"/><input type="hidden" class="actionDefaults" value="'.CHtml::encode(CJSON::encode($defaultNew)).'"/><input type="hidden" class="actionHtml" value="'.CHtml::encode($actionHtml).'"/>'.$ain_desc.'</span>';
 					$actionsInDetails[$last_ain_id] = $details;
 				}
 				$last_coi_id = -1;
@@ -343,7 +347,7 @@ class RecipesController extends Controller
 					}
 					$defaultNew = array();
 					foreach($default as $key=>$val){
-						$defaultNew[] = $key.'='.$val;
+						$defaultNew[$key] =  $val;
 					}
 					$coiInfos['aou'] = $aous;
 					$coiInfos['required'] = $requiredNew;
@@ -453,7 +457,8 @@ class RecipesController extends Controller
 			$details['cookIns'] = $cois;
 			$details['required'] = $requiredNew;
 			$details['default'] = $defaultNew;
-			$details['desc'] = '<span class="ain_desc" id="ain_desc_'.$last_ain_id.'"><input type="hidden" class="actionRequireds" value="'.CHtml::encode(CJSON::encode($requiredNew)).'"/><input type="hidden" class="actionDefaults" value="'.CHtml::encode(CJSON::encode($defaultNew)).'"/>'.$ain_desc.'</span>';
+			$actionHtml = Steps::getHTMLString($emptyStep, $actionsIn[$last_ain_id]);
+			$details['desc'] = '<span class="ain_desc" id="ain_desc_'.$last_ain_id.'"><input type="hidden" class="actionRequireds" value="'.CHtml::encode(CJSON::encode($requiredNew)).'"/><input type="hidden" class="actionDefaults" value="'.CHtml::encode(CJSON::encode($defaultNew)).'"/><input type="hidden" class="actionHtml" value="'.CHtml::encode($actionHtml).'"/>'.$ain_desc.'</span>';
 			$actionsInDetails[$last_ain_id] = $details;
 		}
 		return array($actionsInDetails, $actionsIn);
@@ -1025,20 +1030,29 @@ class RecipesController extends Controller
 			}
 			*/
 			$neededIngredients = array();
+			$neededIngredientAmount = array();
 			foreach($model->steps as $step){
 				array_push($neededIngredients,$step->ING_ID);
+				if (isset($neededIngredientAmount[$step->ING_ID])){
+					$neededIngredientAmount[$step->ING_ID] += $step->STE_GRAMS;
+				} else {
+					$neededIngredientAmount[$step->ING_ID] = $step->STE_GRAMS;
+				}
 			}
 			if (count($neededIngredients)>0){
 				$criteria=new CDbCriteria;
-				$criteria->select = 'ING_ID,ING_NAME_'.Yii::app()->session['lang'];
+				// use * //$criteria->select = 'ING_ID,ING_NAME_'.Yii::app()->session['lang'];
 				$criteria->compare('ING_ID',$neededIngredients);
-				$usedIngredients = Yii::app()->db->commandBuilder->createFindCommand('ingredients', $criteria, '')->queryAll();
-				$usedIngredients = CHtml::listData($usedIngredients,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
+				$usedIngredientDetails = Yii::app()->db->commandBuilder->createFindCommand('ingredients', $criteria, '')->queryAll();
+				$usedIngredients = CHtml::listData($usedIngredientDetails,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
 			} else {
 				$usedIngredients=array();
+				$usedIngredientDetails=array();
 			}
 		} else {
 			$usedIngredients=array();
+			$usedIngredientDetails=array();
+			$neededIngredientAmount=array();
 		}
 		
 		$cookIns = Yii::app()->db->createCommand()->select('COI_ID,COI_DESC_'.Yii::app()->session['lang'])->from('cook_in')->queryAll();
@@ -1066,6 +1080,8 @@ class RecipesController extends Controller
 			'cookInsSelected'=>$cookInsSelected,
 			'tools'=>$tools,
 			'ingredients'=>$usedIngredients,
+			'ingredientDetails'=>$usedIngredientDetails,
+			'ingredientAmount'=>$neededIngredientAmount,
 			'stepTypeConfig'=>$stepTypeConfig,
 			'stepsJSON'=>$stepsJSON,
 			'actionsInDetails'=>$actionsInDetails,
@@ -1377,6 +1393,7 @@ class RecipesController extends Controller
 		$filters = array();
 		$filterValues = array();
 		$additionalSelect = '';
+		$additionalSelectParams = array();
 		if ($criteria == null){
 			$criteria=new CDbCriteria;
 			if (strlen($query)>0){
@@ -1436,6 +1453,7 @@ class RecipesController extends Controller
 			$criteria->select = $criteria->select . ',(' . $subQuery . ') as ingCount';
 			$criteria->having=$this->mergeConditions($criteria->having, 'ingCount = ' . $idsCount);
 			$criteria->params = array_merge($criteria->params, $ingCriteria->params);
+			$additionalSelectParams = array_merge($additionalSelectParams, $ingCriteria->params);
 		}else {
 			$filters['ing_id'] = '';
 		}
@@ -1463,9 +1481,12 @@ class RecipesController extends Controller
 			$criteria->select = $criteria->select . ',(' . $subQuery . ') as ingNotCount';
 			$criteria->having=$this->mergeConditions($criteria->having, 'ingNotCount = 0');
 			$criteria->params = array_merge($criteria->params, $ingCriteria->params);
+			$additionalSelectParams = array_merge($additionalSelectParams, $ingCriteria->params);
 		} else {
 			$filters['ing_id_not'] = '';
 		}
+		$filters['additionalSelect'] = $additionalSelect;
+		$filters['additionalSelectParams'] = $additionalSelectParams;
 		
 		$filters['selectedAutor'] = array();
 		$filters['selectedBatches'] = array();
@@ -1533,12 +1554,17 @@ class RecipesController extends Controller
 		} else if(isset($_POST['orderby'])){
 			$selectedOrderBy = $_POST['orderby'];
 		}
-		
+
+// 		if ($this->debug) {
+// 			echo "before session check \r\n";
+// 			var_dump($criteria->params);
+// 		}
 		
 		$Session_RecipeSearch = Yii::app()->session[$this->searchBackup];
 		$searchFromSession = false;
 		if (isset($Session_RecipeSearch)){
-			if ($criteria->condition == '' && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_RecipeSearch['time'])){
+			if ($criteria->condition == '' && $criteria->having == '' && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_RecipeSearch['time'])){
+				echo "CDbCriteria::paramCount is: " .CDbCriteria::$paramCount;
 				$searchFromSession = true;
 				if (isset($Session_RecipeSearch['query'])){
 					$query = $Session_RecipeSearch['query'];
@@ -1552,6 +1578,13 @@ class RecipesController extends Controller
 				}
 				if (isset($Session_RecipeSearch['filters'])){
 					$filters = $Session_RecipeSearch['filters'];
+					$additionalSelect = $filters['additionalSelect'];
+					$additionalSelectParams = $filters['additionalSelectParams'];
+					$criteria->params = array_merge($criteria->params, $additionalSelectParams);
+// 					if ($this->debug) {
+// 						echo 'change CDbCriteria::paramCount, adding ' .count($additionalSelectParams) . '<br />';
+// 					}
+					CDbCriteria::$paramCount+=count($additionalSelectParams);
 				}
 			}
 		}
@@ -1583,6 +1616,11 @@ class RecipesController extends Controller
 		} else {
 			$criteriaDisplay->order = 'REC_NAME_' . Yii::app()->session['lang'];
 		}
+		if ($this->debug) {
+			echo 'before run<br/>';
+			var_dump($criteria->params);
+			//die();
+		}
 		
 		$command = $this->criteriaToCommand($criteriaDisplay);
 		$rows = $command->queryAll();
@@ -1604,11 +1642,14 @@ class RecipesController extends Controller
 				//TypeOfCusine
 				$criteriaTypeOfCusine=new CDbCriteria;
 				$criteriaTypeOfCusine->join = 'LEFT JOIN cusine_types cut ON cut.CUT_ID = recipes.CUT_ID';
+				$criteriaTypeOfCusine->params = $additionalSelectParams;
 				$criteriaTypeOfCusine->mergeWith($criteria);
-				unset($criteriaTypeOfCusine->having);
+				//unset($criteriaTypeOfCusine->having);
 				$criteriaTypeOfCusine->distinct = true;
 				$criteriaTypeOfCusine->select = 'cut.CUT_ID,cut.CUT_DESC_' . Yii::app()->session['lang'] . $additionalSelect;
 				$commandTypeOfCusine = $this->criteriaToCommand($criteriaTypeOfCusine);
+					var_dump($criteriaTypeOfCusine->params);
+					//die();
 				$commandTypeOfCusine->bindValues($criteriaTypeOfCusine->params);
 				$typeOfCusine = $commandTypeOfCusine->queryAll();
 				if ($this->debug) {
@@ -1624,8 +1665,9 @@ class RecipesController extends Controller
 				//Type
 				$criteriaType=new CDbCriteria;
 				$criteriaType->join = 'LEFT JOIN recipe_types ret ON recipes.RET_ID=ret.RET_ID';
+				$criteriaType->params = $additionalSelectParams;
 				$criteriaType->mergeWith($criteria);
-				unset($criteriaType->having);
+				//unset($criteriaType->having);
 				$criteriaType->distinct = true;
 				$criteriaType->select = 'ret.RET_ID,ret.RET_DESC_' . Yii::app()->session['lang'] . $additionalSelect;
 				$commandType = $this->criteriaToCommand($criteriaType);

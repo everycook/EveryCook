@@ -18,7 +18,7 @@ var glob = glob || {};
 
 glob.rowContainer = {};
 
-jQuery(function($){
+//jQuery(function($){
 	/*TODO use the one in ajax_handling.js*/
 	function initMultiFancyCoose(){
 		jQuery('a.fancyChoose').bind('click.multiFancyCoose', function(){
@@ -1206,4 +1206,4 @@ jQuery(function($){
 	initRecipeStepsRowContainer('initial', jQuery('#page'));
 	initMealplannerPeopleRowContainer('initial', jQuery('#page'));
 	initAinToAouRowContainer('initial', jQuery('#page'));
-});
+//});

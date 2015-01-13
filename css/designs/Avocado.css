@@ -266,11 +266,17 @@ tan
 
 
 /* @group redesign recipe */
-div#recipes.detailView  .step {
+div#recipes.detailView .step,
+#recipes-form .step,
+#recipes-form .action {
 	background-color: white;
 	border-color: #ff9900;
 }
-div#recipes.detailView  .step .stepNo {
+#recipes-form .step.selected {
+	border-color: #99cc00;
+}
+div#recipes.detailView .step .stepNo,
+#recipes-form .step .stepNo {
 	background-color: #ff9900;
 	color: white;
 }

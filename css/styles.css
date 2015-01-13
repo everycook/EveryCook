@@ -94,7 +94,7 @@ th, td, caption {padding:4px 10px 4px 5px;}
 /* @group end typography.css */
 
 
-.clearfix:after{content:"\0020";display:block;height:0;clear:both;visibility:hidden;overflow:hidden;}
+.clearfix:after{content:".";display:block;height:0;clear:both;visibility:hidden;overflow:hidden;}
 .clearfix {display:block;}
 
 
@@ -777,7 +777,7 @@ div#recipes.detailView  {
 	box-sizing: border-box;
 	width: 100%;
 }
-div#recipes.detailView .shoppingList, div#recipes.detailView .recipe{
+div#recipes.detailView .shoppingList, div#recipes.detailView .recipe {
 	display: table-cell;
 }
 
@@ -815,7 +815,7 @@ div#recipes.detailView  div.nutrientTable {
 	margin: 0 0 1em;
 }
 
-div#recipes.detailView  div.nutrientTable .title::before {
+div#recipes.detailView  div.nutrientTable .title:before {
 	content: "> ";
 }
 
@@ -830,14 +830,26 @@ div#recipes.detailView  div.nutrientTable div {
 	display: none;
 }
 
-div#recipes.detailView  .step {
+div#recipes.detailView .step,
+#recipes-form .step,
+#recipes-form .action {
 	background-color: white;
 	border: 2px solid black;
 	border-radius: 0.5em;
 	margin-bottom: 0.5em;
 	padding: 0.25em 0.5em;
 }
-div#recipes.detailView  .step .stepNo {
+#recipes-form .step.selected {
+	border-color: red;
+}
+
+div#recipes.detailView .step .stepNo:after,
+#recipes-form .step .stepNo:after {
+    content: ".";
+}
+
+div#recipes.detailView .step .stepNo,
+#recipes-form .step .stepNo {
 	background-color: black;
 	text-align: center;
 	border-radius: 1em;

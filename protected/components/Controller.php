@@ -339,6 +339,7 @@ class Controller extends CController
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/ajax_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/hash_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/rowcontainer_handling.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/recipecreator.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/design_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/iefix_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/jquery.Jcrop.min.js', CClientScript::POS_HEAD);

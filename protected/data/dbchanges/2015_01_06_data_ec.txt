@@ -1,0 +1,12 @@
+﻿INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('RECIPES_ADD_INGREDIENT', 'Add ingredient', 'Zutat hinzufügen', ''),
+('RECIPES_CELSIUS', 'temperature (in °C)', 'Temperatur (in °C)', ''),
+('RECIPES_KPA', 'pressure (in kpa)', 'Druck (in kpa)', ''),
+('RECIPES_RPM', 'stirring rate (in rpm)', 'Rührgeschwindigkeit (in rpm)', ''),
+('RECIPES_CLOCKWISE', 'stirring clockwise?', 'Rühren im Uhrzeigersinn?', ''),
+('RECIPES_STIR_RUN', 'stirring interval: stir', 'Rührinterval: rühren', ''),
+('RECIPES_STIR_PAUSE', 'stirring interval: pause', 'Rührinterval: pause', ''),
+('RECIPES_STEP_DURATION', 'step duration', 'Step Dauer', ''),
+('RECIPES_SHOW_DETAILS', 'Recipe details', 'Rezept Details', ''),
+('RECIPES_SHOW_DETAILS2', '(type, servings, description, ...)', '(Typ, Portionen, Beschreibung, ...)', ''),
+('GENERAL_NUTRIENTS', 'Nutrients', 'Nährstoffe', '');

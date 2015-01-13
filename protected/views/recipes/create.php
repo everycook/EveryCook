@@ -26,7 +26,7 @@ $this->menu=array(
 );
 ?>
 
-<h1><?php echo $this->trans->TITLE_RECIPES_CREATE; ?></h1>
+<?php /*<h1><?php echo $this->trans->TITLE_RECIPES_CREATE; ?></h1> */?>
 
 <?php echo $this->renderPartial('_form', array(
 	'model'=>$model,
@@ -38,6 +38,8 @@ $this->menu=array(
 	'cookInsSelected'=>$cookInsSelected,
 	'tools'=>$tools,
 	'ingredients'=>$ingredients,
+	'ingredientDetails'=>$ingredientDetails,
+	'ingredientAmount'=>$ingredientAmount,
 	'stepsJSON'=>$stepsJSON,
 	'actionsInDetails'=>$actionsInDetails,
 	)); ?>

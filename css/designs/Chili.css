@@ -251,11 +251,17 @@ div.mealOverview {
 
 
 /* @group redesign recipe */
-div#recipes.detailView  .step {
+div#recipes.detailView .step,
+#recipes-form .step,
+#recipes-form .action {
 	background-color: #ff4d02;
 	border-color: #6d0000;
 }
-div#recipes.detailView  .step .stepNo {
+#recipes-form .step.selected {
+	border-color: #ffdb00;
+}
+div#recipes.detailView .step .stepNo,
+#recipes-form .step .stepNo {
 	background-color: #6d0000;
 	color: white;
 }

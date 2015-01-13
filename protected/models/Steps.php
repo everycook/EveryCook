@@ -229,4 +229,59 @@ class Steps extends ActiveRecordEC
 			'sort'=>$this->getSort(),
 		));
 	}
+
+
+	public function getAsHTMLString($cookin = '#cookin#'){
+		if (isset($this->actionIn) && $this->actionIn != null){
+			return self::getHTMLString($this, $this->actionIn->__get('AIN_DESC_' . Yii::app()->session['lang']), $cookin);
+		} else {
+			return '';
+		}
+	}
+	
+	public static function getFieldToCssClass(){
+		return array(
+				'ING_ID'=>'ingredient',
+				'TOO_ID'=>'tool',
+				'STE_GRAMS'=>'weight',
+				'STE_STEP_DURATION'=>'time',
+				'STE_CELSIUS'=>'temp',
+				'STE_KPA'=>'pressure',
+				'COI_ID'=>'cookin'
+		);
+	}
+	
+	public static function getHTMLString($step, $text, $cookin = '#cookin#'){
+		if (isset($text) && $text != null){
+			$replText = '<span class="ingredient">' . ((isset($step->ingredient) && $step->ingredient != null)?$step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']):'#ingredient#') . '</span> ';
+			$text = str_replace('#ingredient', $replText, $text);
+			
+			$replText = '<span class="weight">' . (($step->STE_GRAMS)?$step->STE_GRAMS:'#weight#') . '</span><span class="weight_unit">g</span> ';
+			$text = str_replace('#weight', $replText, $text);
+			
+			$replText = '<span class="tool">' . ((isset($step->tool) && $step->tool != null)?$step->tool->__get('TOO_DESC_' . Yii::app()->session['lang']):'') . '</span> ';
+			$text = str_replace('#tool', $replText, $text);
+			
+			if ($step->STE_STEP_DURATION){
+				$time = date('H:i:s', $step['STE_STEP_DURATION']-3600);
+			} else {
+				$time = '#time#';
+			}
+			$replText = '<span class="time">' . $time . '</span><span class="time_unit">h</span> ';
+			$text = str_replace('#time', $replText, $text);
+			
+			if ($step->STE_CELSIUS){
+				$replText = '<span class="temp">' . ($step->STE_CELSIUS?$step->STE_CELSIUS:'#temp#') . '</span><span class="temp_unit">°C</span> ';
+				$text = str_replace('#temp', $replText, $text);
+			}
+			
+			$replText = '<span class="pressure">' .(($step->STE_KPA)?$step->STE_KPA:'#press#') . '</span><span class="pressure_unit">kpa</span> ';
+			$text = str_replace('#press', $replText, $text);
+			
+			$replText = '<span class="cookin">' . $cookin . '</span> ';
+			$text = str_replace('#cookin', $replText, $text);
+			return $text;
+		}
+		return "";
+	}
 }
