@@ -52,7 +52,7 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 	<div class="f-left">
 		<h1><?php echo $ingredientName; ?></h1>
 		<div class="detail_img f-left">
-			<?php echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$model->__get('ING_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('ING_NAME_' . Yii::app()->session['lang']))); ?>
+			<?php echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'.png')), $model->__get('ING_NAME_' . Yii::app()->session['lang']), array('class'=>'ingredient', 'title'=>$model->__get('ING_NAME_' . Yii::app()->session['lang']))); ?>
 			<div class="img_auth"><?php if ($model->ING_IMG_ETAG == '') { echo '&nbsp;'; } else {echo '© by ' . $model->ING_IMG_AUTH; } ?></div>
 		</div>
 		
@@ -95,7 +95,7 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 						echo '<div class="item">';
 							echo CHtml::link($recipe['REC_NAME_' . Yii::app()->session['lang']], array('recipes/view', 'id'=>$recipe['REC_ID']), array('class'=>'title'));
 							echo '<div class="small_img">';
-								echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$recipe['REC_NAME_' . Yii::app()->session['lang']], 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']])), array('recipes/view', 'id'=>$recipe['REC_ID']));
+								echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), $recipe['REC_NAME_' . Yii::app()->session['lang']], array('class'=>'recipe', 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']])), array('recipes/view', 'id'=>$recipe['REC_ID']));
 								echo '<div class="img_auth">';
 								if ($recipe['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $recipe['REC_IMG_AUTH']; }
 								echo '</div>';

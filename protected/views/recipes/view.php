@@ -39,7 +39,7 @@ if (!$history){
 	<div class="shoppingList">
 		&nbsp;
 		<div class="detail_img">
-			<?php echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']))); ?>
+			<?php echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), $model->__get('REC_NAME_' . Yii::app()->session['lang']), array('class'=>'recipe', 'title'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']))); ?>
 			<div class="img_auth"><?php if ($model->REC_IMG_ETAG == '') { echo '&nbsp;'; } else {echo '<C2><A9> by ' . $model->REC_IMG_AUTH; } ?></div>
 		</div>
 		<?php
@@ -64,7 +64,7 @@ if (!$history){
 						echo '<li>';
 							echo CHtml::link($step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']), array('ingredients/view', 'id'=>$step->ingredient->ING_ID), array('title'=>$this->trans->RECIPES_TOOLTIP_OPEN_INGREDIENT));
 							echo '<div class="small_img">';
-								echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$step->ingredient['ING_ID'], 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$step->ingredient['ING_NAME_' . Yii::app()->session['lang']], 'title'=>$step->ingredient['ING_NAME_' . Yii::app()->session['lang']])), array('ingredients/view', 'id'=>$step->ingredient['ING_ID']));
+								echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$step->ingredient['ING_ID'], 'ext'=>'.png')), $step->ingredient['ING_NAME_' . Yii::app()->session['lang']], array('class'=>'ingredient', 'title'=>$step->ingredient['ING_NAME_' . Yii::app()->session['lang']])), array('ingredients/view', 'id'=>$step->ingredient['ING_ID']));
 								echo '<div class="img_auth">';
 								if ($step->ingredient['ING_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $step->ingredient['ING_IMG_AUTH']; }
 								echo '</div>';

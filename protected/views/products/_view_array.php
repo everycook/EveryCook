@@ -19,9 +19,9 @@ See GPLv3.htm in the main folder for details.
 	<div class="list_img">
 	<?php 
 	if (!$this->isFancyAjaxRequest){
-		echo CHtml::link(CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'.png')), '', array('class'=>'product', 'alt'=>$data['PRO_NAME_' . Yii::app()->session['lang']], 'title'=>$data['PRO_NAME_' . Yii::app()->session['lang']])), array('view', 'id'=>$data['PRO_ID']));
+		echo CHtml::link(CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'.png')), $data['PRO_NAME_' . Yii::app()->session['lang']], array('class'=>'product', 'title'=>$data['PRO_NAME_' . Yii::app()->session['lang']])), array('view', 'id'=>$data['PRO_ID']));
 	} else {
-		echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'.png')), '', array('class'=>'product', 'alt'=>$data['PRO_NAME_' . Yii::app()->session['lang']], 'title'=>$data['PRO_NAME_' . Yii::app()->session['lang']]));
+		echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'.png')), $data['PRO_NAME_' . Yii::app()->session['lang']], array('class'=>'product', 'title'=>$data['PRO_NAME_' . Yii::app()->session['lang']]));
 	}
 	?>
 	<div class="img_auth"><?php if ($data['PRO_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $data['PRO_IMG_AUTH']; } ?></div>

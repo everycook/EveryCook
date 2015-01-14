@@ -19,7 +19,7 @@ See GPLv3.htm in the main folder for details.
 	<?php 
 	if ($this->isFancyAjaxRequest){
 		echo '<div class="list_img">';
-			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$data['REC_NAME_' . Yii::app()->session['lang']], 'title'=>$data['REC_NAME_' . Yii::app()->session['lang']]));
+			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), $data['REC_NAME_' . Yii::app()->session['lang']], array('class'=>'recipe', 'title'=>$data['REC_NAME_' . Yii::app()->session['lang']]));
 			echo '<div class="img_auth">';
 			if ($data['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $data['REC_IMG_AUTH']; } 
 			echo '</div>';
@@ -33,7 +33,7 @@ See GPLv3.htm in the main folder for details.
 		echo CHtml::link($this->trans->GENERAL_SELECT, $data['REC_ID'], array('class'=>'f-right button'.$class));
 	} else {
 		echo '<div class="list_img">';
-			echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$data['REC_NAME_' . Yii::app()->session['lang']], 'title'=>$data['REC_NAME_' . Yii::app()->session['lang']])), array('view', 'id'=>$data['REC_ID'])); 
+			echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), $data['REC_NAME_' . Yii::app()->session['lang']], array('class'=>'recipe', 'title'=>$data['REC_NAME_' . Yii::app()->session['lang']])), array('view', 'id'=>$data['REC_ID'])); 
 			echo '<div class="img_auth">';
 			if ($data['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $data['REC_IMG_AUTH']; } 
 			echo '</div>';

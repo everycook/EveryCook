@@ -18,7 +18,7 @@ See GPLv3.htm in the main folder for details.
 <div class="resultArea">
 	<div class="shoppingList_left">
 		<div class="list_img">
-			<?php echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$data['ING_NAME'], 'title'=>$data['ING_NAME'])); ?>
+			<?php echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), $data['ING_NAME'], array('class'=>'ingredient', 'title'=>$data['ING_NAME'])); ?>
 			<div class="img_auth"><?php if ($data['ING_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $data['ING_IMG_AUTH']; } ?></div>
 		</div>
 		<div class="data">
@@ -33,7 +33,7 @@ See GPLv3.htm in the main folder for details.
 		<?php if (isset($data['PRO_ID']) && $data['PRO_ID'] != ''){ ?>
 			<div class="shoppingList_image">
 				<div class="list_img">
-					<?php echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'.png')), '', array('class'=>'shoppinglist_product', 'alt'=>$data['PRO_NAME'], 'title'=>$data['PRO_NAME'])); ?>
+					<?php echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$data['PRO_ID'], 'ext'=>'.png')), $data['PRO_NAME'], array('class'=>'shoppinglist_product', 'title'=>$data['PRO_NAME'])); ?>
 					<div class="img_auth"><?php if ($data['PRO_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $data['PRO_IMG_AUTH']; } ?></div>
 				</div>
 				<?php echo CHtml::link($this->trans->SHOPPINGLIST_HAVE_IT, array('removeFromList', 'id'=>$data['SHO_ID'], 'ing_id'=>$data['ING_ID']), array('class'=>'button noAjax removeFromList')); ?>

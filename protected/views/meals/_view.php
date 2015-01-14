@@ -105,7 +105,7 @@ See GPLv3.htm in the main folder for details.
 											echo CHtml::hiddenField($inputName, $recipe['REC_ID']);
 										}
 										echo '<div class="list_img">';
-											echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), '', array('class'=>'cou_recipe', 'alt'=>$recipe['REC_NAME_' . Yii::app()->session['lang']], 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']]));
+											echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), $recipe['REC_NAME_' . Yii::app()->session['lang']], array('class'=>'cou_recipe', 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']]));
 											echo '<div class="img_auth">';
 											if ($recipe->REC_IMG_ETAG == '') { echo '&nbsp;'; } else {echo '© by ' . $recipe->REC_IMG_AUTH; } 
 											echo '</div>';

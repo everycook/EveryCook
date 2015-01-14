@@ -107,9 +107,9 @@ foreach ($model->recToCois as $recToCoi){
 		
 		<?php
 			if (isset(Yii::app()->session['Recipes_Backup']) && isset(Yii::app()->session['Recipes_Backup']->REC_IMG_ETAG)){
-				echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())), '', array('class'=>'recipe' .(($model->imagechanged)?' cropable':''), 'alt'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('REC_NAME_' . Yii::app()->session['lang'])));
+				echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())), $model->__get('REC_NAME_' . Yii::app()->session['lang']), array('class'=>'recipe' .(($model->imagechanged)?' cropable':''), 'title'=>$model->__get('REC_NAME_' . Yii::app()->session['lang'])));
 			} else if ($model->REC_ID && isset($model->REC_IMG_ETAG)) {
-				echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), '', array('class'=>'recipe', 'alt'=>$model->__get('REC_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('REC_NAME_' . Yii::app()->session['lang'])));
+				echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$model->REC_ID, 'ext'=>'.png')), $model->__get('REC_NAME_' . Yii::app()->session['lang']), array('class'=>'recipe', 'title'=>$model->__get('REC_NAME_' . Yii::app()->session['lang'])));
 			}
 		?>
 		
@@ -217,14 +217,15 @@ foreach ($model->recToCois as $recToCoi){
 			echo '<div class="clearfix"></div>';
 			$ing_index = 0;
 			foreach($ingredientDetails as $ingredient){
+				$ingName = $ingredient['ING_NAME_' . Yii::app()->session['lang']];
 				echo '<div class="ingredientEntry" id="ing' . $ingredient['ING_ID'] . '">';
 					echo '<div class="small_img">';
-						echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$ingredient['ING_ID'], 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$ingredient['ING_NAME_' . Yii::app()->session['lang']], 'title'=>$ingredient['ING_NAME_' . Yii::app()->session['lang']]));
+						echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$ingredient['ING_ID'], 'ext'=>'.png')), $ingName, array('class'=>'ingredient', 'title'=>$ingName));
 						echo '<div class="img_auth" title="' . (($ingredient['ING_IMG_ETAG'] == '')?'':'© by ' . $ingredient['ING_IMG_AUTH']) . '">';
 							if ($ingredient['ING_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $ingredient['ING_IMG_AUTH']; }
 						echo '</div>';
 					echo '</div>';
-					echo '<div class="name">' . $ingredient['ING_NAME_' . Yii::app()->session['lang']] . '</div>';
+					echo '<div class="name" title="' . $ingName . '">' . $ingName . '</div>';
 					echo '<div class="amount">' . $ingredientAmount[$ingredient['ING_ID']] . ($ingredientAmount[$ingredient['ING_ID']]==''?'':'g'). '</div>';
 					echo CHtml::hiddenField('ingredients['.$ing_index.'][ING_ID]', $ingredient['ING_ID']);
 					echo CHtml::hiddenField('ingredients['.$ing_index.'][AMOUNT]', $ingredientAmount[$ingredient['ING_ID']]);
@@ -234,12 +235,12 @@ foreach ($model->recToCois as $recToCoi){
 			
 			$emptyIngredient  = '<div class="ingredientEntry" id="ingNew">';
 			$emptyIngredient .= '<div class="small_img">';
-				$emptyIngredient .= CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'newIng', 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>'new', 'title'=>'new'));
+				$emptyIngredient .= CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'newIng', 'ext'=>'.png')), 'new', array('class'=>'ingredient', 'title'=>'new'));
 				$emptyIngredient .= '<div class="img_auth" title="' . '">';
 					$emptyIngredient .= '&nbsp;';
 				$emptyIngredient .= '</div>';
 			$emptyIngredient .= '</div>';
-			$emptyIngredient .= '<div class="name">' . '</div>';
+			$emptyIngredient .= '<div class="name" title="">' . '</div>';
 			$emptyIngredient .= '<div class="amount">'.'</div>';
 			$emptyIngredient .= CHtml::hiddenField('ingredients['.'newIndex'.'][ING_ID]', 'new');
 			$emptyIngredient .= CHtml::hiddenField('ingredients['.'newIndex'.'][AMOUNT]', '');
@@ -253,7 +254,12 @@ foreach ($model->recToCois as $recToCoi){
 					echo '</div>';
 				echo '</div>';
 				echo '<div class="add">' . $this->trans->RECIPES_ADD_INGREDIENT . '</div>';
-				echo '<div id="newIngredientMarkup" style="display:none">' . $emptyIngredient . '</div>';
+				//echo '<div id="newIngredientMarkup" style="display:none">' . $emptyIngredient . '</div>';
+				echo '<script id="newIngredientMarkup" type="text/template">';
+				//echo '/*<![CDATA[*/';
+				echo $emptyIngredient;
+				//echo '/*]]>*/';
+				echo '</script>';
 			echo '</div>';
 			echo '<div class="clearfix"></div>';
 			?>
@@ -339,6 +345,7 @@ foreach ($model->recToCois as $recToCoi){
 					<div class="actionlistType">My list</div>
 					<div class="actionlistType">Most used</div>
 					<?php
+						echo Functions::dropDownList('actionSelect', '', $actionsIn, array('empty'=>$this->trans->GENERAL_CHOOSE));
 						foreach($actionsIn as $key=>$value){
 							echo '<div class="action" data-id="' . $key . '">' . $value . '</div>';
 						} 

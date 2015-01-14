@@ -126,9 +126,9 @@ See GPLv3.htm in the main folder for details.
 		
 		<?php
 			if (Yii::app()->session['Stores_Backup'] && Yii::app()->session['Stores_Backup']->STO_IMG_ETAG){
-				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())), '', array('class'=>'store cropable', 'alt'=>$model->STO_NAME, 'title'=>$model->STO_NAME));
+				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())), $model->STO_NAME array('class'=>'store cropable', 'title'=>$model->STO_NAME));
 			} else if ($model->STO_ID) {
-				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>$model->STO_ID, 'ext'=>'.png')), '', array('class'=>'store', 'alt'=>$model->STO_NAME, 'title'=>$model->STO_NAME));
+				echo CHtml::image($this->createUrl('stores/displaySavedImage', array('id'=>$model->STO_ID, 'ext'=>'.png')), $model->STO_NAME, array('class'=>'store', 'title'=>$model->STO_NAME));
 			}
 		?>
 		

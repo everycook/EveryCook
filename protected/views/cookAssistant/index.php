@@ -67,7 +67,7 @@ See GPLv3.htm in the main folder for details.
 					echo '<div class="action">';
 						echo '<div class="progress" style="width:' .($mealStep->percent*100). '%"></div>';
 						if ($mealStep->ingredientId != 0){
-							echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$mealStep->ingredientId, 'ext'=>'.png')), '', array('class'=>'ingredient', 'alt'=>$mealStep->ingredientCopyright, 'title'=>$mealStep->ingredientCopyright));
+							echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$mealStep->ingredientId, 'ext'=>'.png')), $mealStep->ingredientCopyright, array('class'=>'ingredient', 'title'=>$mealStep->ingredientCopyright));
 						}
 						echo '<div class="actionInner' . (($mealStep->ingredientId != 0)?' withPic':'') . '">';
 							//echo '<div class="actionMainText">' . $mealStep->mainActionText . '</div>';

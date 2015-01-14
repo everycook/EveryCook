@@ -113,9 +113,9 @@ See GPLv3.htm in the main folder for details.
 	?>
 	<?php
 		if (isset(Yii::app()->session['Products_Backup']) && isset(Yii::app()->session['Products_Backup']->PRO_IMG_ETAG)){
-			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())), '', array('class'=>'product' .(($model->imagechanged)?' cropable':''), 'alt'=>$model->__get('PRO_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('PRO_NAME_' . Yii::app()->session['lang'])));
+			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())), $model->__get('PRO_NAME_' . Yii::app()->session['lang']), array('class'=>'product' .(($model->imagechanged)?' cropable':''), 'title'=>$model->__get('PRO_NAME_' . Yii::app()->session['lang'])));
 		} else if ($model->PRO_ID && isset($model->PRO_IMG_ETAG)) {
-			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$model->PRO_ID, 'ext'=>'.png')), '', array('class'=>'product', 'alt'=>$model->__get('PRO_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('PRO_NAME_' . Yii::app()->session['lang'])));
+			echo CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$model->PRO_ID, 'ext'=>'.png')), $model->__get('PRO_NAME_' . Yii::app()->session['lang']), array('class'=>'product', 'title'=>$model->__get('PRO_NAME_' . Yii::app()->session['lang'])));
 		}
 	?>
 	
