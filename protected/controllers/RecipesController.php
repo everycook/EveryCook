@@ -8,6 +8,16 @@ class RecipesController extends Controller
 	{
 		return array(
 			'accessControl', // perform access control for CRUD operations
+// 			array( //vor API 2.0 version see behaviors()
+// 					'CHttpCacheFilter + actionSuggestion',
+// 					'cacheControl' => "public, max-age=3600",
+// // 					'etagSeedExpression' => function() {
+// // 						return $this->getCategoryLastUpdate();
+// // 					},
+// // 					'lastModifiedExpression' => function() {
+// // 						return $this->getCategoryLastUpdate();
+// // 					}
+// 			),
 		);
 	}
 	
@@ -24,7 +34,7 @@ class RecipesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','searchFridge','displaySavedImage','chooseRecipe','chooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory', 'autocomplete','autocompleteId'),
+				'actions'=>array('index','view','search','searchFridge','displaySavedImage','chooseRecipe','chooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory', 'autocomplete','autocompleteId','actionSuggestion'),
 				//'advanceSearch','advanceChooseRecipe','advanceChooseTemplateRecipe',
 				'users'=>array('*'),
 			),
@@ -41,6 +51,33 @@ class RecipesController extends Controller
 			),
 		);
 	}
+	
+	/*
+	//API 2.0
+	public function behaviors() {
+		// http://www.yiiframework.com/doc-2.0/guide-caching-http.html
+		return [ 
+			[ 
+				//'class' => 'yii\filters\HttpCache',
+				'class' => 'framework/web/filters/CHttpCacheFilter',
+				'only' => ['actionSuggestion'],
+// 				'lastModified' => function ($action, $params) {
+// 					$q = new \yii\db\Query();
+// 					return $q->from('post')->max('updated_at');
+// 				},
+// 				'etagSeed' => function ($action, $params) {
+// 					$post = $this->findModel ( \Yii::$app->request->get ( 'id' ) );
+// 					return serialize ( [ 
+// 							$post->title,
+// 							$post->content 
+// 					] );
+// 				},
+				//'cacheControlHeader' => 'public, max-age=3600',
+				'sessionCacheLimiter' => 'public',
+			] 
+		];
+	}
+	*/
 	
 	public function actionCancel(){
 		$this->saveLastAction = false;
@@ -809,7 +846,7 @@ class RecipesController extends Controller
 					}
 					if (isset($required) && count($required)>0){
 						foreach($required as $requiredField){
-							if (!isset($step[$requiredField]) || $step[$requiredField] == null || $step[$requiredField] == ''){
+							if (!isset($step[$requiredField]) || $step[$requiredField] === null || $step[$requiredField] === ''){
 								$this->errorText .= sprintf($this->trans->RECIPES_REQUIRED_FIELD_EMPTY, $requiredField, $index);
 								array_push($this->errorFields, 'Steps_'.$index.'_'.$requiredField);
 								$stepsOK = false;
@@ -1165,6 +1202,79 @@ class RecipesController extends Controller
 	{
 		$this->prepareCreateOrUpdate($id, 'update');
 	}
+	
+	public function actionActionSuggestion($ing_id){
+		header('Content-type: application/json');
+		
+		foreach (Yii::app()->log->routes as $route) {
+			if($route instanceof CWebLogRoute) {
+				$route->enabled = false; // disable any weblogroutes
+			}
+		}
+		$result = $this->getActionSuggestion($ing_id);
+		$ingredients = $result['ingredients'];
+		if (count($ingredients)>0){
+			$criteria=new CDbCriteria;
+			$criteria->select = 'ING_ID,ING_NAME_'.Yii::app()->session['lang'].',ING_IMG_AUTH';
+			$criteria->compare('ING_ID',$ingredients);
+			$usedIngredientDetails = Yii::app()->db->commandBuilder->createFindCommand('ingredients', $criteria, '')->queryAll();
+			//$usedIngredients = CHtml::listData($usedIngredientDetails,'ING_ID','ING_NAME_'.Yii::app()->session['lang']);
+			$usedIngredients = array();
+			foreach ($usedIngredientDetails as $detail){
+				$detail['ING_NAME'] = $detail['ING_NAME_'.Yii::app()->session['lang']];
+				unset($detail['ING_NAME_'.Yii::app()->session['lang']]);
+				$usedIngredients[$detail['ING_ID']] = $detail;
+			}
+			
+			$result['ingredients'] = $usedIngredients;
+		}
+		echo CJSON::encode($result);
+
+		Yii::app()->end();
+	}
+	
+	public function getActionSuggestion($ing_id){
+		$ingredients = array();
+		$suggestions = array();
+		if ($ing_id == 1 || $ing_id == 36){
+			//onion
+			$ing_id_oil = 10;
+			$ingredients[] = $ing_id_oil;
+			$suggestions[] = array('AIN_ID'=>'11', 'ING_ID'=>$ing_id, 'STE_GRAMS'=>50); //prepare onion
+			
+			//$suggestions[] = array('AIN_ID'=>'3', 'ING_ID'=>$ing_id_oil, 'STE_GRAMS'=>10); //weight/add olive oil
+			$suggestions[] = array('AIN_ID'=>'11', 'ING_ID'=>$ing_id_oil, 'STE_GRAMS'=>10); //prepare olive oil
+			$suggestions[] = array('AIN_ID'=>'12', 'ING_ID'=>$ing_id_oil); //add olive oil
+			$suggestions[] = array('AIN_ID'=>'1', 'ING_ID'=>$ing_id); //cut onion (stripes)
+			$suggestions[] = array('AIN_ID'=>'2', 'ING_ID'=>$ing_id); //cut onion (slices)
+			
+			//$suggestions[] = array('AIN_ID'=>'6', 'STE_CELSIUS'=>120, 'STE_RPM'=>100, 'STE_STIR_RUN'=>5, 'STE_STIR_PAUSE'=>20); //headup
+			$suggestions[] = array('AIN_ID'=>'6', 'STE_CELSIUS'=>120, 'STE_RPM'=>0, 'STE_STIR_RUN'=>0, 'STE_STIR_PAUSE'=>0); //headup
+			//$suggestions[] = array('AIN_ID'=>'5', 'STE_CELSIUS'=>120, 'STE_STEP_DURATION'=>15, 'STE_RPM'=>100, 'STE_STIR_RUN'=>5, 'STE_STIR_PAUSE'=>10); //cook / roast
+			$suggestions[] = array('AIN_ID'=>'5', 'STE_CELSIUS'=>120, 'STE_STEP_DURATION'=>15, 'STE_RPM'=>0, 'STE_STIR_RUN'=>0, 'STE_STIR_PAUSE'=>0); //cook / roast
+		} else {
+			$suggestions[] = array('AIN_ID'=>'11', 'ING_ID'=>$ing_id, 'STE_GRAMS'=>0); //prepare
+			$suggestions[] = array('AIN_ID'=>'12', 'ING_ID'=>$ing_id); //add prepared
+			$suggestions[] = array('AIN_ID'=>'3', 'ING_ID'=>$ing_id, 'STE_GRAMS'=>0); //weight/add
+			$suggestions[] = array('AIN_ID'=>'1', 'ING_ID'=>$ing_id); //cut (stripes)
+			$suggestions[] = array('AIN_ID'=>'2', 'ING_ID'=>$ing_id); //cut (slices)
+		}
+		//TODO: define logic for actionSuggestion
+		return array('suggestions'=>$suggestions, 'ingredients'=>$ingredients);
+	}
+
+	public function getMostCommon(){
+		$mostCommons = array();
+		//$mostCommons[] = array('AIN_ID'=>'6', 'STE_CELSIUS'=>100, 'STE_RPM'=>100, 'STE_STIR_RUN'=>5, 'STE_STIR_PAUSE'=>30); //headup
+		$mostCommons[] = array('AIN_ID'=>'6', 'STE_CELSIUS'=>100, 'STE_RPM'=>0, 'STE_STIR_RUN'=>0, 'STE_STIR_PAUSE'=>0); //headup
+		//$mostCommons[] = array('AIN_ID'=>'5', 'STE_CELSIUS'=>100, 'STE_STEP_DURATION'=>600, 'STE_RPM'=>100, 'STE_STIR_RUN'=>5, 'STE_STIR_PAUSE'=>30); //cook
+		$mostCommons[] = array('AIN_ID'=>'5', 'STE_CELSIUS'=>100, 'STE_STEP_DURATION'=>600, 'STE_RPM'=>0, 'STE_STIR_RUN'=>0, 'STE_STIR_PAUSE'=>0); //cook
+		//$mostCommons[] = array('AIN_ID'=>'7', 'STE_KPA'=>80, 'STE_STEP_DURATION'=>600, 'STE_RPM'=>100, 'STE_STIR_RUN'=>5, 'STE_STIR_PAUSE'=>30); //press cook
+		$mostCommons[] = array('AIN_ID'=>'7', 'STE_KPA'=>80, 'STE_STEP_DURATION'=>600, 'STE_RPM'=>0, 'STE_STIR_RUN'=>0, 'STE_STIR_PAUSE'=>0); //press cook
+		$mostCommons[] = array('AIN_ID'=>'10'); //release press
+		return $mostCommons;
+	}
+	
 
 	/**
 	 * Deletes a particular model.
@@ -1935,6 +2045,9 @@ class RecipesController extends Controller
 		*/
 		$result = '<div class="step">';
 		//$result .= '<span class="stepNo">' . $i . '.</span> ';
+		$text = $step->getAsHTMLString($cookin);
+		$result .= '<span class="action">' . $text . '</span>';
+		/*
 		if (isset($step->actionIn) && $step->actionIn != null){
 			$text = $step->actionIn->__get('AIN_DESC_' . Yii::app()->session['lang']);
 			if (isset($step->ingredient) && $step->ingredient != null){
@@ -1969,6 +2082,7 @@ class RecipesController extends Controller
 			}
 			$result .= '<span class="action">' . $text . '</span>';
 		}
+		*/
 		$result .= '</div>';
 		return $result;
 	}

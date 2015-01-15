@@ -246,7 +246,7 @@ class Steps extends ActiveRecordEC
 				'STE_GRAMS'=>'weight',
 				'STE_STEP_DURATION'=>'time',
 				'STE_CELSIUS'=>'temp',
-				'STE_KPA'=>'pressure',
+				'STE_KPA'=>'press',
 				'COI_ID'=>'cookin'
 		);
 	}
@@ -270,12 +270,10 @@ class Steps extends ActiveRecordEC
 			$replText = '<span class="time">' . $time . '</span><span class="time_unit">h</span> ';
 			$text = str_replace('#time', $replText, $text);
 			
-			if ($step->STE_CELSIUS){
-				$replText = '<span class="temp">' . ($step->STE_CELSIUS?$step->STE_CELSIUS:'#temp#') . '</span><span class="temp_unit">°C</span> ';
-				$text = str_replace('#temp', $replText, $text);
-			}
+			$replText = '<span class="temp">' . ($step->STE_CELSIUS?$step->STE_CELSIUS:'#temp#') . '</span><span class="temp_unit">°C</span> ';
+			$text = str_replace('#temp', $replText, $text);
 			
-			$replText = '<span class="pressure">' .(($step->STE_KPA)?$step->STE_KPA:'#press#') . '</span><span class="pressure_unit">kpa</span> ';
+			$replText = '<span class="press">' .(($step->STE_KPA)?$step->STE_KPA:'#press#') . '</span><span class="press_unit">kpa</span> ';
 			$text = str_replace('#press', $replText, $text);
 			
 			$replText = '<span class="cookin">' . $cookin . '</span> ';

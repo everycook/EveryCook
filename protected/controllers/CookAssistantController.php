@@ -1212,7 +1212,7 @@ class CookAssistantController extends Controller {
 					$text = str_replace('#temp', $replText, $text);
 				}
 				if (isset($step['STE_KPA']) && $step['STE_KPA'] > 0){
-					$replText = '<span class="pressure">' . $step['STE_KPA'] . 'kpa</span> ';
+					$replText = '<span class="press">' . $step['STE_KPA'] . 'kpa</span> ';
 					$mainText = str_replace('#press', $replText, $mainText);
 					$text = str_replace('#press', $replText, $text);
 				}

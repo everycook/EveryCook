@@ -192,9 +192,15 @@ See GPLv3.htm in the main folder for details.
 	overflow-x: auto;
 	overflow-y: scroll;
 }
-#recipes-form #actionList .actionlistType {
+#recipes-form #actionList .actionListType {
 	display: inline-block;
 	border: 1px solid black;
+}
+#recipes-form #actionList .actionListList {
+	display: none;
+}
+#recipes-form #actionList .actionListList.selected {
+	display: block;
 }
 #recipes-form #actionList .action.ui-draggable {
 	cursor: move;
@@ -208,6 +214,10 @@ See GPLv3.htm in the main folder for details.
 	cursor: --moz-grabbing;
 	cursor: --webkit-grabbing;
 	cursor: grabbing;
+}
+
+#recipes-form #actionList #actionSelect {
+	width: 100%;
 }
 
 #recipes-form .propertyList {

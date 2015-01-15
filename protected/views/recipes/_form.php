@@ -37,6 +37,7 @@ foreach ($model->recToCois as $recToCoi){
 <input type="hidden" id="updateSessionValueLink" value="<?php echo $this->createUrl('recipes/updateSessionValue'); ?>"/>
 <input type="hidden" id="ingredientsChooseLink" value="<?php echo $this->createUrl('ingredients/chooseIngredient'); ?>"/>
 <input type="hidden" id="preparedIngredientsChooseLink" value="<?php echo $this->createUrl('ingredients/chooseIngredientInRecipe'); ?>"/>
+<input type="hidden" id="actionSuggestionLink" value="<?php echo $this->createUrl('recipes/actionSuggestion'); ?>"/>
 <input type="hidden" id="preparedAIN_ID" value="<?php echo Yii::app()->params['PrepareActionId']; ?>"/>
 <input type="hidden" id="emptyStepsJSON" value="<?php echo CHtml::encode(CJSON::encode($emptySteps)) ?>"/>
 <input type="hidden" id="fieldToCssJSON" value="<?php echo CHtml::encode(CJSON::encode(Steps::getFieldToCssClass())) ?>"/>
@@ -57,27 +58,26 @@ foreach ($model->recToCois as $recToCoi){
     'htmlOptions'=>array(/*'enctype' => 'multipart/form-data', */'class'=>'ajaxupload' . ((count($coi_ids)>0)?' useScreenHeight':'')),
 )); ?>
 	<?php if (count($coi_ids)>0){ ?>
-	<h1 class="name"><?php echo CHtml::link(CHtml::encode($model->__get('REC_NAME_' . Yii::app()->session['lang'])), array('view', 'id'=>$model->REC_ID)); ?></h1>
+	<h1 class="name"><?php echo CHtml::encode($model->__get('REC_NAME_' . Yii::app()->session['lang'])); ?></h1>
 	
 	<div class="recipeDetailsTitle"><?php echo $this->trans->RECIPES_SHOW_DETAILS; ?> <span class="subText"><?php echo $this->trans->RECIPES_SHOW_DETAILS2; ?></span></div>
 	<?php } ?>
+	<?php
+		echo $form->errorSummary($model);
+		if ($this->errorText != ''){
+			if (strpos($this->errorText, '<li>')){
+				echo '<div class="errorSummary"><p>'.$this->trans->RECIPES_FIX_STEPS.'</p><ul>';
+				echo $this->errorText;
+				echo '</ul></div>';
+			} else {
+				echo '<div class="errorSummary">';
+				echo $this->errorText;
+				echo '</div>';
+			}
+		}
+	?>
 	<div class="recipeDetails"<?php if (count($coi_ids)>0){ echo 'style="display: none;"';} ?>>
 		<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
-		
-		<?php
-			echo $form->errorSummary($model);
-			if ($this->errorText != ''){
-				if (strpos($this->errorText, '<li>')){
-					echo '<div class="errorSummary"><p>'.$this->trans->RECIPES_FIX_STEPS.'</p><ul>';
-					echo $this->errorText;
-					echo '</ul></div>';
-				} else {
-					echo '<div class="errorSummary">';
-					echo $this->errorText;
-					echo '</div>';
-				}
-			}
-		?>
 		
 		<div class="row">
 			<label for="Recipes_Template"><?php echo $this->trans->RECIPE_SELECT_TEMPLATE; ?></label>
@@ -320,7 +320,9 @@ foreach ($model->recToCois as $recToCoi){
 					//echo '<div class="addstep"></div>';
 					echo '<div class="step">';
 					echo '<span class="stepNo">' . $i . '</span> ';
-					echo '<span class="actionText">' . $step->getAsHTMLString($cookin) . '</span>';
+					//echo '<span class="actionText">' . $step->getAsHTMLString($cookin) . '</span>';
+					//after save/update and there is a save error actionIn object have stil old value -> incorrect text will be shown
+					echo '<span class="actionText">' . Steps::getHTMLString($step, $actionsIn[$step['AIN_ID']],$cookin) . '</span>';
 					echo CHtml::hiddenField(Functions::resolveArrayName($step,'json',$i),CJSON::encode($step), array('class'=>'json'));
 					echo '</div>';
 					$i++;
@@ -341,14 +343,51 @@ foreach ($model->recToCois as $recToCoi){
 			<div class="actions">
 				<div id="actionList">
 					<div class="title">Add step</div>
-					<div class="actionlistType">Suggestion</div>
-					<div class="actionlistType">My list</div>
-					<div class="actionlistType">Most used</div>
-					<?php
-						echo Functions::dropDownList('actionSelect', '', $actionsIn, array('empty'=>$this->trans->GENERAL_CHOOSE));
+					<div class="actionListType">Suggestion</div>
+					<div class="actionListType">My list</div>
+					<div class="actionListType">Most used</div>
+					<div class="actionListList selected">
+					<?php //Suggestion
+						$suggestions = $this->getActionSuggestion(0); 
+						$suggestions = $suggestions['suggestions'];
+						foreach($suggestions as $value){
+							$ain_id = $value['AIN_ID'];
+							$text = $actionsIn[$ain_id];
+							echo '<div class="action" data-id="' . $ain_id . '" data-json="' . CHtml::encode(CJSON::encode($value)) . '">' . $text . '</div>';
+						}
+					?>
+					</div>
+					<div class="actionListList">
+					<?php //My list
 						foreach($actionsIn as $key=>$value){
 							echo '<div class="action" data-id="' . $key . '">' . $value . '</div>';
-						} 
+						}
+					?>
+					</div>
+					<div class="actionListList">
+					<?php //Most used
+						foreach($this->getMostCommon() as $value){
+							$ain_id = $value['AIN_ID'];
+							$text = $actionsIn[$ain_id];
+							if (isset($value['STE_STEP_DURATION'])){
+								$time = date('H:i:s', $value['STE_STEP_DURATION']-3600);
+								$text = str_replace('#time', $time, $text);
+							}
+							if (isset($value['STE_CELSIUS'])){
+								$replText = $value['STE_CELSIUS'] . '°C';
+								$text = str_replace('#temp', $replText, $text);
+							}
+							if (isset($value['STE_KPA'])){
+								$replText = $value['STE_KPA'] . 'kpa';
+								$text = str_replace('#press', $replText, $text);
+							}
+							echo '<div class="action" data-id="' . $ain_id . '" data-json="' . CHtml::encode(CJSON::encode($value)) . '">' . $text . '</div>';
+						}
+					?>
+					</div>
+					<?php
+						echo Functions::dropDownList('actionSelect', '', $actionsIn, array('empty'=>$this->trans->GENERAL_CHOOSE));
+						echo '<div id="addAction" class="button f-right">Add</div>';
 					?>
 				</div>
 			</div>
