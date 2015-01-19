@@ -783,7 +783,7 @@ div#recipes.detailView  {
 	box-sizing: border-box;
 	width: 100%;
 }
-div#recipes.detailView .shoppingList, div#recipes.detailView .recipe {
+div#recipes.detailView .shoppingList, div#recipes.detailView .recipeDetail {
 	display: table-cell;
 }
 
@@ -806,11 +806,11 @@ div.detailView div.shoppingList div.otherItems li {
 /*	width: 10em;*/
 }
 
-div#recipes.detailView .recipe {
+div#recipes.detailView .recipeDetail {
 	width: 100%;
 }
 
-div#recipes.detailView .recipe .backbutton {
+div#recipes.detailView .recipeDetail .backbutton {
 	float: right;
 }
 
@@ -1040,6 +1040,7 @@ div.form .row  input[type='number'],
 div.form .row  select,
 div.form .row  textarea {
 	width: 17em;
+	box-sizing: border-box;
 }
 
 select.PACKAGE_MULT {

@@ -824,6 +824,11 @@ class RecipesController extends Controller
 			if (isset($_POST['Steps'])){
 				$index=1;
 				foreach($_POST['Steps'] as $step){
+					if (is_array($step) && count($step) == 1 && isset($step['json'])){
+						try {
+							$step = CJSON::decode($step['json']);
+						} catch (exception $e){}
+					}
 					$ain_id = $step['AIN_ID'];
 					if ($ain_id >0 && !isset($actionsIn[$ain_id])){
 						array_push($this->errorFields, 'Steps_'.$index.'_AIN_ID');

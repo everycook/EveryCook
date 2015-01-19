@@ -34,6 +34,7 @@ jQuery(function($){
 	var currentIngredientAmountField = $([]);
 	var currentIngredientAmountParam = $([]);
 	var suggestionList = $([]);
+	var globalParamDefaults = {'STE_CELSIUS':0, 'STE_KPA':0, 'STE_RPM':0};
 	
 	var selecting = false;
 	var ingredientDragHover = $([]);
@@ -85,19 +86,50 @@ jQuery(function($){
 			},
 		});
 	}
+
+	function initRemoveDroppable(recycleBin){
+		recycleBin.droppable({
+			tolerance: 'pointer',
+			hoverClass: 'drop-hover',
+			scope: 'step',
+			drop: function(event, ui) {
+				var elem = $(ui.draggable);
+				var index = elem.index();
+				var parent = elem.parent();
+				elem.remove();
+				stepRemoved(parent, index);
+			},
+			over: function( event, ui ) {
+				ui.draggable.addClass('recycle');
+			},
+			out: function( event, ui ) {
+				ui.draggable.removeClass('recycle');
+			},
+		});
+	}
 	
 	function createStepFormActionId(id, newIndex, actionValues){
 		var ain_desc = $('#ain_desc_'+id);
 		var actionText = ain_desc.find('.actionHtml').val();
 		var jsonValues = {};
 		var defaults = [];
+		var required = [];
 		try {
 			defaults = $.parseJSON(ain_desc.find('.actionDefaults').val());
 			jsonValues = $.parseJSON($('#emptyStepsJSON').val());
+			required = $.parseJSON(ain_desc.find('.actionRequireds').val());
 			//eval('defaults = '+ain_desc.find('.actionDefaults').val()+';');
 			//eval('jsonValues = '+$('#emptyStepsJSON').val()+';');
+			//eval('required = '+ain_desc.find('.actionRequireds').val()+';');
 		} catch(ex){}
 		jsonValues['AIN_ID'] = id;
+		for(var index in required){
+			var key = required[index];
+			if (typeof(globalParamDefaults[key]) !== 'undefined'){
+				jsonValues[key] = globalParamDefaults[key]
+			}
+		}
+		
 		for(var key in defaults){
 			jsonValues[key] = defaults[key];
 		}
@@ -117,41 +149,54 @@ jQuery(function($){
 		delete jsonValues['CHANGED_BY'];
 		delete jsonValues['CHANGED_ON'];
 		var newItem = $('<div class="step"><span class="stepNo">' + (newIndex+1) + '</span> <span class="actionText">' + actionText + '</span><input type="hidden" id="Steps_' + (newIndex+1) + '_json" class="json" name="Steps[' + (newIndex+1) + '][json]" value="' + JSON.stringify(jsonValues).replace(/"/g, '&quot;') + '"> <span class="remove">' + glob.trans.GENERAL_REMOVE + '</span></div>');
-		if (actionValues){
+		//if (actionValues){
 			//updateStepText(newItem, jsonValues);
 			updateStepText(newItem, actionValues);
-		}
+		//}
 		return newItem;
 	}
 	
 	function initStepSortable(stepList){
 		stepList.sortable({
-			placeholder: "addstep",
+			placeholder: 'addstep',
+			scope: 'step',
+			activate: function( event, ui ) {
+				if (ui.item.is('.step')){
+					$('.recycleBin').show();
+				}
+			},
+			deactivate: function( event, ui ) {
+				$('.recycleBin').hide();
+			},
 			stop: function( event, ui ) {
 				var sender = ui.sender;
 				var item = $(ui.item);
-				var newIndex = item.index();
-				if (item.hasClass('action')){
-					var id = item.data('id');
-					var actionValues = {};
-					try {
-						if (typeof(item.data('json')) === 'string'){
-							actionValues = $.parseJSON(item.data('json'));
-						} else {
-							actionValues = item.data('json');
-						}
-					} catch(ex){}
-					var newItem = createStepFormActionId(id, newIndex, actionValues);
-					
-					newItem.insertAfter(item);
-					item.remove();
-					initStepDroppable(newItem.has('.ingredient'));
-					stepAdded(newItem, newIndex);
-				} else {
-					var stepNo = item.find('.stepNo');
-					var oldIndex = parseInt(stepNo.text());
-					stepNo.text(newIndex+1);
-					stepMoved(item, newIndex, oldIndex-1);
+				if(jQuery.contains(document, item[0])){
+					var newIndex = item.index();
+					if (item.hasClass('action')){
+						var id = item.data('id');
+						var actionValues = {};
+						try {
+							if (typeof(item.data('json')) === 'string'){
+								actionValues = $.parseJSON(item.data('json'));
+							} else if (item.data('json')){
+								actionValues = item.data('json');
+							}
+						} catch(ex){}
+						var newItem = createStepFormActionId(id, newIndex, actionValues);
+						
+						newItem.insertAfter(item);
+						item.remove();
+						initStepDroppable(newItem.has('.ingredient'));
+						stepAdded(newItem, newIndex);
+					} else {
+						var stepNo = item.find('.stepNo');
+						var oldIndex = parseInt(stepNo.text());
+						stepNo.text(newIndex+1);
+						stepMoved(item, newIndex, oldIndex-1);
+					}
+				//} else {
+				//	//removed by recycleBin drop point
 				}
 			},
 		});
@@ -191,6 +236,8 @@ jQuery(function($){
 		
 		initIngredientDraggable($('.ingredientList .ingredientEntry:not(.newEntry):not(#ingNew)'));
 		initStepDroppable($('.step:has(.ingredient)'));
+		
+		initRemoveDroppable($('.recycleBin'));
 		$('#recipeCreator').addClass('initialized');
 	}
 	
@@ -226,21 +273,23 @@ jQuery(function($){
 				for(var index in actions){
 					var action = actions[index];
 					var id = action['AIN_ID'];
-					
-					/*
-					//if i do it with "data()" I cannot access the values on stop function of sortable after drop new action....
-					var newAction = $('<div class="action"></div>');
-					newAction.data('id', id);
-					newAction.data('json', action);
-					*/
-					var newAction = $('<div class="action" data-id="' + id + '" data-json=""></div>');
-					newAction.attr('data-json', JSON.stringify(action));
-					
+
 					var ain_desc = $('#ain_desc_'+id);
-					var actionText = ain_desc.find('.actionHtml').val();
-					newAction.html(actionText);
-					updateStepText(newAction, action);
-					suggestionList.append(newAction);
+					if (ain_desc.length){
+						/*
+						//if i do it with "data()" I cannot access the values on stop function of sortable after drop new action....
+						var newAction = $('<div class="action"></div>');
+						newAction.data('id', id);
+						newAction.data('json', action);
+						*/
+						var newAction = $('<div class="action" data-id="' + id + '" data-json=""></div>');
+						newAction.attr('data-json', JSON.stringify(action));
+						
+						var actionText = ain_desc.find('.actionHtml').val();
+						newAction.html(actionText);
+						updateStepText(newAction, action);
+						suggestionList.append(newAction);
+					}
 				}
 				//initActionDraggable(suggestionList.find('.action'));
 				initActionDraggable(suggestionList.children());
@@ -251,6 +300,20 @@ jQuery(function($){
 		});
 		glob.ShowActivity = true;
 	}
+	
+	function getCookinValue(){
+		var elem = $('#cookInDisplay');
+		if (elem.val()){
+			var value = elem.children('option:selected').text().trim();
+		} else {
+			var value = '#cookin#';
+		}
+		return value;
+	}
+	
+	jQuery('body').undelegate('#cookInDisplay','change').delegate('#cookInDisplay','change',function(){
+		$('#stepList .step .cookin').text(getCookinValue());
+	});
 	
 	jQuery('body').undelegate('#recipes-form .step','click').delegate('#recipes-form .step','click',function(){
 		var elem = $(this);
@@ -337,6 +400,7 @@ jQuery(function($){
 				item.find('.' + cssClass).text(shownValue);
 			}
 		}
+		item.find('.cookin').text(getCookinValue());
 	}
 	
 	function stepRemoved(parent, index) {
@@ -345,7 +409,7 @@ jQuery(function($){
 		checkUpdateRecipe();
 		
 		//console.log('remove:' + index);
-		var steps = parent.children();
+		var steps = parent.children('.step');
 		steps.each(function(i){
 			if (i>=index){
 				var step = $(this);
@@ -427,6 +491,8 @@ jQuery(function($){
 	}
 	
 	jQuery('body').undelegate('#actionList .actionListType','click').delegate('#actionList .actionListType','click', function(){
+		$('#actionList .actionListType').removeClass('selected');
+		$(this).addClass('selected');
 		var listIndex = $('#actionList').children('.actionListType').index(this);
 		var actionLists = $('#actionList').children('.actionListList');
 		actionLists.filter('.selected').removeClass('selected');

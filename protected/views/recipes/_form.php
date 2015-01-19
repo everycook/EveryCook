@@ -29,6 +29,7 @@ foreach ($model->recToCois as $recToCoi){
 		$coi_ids[] = $recToCoi->COI_ID;
 	}
 }
+$cookin = '#cookin#';
 ?>
 <input type="hidden" id="uploadImageLink" value="<?php echo $this->createUrl('recipes/uploadImage',array('id'=>$model->REC_ID)); ?>"/>
 <input type="hidden" id="imageLink" value="<?php echo $this->createUrl('recipes/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
@@ -117,7 +118,7 @@ foreach ($model->recToCois as $recToCoi){
 		
 		<div class="row">
 			<?php echo $form->labelEx($model,'REC_SERVING_COUNT'); ?>
-			<?php echo $form->textField($model,'REC_SERVING_COUNT'); ?>
+			<?php echo Functions::activeSpecialField($model, 'REC_SERVING_COUNT', 'number', array('min'=>1, 'step'=>1)); ?>
 			<?php echo $form->error($model,'REC_SERVING_COUNT'); ?>
 		</div>
 	
@@ -136,7 +137,7 @@ foreach ($model->recToCois as $recToCoi){
 
 		<div class="row">
 			<?php echo $form->labelEx($model,'REC_COMPLEXITY'); ?>
-			<?php echo $form->textField($model,'REC_COMPLEXITY'); ?>
+			<?php echo Functions::activeSpecialField($model, 'REC_COMPLEXITY', 'number', array('min'=>1, 'step'=>1)); ?>
 			<?php echo $form->error($model,'REC_COMPLEXITY'); ?>
 		</div>
 	*/ ?>
@@ -275,24 +276,23 @@ foreach ($model->recToCois as $recToCoi){
 					echo $details['desc'];
 				}
 				echo '</div>';
-				/* ?>
+				?>
 				<div class="row">
 				<?php
-					echo CHtml::label($this->trans->RECIPE_COOKIN_DISPLAY,'COI_ID') . "\r\n";
+					echo CHtml::label($this->trans->RECIPE_COOKIN_DISPLAY,'cookInDisplay') . "\r\n";
 					$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
 					$first = 0;
 					foreach ($cookInsSelected as $key=>$val){
 						if ($first == 0){
 							$first = $key;
+							$cookin = $val;
 							break;
 						}
 					}
-					
 					echo CHtml::dropDownList('cookInDisplay', $first, $cookInsSelected, $htmlOptions_type0) . "\r\n";
 				?>
 				</div>
 				<?php
-				*/
 				$fieldOptions = array(
 					array('REC_ID', null, null, array('hidden'=>true)),
 					array('STE_STEP_NO', null, null, array('hidden'=>true)),
@@ -319,7 +319,6 @@ foreach ($model->recToCois as $recToCoi){
 				//echo Functions::createInputTable(array(), $fieldOptions, $options, $form, $text);
 				
 				echo '<div id="stepList">';
-				$cookin = '#cookin#';
 				$i = 1;
 				foreach($model->steps as $step){
 					//echo '<div class="addstep"></div>';
@@ -335,6 +334,7 @@ foreach ($model->recToCois as $recToCoi){
 				}
 				echo '</div>';
 				//echo '<div class="addstep last"></div>';
+				echo '<div class="recycleBin" title="' . $this->trans->GENERAL_REMOVE . '"></div>';
 				?>
 			</div>
 			<div class="actionButtons">
@@ -350,18 +350,20 @@ foreach ($model->recToCois as $recToCoi){
 			<div class="rightBarTable">
 			<div class="actions">
 				<div id="actionList">
-					<div class="title">Add step</div>
-					<div class="actionListType">Suggestion</div>
-					<div class="actionListType">My list</div>
-					<div class="actionListType">Most used</div>
+					<div class="title"><?php echo $this->trans->RECIPES_ACTIONS_TITLE; ?></div>
+					<div class="actionListType selected"><?php echo $this->trans->RECIPES_ACTIONS_SUGGESTION; ?></div>
+					<div class="actionListType"><?php echo $this->trans->RECIPES_ACTIONS_MY_LIST; ?></div>
+					<div class="actionListType"><?php echo $this->trans->RECIPES_ACTIONS_MOST_USED; ?></div>
 					<div class="actionListList selected">
 					<?php //Suggestion
 						$suggestions = $this->getActionSuggestion(0); 
 						$suggestions = $suggestions['suggestions'];
 						foreach($suggestions as $value){
 							$ain_id = $value['AIN_ID'];
-							$text = $actionsIn[$ain_id];
-							echo '<div class="action" data-id="' . $ain_id . '" data-json="' . CHtml::encode(CJSON::encode($value)) . '">' . $text . '</div>';
+							if (isset($actionsIn[$ain_id])){
+								$text = $actionsIn[$ain_id];
+								echo '<div class="action" data-id="' . $ain_id . '" data-json="' . CHtml::encode(CJSON::encode($value)) . '">' . $text . '</div>';
+							}
 						}
 					?>
 					</div>
@@ -376,20 +378,22 @@ foreach ($model->recToCois as $recToCoi){
 					<?php //Most used
 						foreach($this->getMostCommon() as $value){
 							$ain_id = $value['AIN_ID'];
-							$text = $actionsIn[$ain_id];
-							if (isset($value['STE_STEP_DURATION'])){
-								$time = date('H:i:s', $value['STE_STEP_DURATION']-3600);
-								$text = str_replace('#time', $time, $text);
+							if (isset($actionsIn[$ain_id])){
+								$text = $actionsIn[$ain_id];
+								if (isset($value['STE_STEP_DURATION'])){
+									$time = date('H:i:s', $value['STE_STEP_DURATION']-3600);
+									$text = str_replace('#time', $time, $text);
+								}
+								if (isset($value['STE_CELSIUS'])){
+									$replText = $value['STE_CELSIUS'] . '°C';
+									$text = str_replace('#temp', $replText, $text);
+								}
+								if (isset($value['STE_KPA'])){
+									$replText = $value['STE_KPA'] . 'kpa';
+									$text = str_replace('#press', $replText, $text);
+								}
+								echo '<div class="action" data-id="' . $ain_id . '" data-json="' . CHtml::encode(CJSON::encode($value)) . '">' . $text . '</div>';
 							}
-							if (isset($value['STE_CELSIUS'])){
-								$replText = $value['STE_CELSIUS'] . '°C';
-								$text = str_replace('#temp', $replText, $text);
-							}
-							if (isset($value['STE_KPA'])){
-								$replText = $value['STE_KPA'] . 'kpa';
-								$text = str_replace('#press', $replText, $text);
-							}
-							echo '<div class="action" data-id="' . $ain_id . '" data-json="' . CHtml::encode(CJSON::encode($value)) . '">' . $text . '</div>';
 						}
 					?>
 					</div>
@@ -400,7 +404,7 @@ foreach ($model->recToCois as $recToCoi){
 				</div>
 			</div>
 			<div class="propertyList">
-				<div class="title">Parameters</div>
+				<div class="title"><?php echo $this->trans->RECIPES_PARAMETERS_TITLE; ?></div>
 				<?php echo Functions::createOptionList($fieldOptions, new Steps()); ?>
 			</div>
 			</div>

@@ -78,7 +78,7 @@ if (!$history){
 			</ul>
 		</div>
 	</div>
-	<div class="recipe">
+	<div class="recipeDetail">
 		<div class="button history">
 			<?php echo CHtml::link($this->trans->RECIPES_HISTORY, array('history', 'id'=>$model->REC_ID)); ?>
 		</div>

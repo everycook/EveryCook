@@ -1,0 +1,7 @@
+﻿INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('RECIPES_START_CREATE', 'Start recipe', 'Rezept Beginnen', ''),
+('RECIPES_ACTIONS_TITLE', 'Add step', 'Step hinzufügen', ''),
+('RECIPES_ACTIONS_SUGGESTION', 'Suggestion', 'Vorschläge', ''),
+('RECIPES_ACTIONS_MY_LIST', 'My list', 'Meine Liste', ''),
+('RECIPES_ACTIONS_MOST_USED', 'Most used', 'Meist genutzt', ''),
+('RECIPES_PARAMETERS_TITLE', 'Parameters', 'Parameter', '');
