@@ -75,7 +75,7 @@ class SiteController extends Controller
 			$recipe = $command->queryAll();
 			//print_r($command); die();
 			if (count($recipe) == 0){
-				return getSuggestionRecipe(2, '');
+				return $this->getSuggestionRecipe(2, '');
 			}
 			return $recipe[0];
 		}

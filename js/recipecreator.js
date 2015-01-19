@@ -116,7 +116,7 @@ jQuery(function($){
 		delete jsonValues['CREATED_ON'];
 		delete jsonValues['CHANGED_BY'];
 		delete jsonValues['CHANGED_ON'];
-		var newItem = $('<div class="step"><span class="stepNo">' + (newIndex+1) + '</span> <span class="actionText">' + actionText + '</span><input type="hidden" id="Steps_' + (newIndex+1) + '_json" class="json" name="Steps[' + (newIndex+1) + '][json]" value="' + JSON.stringify(jsonValues).replace(/"/g, '&quot;') + '"></div>');
+		var newItem = $('<div class="step"><span class="stepNo">' + (newIndex+1) + '</span> <span class="actionText">' + actionText + '</span><input type="hidden" id="Steps_' + (newIndex+1) + '_json" class="json" name="Steps[' + (newIndex+1) + '][json]" value="' + JSON.stringify(jsonValues).replace(/"/g, '&quot;') + '"> <span class="remove">' + glob.trans.GENERAL_REMOVE + '</span></div>');
 		if (actionValues){
 			//updateStepText(newItem, jsonValues);
 			updateStepText(newItem, actionValues);
@@ -149,7 +149,7 @@ jQuery(function($){
 					stepAdded(newItem, newIndex);
 				} else {
 					var stepNo = item.find('.stepNo');
-					var oldIndex = stepNo.text();
+					var oldIndex = parseInt(stepNo.text());
 					stepNo.text(newIndex+1);
 					stepMoved(item, newIndex, oldIndex-1);
 				}
@@ -305,6 +305,15 @@ jQuery(function($){
 		selecting = false;
 	});
 	
+	jQuery('body').undelegate('#recipes-form .step .remove','click').delegate('#recipes-form .step .remove','click',function(){
+		var elem = $(this).closest('.step');
+		var index = elem.index();
+		var parent = elem.parent();
+		elem.remove();
+		stepRemoved(parent, index);
+		return false;
+	});
+	
 	function updateStepText(item, jsonValues){
 		if (typeof(jsonValues) === 'undefined'){
 			jsonValues = $.parseJSON(item.find('.json').val());
@@ -330,7 +339,43 @@ jQuery(function($){
 		}
 	}
 	
+	function stepRemoved(parent, index) {
+		checkForceUpdate();
+		checkUpdateDelayedRows();
+		checkUpdateRecipe();
+		
+		//console.log('remove:' + index);
+		var steps = parent.children();
+		steps.each(function(i){
+			if (i>=index){
+				var step = $(this);
+				var stepNo = step.find('.stepNo');
+				stepNo.text(i+1);
+				var jsonValueField = step.find('.json');
+				jsonValueField.attr('id', 'Steps_' + (i+1) + '_json');
+				jsonValueField.attr('name', 'Steps[' + (i+1) + '][json]');
+			}
+		});
+		
+		var newSelection = $('.step:nth-child('+(index+1)+')');
+		if (newSelection.length == 0){
+			newSelection = $('.step:nth-child('+index+')');	
+		}
+		if (newSelection.length == 0){
+			//hide all param values
+			$('.propertyList .param').hide();
+		} else {
+			newSelection.click();
+		}
+		
+		SendDataToBackend('&remove='+index);
+	}
+	
 	function stepAdded(item, index) {
+		checkForceUpdate();
+		checkUpdateDelayedRows();
+		checkUpdateRecipe();
+		
 		//console.log('new:' + index);
 		var steps = item.parent().children();
 		steps.each(function(i){
@@ -343,11 +388,15 @@ jQuery(function($){
 				jsonValueField.attr('name', 'Steps[' + (i+1) + '][json]');
 			}
 		});
-		currentStepIndexField.val($('.step.selected').index());
-		//item.click();
+		
+		SendDataToBackend('&add='+index);
 	}
 	
 	function stepMoved(item, newIndex, oldIndex){
+		checkForceUpdate();
+		checkUpdateDelayedRows();
+		checkUpdateRecipe();
+		
 		//console.log('moved:' + newIndex + ', ' + oldIndex);
 		var steps = item.parent().children();
 		if (newIndex>oldIndex){
@@ -372,6 +421,9 @@ jQuery(function($){
 			}
 		});
 		currentStepIndexField.val($('.step.selected').index());
+		
+		SendDataToBackend('&move='+(oldIndex+1)+'&to='+(newIndex+1));
+		//SendDataToBackendRowSetTimeout(currentStepJsonField.val(), newIndex, 'MOVE', oldIndex);
 	}
 	
 	jQuery('body').undelegate('#actionList .actionListType','click').delegate('#actionList .actionListType','click', function(){
@@ -391,10 +443,6 @@ jQuery(function($){
 		initStepDroppable(newItem.has('.ingredient'));
 		stepAdded(newItem, newIndex);
 	});
-	
-	function historyUpdateChange(fieldId, oldValue, newValue){
-		//TODO send history event to server
-	}
 	
 	function changeValue(field, value, shownValue){
 		if (selecting){
@@ -532,7 +580,7 @@ jQuery(function($){
 		}
 	});
 
-
+	//other input fields
 	jQuery('body').undelegate('.propertyList input:not(.viewWithUnit):not(.unit):not(.withUnit):not(.input_range):not(.slider_value)','change').delegate('.propertyList input:not(.viewWithUnit):not(.unit):not(.withUnit):not(.input_range):not(.slider_value)','change',function(){
 		var dataField = jQuery(this);
 		changeValue(dataField, dataField.val(), dataField.val());
@@ -543,7 +591,6 @@ jQuery(function($){
 		return true;
 	});
 	
-
 	function addIngredient(ing_id, name, img_auth){
 		var insertPos = $('.ingredientEntry.newEntry');
 		var content = $('#newIngredientMarkup').html();
@@ -585,8 +632,214 @@ jQuery(function($){
 		return false;
 	};
 	
+	//##################################### history change logic #####################################
+
+	var updateRowTimeouts = new Array();
+	var updateTimeout = undefined;
+	var forceUpdateTimeout = undefined;
+	var changeList = new Array();
+	var undoList = new Array();
+	glob.recipeCreator.SendDataToBackendRowTimeout = 5000;
+	glob.recipeCreator.SendDataToBackendForceTimeout = 3000;
+	
+	
+	function checkForceUpdate(){
+		if (typeof(forceUpdateTimeout) !== 'undefined'){
+			window.clearTimeout(forceUpdateTimeout['timeoutId']);
+			forceUpdateTimeout = undefined;
+			SendDataToBackendForceCallback();
+		}
+	}
+	
+	function checkUpdateDelayedRows(){
+		//run delayed updates:
+		for(var stepIndex in updateRowTimeouts){
+			var timeoutInfo = updateRowTimeouts[stepIndex];
+			if (typeof(timeoutInfo) !== 'undefined'){
+				window.clearTimeout(timeoutInfo['timeoutId']);
+				updateRowTimeouts[stepIndex] = undefined;
+				SendDataToBackendRow(timeoutInfo['jsonString'], stepIndex, timeoutInfo['action'], timeoutInfo['prefIndex'], false);
+			}
+		}
+	}
+	
+	function checkUpdateRecipe(){
+		if (typeof(updateTimeout) !== 'undefined'){
+			var additional = updateTimeout['additional'];
+			if (typeof(updateTimeout['fields']) !== 'undefined'){
+				additional += '&fields='+updateTimeout['fields'];
+			}
+			updateTimeout = undefined;
+			SendDataToBackend(additional, false);
+		}
+	}
+	
+	//######################## recipe / detail infos ########################
+	function SendDataToBackend(additional, async){
+		if (typeof(forceUpdateTimeout) !== 'undefined'){
+			window.clearTimeout(forceUpdateTimeout['timeoutId']);
+			forceUpdateTimeout = undefined;
+		}
+		if (typeof(async) === 'undefined'){
+			async = true;
+		}
+		
+		var url = jQuery('#updateSessionValuesLink').val();
+		var form = $('#recipes-form');
+		
+		var propertyFields = jQuery('[name^="Steps[]["]');
+		propertyFields.prop('disabled',true);
+		var data = form.serialize() + additional;
+		propertyFields.prop('disabled',false);
+		
+		if (async){
+			glob.ShowActivity = false;
+		}
+		jQuery.ajax({'type':'post', 'url':url, 'data': data,'async':async,'cache':false,/*'success':function(data){
+				//alert('success');
+			},
+			'error':function(xhr){
+				//alert('error');
+			},*/
+		});
+		glob.ShowActivity = true;
+	}
+
+	function SendDataToBackendCallback(){
+		checkForceUpdate();
+		if (typeof(updateTimeout) !== 'undefined'){
+			var additional = updateTimeout['additional'];
+			if (typeof(updateTimeout['fields']) !== 'undefined'){
+				additional += '&fields='+updateTimeout['fields'];
+			}
+			checkUpdateDelayedRows();
+			
+			SendDataToBackend(additional);
+			updateTimeout = undefined;
+		}
+	}
+	glob.recipeCreator.SendDataToBackendCallback = SendDataToBackendCallback;
+	
+	function SendDataToBackendSetTimeout(additional, field){
+		var fields = ',';
+		if (typeof(updateTimeout) !== 'undefined'){
+			window.clearTimeout(updateTimeout['timeoutId']);
+			fields=timeoutInfo['fields'];
+			updateTimeout = undefined;
+		}
+		timeoutInfo = new Array();
+		timeoutInfo['timeoutId'] = window.setTimeout('glob.recipeCreator.SendDataToBackendCallback();', glob.recipeCreator.SendDataToBackendRowTimeout);
+		timeoutInfo['additional'] = additional;
+		if (fields.indexOf(','+field+',') === -1){
+			fields += field+',';
+		}
+		timeoutInfo['fields'] = fields;
+		
+		updateTimeout = timeoutInfo;
+	}
+	
+	jQuery('body').undelegate('#recipes-form [name^="Recipes"], #recipes-form [name^="COI_ID"]','change').delegate('#recipes-form [name^="Recipes"], #recipes-form [name^="COI_ID"]','change',function(){
+		var dataField = jQuery(this);
+		
+		SendDataToBackendSetTimeout('', dataField.attr('name'));
+	});
+	
+	//######################## row / step ########################
+	function SendDataToBackendRow(jsonString, stepIndex, action, prefIndex, async){
+		if (typeof(async) === 'undefined'){
+			async = true;
+		}
+		updateRowTimeouts[stepIndex] = undefined;
+		var url = jQuery('#updateSessionValueLink').val();
+		url = glob.urlAddParamStart(url) + 'StepNr=' + (stepIndex+1);
+		url +='&action='+action+'&prefIndex='+(prefIndex+1);
+		
+		//var jsonValues = $.parseJSON(row.find('.json').val());
+		//var data = 'json=' + jsonString;
+		var data = 'Steps['+(stepIndex+1)+'][json]=' + jsonString;
+		
+		
+		
+		if (async){
+			glob.ShowActivity = false;
+		}
+		jQuery.ajax({'type':'post', 'url':url, 'data': data,'async':async,'cache':false,/*'success':function(data){
+				//alert('success');
+			},
+			'error':function(xhr){
+				//alert('error');
+			},*/
+		});
+		glob.ShowActivity = true;
+	}
+	
+	function SendDataToBackendRowCallback(stepIndex){
+		var timeoutInfo = updateRowTimeouts[stepIndex];
+		if (typeof(timeoutInfo) !== 'undefined'){
+			updateRowTimeouts[stepIndex] = undefined;
+			SendDataToBackendRow(timeoutInfo['jsonString'], stepIndex, timeoutInfo['action'], timeoutInfo['prefIndex']);
+		}
+	}
+	glob.recipeCreator.SendDataToBackendRowCallback = SendDataToBackendRowCallback;
+	
+	function SendDataToBackendRowSetTimeout(jsonString, stepIndex, action, prefIndex){
+		var timeoutInfo = updateRowTimeouts[stepIndex];
+		if (typeof(timeoutInfo) !== 'undefined'){
+			window.clearTimeout(timeoutInfo['timeoutId']);
+			if (action !== "CHANGE"){
+				SendDataToBackendRow(timeoutInfo['jsonString'], stepIndex, timeoutInfo['action'], timeoutInfo['prefIndex'], false);
+			}
+		}
+		if (action !== "CHANGE" || glob.recipeCreator.SendDataToBackendRowTimeout === 0){
+			updateRowTimeouts[stepIndex] = undefined;
+			SendDataToBackendRow(jsonString, stepIndex, action, prefIndex);
+		} else {
+			timeoutInfo = new Array();
+			timeoutInfo['timeoutId'] = window.setTimeout('glob.recipeCreator.SendDataToBackendRowCallback('+stepIndex+');', glob.recipeCreator.SendDataToBackendRowTimeout);
+			timeoutInfo['jsonString'] = jsonString;
+			timeoutInfo['action'] = action;
+			timeoutInfo['prefIndex'] = prefIndex;
+			
+			updateRowTimeouts[stepIndex] = timeoutInfo;
+		}
+	}
+	
+	function SendDataToBackendForceCallback(){
+		forceUpdateTimeout = undefined;
+		var focusedElement = $(document.activeElement);
+		if (focusedElement.is(":input")){
+			focusedElement.blur();
+			focusedElement.focus();
+		}
+	}
+	glob.recipeCreator.SendDataToBackendForceCallback = SendDataToBackendForceCallback;
+	
+	jQuery('body').undelegate('.propertyList input, .propertyList select, #recipes-form [name^="Recipes"], #recipes-form [name^="COI_ID"]','keydown').delegate('.propertyList input, .propertyList select, #recipes-form [name^="Recipes"], #recipes-form [name^="COI_ID"]','keydown',function(){
+		if (typeof(forceUpdateTimeout) !== 'undefined'){
+			window.clearTimeout(forceUpdateTimeout['timeoutId']);
+			forceUpdateTimeout = undefined;
+		}
+		forceUpdateTimeout = new Array();
+		forceUpdateTimeout['timeoutId'] = window.setTimeout('glob.recipeCreator.SendDataToBackendForceCallback();', glob.recipeCreator.SendDataToBackendForceTimeout);
+	});
+
+	
+	function historyUpdateChange(fieldId, oldValue, newValue){
+		if (typeof(forceUpdateTimeout) !== 'undefined'){
+			window.clearTimeout(forceUpdateTimeout['timeoutId']);
+			forceUpdateTimeout = undefined;
+		}
+		var stepIndex = parseInt(currentStepIndexField.val());
+		
+		SendDataToBackendRowSetTimeout(currentStepJsonField.val(), stepIndex, 'CHANGE', stepIndex);
+	}
 	
 
+	//######################## add/remove/move ########################
+	//see stepRemoved, stepAdded, stepMoved functions
+	
+	
+	//##################################### initialisation #####################################
 
 	jQuery('body').undelegate('#recipes-form input[type="submit"]','click').delegate('#recipes-form input[type="submit"]','click', function(){
 		//jQuery('[name^="Steps[]["]').attr('disabled','disabled');

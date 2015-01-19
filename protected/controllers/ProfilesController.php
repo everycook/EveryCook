@@ -503,6 +503,10 @@ class ProfilesController extends Controller
 				$model=new Profiles();
 			}
 		}
+		if(isset($_POST['Profiles']))
+		{
+			$model->attributes=array_merge($model->attributes,$_POST['Profiles']);
+		}
 		$model->PRF_LANG = $_GET['lang'];
 
 		Yii::app()->session[$this->createBackup] = $model;

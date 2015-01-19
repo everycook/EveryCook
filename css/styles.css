@@ -487,6 +487,7 @@ div.resultArea.adminArea .name a {
 .small_img img {
 	width:6em !important;
 	height:6em !important;
+	display: inline-block;
 }
 
 div.resultArea img.ingredient,
@@ -498,12 +499,14 @@ div.resultArea img.profile {
 	height:12em;
 /*	float:left;*/
 	border-radius:0.8em;
+	display: inline-block;
 }
 
 div.resultArea img.shoppinglist_product {
 	width:8em;
 	height:8em;
 	border-radius:0.8em;
+	display: inline-block;
 }
 
 div.resultArea div.data {
@@ -719,6 +722,7 @@ div.detailView div.options div.otherItems img {
 	width:6em;
 	height:6em;
 	border-radius:0.8em;
+	display: inline-block;
 }
 div.detailView div.options div.otherItems ul {
 	padding: 0;
@@ -740,10 +744,12 @@ div.detailView img.product {
 	width:17em;
 	height:17em;
 	border-radius:0.8em;
+	display: inline-block;
 }
 div.detailView .detail_img  {
 	width:17em;
 	margin-bottom: 1em;
+	display: inline-block;
 }
 
 
@@ -789,6 +795,7 @@ div.detailView div.shoppingList div.otherItems img {
 	width:6em;
 	height:6em;
 	border-radius:0.8em;
+	display: inline-block;
 }
 div.detailView div.shoppingList div.otherItems ul {
 	padding: 0;
@@ -1182,8 +1189,9 @@ div.cou_recipe img.cou_recipe {
 	border-radius: 0.8em 0.8em 0.8em 0.8em;
 	width:8em;
 	height:8em;
+	display: inline-block;
 }
-div.cou_recipe  .title {
+div.cou_recipe .title {
 	clear: both;
     display: block;
 }
@@ -1449,6 +1457,7 @@ div.mealView span.value {
 	margin-right: 1.5em;
 	width: 5em;
 	height: 5em;
+	display: inline-block;
 }
 .cookAssistant .recipeSteps .recipeStep .stepInfo .nextStep div {
 	border-radius:1.5em;
@@ -1535,6 +1544,7 @@ div.mealView span.value {
 	height: 22.2em;
 	border-bottom-left-radius: 1.5em;
     border-bottom-right-radius: 1.5em;
+    display: inline-block;
 }
 .teaser .title {
 	border-top-left-radius: 1.5em;

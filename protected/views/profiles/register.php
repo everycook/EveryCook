@@ -81,7 +81,7 @@ if(Yii::app()->user->hasFlash('register')){ ?>
 			<?php echo Functions::activeSpecialField($model, 'PRF_EMAIL', 'email',array('size'=>60,'maxlength'=>100)); ?>
 			<?php echo $form->error($model,'PRF_EMAIL'); ?>
 		</div>
-		
+		<?php /* ?>
 		<div class="row">
 			<?php echo $form->labelEx($model,'PRF_GENDER'); ?>
 			<?php echo $form->dropDownList($model,'PRF_GENDER', array('F'=>$this->trans->PROFILES_GENDER_F, 'M'=>$this->trans->PROFILES_GENDER_M), array('empty'=>$this->trans->GENERAL_CHOOSE,)); ?>
@@ -136,10 +136,11 @@ if(Yii::app()->user->hasFlash('register')){ ?>
 			<?php echo $form->FileField($model,'filename'); ?>
 			<?php echo $form->error($model,'filename'); ?>
 		</div>
+		<?php */ ?>
 		
 		<div class="row">
 			<?php echo $form->labelEx($model,'PRF_PW'); ?>
-			<?php echo $form->passwordField($model,'PRF_PW',array('size'=>20,'maxlength'=>256)); ?>
+			<?php echo $form->passwordField($model,'PRF_PW',array('size'=>20,'maxlength'=>256, 'autocomplete'=>'off')); ?>
 			<?php echo $form->error($model,'PRF_PW'); ?>
 		</div>
 
@@ -148,7 +149,7 @@ if(Yii::app()->user->hasFlash('register')){ ?>
 			<?php echo $form->passwordField($model,'pw_repeat',array('size'=>20,'maxlength'=>256)); ?>
 			<?php echo $form->error($model,'pw_repeat'); ?>
 		</div>
-		
+		<?php /* ?>
 		<div class="row">
 			<img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/locate.png" width="24" height="24" id="setMarkerCurrentGPS"/>
 			<span><?php echo $this->trans->PROFILES_SEARCH_CURRENT_POSITION; ?></span>
@@ -173,7 +174,7 @@ if(Yii::app()->user->hasFlash('register')){ ?>
 			<?php echo Functions::activeSpecialField($model, 'PRF_VIEW_DISTANCE', 'number'); ?>
 			<?php echo $form->error($model,'PRF_VIEW_DISTANCE'); ?>
 		</div>
-		
+		<?php */ ?>
 	<!--
 		<div class="row">
 			<?php echo var_dump(function_exists('openssl_random_pseudo_bytes')); ?>
@@ -210,19 +211,20 @@ if(Yii::app()->user->hasFlash('register')){ ?>
 	<?php endif; ?>
 	-->
 		<div class="buttons">
-			<?php echo CHtml::submitButton($this->trans->GENERAL_CREATE); ?>
+			<?php echo CHtml::submitButton($this->trans->GENERAL_CREATE, array('name'=>'register')); ?>
 		</div>
 	</div>
+	<?php /* ?>
 	<strong><?php echo $this->trans->PROFILES_SELECT_HOME; ?></strong>
 	<div id="map_canvas" style="height:300px; width:300px;"></div>
+	<?php */ ?>
 	<div class="clearfix"></div>
-
 <?php $this->endWidget(); ?>
-
+<?php /* ?>
 <script type="text/javascript">
 	loadScript(false, "CH", false, false, true, true);
 </script>
-
+<?php */ ?>
 </div><!-- form -->
 
 <?php } ?>

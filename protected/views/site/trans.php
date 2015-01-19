@@ -20,6 +20,7 @@ glob.trans = {
 <?php
 header('Content-Type: application/javascript; charset:UTF-8');
 $textKeys = array(
+'GENERAL_REMOVE',
 'MEALPLANNER_ADD_RECIPE',
 'MEALPLANNER_EATING_PEOPLE',
 'MEALPLANNER_EATING_PEOPLE_ADULT',

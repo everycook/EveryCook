@@ -92,6 +92,7 @@ foreach ($model->recToCois as $recToCoi){
 		</div>
 		<?php } ?>
 		
+		<?php /* ?>
 		<?php foreach($this->allLanguages as $lang=>$name){ ?>
 		<div class="row">
 			<?php echo $form->labelEx($model,'REC_SYNONYM_'.strtoupper($lang)); ?>
@@ -99,6 +100,7 @@ foreach ($model->recToCois as $recToCoi){
 			<?php echo $form->error($model,'REC_SYNONYM_'.strtoupper($lang)); ?>
 		</div>
 		<?php } ?>
+		<?php */ ?>
 		
 		<?php
 		$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
@@ -119,24 +121,26 @@ foreach ($model->recToCois as $recToCoi){
 			<?php echo $form->error($model,'REC_SERVING_COUNT'); ?>
 		</div>
 	
+	<?php /*
 		<div class="row">
 			<?php echo $form->labelEx($model,'REC_WIKI_LINK'); ?>
 			<?php echo $form->textField($model,'REC_WIKI_LINK',array('size'=>60,'maxlength'=>200)); ?>
 			<?php echo $form->error($model,'REC_WIKI_LINK'); ?>
 		</div>
-	<?php /*
+		
 		<div class="row">
 			<?php echo $form->labelEx($model,'REC_IS_PRIVATE'); ?>
 			<?php echo $form->textField($model,'REC_IS_PRIVATE',array('size'=>1,'maxlength'=>1)); ?>
 			<?php echo $form->error($model,'REC_IS_PRIVATE'); ?>
 		</div>
-	*/ ?>
+
 		<div class="row">
 			<?php echo $form->labelEx($model,'REC_COMPLEXITY'); ?>
 			<?php echo $form->textField($model,'REC_COMPLEXITY'); ?>
 			<?php echo $form->error($model,'REC_COMPLEXITY'); ?>
 		</div>
-	
+	*/ ?>
+		
 		<?php
 		$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
 		echo Functions::createInput(null, $model, 'CUT_ID', $cusineTypes, Functions::DROP_DOWN_LIST, 'cusineTypes', $htmlOptions_type0, $form);
@@ -192,7 +196,7 @@ foreach ($model->recToCois as $recToCoi){
 			$htmlOptions_type2 = array('empty'=>$this->trans->GENERAL_CHOOSE, 'size'=>8, 'multiple'=>true);
 			//echo Functions::createInput(null, $model->recToCois, 'COI_ID', $cookIns, Functions::MULTI_LIST, 'cookIns', $htmlOptions_type2, $form);
 			
-			echo CHtml::label($this->trans->RECIPE_COOKINS,'COI_ID') . "\r\n";
+			echo CHtml::label($this->trans->RECIPE_COOKINS . '<span class="required">*</span>','COI_ID', array('class'=>'required')) . "\r\n";
 			//echo CHtml::listBox('COI_ID', $coi_ids, $cookIns, $htmlOptions_type2) . "\r\n";
 			
 			echo '<ul class="options_choose">';
@@ -203,7 +207,7 @@ foreach ($model->recToCois as $recToCoi){
 			?>
 		</div>
 		<div class="buttons">
-			<?php echo CHtml::submitButton($this->trans->RECIPES_UPDATE, array('class'=>'button', 'name'=>'updateCookIn')); ?>
+			<?php echo CHtml::submitButton((count($coi_ids)>0)?$this->trans->RECIPES_UPDATE:$this->trans->RECIPES_START_CREATE, array('class'=>'button', 'name'=>'updateCookIn')); ?>
 		</div>
 	</div>
 	<?php
@@ -271,7 +275,7 @@ foreach ($model->recToCois as $recToCoi){
 					echo $details['desc'];
 				}
 				echo '</div>';
-				?>
+				/* ?>
 				<div class="row">
 				<?php
 					echo CHtml::label($this->trans->RECIPE_COOKIN_DISPLAY,'COI_ID') . "\r\n";
@@ -288,6 +292,7 @@ foreach ($model->recToCois as $recToCoi){
 				?>
 				</div>
 				<?php
+				*/
 				$fieldOptions = array(
 					array('REC_ID', null, null, array('hidden'=>true)),
 					array('STE_STEP_NO', null, null, array('hidden'=>true)),
@@ -324,12 +329,15 @@ foreach ($model->recToCois as $recToCoi){
 					//after save/update and there is a save error actionIn object have stil old value -> incorrect text will be shown
 					echo '<span class="actionText">' . Steps::getHTMLString($step, $actionsIn[$step['AIN_ID']],$cookin) . '</span>';
 					echo CHtml::hiddenField(Functions::resolveArrayName($step,'json',$i),CJSON::encode($step), array('class'=>'json'));
+					echo ' <span class="remove">' . $this->trans->GENERAL_REMOVE . '</span>';
 					echo '</div>';
 					$i++;
 				}
 				echo '</div>';
-				echo '<div class="addstep last"></div>';
+				//echo '<div class="addstep last"></div>';
 				?>
+			</div>
+			<div class="actionButtons">
 				<div class="buttons">
 					<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE, array('class'=>'button')); ?>
 					<?php echo CHtml::link($this->trans->GENERAL_CANCEL, array('cancel'), array('class'=>'button', 'id'=>'cancel')); ?>

@@ -839,7 +839,7 @@ jQuery(function($){
 	
 	//Profiles
 	jQuery('body').undelegate('#Profiles_PRF_LANG','change').delegate('#Profiles_PRF_LANG','change',function(){
-		var lang = jQuery('#Profiles_PRF_LANG').val();
+		var lang = jQuery(this).val();
 		if (lang != ''){
 			var destUrl = jQuery('#LanguageChangeLink').val();
 			if (destUrl.indexOf('?')>0){
@@ -849,7 +849,8 @@ jQuery(function($){
 			}
 			destUrl = destUrl + 'lang=' + jQuery('#Profiles_PRF_LANG').val();
 
-			window.location = destUrl;
+			//window.location = destUrl;
+			jQuery(this).closest('form').unbind('submit').attr('action', destUrl).removeAttr('target').submit();
 		}
 	});
 	

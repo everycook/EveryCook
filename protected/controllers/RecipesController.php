@@ -555,10 +555,10 @@ class RecipesController extends Controller
 	}
 	
 	private function getRecipeUndoKey($changeModel){
-		return $changeModel->REC_ID . "_" . $this->CHANGED_BY . "_" . $this->CHANGED_ON;
+		return $changeModel->REC_ID . "_" . $changeModel->CHANGED_BY . "_" . $changeModel->CHANGED_ON;
 	}
 	private function getStepUndoKey($changeModel){
-		return $changeModel->REC_ID . "_" . $this->STE_STEP_NO . "_" . $this->CHANGED_BY . "_" . $this->CHANGED_ON;
+		return $changeModel->REC_ID . "_" . $changeModel->STE_STEP_NO . "_" . $changeModel->CHANGED_BY . "_" . $changeModel->CHANGED_ON;
 	}
 	
 	public function actionUpdateSessionValues(){
@@ -578,21 +578,36 @@ class RecipesController extends Controller
 					if (isset($_POST['remove'])){
 						$action = 'DELETE';
 						$actionIndex=$_POST['remove'];
+						$prefIndex = $actionIndex;
 					} else if (isset($_POST['add'])){
 						$action = 'ADD';
 						$actionIndex=$_POST['add'];
+						$prefIndex = $actionIndex;
+					} else if (isset($_POST['move'])){
+						$action = 'MOVE';
+						$prefIndex=$_POST['move'];
+						if (isset($_POST['to'])){
+							$actionIndex=$_POST['to'];
+						}
 					}
 					if ($this->debug) {echo "action:$action,actionIndex:$actionIndex\n";}
 					$dataArray = $_POST['Steps'];
 					if ($actionIndex != -1){
 						$changeModel = new StepChanges;
 						$result;
-						if ($action == 'ADD'){
+						if ($action == 'ADD' || $action == 'MOVE'){
 							$entry = $dataArray[$actionIndex];
+							if (is_array($entry) && count($entry) == 1 && isset($entry['json'])){
+								try {
+									$entry = CJSON::decode($entry['json']);
+								} catch (exception $e){}
+							}
 							if ($this->debug) {var_dump($entry);}
 							$changeModel->attributes = $entry;
 							$changeModel = Functions::arrayToRelatedObjects($changeModel, $entry);
-							$result = $entry;
+							if ($action == 'ADD'){
+								$result = $entry;
+							}
 						} else {
 							$oldArray = $model['steps'];
 							if (isset($oldArray[$actionIndex-1])){
@@ -604,21 +619,34 @@ class RecipesController extends Controller
 						if($changeModel->REC_ID == ''){
 							$changeModel->REC_ID = $model->REC_ID;
 						}
-						$changeModel->STE_STEP_NO = $actionIndex-1;
+						if($changeModel->REC_ID == ''){
+							//recipe not saved
+							$changeModel->REC_ID = -1;
+						}
+						if($action == 'MOVE'){
+							$changeModel->STE_STEP_NO = $prefIndex;
+						} else {
+							$changeModel->STE_STEP_NO = $actionIndex-1;
+						}
 						$changeModel->REC_CHANGED_ON = $model->CHANGED_ON;
 						
-						$changeModel->SCH_ACTION = $action ; //'CHANGE','ADD','DELETE','UP','DOWN'
+						$changeModel->SCH_ACTION = $action ; //'CHANGE','ADD','DELETE','UP','DOWN','MOVE'
 						$changeModel->CHANGED_ON = $timestamp;
 
 						if($changeModel->save()){
-							$result["REC_ID"] = $changeModel->REC_ID;
-							$result["STE_STEP_NO"] = $changeModel->STE_STEP_NO;
-							echo '{"action":"'.$action.'","stepNr":"'.$actionIndex.'","prefIndex":"'.($actionIndex).'","undoKey":"'.getStepUndoKey($changeModel).'","prevValues":'.CJSON::encode($result).'}';
+							if (isset($result)){
+								$result["REC_ID"] = $changeModel->REC_ID;
+								$result["STE_STEP_NO"] = $changeModel->STE_STEP_NO;
+								echo '{"action":"'.$action.'","stepNr":"'.$actionIndex.'","prefIndex":"'.($prefIndex).'","undoKey":"'.$this->getStepUndoKey($changeModel).'","prevValues":'.CJSON::encode($result).'}';
+							} else {
+
+								echo '{"action":"'.$action.'","stepNr":"'.$actionIndex.'","prefIndex":"'.($prefIndex).'","undoKey":"'.$this->getStepUndoKey($changeModel).'"}';
+							}
 						} else {
 							if ($this->debug) {echo 'error on save: ';  var_dump($changeModel->getErrors());}
 						}
 					} else {
-						echo '{"action":"RECIPE","undoKey":"'.getRecipeUndoKey($changeModel).'","prevValues":'.CJSON::encode($oldValues).'}';
+						echo '{"action":"RECIPE","undoKey":"'.$this->getRecipeUndoKey($changeModel).'","prevValues":'.CJSON::encode($oldValues).'}';
 					}
 				
 					$model = Functions::arrayToRelatedObjects($model, array('steps'=>$dataArray));
@@ -652,15 +680,24 @@ class RecipesController extends Controller
 				}
 				$dataArray = $_POST['Steps'];
 				$entry = $dataArray[$StepNr];
-				$action=$_POST['action'];
+				if (is_array($entry) && count($entry) == 1 && isset($entry['json'])){
+					try {
+						$entry = CJSON::decode($entry['json']);
+					} catch (exception $e){}
+				}
+				$action = (isset($_POST['action']))?$_POST['action']:$_GET['action'];
 				if ($action != 'IGNORE'){
-					$prefIndex=$_POST['prefIndex'];
+					$prefIndex=(isset($_POST['prefIndex']))?$_POST['prefIndex']:$_GET['prefIndex'];
 					$prefIndex--;
 					$changeModel = new StepChanges;
 					$changeModel->attributes = $entry;
 					$changeModel = Functions::arrayToRelatedObjects($changeModel, $entry);
 					if($changeModel->REC_ID == ''){
 						$changeModel->REC_ID = $model->REC_ID;
+					}
+					if($changeModel->REC_ID == ''){
+						//recipe not saved
+						$changeModel->REC_ID = -1;
 					}
 					$changeModel->STE_STEP_NO = $prefIndex;
 					if ($action == 'CHANGE'){
@@ -675,18 +712,18 @@ class RecipesController extends Controller
 					if (isset($_POST['undoKey'])){
 						$changeModel->SCH_UNDO_KEY = $_POST['undoKey'];
 						$action = 'UNDO_' . $action;
-						$changeModel->SCH_ACTION = $action ; //'CHANGE','ADD','DELETE','UP','DOWN','UNDO_CHANGE','UNDO_ADD','UNDO_DELETE','UNDO_UP','UNDO_DOWN'
+						$changeModel->SCH_ACTION = $action ; //'CHANGE','ADD','DELETE','UP','DOWN','MOVE','UNDO_CHANGE','UNDO_ADD','UNDO_DELETE','UNDO_UP','UNDO_DOWN'
 					} else {
-						$changeModel->SCH_ACTION = $action ; //'CHANGE','ADD','DELETE','UP','DOWN','UNDO_CHANGE','UNDO_ADD','UNDO_DELETE','UNDO_UP','UNDO_DOWN'
+						$changeModel->SCH_ACTION = $action ; //'CHANGE','ADD','DELETE','UP','DOWN','MOVE','UNDO_CHANGE','UNDO_ADD','UNDO_DELETE','UNDO_UP','UNDO_DOWN'
 					}
 					//CHANGED_ON set in save
 					if($changeModel->save()){
 						if (isset($result)){
 							$result["REC_ID"] = $changeModel->REC_ID;
 							$result["STE_STEP_NO"] = $changeModel->STE_STEP_NO;
-							echo '{"action":"'.$action.'","stepNr":"'.$StepNr.'","prefIndex":"'.($prefIndex+1).'","undoKey":"'.getStepUndoKey($changeModel).'","prevValues":'.CJSON::encode($result).'}';
+							echo '{"action":"'.$action.'","stepNr":"'.$StepNr.'","prefIndex":"'.($prefIndex+1).'","undoKey":"'.$this->getStepUndoKey($changeModel).'","prevValues":'.CJSON::encode($result).'}';
 						} else {
-							echo '{"action":"'.$action.'","stepNr":"'.$StepNr.'","prefIndex":"'.($prefIndex+1).'","undoKey":"'.getStepUndoKey($changeModel).'"}';
+							echo '{"action":"'.$action.'","stepNr":"'.$StepNr.'","prefIndex":"'.($prefIndex+1).'","undoKey":"'.$this->getStepUndoKey($changeModel).'"}';
 						}
 					} else {
 						if ($this->debug) {echo 'error on save: ';  var_dump($changeModel->getErrors());}
