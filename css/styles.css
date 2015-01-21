@@ -839,7 +839,7 @@ div#recipes.detailView  div.nutrientTable div {
 
 div#recipes.detailView .step,
 #recipes-form .step,
-#recipes-form .action {
+#actionList .action {
 	background-color: white;
 	border: 2px solid black;
 	border-radius: 0.5em;

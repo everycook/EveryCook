@@ -251,15 +251,27 @@ class Steps extends ActiveRecordEC
 		);
 	}
 	
-	public static function getHTMLString($step, $text, $cookin = '#cookin#'){
+	public static function getHTMLString($step, $text, $cookin = '#cookin#', $values = array()){
 		if (isset($text) && $text != null){
-			$replText = '<span class="ingredient">' . ((isset($step->ingredient) && $step->ingredient != null)?$step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']):'#ingredient#') . '</span> ';
+			$ingredientText = '#ingredient#';
+			if ((isset($values['ING_NAME']) && $values['ING_NAME'] != null)){
+				$ingredientText = $values['ING_NAME'];
+			} else if ((isset($step->ingredient) && $step->ingredient != null)){
+				$ingredientText = $step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']);
+			}
+			$replText = '<span class="ingredient">' . $ingredientText . '</span> ';
 			$text = str_replace('#ingredient', $replText, $text);
 			
 			$replText = '<span class="weight">' . (($step->STE_GRAMS)?$step->STE_GRAMS:'#weight#') . '</span><span class="weight_unit">g</span> ';
 			$text = str_replace('#weight', $replText, $text);
 			
-			$replText = '<span class="tool">' . ((isset($step->tool) && $step->tool != null)?$step->tool->__get('TOO_DESC_' . Yii::app()->session['lang']):'') . '</span> ';
+			$toolText = '#tool#';
+			if ((isset($values['TOO_DESC']) && $values['TOO_DESC'] != null)){
+				$toolText = $values['TOO_DESC'];
+			} else if ((isset($step->tool) && $step->tool != null)){
+				$toolText = $step->tool->__get('TOO_DESC_' . Yii::app()->session['lang']);
+			}
+			$replText = '<span class="tool">' . $toolText . '</span> ';
 			$text = str_replace('#tool', $replText, $text);
 			
 			if ($step->STE_STEP_DURATION){

@@ -34,9 +34,11 @@ jQuery(function($){
 	var currentIngredientAmountField = $([]);
 	var currentIngredientAmountParam = $([]);
 	var suggestionList = $([]);
+	var actionList = $([]);
 	var globalParamDefaults = {'STE_CELSIUS':0, 'STE_KPA':0, 'STE_RPM':0};
 	
 	var selecting = false;
+	var isStepAdding = false;
 	var ingredientDragHover = $([]);
 
 	function initIngredientDraggable(ingredients){
@@ -158,6 +160,8 @@ jQuery(function($){
 	
 	function initStepSortable(stepList){
 		stepList.sortable({
+			//items: '> .step',
+			axis: 'y',
 			placeholder: 'addstep',
 			scope: 'step',
 			activate: function( event, ui ) {
@@ -188,6 +192,7 @@ jQuery(function($){
 						newItem.insertAfter(item);
 						item.remove();
 						initStepDroppable(newItem.has('.ingredient'));
+						newItem.addClass('needSave');
 						stepAdded(newItem, newIndex);
 					} else {
 						var stepNo = item.find('.stepNo');
@@ -204,7 +209,7 @@ jQuery(function($){
 
 	function initActionDraggable(actions){
 		actions.draggable({
-			connectToSortable: "#stepList",
+			connectToSortable: "#stepList .items",
 			//appendTo: "#stepList",
 			//helper: "clone",
 			helper: function(event){
@@ -227,11 +232,19 @@ jQuery(function($){
 		currentIngredientAmountField =  $('#Steps_STE_GRAMS');
 		currentIngredientAmountParam = $('#param_STE_GRAMS');
 		suggestionList = $('.actionListList:first');
+		actionList = $('#actionList');
 
-		initStepSortable($('#stepList'));
+		initStepSortable($('#stepList .items'));
+		//$('.placeholderStep').remove(); 
 		$('.step').disableSelection();
 		initActionDraggable($('#actionList > .actionListList > .action'));
-		$('.propertyList .param').hide();
+		$('#propertyList').find('.param').hide();
+
+		var inputs = $('#propertyList').find('.dataField');
+		inputs.each(function (){
+			var elem = $(this);
+			elem.attr('data-defaultValue', elem.get(0).defaultValue);
+		});
 		$('.step:first').click();
 		
 		initIngredientDraggable($('.ingredientList .ingredientEntry:not(.newEntry):not(#ingNew)'));
@@ -336,7 +349,7 @@ jQuery(function($){
 				required = $.parseJSON(ain_desc.find('.actionRequireds').val());
 				//eval('required = '+ain_desc.find('.actionRequireds').val()+';');
 			} catch(ex){}
-			$('.propertyList .param').hide();
+			$('#propertyList .param').hide();
 			for(var key in jsonValues){
 				var param = $('#param_'+key);
 				var inputField = param.find('[id$="' + key + '"]');
@@ -356,7 +369,9 @@ jQuery(function($){
 					var imgsrc = glob.prefix + 'ingredients/displaySavedImage/' + jsonValues['ING_ID'] + '.png'
 					currentIngredientImg.attr('src', imgsrc);
 					$('#ing' + jsonValues['ING_ID']).addClass('selected');
-					updateActionSuggestion(jsonValues['ING_ID']);
+					if (!isStepAdding){
+						updateActionSuggestion(jsonValues['ING_ID']);
+					}
 				} else {
 					currentIngredientCooseLink.text(currentIngredientCooseLinkDefaultText);
 				}
@@ -366,6 +381,26 @@ jQuery(function($){
 			$('#Steps_STE_STEP_NO').val(elem.index());
 		} catch(ex){}
 		selecting = false;
+	});
+	
+	jQuery('body').undelegate('#recipes-form .step','dblclick').delegate('#recipes-form .step','dblclick',function(){
+		var elem = $(this);
+		$('#propertyList').addClass('inFancy');
+		jQuery.fancybox({
+			'href': '#propertyList',
+			'modal': true,
+//			'onComplete': function(){
+//				$(steps.get(index)).click();
+//			},
+			'onClosed':function(){
+				updateStepText(elem);
+				$('#propertyList').removeClass('inFancy').find('.error').removeClass('error');
+				if (elem.hasClass('needSave')){
+					elem.removeClass('needSave');
+					SendDataToBackend('&add='+elem.index());
+				}
+			},
+		});
 	});
 	
 	jQuery('body').undelegate('#recipes-form .step .remove','click').delegate('#recipes-form .step .remove','click',function(){
@@ -427,7 +462,7 @@ jQuery(function($){
 		}
 		if (newSelection.length == 0){
 			//hide all param values
-			$('.propertyList .param').hide();
+			$('#propertyList .param').hide();
 		} else {
 			newSelection.click();
 		}
@@ -436,24 +471,36 @@ jQuery(function($){
 	}
 	
 	function stepAdded(item, index) {
-		checkForceUpdate();
-		checkUpdateDelayedRows();
-		checkUpdateRecipe();
-		
-		//console.log('new:' + index);
-		var steps = item.parent().children();
-		steps.each(function(i){
-			if (i>index){
-				var step = $(this);
-				var stepNo = step.find('.stepNo');
-				stepNo.text(i+1);
-				var jsonValueField = step.find('.json');
-				jsonValueField.attr('id', 'Steps_' + (i+1) + '_json');
-				jsonValueField.attr('name', 'Steps[' + (i+1) + '][json]');
-			}
-		});
-		
-		SendDataToBackend('&add='+index);
+		isStepAdding = true;
+		try {
+			checkForceUpdate();
+			checkUpdateDelayedRows();
+			checkUpdateRecipe();
+			
+			//console.log('new:' + index);
+			var steps = item.parent().children();
+			steps.each(function(i){
+				if (i>index){
+					var step = $(this);
+					var stepNo = step.find('.stepNo');
+					stepNo.text(i+1);
+					var jsonValueField = step.find('.json');
+					jsonValueField.attr('id', 'Steps_' + (i+1) + '_json');
+					jsonValueField.attr('name', 'Steps[' + (i+1) + '][json]');
+				}
+			});
+			/*
+			var inputs = $('#propertyList').find('.dataField');
+			inputs.each(function (){
+				var elem = $(this);
+				//elem.val(elem.get(0).defaultValue);
+				elem.val(elem.attr('data-defaultValue'));
+			});
+			*/
+			item.click();
+			item.dblclick();
+		} catch (ex){}
+		isStepAdding = false;
 	}
 	
 	function stepMoved(item, newIndex, oldIndex){
@@ -498,10 +545,31 @@ jQuery(function($){
 		actionLists.filter('.selected').removeClass('selected');
 		$(actionLists.get(listIndex)).addClass('selected');
 	});
+
+	jQuery('body').undelegate('#actionList.inFancy .selected .action','click').delegate('#actionList.inFancy .selected .action','click', function(){
+		var item = $(this);
+		var id = item.data('id');
+		var actionValues = {};
+		try {
+			if (typeof(item.data('json')) === 'string'){
+				actionValues = $.parseJSON(item.data('json'));
+			} else if (item.data('json')){
+				actionValues = item.data('json');
+			}
+		} catch(ex){}
+		var stepList = $('#stepList .items');
+		var newIndex = stepList.children().length; 
+		var newItem = createStepFormActionId(id, newIndex, actionValues);
+		
+		stepList.append(newItem);
+		initStepDroppable(newItem.has('.ingredient'));
+		jQuery.fancybox.close();
+		stepAdded(newItem, newIndex);
+	});
 	
 	jQuery('body').undelegate('#actionList #addAction','click').delegate('#actionList #addAction','click', function(){
-		var id = $('#actionSelect').val()
-		var stepList = $('#stepList');
+		var id = $('#actionSelect').val();
+		var stepList = $('#stepList .items');
 		var newIndex = stepList.children().length; 
 		var newItem = createStepFormActionId(id, newIndex, {});
 		
@@ -576,7 +644,7 @@ jQuery(function($){
 		
 	}
 	
-	jQuery('body').undelegate('.propertyList .viewWithUnit','change').delegate('.propertyList .viewWithUnit','change',function(){
+	jQuery('body').undelegate('#propertyList .viewWithUnit','change').delegate('#propertyList .viewWithUnit','change',function(){
 		var inputField = jQuery(this);
 		var unitField = inputField.next();
 		var multiplier = unitField.val();
@@ -592,7 +660,7 @@ jQuery(function($){
 		}
 	});
 	
-	jQuery('body').undelegate('.propertyList .unit','change').delegate('.propertyList .unit','change',function(){
+	jQuery('body').undelegate('#propertyList .unit','change').delegate('#propertyList .unit','change',function(){
 		var unitField = jQuery(this);
 		var multiplier = unitField.val();
 		var inputField = unitField.prev();
@@ -608,7 +676,7 @@ jQuery(function($){
 		}
 	});
 
-	jQuery('body').undelegate('.propertyList .withUnit','change').delegate('.propertyList .withUnit','change',function(){
+	jQuery('body').undelegate('#propertyList .withUnit','change').delegate('#propertyList .withUnit','change',function(){
 		var dataField = jQuery(this);
 		var unitField = dataField.prev();
 		var multiplier = unitField.val();
@@ -624,7 +692,7 @@ jQuery(function($){
 		}
 	});
 
-	jQuery('body').undelegate('.propertyList .input_range','change').delegate('.propertyList .input_range','change',function(){
+	jQuery('body').undelegate('#propertyList .input_range','change').delegate('#propertyList .input_range','change',function(){
 		var dataField = jQuery(this);
 		var valueField = dataField.next();
 		var rangeField = dataField;
@@ -635,7 +703,7 @@ jQuery(function($){
 		}
 	});
 
-	jQuery('body').undelegate('.propertyList .slider_value','change').delegate('.propertyList .slider_value','change',function(){
+	jQuery('body').undelegate('#propertyList .slider_value','change').delegate('#propertyList .slider_value','change',function(){
 		var dataField = jQuery(this);
 		var valueField = dataField;
 		var rangeField = dataField.prev();
@@ -647,11 +715,35 @@ jQuery(function($){
 	});
 
 	//other input fields
-	jQuery('body').undelegate('.propertyList input:not(.viewWithUnit):not(.unit):not(.withUnit):not(.input_range):not(.slider_value)','change').delegate('.propertyList input:not(.viewWithUnit):not(.unit):not(.withUnit):not(.input_range):not(.slider_value)','change',function(){
+	jQuery('body').undelegate('#propertyList input:not(.viewWithUnit):not(.unit):not(.withUnit):not(.input_range):not(.slider_value)','change').delegate('#propertyList input:not(.viewWithUnit):not(.unit):not(.withUnit):not(.input_range):not(.slider_value)','change',function(){
 		var dataField = jQuery(this);
 		changeValue(dataField, dataField.val(), dataField.val());
 	});
+	jQuery('body').undelegate('#propertyList .closeButton','click').delegate('#propertyList .closeButton','click',function(){
+		var inputs = $('#propertyList').find('.param:visible .dataField');
+		var okCount = 0;
+		var firstErrorField = -1;
+		inputs.each(function(i){
+			var elem = $(this);
+			if (elem.val() !== '' && elem.val() !== elem.attr('data-defaultValue')){
+				okCount++;
+				elem.closest('.param').removeClass('error');
+			} else {
+				if(firstErrorField == -1){
+					firstErrorField = i;
+				}
+				elem.closest('.param').addClass('error');
+			}
+		});
+		if(okCount == inputs.length){
+			jQuery.fancybox.close();
+		} else {
+			$(inputs.get(firstErrorField)).select(); 
+		}
+	});
 
+	
+	
 	jQuery('body').undelegate('.recipeDetailsTitle','click').delegate('.recipeDetailsTitle','click', function(){
 		jQuery(this).siblings('.recipeDetails').toggle();
 		return true;
@@ -683,6 +775,8 @@ jQuery(function($){
 		if (typeof(ingredientsList[ing_id]) === 'undefined'){
 			ingredientsList[ing_id] = name;
 			var newElem = addIngredient(ing_id, name, img_auth);
+		} else {
+			var newElem = $('#ing'+ing_id);
 		}
 		if (!activeField.parent().parent().is('.newEntry')){
 			//if it's not the "add ingredient" button, add value to selected action too.
@@ -691,6 +785,24 @@ jQuery(function($){
 			currentIngredientCooseLink.text(ingredientsList[ing_id]);
 		} else {
 			newElem.click();
+			
+			actionList.addClass('inFancy');
+			jQuery.fancybox({
+				'href': '#actionList',
+				'modal': true,
+				'transitionOut': 'none', //otherwise it is stil in "closing" mode wenn param fancy is start to open. 
+				'onComplete': function(){
+					actionList.find('.actionListList.selected > .action').draggable("destroy");
+				},
+				'onCleanup':function(){
+					actionList.removeClass('inFancy');
+					initActionDraggable(actionList.find('.actionListList.selected > .action'));
+				},/*
+				'onClosed':function(){
+					actionList.removeClass('inFancy');
+					actionList.find('.actionListList.selected > .action').draggable("enable");
+				},*/
+			});
 		}
 		
 		activeField.removeClass('activeFancyField');
@@ -880,7 +992,7 @@ jQuery(function($){
 	}
 	glob.recipeCreator.SendDataToBackendForceCallback = SendDataToBackendForceCallback;
 	
-	jQuery('body').undelegate('.propertyList input, .propertyList select, #recipes-form [name^="Recipes"], #recipes-form [name^="COI_ID"]','keydown').delegate('.propertyList input, .propertyList select, #recipes-form [name^="Recipes"], #recipes-form [name^="COI_ID"]','keydown',function(){
+	jQuery('body').undelegate('#propertyList input, #propertyList select, #recipes-form [name^="Recipes"], #recipes-form [name^="COI_ID"]','keydown').delegate('#propertyList input, #propertyList select, #recipes-form [name^="Recipes"], #recipes-form [name^="COI_ID"]','keydown',function(){
 		if (typeof(forceUpdateTimeout) !== 'undefined'){
 			window.clearTimeout(forceUpdateTimeout['timeoutId']);
 			forceUpdateTimeout = undefined;

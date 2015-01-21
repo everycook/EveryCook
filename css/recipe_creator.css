@@ -129,6 +129,14 @@ See GPLv3.htm in the main folder for details.
 	overflow-x: hidden;
 	overflow-y: scroll;
 }
+#stepList .items {
+	min-height: 1em;
+}
+
+.addStepText {
+    color: grey;
+    text-align: center;
+}
 
 #recipes-form .ui-sortable .step {
 	cursor: ns-resize;
@@ -211,96 +219,140 @@ See GPLv3.htm in the main folder for details.
 #recipes-form .actions {
 	display: table-row;
 }
-#recipes-form .actions .title {
+
+#actionList {
+	height: 40vh;
+	overflow-x: auto;
+	overflow-y: scroll;
+}
+#actionList.inFancy {
+	height: auto;
+	overflow-x: initial;
+	overflow-y: initial;
+}
+#actionList .title {
 	font-size: 2em;
 	font-weight: bold;
 	line-height: 1em;
 }
-
-#recipes-form #actionList {
-	height:40vh;
-	overflow-x: auto;
-	overflow-y: scroll;
+#actionList .hint {
+	display: none;
 }
-#recipes-form #actionList .actionListType {
+#actionList.inFancy .hint {
+	display: block;
+}
+#actionList .actionListType {
 	display: inline-block;
 	border: 1px solid black;
 	cursor: pointer;
 }
-
-#recipes-form #actionList .actionListType.selected {
-    border: 2px solid red;
-}
-#recipes-form #actionList .actionListList {
+#actionList.inFancy .actionListType {
 	display: none;
 }
-#recipes-form #actionList .actionListList.selected {
+#actionList .actionListType.selected {
+    border: 2px solid red;
+}
+#actionList.inFancy #actionSelect{
+	display: none;
+}
+#actionList.inFancy #addAction{
+	display: none;
+}
+
+
+#actionList .actionListList {
+	display: none;
+}
+#actionList .actionListList.selected {
 	display: block;
 }
-#recipes-form #actionList .action.ui-draggable {
+#actionList .action.ui-draggable {
 	cursor: move;
 	cursor: --moz-grab;
 	cursor: --webkit-grab;
 	cursor: grab;
 }
 
-#recipes-form #actionList .step {
+#actionList .step {
 	cursor: move;
 	cursor: --moz-grabbing;
 	cursor: --webkit-grabbing;
 	cursor: grabbing;
 }
 
-#recipes-form #actionList #actionSelect {
+#actionList #actionSelect {
 	width: 100%;
 }
 
-#recipes-form .propertyList {
+#propertyList {
 /*	bottom: 0;
 	position: absolute;*/
 	display: table-row;
 	vertical-align: bottom;
 }
-#recipes-form .propertyList .title {
+#propertyList.inFancy{
+	display: block;
+	width: 16em;
+}
+
+#propertyList .title {
 	font-size: 2em;
 	font-weight: bold;
 	line-height: 1em;
 }
 
-#recipes-form .propertyList .desc label {
+#propertyList .desc label {
 	text-align: left;
 	width: auto;
 }
 
-#recipes-form .propertyList .value {
+#propertyList .value {
 	box-sizing: border-box;
 }
-#recipes-form .propertyList .value select,
-#recipes-form .propertyList .value input {
+#propertyList .value select,
+#propertyList .value input {
 	width: 100%;
 	box-sizing: border-box;
 	vertical-align: top;
 }
 
-#recipes-form .propertyList .value.fullwidth {
+#propertyList .value.fullwidth {
 	width: 100%;
 }
-#recipes-form .propertyList .value.fullwidth .viewWithUnit, 
-#recipes-form .propertyList .value.fullwidth input[type="range"] {
+#propertyList .value.fullwidth .viewWithUnit, 
+#propertyList .value.fullwidth input[type="range"] {
 	width: 80%;
 }
-#recipes-form .propertyList .value.fullwidth .unit, 
-#recipes-form .propertyList .value.fullwidth .slider_value{
+#propertyList .value.fullwidth .unit, 
+#propertyList .value.fullwidth .slider_value{
 	width: 20%;
 }
 /*
-#recipes-form .propertyList .value.fullwidth select,
-#recipes-form .propertyList .value.fullwidth input[type="text"],
-#recipes-form .propertyList .value.fullwidth input[type="number"],
-#recipes-form .propertyList .value.fullwidth input[type="range"] {
+#propertyList .value.fullwidth select,
+#propertyList .value.fullwidth input[type="text"],
+#propertyList .value.fullwidth input[type="number"],
+#propertyList .value.fullwidth input[type="range"] {
 	box-sizing: border-box;
 }
 */
+
+#propertyList .param.error {
+	color:	red;
+}
+#propertyList .param.error a {
+	color:	red;
+}
+#propertyList .closeButton {
+	display: none;
+}
+
+#fancybox-content #propertyList .closeButton {
+	display: block;
+	margin-top: 0.5em
+}
+#fancybox-content #propertyList input, #fancybox-content #propertyList textarea, #fancybox-content #propertyList select {
+    margin: 0.2em 0 0.5em;
+}
 /* @end recipe creator*/
 
 

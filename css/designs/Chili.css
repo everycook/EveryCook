@@ -253,7 +253,7 @@ div.mealOverview {
 /* @group redesign recipe */
 div#recipes.detailView .step,
 #recipes-form .step,
-#recipes-form .action {
+#actionList .action{
 	background-color: #ff4d02;
 	border-color: #6d0000;
 }

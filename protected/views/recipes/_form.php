@@ -319,6 +319,7 @@ $cookin = '#cookin#';
 				//echo Functions::createInputTable(array(), $fieldOptions, $options, $form, $text);
 				
 				echo '<div id="stepList">';
+				echo '<div class="items">';
 				$i = 1;
 				foreach($model->steps as $step){
 					//echo '<div class="addstep"></div>';
@@ -326,12 +327,24 @@ $cookin = '#cookin#';
 					echo '<span class="stepNo">' . $i . '</span> ';
 					//echo '<span class="actionText">' . $step->getAsHTMLString($cookin) . '</span>';
 					//after save/update and there is a save error actionIn object have stil old value -> incorrect text will be shown
-					echo '<span class="actionText">' . Steps::getHTMLString($step, $actionsIn[$step['AIN_ID']],$cookin) . '</span>';
+					$values = array();
+					if(isset($step->ING_ID) && $step->ING_ID != 0){
+						$values['ING_NAME'] =  $ingredients[$step->ING_ID];
+					}
+					//$values['TOO_DESC'] = '?';
+					echo '<span class="actionText">' . Steps::getHTMLString($step, $actionsIn[$step['AIN_ID']], $cookin, $values) . '</span>';
 					echo CHtml::hiddenField(Functions::resolveArrayName($step,'json',$i),CJSON::encode($step), array('class'=>'json'));
 					echo ' <span class="remove">' . $this->trans->GENERAL_REMOVE . '</span>';
 					echo '</div>';
 					$i++;
 				}
+				/*
+				if ($i == 1){ // if no step added, add a placeholder step
+					echo '<div class="step placeholderStep"></div>';
+				}
+				*/
+				echo '</div>';
+				echo '<div class="addStepText">' . $this->trans->RECIPES_DRAG_HERE . '</div>';
 				echo '</div>';
 				//echo '<div class="addstep last"></div>';
 				echo '<div class="recycleBin" title="' . $this->trans->GENERAL_REMOVE . '"></div>';
@@ -351,6 +364,7 @@ $cookin = '#cookin#';
 			<div class="actions">
 				<div id="actionList">
 					<div class="title"><?php echo $this->trans->RECIPES_ACTIONS_TITLE; ?></div>
+					<div class="hint"><?php echo $this->trans->RECIPES_ACTIONS_HINT_ON_ADD_INGREDIENT; ?></div>
 					<div class="actionListType selected"><?php echo $this->trans->RECIPES_ACTIONS_SUGGESTION; ?></div>
 					<div class="actionListType"><?php echo $this->trans->RECIPES_ACTIONS_MY_LIST; ?></div>
 					<div class="actionListType"><?php echo $this->trans->RECIPES_ACTIONS_MOST_USED; ?></div>
@@ -403,9 +417,26 @@ $cookin = '#cookin#';
 					?>
 				</div>
 			</div>
-			<div class="propertyList">
+			<div id="propertyList">
 				<div class="title"><?php echo $this->trans->RECIPES_PARAMETERS_TITLE; ?></div>
-				<?php echo Functions::createOptionList($fieldOptions, new Steps()); ?>
+				<?php
+				$emptyValue = new Steps();
+				//$emptyObject->unsetAttributes(); // clear any default values
+				$emptyValue->attributes = array('AIN_ID'=>'',
+					'TOO_ID'=>'',
+					'ING_ID'=>'0',
+					'STE_GRAMS'=>'0',
+					'STE_CELSIUS'=>'0',
+					'STE_KPA'=>'',
+					'STE_RPM'=>'',
+					'STE_CLOCKWISE'=>'',
+					'STE_STIR_RUN'=>'',
+					'STE_STIR_PAUSE'=>'',
+					'STE_STEP_DURATION'=>'0',
+				);
+				echo Functions::createOptionList($fieldOptions, $emptyValue);
+				?>
+				<div class="button closeButton"><?php echo $this->trans->GLOBAL_CLOSE; ?></div>
 			</div>
 			</div>
 		</div>

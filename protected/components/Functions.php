@@ -170,7 +170,7 @@ class Functions extends CHtml{
 	}
 	*/
 	public static function createOptionList($fieldOptions, $emptyObject){
-		$emptyObject->unsetAttributes(); // clear any default values
+		//$emptyObject->unsetAttributes(); // clear any default values
 		return self::inputTableRow(null, $fieldOptions, null, $emptyObject, array(), false);	
 	}
 	
@@ -183,7 +183,7 @@ class Functions extends CHtml{
 		foreach($fieldOptions as $field){
 			$options = $field[3];
 			if (isset($options['hidden']) && $options['hidden'] != ''){
-				$html .= self::hiddenField(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]));
+				$html .= self::hiddenField(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), array('class'=>'dataField'));
 			} else if (isset($options['fancy']) && $options['fancy']){
 				$text = $options['empty'];
 				$val = $value->__get($field[0]);
@@ -197,9 +197,9 @@ class Functions extends CHtml{
 				}
 				$htmlOptions = array_merge(array('id'=>self::getIdByName(self::resolveArrayName($value,$field[0].'_DESC',$index))),$options['htmlOptions']);
 				if ($isTable){
-					$html .= '<td>' . self::hiddenField(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), array('class'=>'fancyValue')) . self::link($text, $options['url'], $htmlOptions) . '</td>';
+					$html .= '<td>' . self::hiddenField(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), array('class'=>'fancyValue dataField')) . self::link($text, $options['url'], $htmlOptions) . '</td>';
 				} else {
-					$html .= '<div class="param" id="param_' . $field[0] . '"><div class="desc"><label for="' . self::getIdByName(self::resolveArrayName($value,$field[0],$index)) . '">' . $field[1] . '</label></div><div class="value">' . self::hiddenField(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), array('class'=>'fancyValue')) . self::link($text, $options['url'], $htmlOptions) . '</div></div>';
+					$html .= '<div class="param" id="param_' . $field[0] . '"><div class="desc"><label for="' . self::getIdByName(self::resolveArrayName($value,$field[0],$index)) . '">' . $field[1] . '</label></div><div class="value">' . self::hiddenField(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), array('class'=>'fancyValue dataField')) . self::link($text, $options['url'], $htmlOptions) . '</div></div>';
 				}
 				
 			} else if (isset($options['multiple_selects']) && $options['multiple_selects'] !== ''){
@@ -226,16 +226,26 @@ class Functions extends CHtml{
 					$html .= '</div></div>';
 				}
 			} else if (is_array($field[2])){
-				if ($isTable){
-					$html .= '<td>'.self::dropDownList(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), $field[2], $field[3]).'</td>';
+				if(isset($options['class'])){
+					$options['class'] .= ' dataField';
 				} else {
-					$html .= '<div class="param" id="param_' . $field[0] . '"><div class="desc"><label for="' . self::getIdByName(self::resolveArrayName($value,$field[0],$index)) . '">' . $field[1] . '</label></div><div class="value">' . self::dropDownList(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), $field[2], $field[3]) . '</div></div>';
+					$options['class'] = 'dataField';
+				}
+				if ($isTable){
+					$html .= '<td>'.self::dropDownList(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), $field[2], $options).'</td>';
+				} else {
+					$html .= '<div class="param" id="param_' . $field[0] . '"><div class="desc"><label for="' . self::getIdByName(self::resolveArrayName($value,$field[0],$index)) . '">' . $field[1] . '</label></div><div class="value">' . self::dropDownList(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), $field[2], $options) . '</div></div>';
 				}
 			} else if (isset($options['field_type']) && $options['field_type'] != ''){
 				$htmlparams = array_merge($options, array());
 				unset($htmlparams['field_type']);
+				if(isset($htmlparams['class'])){
+					$htmlparams['class'] .= ' dataField';
+				} else {
+					$htmlparams['class'] = 'dataField';
+				}
 				if ($isTable){
-				$html .= '<td>'.self::specialField(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), $options['field_type'], $htmlparams).'</td>';
+					$html .= '<td>'.self::specialField(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), $options['field_type'], $htmlparams).'</td>';
 				} else {
 					$html .= '<div class="param" id="param_' . $field[0] . '"><div class="desc"><label for="' . self::getIdByName(self::resolveArrayName($value,$field[0],$index)) . '">' . $field[1] . '</label></div><div class="value">' . self::specialField(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), $options['field_type'], $htmlparams) . '</div></div>';
 				}
@@ -279,9 +289,9 @@ class Functions extends CHtml{
 				$unit_values = array('1'=>'g','1000'=>'kg', '453.59237'=>'lb', '28.349523125'=>'oz');
 				$fliped_units = array_flip($unit_values);
 				$displayValue = $fieldValue / $fliped_units[$options['type_weight']];
-				$html .= self::textField(self::resolveArrayName($value,$field[0].'_VIEW',$index), $fieldValue, $htmlparams);
+				$html .= self::specialField(self::resolveArrayName($value,$field[0].'_VIEW',$index), $fieldValue, 'number',$htmlparams);
 				$html .= self::dropDownList(self::resolveArrayName($value,$field[0].'_UNIT',$index), $options['type_weight'], $unit_values, array('class'=>'unit','style'=>'width:20%'));
-				$html .= self::hiddenField(self::resolveArrayName($value,$field[0],$index), $fieldValue, array('class'=>'withUnit type_weight'));
+				$html .= self::hiddenField(self::resolveArrayName($value,$field[0],$index), $fieldValue, array('class'=>'withUnit type_weight dataField'));
 				if ($isTable){
 					$html .= '</td>';
 				} else {
@@ -312,7 +322,7 @@ class Functions extends CHtml{
 				} else {
 					$html .= self::dropDownList(self::resolveArrayName($value,$field[0].'_UNIT',$index), $options['type_time'], $unit_values, array('class'=>'unit'));
 				}
-				$html .= self::hiddenField(self::resolveArrayName($value,$field[0],$index), $fieldValue, array('class'=>'withUnit type_time'));
+				$html .= self::hiddenField(self::resolveArrayName($value,$field[0],$index), $fieldValue, array('class'=>'withUnit type_time dataField'));
 				if ($isTable){
 					$html .= '</td>';
 				} else {
@@ -325,9 +335,9 @@ class Functions extends CHtml{
 					$html .= '<div class="param" id="param_' . $field[0] . '"><div class="desc"><label for="' . self::getIdByName(self::resolveArrayName($value,$field[0],$index)) . '">' . $field[1] . '</label></div><div class="value">';
 				}
 				if ($options['boolean'] == 'check'){
-					$html .= self::checkBox(self::resolveArrayName($value,$field[0],$index),$value->__get($field[0]) == 1,array('uncheckValue'=>0));
+					$html .= self::checkBox(self::resolveArrayName($value,$field[0],$index),$value->__get($field[0]) == 1,array('uncheckValue'=>0, 'class'=>'dataField'));
 				} else {
-					$html .= self::specialField(self::resolveArrayName($value,$field[0],$index),$value->__get($field[0]),'number',array('pattern'=>'[01]'));
+					$html .= self::specialField(self::resolveArrayName($value,$field[0],$index),$value->__get($field[0]),'number',array('pattern'=>'[01]', 'class'=>'dataField'));
 				}
 				if ($isTable){
 					$html .= '</td>';
@@ -340,7 +350,14 @@ class Functions extends CHtml{
 				} else {
 					$html .= '<div class="param" id="param_' . $field[0] . '"><div class="desc"><label for="' . self::getIdByName(self::resolveArrayName($value,$field[0],$index)) . '">' . $field[1] . '</label></div><div class="value fullwidth">';
 				}
-				$html .= self::specialField(self::resolveArrayName($value,$field[0],$index),$value->__get($field[0]),'range',$options['slider']);
+				$htmlparams = $options['slider'];
+				if(isset($htmlparams['class'])){
+					$htmlparams['class'] .= ' dataField';
+				} else {
+					$htmlparams['class'] = 'dataField';
+				}
+				
+				$html .= self::specialField(self::resolveArrayName($value,$field[0],$index),$value->__get($field[0]),'range',$htmlparams);
 				if ($isTable){
 					$html .= self::specialField(self::resolveArrayName($value,$field[0].'_VIEW',$index),$value->__get($field[0]),'number',array_merge($options['slider'], array('pattern'=>'[0-9]*','class'=>'slider_value','style'=>'width:20%')));
 					$html .= '</td>';
@@ -349,10 +366,15 @@ class Functions extends CHtml{
 					$html .= '</div></div>';
 				}
 			} else {
-				if ($isTable){
-					$html .= '<td>'.self::textField(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), $field[3]).'</td>';
+				if(isset($options['class'])){
+					$options['class'] .= ' dataField';
 				} else {
-					$html .= '<div class="param" id="param_' . $field[0] . '"><div class="desc"><label for="' . self::getIdByName(self::resolveArrayName($value,$field[0],$index)) . '">' . $field[1] . '</label></div><div class="value">' . self::textField(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), $field[3]) . '</div></div>';
+					$options['class'] = 'dataField';
+				}
+				if ($isTable){
+					$html .= '<td>'.self::textField(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), $options).'</td>';
+				} else {
+					$html .= '<div class="param" id="param_' . $field[0] . '"><div class="desc"><label for="' . self::getIdByName(self::resolveArrayName($value,$field[0],$index)) . '">' . $field[1] . '</label></div><div class="value">' . self::textField(self::resolveArrayName($value,$field[0],$index), $value->__get($field[0]), $options) . '</div></div>';
 				}
 			}
 		}

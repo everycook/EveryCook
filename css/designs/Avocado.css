@@ -268,7 +268,7 @@ tan
 /* @group redesign recipe */
 div#recipes.detailView .step,
 #recipes-form .step,
-#recipes-form .action {
+#actionList .action{
 	background-color: white;
 	border-color: #ff9900;
 }
