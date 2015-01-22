@@ -29,4 +29,5 @@ $this->menu=array(
 <h1><?php echo $this->trans->TITLE_CUSINESUBTYPES_CREATE; ?></h1>
 <?php echo $this->renderPartial('_form', array(
 	'model'=>$model,
+	'cusineTypes'=>$cusineTypes,
 	)); ?>

@@ -16,7 +16,7 @@ See GPLv3.htm in the main folder for details.
 */
 
 if(isset($_GET['ajaxform'])){
-	Yii::app()->clientScript->registerScript('iFrame.jQuery', "var jQuery = jQuery || window.parent.jQuery;");
+	Yii::app()->clientScript->registerScript('iFrame_jQuery', "var jQuery = jQuery || window.parent.jQuery;", CClientScript::POS_BEGIN);
 }
 $request_baseurl = Yii::app()->request->baseUrl;
 Yii::app()->clientscript->registerCssFile($request_baseurl . '/css/recipe_creator.css');
@@ -39,6 +39,8 @@ $cookin = '#cookin#';
 <input type="hidden" id="ingredientsChooseLink" value="<?php echo $this->createUrl('ingredients/chooseIngredient'); ?>"/>
 <input type="hidden" id="preparedIngredientsChooseLink" value="<?php echo $this->createUrl('ingredients/chooseIngredientInRecipe'); ?>"/>
 <input type="hidden" id="actionSuggestionLink" value="<?php echo $this->createUrl('recipes/actionSuggestion'); ?>"/>
+<input type="hidden" id="cusineSubTypeLink" value="<?php echo $this->createUrl('recipes/getCusineSubTypes'); ?>"/>
+<input type="hidden" id="cusineSubSubTypeLink" value="<?php echo $this->createUrl('recipes/getCusineSubSubTypes'); ?>"/>
 <input type="hidden" id="preparedAIN_ID" value="<?php echo Yii::app()->params['PrepareActionId']; ?>"/>
 <input type="hidden" id="emptyStepsJSON" value="<?php echo CHtml::encode(CJSON::encode($emptySteps)) ?>"/>
 <input type="hidden" id="fieldToCssJSON" value="<?php echo CHtml::encode(CJSON::encode(Steps::getFieldToCssClass())) ?>"/>
@@ -144,12 +146,28 @@ $cookin = '#cookin#';
 		
 		<?php
 		$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
-		echo Functions::createInput(null, $model, 'CUT_ID', $cusineTypes, Functions::DROP_DOWN_LIST, 'cusineTypes', $htmlOptions_type0, $form);
-		?>
-		
-		<?php
-		$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
-		echo Functions::createInput(null, $model, 'CST_ID', $cusineSubTypes, Functions::DROP_DOWN_LIST, 'cusineSubTypes', $htmlOptions_type0, $form);
+		echo '<div class="row" id="cusineTypes">';
+		$fieldName = 'CUT_ID';
+		echo Functions::activeLabelEx($model, $fieldName, array('label'=>null)) . ' ';
+		echo Functions::dropDownList(Functions::resolveName($model,$fieldName), $model->__get($fieldName), $cusineTypes, $htmlOptions_type0);
+		echo $form->error($model, $fieldName);
+		$subTypeShown = false;
+		if ($model->__isset($fieldName) && $model->__get($fieldName) != '' && count($cusineSubTypes)>0){
+			$htmlOptions_type0['style'] = 'display: inline;';
+			$subTypeShown = true;
+		}
+		$fieldName = 'CST_ID';
+		echo Functions::dropDownList(Functions::resolveName($model,$fieldName), $model->__get($fieldName), $cusineSubTypes, $htmlOptions_type0);
+		echo $form->error($model, $fieldName);
+		if ($subTypeShown && $model->__isset($fieldName) && $model->__get($fieldName) != '' && count($cusineSubSubTypes)>0){
+			$htmlOptions_type0['style'] = 'display: inline;';
+		} else {
+			unset($htmlOptions_type0['style']);
+		}
+		$fieldName = 'CSS_ID';
+		echo Functions::dropDownList(Functions::resolveName($model,$fieldName), $model->__get($fieldName), $cusineSubSubTypes, $htmlOptions_type0);
+		echo $form->error($model, $fieldName);
+		echo '</div>';
 		?>
 		
 		<?php /*

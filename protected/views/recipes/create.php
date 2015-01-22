@@ -33,6 +33,7 @@ $this->menu=array(
 	'recipeTypes'=>$recipeTypes,
 	'cusineTypes'=>$cusineTypes,
 	'cusineSubTypes'=>$cusineSubTypes,
+	'cusineSubSubTypes'=>$cusineSubSubTypes,
 	'actionsIn'=>$actionsIn,
 	'cookIns'=>$cookIns,
 	'cookInsSelected'=>$cookInsSelected,

@@ -30,6 +30,12 @@ See GPLv3.htm in the main folder for details.
 }
 #recipes-form .recipeDetails {
 }
+#recipes-form .recipeDetails #Recipes_CST_ID {
+	display: none;
+}
+#recipes-form .recipeDetails #Recipes_CSS_ID {
+	display: none;
+}
 
 #recipes-form #recipeCreator {
 	display: table;

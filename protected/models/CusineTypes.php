@@ -54,7 +54,7 @@ class CusineTypes extends ActiveRecordEC
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('CUT_GPS_LAT, CUT_GPS_LNG, CUT_GOOGLE_REGION, CUT_DESC_EN_GB, CUT_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
+			array('CUT_DESC_EN_GB, CUT_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
 			array('CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('CUT_GPS_LAT, CUT_GPS_LNG', 'numerical'),
 			array('CUT_GOOGLE_REGION', 'length', 'max'=>50),

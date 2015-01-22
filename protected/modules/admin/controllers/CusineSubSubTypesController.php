@@ -15,7 +15,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 See GPLv3.htm in the main folder for details.
 */
 
-class CusineSubTypesController extends Controller
+class CusineSubSubTypesController extends Controller
 {
 	/**
 	 * @return array action filters
@@ -26,8 +26,8 @@ class CusineSubTypesController extends Controller
 		);
 	}
 	
-	protected $createBackup = 'CusineSubTypes_Backup';
-	protected $searchBackup = 'CusineSubTypes';
+	protected $createBackup = 'CusineSubSubTypes_Backup';
+	protected $searchBackup = 'CusineSubSubTypes';
 	
 	/**
 	 * Specifies the access control rules.
@@ -37,7 +37,7 @@ class CusineSubTypesController extends Controller
 	public function accessRules(){
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','chooseCusineSubTypes','advanceChooseCusineSubTypes'),
+				'actions'=>array('index','view','search','advanceSearch','chooseCusineSubSubTypes','advanceChooseCusineSubSubTypes'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -78,7 +78,7 @@ class CusineSubTypesController extends Controller
 			$oldmodel = $Session_Backup;
 		}
 		if (isset($id) && $id != null){
-			if (!isset($oldmodel) || $oldmodel->CST_ID != $id){
+			if (!isset($oldmodel) || $oldmodel->CSS_ID != $id){
 				$oldmodel = $this->loadModel($id, true);
 			}
 		}
@@ -86,7 +86,7 @@ class CusineSubTypesController extends Controller
 		if (isset($oldmodel)){
 			$model = $oldmodel;
 		} else {
-			$model=new CusineSubTypes;
+			$model=new CusineSubSubTypes;
 		}
 		return $model;
 	}
@@ -100,24 +100,24 @@ class CusineSubTypesController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['CusineSubTypes']))
+		if(isset($_POST['CusineSubSubTypes']))
 		{
-			$model->attributes=$_POST['CusineSubTypes'];
+			$model->attributes=$_POST['CusineSubSubTypes'];
 			if($model->save()){
 				unset(Yii::app()->session[$this->createBackup]);
 				unset(Yii::app()->session[$this->createBackup.'_Time']);
-				$this->forwardAfterSave(array('view', 'id'=>$model->CST_ID));
-				//$this->forwardAfterSave(array('search', 'query'=>$model->__get('CST_DESC_' . Yii::app()->session['lang'])));
+				$this->forwardAfterSave(array('view', 'id'=>$model->CSS_ID));
+				//$this->forwardAfterSave(array('search', 'query'=>$model->__get('CSS_DESC_' . Yii::app()->session['lang'])));
 				return;
 			}
 		}
 
-		$cusineTypes = Yii::app()->db->createCommand()->select('CUT_ID,CUT_DESC_'.Yii::app()->session['lang'])->from('cusine_types')->order('CUT_DESC_'.Yii::app()->session['lang'])->queryAll();
-		$cusineTypes = CHtml::listData($cusineTypes,'CUT_ID','CUT_DESC_'.Yii::app()->session['lang']);
+		$cusineSubTypes = Yii::app()->db->createCommand()->select('CST_ID,CST_DESC_'.Yii::app()->session['lang'])->from('cusine_sub_types')->order('CST_DESC_'.Yii::app()->session['lang'])->queryAll();
+		$cusineSubTypes = CHtml::listData($cusineSubTypes,'CST_ID','CST_DESC_'.Yii::app()->session['lang']);
 		
 		$this->checkRenderAjax($view,array(
 			'model'=>$model,
-			'cusineTypes'=>$cusineTypes,
+			'cusineSubTypes'=>$cusineSubTypes,
 		));
 	}
 		
@@ -167,7 +167,7 @@ class CusineSubTypesController extends Controller
 	 * Lists all models.
 	 */
 	public function actionIndex(){
-		$dataProvider=new CActiveDataProvider('CusineSubTypes');
+		$dataProvider=new CActiveDataProvider('CusineSubSubTypes');
 		$this->checkRenderAjax('index',array(
 			'dataProvider'=>$dataProvider,
 		));
@@ -175,7 +175,7 @@ class CusineSubTypesController extends Controller
 	
 	
 	private function prepareSearch($view, $ajaxLayout, $criteria){
-		$model=new CusineSubTypes('search');
+		$model=new CusineSubSubTypes('search');
 		$model->unsetAttributes();  // clear any default values
 		
 		$model2 = new SimpleSearchForm();
@@ -189,14 +189,14 @@ class CusineSubTypesController extends Controller
 		}
 		
 		$modelAvailable = false;
-		if(isset($_POST['CusineSubTypes'])) {
-			$model->attributes=$_POST['CusineSubTypes'];
+		if(isset($_POST['CusineSubSubTypes'])) {
+			$model->attributes=$_POST['CusineSubSubTypes'];
 			$modelAvailable = true;
 		}
 		
 		$Session_Data = Yii::app()->session[$this->searchBackup];
 		if (isset($Session_Data)){
-			if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['CusineSubTypes']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_Data['time'])){
+			if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['CusineSubSubTypes']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_Data['time'])){
 				if (isset($Session_Data['query'])){
 					$query = $Session_Data['query'];
 					$model2->query = $query;
@@ -261,8 +261,8 @@ class CusineSubTypesController extends Controller
 		}
 		
 		$dataProvider=new CArrayDataProvider($rows, array(
-			'id'=>'CST_ID',
-			'keyField'=>'CST_ID',
+			'id'=>'CSS_ID',
+			'keyField'=>'CSS_ID',
 			'pagination'=>array(
 				'pageSize'=>10,
 			),
@@ -293,12 +293,12 @@ class CusineSubTypesController extends Controller
 		$this->prepareSearch('search', null, null);
 	}
 	
-	public function actionChooseCusineSubTypes(){
+	public function actionChooseCusineSubSubTypes(){
 		$this->isFancyAjaxRequest = true;
 		$this->prepareSearch('search', 'none', null);
 	}
 	
-	public function actionAdvanceChooseCusineSubTypes(){
+	public function actionAdvanceChooseCusineSubSubTypes(){
 		$this->isFancyAjaxRequest = true;
 		$this->prepareSearch('advanceSearch', 'none', null);
 	}
@@ -312,7 +312,7 @@ class CusineSubTypesController extends Controller
 		
 		$ids = explode(',', $ids);
 		$criteria=new CDbCriteria;
-		$criteria->compare(CusineSubTypes::model()->tableName().'.CST_ID',$ids);
+		$criteria->compare(CusineSubSubTypes::model()->tableName().'.CSS_ID',$ids);
 		
 		$this->prepareSearch('like', null, $criteria);
 	}
@@ -326,7 +326,7 @@ class CusineSubTypesController extends Controller
 		
 		$ids = explode(',', $ids);
 		$criteria=new CDbCriteria;
-		$criteria->compare(CusineSubTypes::model()->tableName().'.CST_ID',$ids);
+		$criteria->compare(CusineSubSubTypes::model()->tableName().'.CSS_ID',$ids);
 		
 		$this->prepareSearch('like', null, $criteria);
 	}
@@ -352,7 +352,7 @@ class CusineSubTypesController extends Controller
 		if ($id == 'backup'){
 			$model=Yii::app()->session[$this->createBackup];
 		} else {
-			$model=CusineSubTypes::model()->findByPk($id);
+			$model=CusineSubSubTypes::model()->findByPk($id);
 		}
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
@@ -364,7 +364,7 @@ class CusineSubTypesController extends Controller
 	 * @param CModel the model to be validated
 	 */
 	protected function performAjaxValidation($model){
-		if(isset($_POST['ajax']) && $_POST['ajax']==='cusine-sub-types-form')
+		if(isset($_POST['ajax']) && $_POST['ajax']==='cusine-sub-sub-types-form')
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();

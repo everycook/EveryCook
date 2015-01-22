@@ -35,6 +35,7 @@ See GPLv3.htm in the main folder for details.
  * @property integer $REC_COMPLEXITY
  * @property integer $CUT_ID
  * @property integer $CST_ID
+ * @property integer $CSS_ID
  * @property double $REC_CUSINE_GPS_LAT
  * @property double $REC_CUSINE_GPS_LNG
  * @property string $REC_TOOLS
@@ -76,7 +77,7 @@ class Recipes extends ActiveRecordEC
 		return array(
 			array('RET_ID, REC_SERVING_COUNT, REC_NAME_EN_GB, CREATED_BY, CREATED_ON', 'required'),
 			array('REC_IMG_AUTH', 'required', 'on'=>'withPic'),
-			array('REC_ID, PRF_UID, RET_ID, REC_KCAL, REC_SERVING_COUNT, REC_COMPLEXITY, CUT_ID, CST_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('REC_ID, PRF_UID, RET_ID, REC_KCAL, REC_SERVING_COUNT, REC_COMPLEXITY, CUT_ID, CST_ID, CSS_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('REC_CUSINE_GPS_LAT, REC_CUSINE_GPS_LNG', 'numerical'),
 			array('REC_IMG_FILENAME', 'length', 'max'=>250),
 			array('REC_IMG_AUTH', 'length', 'max'=>30),
@@ -87,7 +88,7 @@ class Recipes extends ActiveRecordEC
 			array('RET_ID, steps', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('REC_ID, PRF_UID, REC_IMG_FILENAME, REC_IMG_AUTH, REC_IMG_ETAG, RET_ID, REC_KCAL, REC_HAS_ALLERGY_INFO, REC_SUMMARY, REC_APPROVED, REC_SERVING_COUNT, REC_WIKI_LINK, REC_IS_PRIVATE, REC_COMPLEXITY, CUT_ID, CST_ID, REC_CUSINE_GPS_LAT, REC_CUSINE_GPS_LNG, REC_TOOLS, REC_SYNONYM_EN_GB, REC_SYNONYM_DE_CH, REC_NAME_EN_GB, REC_NAME_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('REC_ID, PRF_UID, REC_IMG_FILENAME, REC_IMG_AUTH, REC_IMG_ETAG, RET_ID, REC_KCAL, REC_HAS_ALLERGY_INFO, REC_SUMMARY, REC_APPROVED, REC_SERVING_COUNT, REC_WIKI_LINK, REC_IS_PRIVATE, REC_COMPLEXITY, CUT_ID, CST_ID, CSS_ID, REC_CUSINE_GPS_LAT, REC_CUSINE_GPS_LNG, REC_TOOLS, REC_SYNONYM_EN_GB, REC_SYNONYM_DE_CH, REC_NAME_EN_GB, REC_NAME_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -127,6 +128,7 @@ class Recipes extends ActiveRecordEC
 			'REC_COMPLEXITY' => 'Rec Complexity',
 			'CUT_ID' => 'Cut',
 			'CST_ID' => 'Cst',
+			'CSS_ID' => 'Css',
 			'REC_CUSINE_GPS_LAT' => 'Rec Cusine Gps Lat',
 			'REC_CUSINE_GPS_LNG' => 'Rec Cusine Gps Lng',
 			'REC_TOOLS' => 'Rec Tools',
@@ -165,6 +167,7 @@ class Recipes extends ActiveRecordEC
 		$criteria->compare($this->tableName().'.REC_COMPLEXITY',$this->REC_COMPLEXITY);
 		$criteria->compare($this->tableName().'.CUT_ID',$this->CUT_ID);
 		$criteria->compare($this->tableName().'.CST_ID',$this->CST_ID);
+		$criteria->compare($this->tableName().'.CSS_ID',$this->CSS_ID);
 		$criteria->compare($this->tableName().'.REC_CUSINE_GPS_LAT',$this->REC_CUSINE_GPS_LAT);
 		$criteria->compare($this->tableName().'.REC_CUSINE_GPS_LNG',$this->REC_CUSINE_GPS_LNG);
 		$criteria->compare($this->tableName().'.REC_TOOLS',$this->REC_TOOLS,true);
@@ -202,6 +205,7 @@ class Recipes extends ActiveRecordEC
 		$criteria->compare('REC_COMPLEXITY',$this->REC_COMPLEXITY);
 		$criteria->compare('CUT_ID',$this->CUT_ID);
 		$criteria->compare('CST_ID',$this->CST_ID);
+		$criteria->compare('CSS_ID',$this->CSS_ID);
 		$criteria->compare('REC_CUSINE_GPS_LAT',$this->REC_CUSINE_GPS_LAT);
 		$criteria->compare('REC_CUSINE_GPS_LNG',$this->REC_CUSINE_GPS_LNG);
 		$criteria->compare('REC_TOOLS',$this->REC_TOOLS,true);

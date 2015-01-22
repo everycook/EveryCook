@@ -16,34 +16,31 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Recipes'=>array('index'),
-	$model->REC_ID=>array('view','id'=>$model->REC_ID),
-	'Update',
+	'Cusine Sub Sub Types',
 );
 
 $this->menu=array(
-	array('label'=>'List Recipes', 'url'=>array('index')),
-	array('label'=>'Create Recipes', 'url'=>array('create')),
-	array('label'=>'View Recipes', 'url'=>array('view', 'id'=>$model->REC_ID)),
-	array('label'=>'Manage Recipes', 'url'=>array('admin')),
+	array('label'=>'Create CusineSubSubTypes', 'url'=>array('create')),
+	array('label'=>'Manage CusineSubSubTypes', 'url'=>array('admin')),
 );
 ?>
 
-<?php /*<h1><?php printf($this->trans->TITLE_RECIPES_UPDATE, $model->REC_ID); ?></h1> */?>
 
-<?php echo $this->renderPartial('_form', array(
-	'model'=>$model,
-	'recipeTypes'=>$recipeTypes,
-	'cusineTypes'=>$cusineTypes,
-	'cusineSubTypes'=>$cusineSubTypes,
-	'cusineSubSubTypes'=>$cusineSubSubTypes,
-	'actionsIn'=>$actionsIn,
-	'cookIns'=>$cookIns,
-	'cookInsSelected'=>$cookInsSelected,
-	'tools'=>$tools,
-	'ingredients'=>$ingredients,
-	'ingredientDetails'=>$ingredientDetails,
-	'ingredientAmount'=>$ingredientAmount,
-	'stepsJSON'=>$stepsJSON,
-	'actionsInDetails'=>$actionsInDetails,
+<div>
+<?php $form=$this->beginWidget('CActiveForm', array(
+		'action'=>Yii::app()->createUrl($this->route),
+		'id'=>'cusine-sub-sub-types_form',
+		'method'=>'post',
+		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 	)); ?>
+	
+<?php $this->widget('AjaxPagingListView', array(
+	'dataProvider'=>$dataProvider,
+	'itemView'=>'_view_array',
+	'ajaxUpdate'=>false,
+	'id'=>'cusine-sub-sub-typesResult',
+)); ?>
+
+<?php $this->endWidget(); ?>
+
+</div>

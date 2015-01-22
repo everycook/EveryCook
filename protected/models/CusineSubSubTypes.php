@@ -16,26 +16,26 @@ See GPLv3.htm in the main folder for details.
 */
 
 /**
- * This is the model class for table "cusine_sub_types".
+ * This is the model class for table "cusine_sub_sub_types".
  *
- * The followings are the available columns in table 'cusine_sub_types':
+ * The followings are the available columns in table 'cusine_sub_sub_types':
+ * @property integer $CSS_ID
  * @property integer $CST_ID
- * @property integer $CUT_ID
- * @property double $CST_GPS_LAT
- * @property double $CST_GPS_LNG
- * @property string $CST_GOOGLE_REGION
- * @property string $CST_DESC_EN_GB
- * @property string $CST_DESC_DE_CH
+ * @property double $CSS_GPS_LAT
+ * @property double $CSS_GPS_LNG
+ * @property string $CSS_GOOGLE_REGION
+ * @property string $CSS_DESC_EN_GB
+ * @property string $CSS_DESC_DE_CH
  * @property integer $CREATED_BY
  * @property integer $CREATED_ON
  * @property integer $CHANGED_BY
  * @property integer $CHANGED_ON
  */
-class CusineSubTypes extends ActiveRecordEC
+class CusineSubSubTypes extends ActiveRecordEC
 {
 	/**
 	 * Returns the static model of the specified AR class.
-	 * @return CusineSubTypes the static model class
+	 * @return CusineSubSubTypes the static model class
 	 */
 	public static function model($className=__CLASS__){
 		return parent::model($className);
@@ -45,7 +45,7 @@ class CusineSubTypes extends ActiveRecordEC
 	 * @return string the associated database table name
 	 */
 	public function tableName(){
-		return 'cusine_sub_types';
+		return 'cusine_sub_sub_types';
 	}
 
 	/**
@@ -55,14 +55,14 @@ class CusineSubTypes extends ActiveRecordEC
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('CUT_ID, CST_DESC_EN_GB, CST_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
-			array('CUT_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
-			array('CST_GPS_LAT, CST_GPS_LNG', 'numerical'),
-			array('CST_GOOGLE_REGION', 'length', 'max'=>50),
-			array('CST_DESC_EN_GB, CST_DESC_DE_CH', 'length', 'max'=>100),
+			array('CST_ID, CSS_DESC_EN_GB, CSS_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
+			array('CST_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('CSS_GPS_LAT, CSS_GPS_LNG', 'numerical'),
+			array('CSS_GOOGLE_REGION', 'length', 'max'=>50),
+			array('CSS_DESC_EN_GB, CSS_DESC_DE_CH', 'length', 'max'=>100),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('CST_ID, CUT_ID, CST_GPS_LAT, CST_GPS_LNG, CST_GOOGLE_REGION, CST_DESC_EN_GB, CST_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('CSS_ID, CST_ID, CSS_GPS_LAT, CSS_GPS_LNG, CSS_GOOGLE_REGION, CSS_DESC_EN_GB, CSS_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -81,13 +81,13 @@ class CusineSubTypes extends ActiveRecordEC
 	 */
 	public function attributeLabels(){
 		return array(
+			'CSS_ID' => 'Css',
 			'CST_ID' => 'Cst',
-			'CUT_ID' => 'Cut',
-			'CST_GPS_LAT' => 'Cst Gps Lat',
-			'CST_GPS_LNG' => 'Cst Gps Lng',
-			'CST_GOOGLE_REGION' => 'Cst Google Region',
-			'CST_DESC_EN_GB' => 'Cst Desc En Gb',
-			'CST_DESC_DE_CH' => 'Cst Desc De Ch',
+			'CSS_GPS_LAT' => 'Css Gps Lat',
+			'CSS_GPS_LNG' => 'Css Gps Lng',
+			'CSS_GOOGLE_REGION' => 'Css Google Region',
+			'CSS_DESC_EN_GB' => 'Css Desc En Gb',
+			'CSS_DESC_DE_CH' => 'Css Desc De Ch',
 			'CREATED_BY' => 'Created By',
 			'CREATED_ON' => 'Created On',
 			'CHANGED_BY' => 'Changed By',
@@ -96,20 +96,20 @@ class CusineSubTypes extends ActiveRecordEC
 	}
 	
 	public function getSearchFields(){
-		return array('CST_ID', 'CST_DESC_' . Yii::app()->session['lang']);
+		return array('CSS_ID', 'CSS_DESC_' . Yii::app()->session['lang']);
 	}
 	
 	
 	public function getCriteriaString(){
 		$criteria=new CDbCriteria;
 		
+		$criteria->compare($this->tableName().'.CSS_ID',$this->CSS_ID);
 		$criteria->compare($this->tableName().'.CST_ID',$this->CST_ID);
-		$criteria->compare($this->tableName().'.CUT_ID',$this->CUT_ID);
-		$criteria->compare($this->tableName().'.CST_GPS_LAT',$this->CST_GPS_LAT);
-		$criteria->compare($this->tableName().'.CST_GPS_LNG',$this->CST_GPS_LNG);
-		$criteria->compare($this->tableName().'.CST_GOOGLE_REGION',$this->CST_GOOGLE_REGION,true);
-		$criteria->compare($this->tableName().'.CST_DESC_EN_GB',$this->CST_DESC_EN_GB,true);
-		$criteria->compare($this->tableName().'.CST_DESC_DE_CH',$this->CST_DESC_DE_CH,true);
+		$criteria->compare($this->tableName().'.CSS_GPS_LAT',$this->CSS_GPS_LAT);
+		$criteria->compare($this->tableName().'.CSS_GPS_LNG',$this->CSS_GPS_LNG);
+		$criteria->compare($this->tableName().'.CSS_GOOGLE_REGION',$this->CSS_GOOGLE_REGION,true);
+		$criteria->compare($this->tableName().'.CSS_DESC_EN_GB',$this->CSS_DESC_EN_GB,true);
+		$criteria->compare($this->tableName().'.CSS_DESC_DE_CH',$this->CSS_DESC_DE_CH,true);
 		$criteria->compare($this->tableName().'.CREATED_BY',$this->CREATED_BY);
 		$criteria->compare($this->tableName().'.CREATED_ON',$this->CREATED_ON);
 		$criteria->compare($this->tableName().'.CHANGED_BY',$this->CHANGED_BY);
@@ -123,13 +123,13 @@ class CusineSubTypes extends ActiveRecordEC
 
 		$criteria=new CDbCriteria;
 
+		$criteria->compare('CSS_ID',$this->CSS_ID);
 		$criteria->compare('CST_ID',$this->CST_ID);
-		$criteria->compare('CUT_ID',$this->CUT_ID);
-		$criteria->compare('CST_GPS_LAT',$this->CST_GPS_LAT);
-		$criteria->compare('CST_GPS_LNG',$this->CST_GPS_LNG);
-		$criteria->compare('CST_GOOGLE_REGION',$this->CST_GOOGLE_REGION,true);
-		$criteria->compare('CST_DESC_EN_GB',$this->CST_DESC_EN_GB,true);
-		$criteria->compare('CST_DESC_DE_CH',$this->CST_DESC_DE_CH,true);
+		$criteria->compare('CSS_GPS_LAT',$this->CSS_GPS_LAT);
+		$criteria->compare('CSS_GPS_LNG',$this->CSS_GPS_LNG);
+		$criteria->compare('CSS_GOOGLE_REGION',$this->CSS_GOOGLE_REGION,true);
+		$criteria->compare('CSS_DESC_EN_GB',$this->CSS_DESC_EN_GB,true);
+		$criteria->compare('CSS_DESC_DE_CH',$this->CSS_DESC_DE_CH,true);
 		$criteria->compare('CREATED_BY',$this->CREATED_BY);
 		$criteria->compare('CREATED_ON',$this->CREATED_ON);
 		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
@@ -145,8 +145,8 @@ class CusineSubTypes extends ActiveRecordEC
 		$sort->attributes = array(
 		/*
 			'sortId' => array(
-				'asc' => 'CST_ID',
-				'desc' => 'CST_ID DESC',
+				'asc' => 'CSS_ID',
+				'desc' => 'CSS_ID DESC',
 			),
 		*/
 			'*',

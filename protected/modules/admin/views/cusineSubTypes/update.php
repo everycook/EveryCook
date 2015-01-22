@@ -32,4 +32,5 @@ $this->menu=array(
 <h1><?php printf($this->trans->TITLE_CUSINESUBTYPES_UPDATE, $model->CST_ID); ?></h1>
 <?php echo $this->renderPartial('_form', array(
 	'model'=>$model,
+	'cusineTypes'=>$cusineTypes,
 	)); ?>

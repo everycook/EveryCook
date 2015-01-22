@@ -79,9 +79,7 @@ if (!$history){
 		</div>
 	</div>
 	<div class="recipeDetail">
-		<div class="button history">
-			<?php echo CHtml::link($this->trans->RECIPES_HISTORY, array('history', 'id'=>$model->REC_ID)); ?>
-		</div>
+		<?php echo CHtml::link($this->trans->RECIPES_HISTORY, array('history', 'id'=>$model->REC_ID), array('class'=>'button history')); ?>
 		<?php
 		if (isset(Yii::app()->session['Recipes'])){
 			if (isset(Yii::app()->session['Recipes']['model'])){

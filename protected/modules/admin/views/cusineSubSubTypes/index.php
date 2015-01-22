@@ -16,34 +16,30 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Recipes'=>array('index'),
-	$model->REC_ID=>array('view','id'=>$model->REC_ID),
-	'Update',
+	'Cusine Sub Sub Types',
 );
 
 $this->menu=array(
-	array('label'=>'List Recipes', 'url'=>array('index')),
-	array('label'=>'Create Recipes', 'url'=>array('create')),
-	array('label'=>'View Recipes', 'url'=>array('view', 'id'=>$model->REC_ID)),
-	array('label'=>'Manage Recipes', 'url'=>array('admin')),
+	array('label'=>'Create CusineSubSubTypes', 'url'=>array('create')),
+	array('label'=>'Manage CusineSubSubTypes', 'url'=>array('admin')),
 );
+
+if (!$this->isFancyAjaxRequest){
+	//if ($this->validSearchPerformed){
+		$this->mainButtons = array(
+			array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('create',array('newModel'=>time()))),
+		);
+	//}
+}
 ?>
 
-<?php /*<h1><?php printf($this->trans->TITLE_RECIPES_UPDATE, $model->REC_ID); ?></h1> */?>
+<h1><?php echo $this->trans->TITLE_CUSINESUBSUBTYPES_LIST; ?></h1>
+<div class="f-center">
+	<?php
+  echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('create','newModel'=>time()), array('class'=>'button', 'id'=>'create')); ?><br>
+</div>
 
-<?php echo $this->renderPartial('_form', array(
-	'model'=>$model,
-	'recipeTypes'=>$recipeTypes,
-	'cusineTypes'=>$cusineTypes,
-	'cusineSubTypes'=>$cusineSubTypes,
-	'cusineSubSubTypes'=>$cusineSubSubTypes,
-	'actionsIn'=>$actionsIn,
-	'cookIns'=>$cookIns,
-	'cookInsSelected'=>$cookInsSelected,
-	'tools'=>$tools,
-	'ingredients'=>$ingredients,
-	'ingredientDetails'=>$ingredientDetails,
-	'ingredientAmount'=>$ingredientAmount,
-	'stepsJSON'=>$stepsJSON,
-	'actionsInDetails'=>$actionsInDetails,
-	)); ?>
+<?php $this->widget('AjaxPagingListView', array(
+	'dataProvider'=>$dataProvider,
+	'itemView'=>'_view_array',
+)); ?>

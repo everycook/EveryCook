@@ -1,0 +1,40 @@
+﻿INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('RECIPES_DRAG_HERE', 'Drag a step here to add it to the recipe.', 'Ziehen Sie ein Step hierhin, um ihn dem Rezept hinzuzufügen.', ''),
+('GLOBAL_CLOSE', 'close', 'schliessen', ''),
+('RECIPES_ACTIONS_HINT_ON_ADD_INGREDIENT', 'Please click on a step, to add the ingredient to recipe.', 'Bitte klicken Sie auf ein Step um die Zutat dem Rezept hinzuzufügen', ''),
+('FIELD_CSS_GPS_LAT', 'cusine location latitude', 'Küche Breitengrad', ''),
+('FIELD_CSS_GPS_LNG', 'cusine location longitude', 'Küche Längengrad 	', ''),
+('FIELD_CSS_GOOGLE_REGION', 'Google Region Name', 'Google Region Name', ''),
+('FIELD_CSS_DESC_EN_GB', 'Description English', 'Beschreibung Englisch', ''),
+('FIELD_CSS_DESC_DE_CH', 'Description German', 'Beschreibung Deutsch', ''),
+('FIELD_CSS_ID', 'cusine sub sub type', 'SubSubtyp der Küche', ''),
+('RECIPES_ERROR_NO_STEPS', 'No Steps defined!', 'Keine Steps definiert', '');
+
+
+INSERT INTO `cusine_types` (`CUT_ID`, `CUT_GPS_LAT`, `CUT_GPS_LNG`, `CUT_GOOGLE_REGION`, `CUT_DESC_EN_GB`, `CUT_DESC_DE_CH`, `CREATED_BY`, `CREATED_ON`, `CHANGED_BY`, `CHANGED_ON`) VALUES
+(1, NULL, NULL, '', 'American', 'Amerikanisch', 3, 1421931397, 3, 1421931397),
+(2, NULL, NULL, '', 'Asian', 'Asiatisch', 3, 1421931425, 3, 1421931425),
+(3, NULL, NULL, '', 'African', 'Afrikanisch', 3, 1421931444, 3, 1421931444),
+(4, NULL, NULL, '', 'European', 'Europäisch', 3, 1421931461, 3, 1421931461),
+(5, NULL, NULL, '', 'Australisch', 'Austrailen', 3, 1421931482, 3, 1421931482),
+(6, NULL, NULL, '', 'Fusion', 'Kombination', 3, 1421931493, 3, 1421931493),
+(7, NULL, NULL, '', 'Other', 'Andere', 3, 1421931506, 3, 1421931506);
+
+
+INSERT INTO `cusine_sub_types` (`CST_ID`, `CUT_ID`, `CST_GPS_LAT`, `CST_GPS_LNG`, `CST_GOOGLE_REGION`, `CST_DESC_EN_GB`, `CST_DESC_DE_CH`, `CREATED_BY`, `CREATED_ON`, `CHANGED_BY`, `CHANGED_ON`) VALUES
+(1, 1, NULL, NULL, '', 'U.S.', 'U.S.', 3, 1421931537, 3, 1421931537),
+(2, 1, NULL, NULL, '', 'Mexican', 'Mexicanisch', 3, 1421931562, 3, 1421931562),
+(3, 1, NULL, NULL, '', 'Brazilian', 'Brasilianisch', 3, 1421931577, 3, 1421931577),
+(4, 2, NULL, NULL, '', 'Chinese', 'Chinesisch', 3, 1421942740, 3, 1421942740),
+(6, 2, NULL, NULL, '', 'Indian', 'Indisch', 3, 1421942789, 3, 1421942789),
+(7, 2, NULL, NULL, '', 'Thai', 'Thailändisch', 3, 1421942848, 3, 1421942848),
+(8, 4, NULL, NULL, '', 'Swiss', 'Schweizerisch', 3, 1421942868, 3, 1421942868),
+(9, 4, NULL, NULL, '', 'Italian', 'Italiänisch', 3, 1421942884, 3, 1421942884),
+(10, 4, NULL, NULL, '', 'French', 'Französisch', 3, 1421942895, 3, 1421942895);
+
+
+INSERT INTO `cusine_sub_sub_types` (`CSS_ID`, `CST_ID`, `CSS_GPS_LAT`, `CSS_GPS_LNG`, `CSS_GOOGLE_REGION`, `CSS_DESC_EN_GB`, `CSS_DESC_DE_CH`, `CREATED_BY`, `CREATED_ON`, `CHANGED_BY`, `CHANGED_ON`) VALUES
+(1, 4, NULL, NULL, '', 'Sichuanese', 'Sichuanesisch', 3, 1421942980, 3, 1421942980),
+(2, 4, NULL, NULL, '', 'Cantonese', 'Kantonesisch', 3, 1421943013, 3, 1421943013),
+(3, 9, NULL, NULL, '', 'Sicilian', 'Sizilianisch', 3, 1421943059, 3, 1421943059),
+(4, 9, NULL, NULL, '', 'Roman', 'Römisch', 3, 1421943118, 3, 1421943118);

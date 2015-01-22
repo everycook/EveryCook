@@ -39,6 +39,7 @@ $this->breadcrumbs=array(
 	<?php echo CHtml::link('Recipe Voting Reasons', array('recipeVotingReasons/search'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('cusine Types', array('cusineTypes/search'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('cusine Sub Types', array('cusineSubTypes/search'), array('class'=>'button')); ?><br />
+	<?php echo CHtml::link('cusine Sub Sub Types', array('cusineSubSubTypes/search'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('relation Typs', array('relationTyps/search'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('tags', array('tags/search'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('food Allergy', array('foodAllergy/search'), array('class'=>'button')); ?><br />

@@ -18,7 +18,7 @@ See GPLv3.htm in the main folder for details.
 <div class="form">
 
 <?php $form=$this->beginWidget('CActiveForm', array(
-	'id'=>'cusine-sub-types_form',
+	'id'=>'cusine-sub-sub-types_form',
 	'enableAjaxValidation'=>false,
 )); ?>
 
@@ -33,9 +33,9 @@ See GPLv3.htm in the main folder for details.
 	
 	foreach($this->allLanguages as $lang=>$name){
 	echo '<div class="row">'."\r\n";
-		echo $form->labelEx($model,'CST_DESC_'.$lang) ."\r\n";
-		echo $form->textField($model,'CST_DESC_'.$lang,array('size'=>60,'maxlength'=>100)) ."\r\n";
-		echo $form->error($model,'CST_DESC_'.$lang) ."\r\n";
+		echo $form->labelEx($model,'CSS_DESC_'.$lang) ."\r\n";
+		echo $form->textField($model,'CSS_DESC_'.$lang,array('size'=>60,'maxlength'=>100)) ."\r\n";
+		echo $form->error($model,'CSS_DESC_'.$lang) ."\r\n";
 	echo '</div>'."\r\n";
 	}
 	
@@ -51,25 +51,25 @@ See GPLv3.htm in the main folder for details.
 	
 	<?php
 	$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
-	echo Functions::createInput(null, $model, 'CUT_ID', $cusineTypes, Functions::DROP_DOWN_LIST, 'cusineTypes', $htmlOptions_type0, $form);
+	echo Functions::createInput(null, $model, 'CST_ID', $cusineSubTypes, Functions::DROP_DOWN_LIST, 'cusineSubTypes', $htmlOptions_type0, $form);
 	?>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'CST_GPS_LAT'); ?>
-		<?php echo $form->textField($model,'CST_GPS_LAT'); ?>
-		<?php echo $form->error($model,'CST_GPS_LAT'); ?>
+		<?php echo $form->labelEx($model,'CSS_GPS_LAT'); ?>
+		<?php echo $form->textField($model,'CSS_GPS_LAT'); ?>
+		<?php echo $form->error($model,'CSS_GPS_LAT'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'CST_GPS_LNG'); ?>
-		<?php echo $form->textField($model,'CST_GPS_LNG'); ?>
-		<?php echo $form->error($model,'CST_GPS_LNG'); ?>
+		<?php echo $form->labelEx($model,'CSS_GPS_LNG'); ?>
+		<?php echo $form->textField($model,'CSS_GPS_LNG'); ?>
+		<?php echo $form->error($model,'CSS_GPS_LNG'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'CST_GOOGLE_REGION'); ?>
-		<?php echo $form->textField($model,'CST_GOOGLE_REGION',array('size'=>50,'maxlength'=>50)); ?>
-		<?php echo $form->error($model,'CST_GOOGLE_REGION'); ?>
+		<?php echo $form->labelEx($model,'CSS_GOOGLE_REGION'); ?>
+		<?php echo $form->textField($model,'CSS_GOOGLE_REGION',array('size'=>50,'maxlength'=>50)); ?>
+		<?php echo $form->error($model,'CSS_GOOGLE_REGION'); ?>
 	</div>
 
 	<div class="buttons">

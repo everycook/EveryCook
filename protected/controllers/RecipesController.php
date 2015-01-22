@@ -34,7 +34,7 @@ class RecipesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','searchFridge','displaySavedImage','chooseRecipe','chooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory', 'autocomplete','autocompleteId','actionSuggestion'),
+				'actions'=>array('index','view','search','searchFridge','displaySavedImage','chooseRecipe','chooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory', 'autocomplete','autocompleteId','actionSuggestion','getCusineSubTypes','getCusineSubSubTypes'),
 				//'advanceSearch','advanceChooseRecipe','advanceChooseTemplateRecipe',
 				'users'=>array('*'),
 			),
@@ -929,7 +929,7 @@ class RecipesController extends Controller
 				}
 			} else {
 				if(!isset($_POST['updateCookIn'])){
-					$this->errorText .= '<li>No Steps defined!</li>';
+					$this->errorText .= '<li>' . $this->trans->RECIPES_ERROR_NO_STEPS . '</li>';
 				}
 				$stepsOK = false;
 			}
@@ -1084,11 +1084,25 @@ class RecipesController extends Controller
 		$recipeTypes = Yii::app()->db->createCommand()->select('RET_ID,RET_DESC_'.Yii::app()->session['lang'])->from('recipe_types')->queryAll();
 		$recipeTypes = CHtml::listData($recipeTypes,'RET_ID','RET_DESC_'.Yii::app()->session['lang']);
 		
-		$cusineTypes = Yii::app()->db->createCommand()->select('CUT_ID,CUT_DESC_'.Yii::app()->session['lang'])->from('cusine_types')->queryAll();
+		$cusineTypes = Yii::app()->db->createCommand()->select('CUT_ID,CUT_DESC_'.Yii::app()->session['lang'])->from('cusine_types')->order('CUT_DESC_'.Yii::app()->session['lang'])->queryAll();
 		$cusineTypes = CHtml::listData($cusineTypes,'CUT_ID','CUT_DESC_'.Yii::app()->session['lang']);
+		$cut_id = $model->CUT_ID;
+		if ($cut_id != ''){
+			$cusineSubTypes = Yii::app()->db->createCommand()->select('CST_ID,CST_DESC_'.Yii::app()->session['lang'])->from('cusine_sub_types')->where('CUT_ID = :cut_id', array(':cut_id'=>$cut_id))->order('CST_DESC_'.Yii::app()->session['lang'])->queryAll();
+			$cusineSubTypes = CHtml::listData($cusineSubTypes,'CST_ID','CST_DESC_'.Yii::app()->session['lang']);
+			
+			$cst_id = $model->CST_ID;
+			if ($cst_id != ''){
+				$cusineSubSubTypes = Yii::app()->db->createCommand()->select('CSS_ID,CSS_DESC_'.Yii::app()->session['lang'])->from('cusine_sub_sub_types')->where('CST_ID = :cst_id', array(':cst_id'=>$cst_id))->order('CSS_DESC_'.Yii::app()->session['lang'])->queryAll();
+				$cusineSubSubTypes = CHtml::listData($cusineSubSubTypes,'CSS_ID','CSS_DESC_'.Yii::app()->session['lang']);
+			} else {
+				$cusineSubSubTypes = array();
+			}
+		} else {
+			$cusineSubTypes = array();
+			$cusineSubSubTypes = array();
+		}
 		
-		$cusineSubTypes = Yii::app()->db->createCommand()->select('CST_ID,CST_DESC_'.Yii::app()->session['lang'])->from('cusine_sub_types')->queryAll();
-		$cusineSubTypes = CHtml::listData($cusineSubTypes,'CST_ID','CST_DESC_'.Yii::app()->session['lang']);
 		
 		$stepTypes = CHtml::listData($stepTypeConfig,'STT_ID','STT_DESC_'.Yii::app()->session['lang']);
 		//$ingredients = Yii::app()->db->createCommand()->select('ING_ID,ING_NAME_'.Yii::app()->session['lang'])->from('ingredients')->queryAll();
@@ -1154,6 +1168,7 @@ class RecipesController extends Controller
 			'recipeTypes'=>$recipeTypes,
 			'cusineTypes'=>$cusineTypes,
 			'cusineSubTypes'=>$cusineSubTypes,
+			'cusineSubSubTypes'=>$cusineSubSubTypes,
 			'actionsIn'=>$actionsIn,
 			'cookIns'=>$cookIns,
 			'cookInsSelected'=>$cookInsSelected,
@@ -1165,6 +1180,38 @@ class RecipesController extends Controller
 			'stepsJSON'=>$stepsJSON,
 			'actionsInDetails'=>$actionsInDetails,
 		));
+	}
+	
+	public function actionGetCusineSubTypes($cut_id){
+		header('Content-type: application/json');
+		
+		foreach (Yii::app()->log->routes as $route) {
+			if($route instanceof CWebLogRoute) {
+				$route->enabled = false; // disable any weblogroutes
+			}
+		}
+		$cusineSubTypes = Yii::app()->db->createCommand()->select('CST_ID,CST_DESC_'.Yii::app()->session['lang'])->from('cusine_sub_types')->where('CUT_ID = :cut_id', array(':cut_id'=>$cut_id))->order('CST_DESC_'.Yii::app()->session['lang'])->queryAll();
+		$cusineSubTypes = CHtml::listData($cusineSubTypes,'CST_ID','CST_DESC_'.Yii::app()->session['lang']);
+		
+		echo CJSON::encode($cusineSubTypes);
+		
+		Yii::app()->end();
+	}
+
+	public function actionGetCusineSubSubTypes($cst_id){
+		header('Content-type: application/json');
+	
+		foreach (Yii::app()->log->routes as $route) {
+			if($route instanceof CWebLogRoute) {
+				$route->enabled = false; // disable any weblogroutes
+			}
+		}
+		$cusineSubSubTypes = Yii::app()->db->createCommand()->select('CSS_ID,CSS_DESC_'.Yii::app()->session['lang'])->from('cusine_sub_sub_types')->where('CST_ID = :cst_id', array(':cst_id'=>$cst_id))->order('CSS_DESC_'.Yii::app()->session['lang'])->queryAll();
+		$cusineSubSubTypes = CHtml::listData($cusineSubSubTypes,'CSS_ID','CSS_DESC_'.Yii::app()->session['lang']);
+	
+		echo CJSON::encode($cusineSubSubTypes);
+	
+		Yii::app()->end();
 	}
 	
 	public function actionGetRecipeInfos($id){
