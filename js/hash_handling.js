@@ -27,7 +27,8 @@ glob.urlToHash = function(url){
 };
 
 
-glob.lastHash = '';
+glob.lastHash = glob.lastHash || '';
+glob.urlHash = glob.urlHash || 'site/index';
 
 glob.changeHash = function(newParamName, newParamValue, noSubmit){
 	var oldHash = location.hash;
@@ -109,8 +110,8 @@ jQuery(function($){
 		// Hide any visible ajax content.
 		//$( '.bbq-content' ).children( ':visible' ).hide();
 		
-		if (hash === '' && jQuery('#changable_content').text().trim().length == 0){
-			hash = 'site/index';
+		if (hash === ''){
+			hash = glob.urlHash;
 		}
 		if (hash !== '' && hash != glob.lastHash){
 			// Add .bbq-current class to "current" nav link(s), only if url isn't empty.

@@ -64,6 +64,7 @@ if ($this->isFancyAjaxRequest){ ?>
 			'config' => array (
 				'multiple' => true,
 				'minimumInputLength' => 1,
+				'formatInputTooShort' => null,
 				'openOnEnter' => false,
 				'placeholder'=>$this->trans->RECIPES_TYPE_A_DISH,
 				'ajax' => 'js:glob.select2.searchRecipeAjax',
@@ -121,6 +122,7 @@ if ($this->isFancyAjaxRequest){ ?>
 						'config' => array (
 							'multiple' => true,
 							'minimumInputLength' => 1,
+							'formatInputTooShort' => null,
 							'openOnEnter' => false,
 							'placeholder'=>$this->trans->RECIPES_TYPE_AN_INGREDIENT,
 							'ajax' => 'js:glob.select2.searchIngredientAjax',
@@ -143,6 +145,7 @@ if ($this->isFancyAjaxRequest){ ?>
 						'config' => array (
 							'multiple' => true,
 							'minimumInputLength' => 1,
+							'formatInputTooShort' => null,
 							'openOnEnter' => false,
 							'placeholder'=>$this->trans->RECIPES_TYPE_AN_INGREDIENT,
 							'ajax' => 'js:glob.select2.searchIngredientAjax',

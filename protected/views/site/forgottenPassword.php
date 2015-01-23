@@ -14,12 +14,47 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 
 See GPLv3.htm in the main folder for details.
 */
-$this->beginContent('//layouts/main'); ?>
-<?php $this->renderPartial('//layouts/column2_ajax',array(
-	'content'=>$content,
+
+$this->pageTitle=Yii::app()->name . ' - Forgotten Passwort';
+$this->breadcrumbs=array(
+	'Forgotten Passwort',
+);
+?>
+
+<h1><?php echo $this->trans->TITLE_SITE_FORGOTTEN_PASSWORD; ?></h1>
+
+<p><?php echo $this->trans->PASSWORD_HINT; ?></p>
+
+<p><?php
+if(isset($error)){
+	echo $error; 
+} else if(isset($success)){
+	echo $success;
+} 
+?></p>
+
+<div class="form">
+<?php $form=$this->beginWidget('CActiveForm', array(
+	'id'=>'passwort-form',
+	//'enableClientValidation'=>true,
+	'htmlOptions'=>array('class'=>'noAjax'),
+	/*
+	'clientOptions'=>array(
+		'validateOnSubmit'=>true,
+	),*/
 )); ?>
-<script>
-var glob = glob || {};
-glob.lastHash = glob.urlHash = '<?php echo $this->route; ?>';
-</script>
-<?php $this->endContent(); ?>
+
+	<div class="row">
+		<?php echo CHtml::label($this->trans->PASSWORD_MAIL, 'email'); ?>
+		<?php echo CHtml::textField('email',''); ?>
+	</div>
+
+	<div class="buttons">
+		<?php echo CHtml::submitButton($this->trans->PASSWORD_SEND_MAIL, array('id'=>'forgottenButton')); ?>
+	</div>
+	<p>
+	<?php echo CHtml::link($this->trans->PASSWORD_BACK_TO_LOGIN,array('site/login'), array('class'=>'actionlink')); ?>
+	</p>
+
+<?php $this->endWidget(); ?>
+</div><!-- form -->

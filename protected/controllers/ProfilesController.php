@@ -24,7 +24,7 @@ class ProfilesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'register' action
-				'actions'=>array('register', 'verifyRegistration', 'captcha', 'languageChanged', 'displaySavedImage', 'resendActivationMail'),
+				'actions'=>array('register', 'verifyRegistration', 'captcha', 'languageChanged', 'displaySavedImage', 'resendActivationMail', 'resetPassword'),
 				'users'=>array('*'),
 			),
 			array('allow',  // allow authenticated user to perform 'create' and 'update' actions
@@ -52,10 +52,10 @@ class ProfilesController extends Controller
 			// captcha action renders the CAPTCHA image displayed on the register page
 			'captcha'=>array(
 				//'class'=>'CCaptchaAction',
-            //'class'=>'CaptchaAction',
-            'class'=>'CaptchaExtendedAction',
-            //'minLength' => 1,
-            //'maxLength' => 10,
+				//'class'=>'CaptchaAction',
+				'class'=>'CaptchaExtendedAction',
+				//'minLength' => 1,
+				//'maxLength' => 10,
 				'backColor'=>0xFFFFFF,
 			),
 		);
@@ -287,8 +287,7 @@ class ProfilesController extends Controller
 	/**
 	 * Manages all models.
 	 */
-	public function actionAdmin()
-	{
+	public function actionAdmin(){
 		$model=new Profiles('search');
 		$model->unsetAttributes();  // clear any default values
 		if(isset($_GET['Profiles']))
@@ -349,10 +348,10 @@ class ProfilesController extends Controller
 				// generate random number for registration link:: needs to be unique
 				$model->PRF_RND = Randomness::blowfishSalt();
 				//$found = Profiles::model()->findByAttributes(array('PRF_RND'=>$model->PRF_RND));
-		 //       while($found !== null) {
-		 //          $model->PRF_RND = Randomness::blowfishSalt();
-		 //          $found = Profiles::model()->findByAttributes(array('PRF_RND'=>$model->PRF_RND));
-		 //       }
+				//while($found !== null) {
+				//	$model->PRF_RND = Randomness::blowfishSalt();
+				//	$found = Profiles::model()->findByAttributes(array('PRF_RND'=>$model->PRF_RND));
+				//}
 				
 				// encrypt password
 				$model->PRF_PW = crypt($model->PRF_PW, Randomness::blowfishSalt());
@@ -397,14 +396,18 @@ class ProfilesController extends Controller
 		if (isset($_GET['nick']) && $_GET['nick'] != ''){
 			$model=Profiles::model()->findByAttributes(array('PRF_NICK'=>$_GET['nick']));
 			if($model!==null) {
-				$this->sendVerificationMail($model);
+				if ($model->PRF_ACTIVE == 0){
+					$this->sendVerificationMail($model);
+				}
 				return;
 			}
 		}
 		if (isset($_GET['mail']) && $_GET['mail'] != ''){
 			$model=Profiles::model()->findByAttributes(array('PRF_EMAIL'=>$_GET['mail']));
 			if($model!==null) {
-				$this->sendVerificationMail($model);
+				if ($model->PRF_ACTIVE == 0){
+					$this->sendVerificationMail($model);
+				}
 				return;
 			}
 			$error = 'mail not found!';
@@ -443,48 +446,120 @@ class ProfilesController extends Controller
 		*/
 		
 		Yii::import('application.extensions.phpmailer.JPhpMailer');
-		$mail = new JPhpMailer;
-		//$mail->SMTPDebug = true;
-		$mail->IsSMTP();
-		$mail->Host = Yii::app()->params['SMTPMailHost'];
-		$mail->SMTPAuth = true;
-		$mail->Username = Yii::app()->params['SMTPMailUser'];
-		$mail->Password = Yii::app()->params['SMTPMailPW'];
-		$mail->SMTPSecure = "tls";
-		$mail->SetFrom(Yii::app()->params['verificationEmail'], Yii::app()->params['verificationEmailName']);
-		$mail->Subject = $subject;
-		//$mail->AltBody = 'To view the message, please use an HTML compatible email viewer!';
-		$mail->MsgHTML($body);
-		$mail->AddAddress($model->PRF_EMAIL, $model->PRF_NICK);
-		$mail->Send();
+		try {
+			$mail = new JPhpMailer(true);
+			//$mail->SMTPDebug = true;
+			$mail->IsSMTP();
+			$mail->Host = Yii::app()->params['SMTPMailHost'];
+			$mail->SMTPAuth = true;
+			$mail->Username = Yii::app()->params['SMTPMailUser'];
+			$mail->Password = Yii::app()->params['SMTPMailPW'];
+			$mail->SMTPSecure = "tls";
+			$mail->SetFrom(Yii::app()->params['verificationEmail'], Yii::app()->params['verificationEmailName']);
+			$mail->Subject = $subject;
+			//$mail->AltBody = 'To view the message, please use an HTML compatible email viewer!';
+			$mail->MsgHTML($body);
+			$mail->AddAddress($model->PRF_EMAIL, $model->PRF_NICK);
+			$mail->Send();
+		} catch(phpmailerException $e){
+			if ($this->debug){
+				echo $e->errorMessage();
+			}
+		}
 	}
 	
 
-   /*
-    * Verifies registration and activates the user profile
-    */
-   public function actionVerifyRegistration()
-   {
-      // get hash code from url
-      $hash = Yii::app()->getRequest()->getQuery('hash');
-      // activate account
-      $model = Profiles::model()->findByAttributes(array('PRF_RND'=>$hash));
-      if($model!==null){
-        $model->PRF_ACTIVE = '1';
-        $model->save();
-		Yii::app()->user->setFlash('register','Thank you for your verification. You can now login.');
-//$this->refresh();
-      } else {
-		Yii::app()->user->setFlash('register','Hash value invalid, cannot verification user.');
-	  }
-	  //echo $hash . "<br>\r\n";
-	  //print_r($model);
-      $this->checkRenderAjax('register',array('model'=>$model,));
-   }
+	/*
+	 * Verifies registration and activates the user profile
+	 */
+	public function actionVerifyRegistration(){
+		// get hash code from url
+		$hash = Yii::app()->getRequest()->getQuery('hash');
+		if (isset($hash) && strlen($hash) > 12){
+			$model = Profiles::model()->findByAttributes(array('PRF_RND'=>$hash));
+		} else {
+			$model=null;
+		}
+		if($model!==null && $model->PRF_ACTIVE == 0){
+			// activate account
+			$model->PRF_ACTIVE = '1';
+			$model->save();
+			Yii::app()->user->setFlash('register',$this->trans->REGISTER_FLASH_SUCCESSFUL);
+			//$this->refresh();
+		} else {
+			Yii::app()->user->setFlash('register',$this->trans->REGISTER_FLASH_HASH_INVALID);
+		}
+		//echo $hash . "<br>\r\n";
+		//print_r($model);
+		$this->checkRenderAjax('register',array('model'=>$model,));
+	}
+	
+	private function hiddenLogin($nickname, $password){
+		$form=new LoginForm;
+		$form->LIF_NICKNAME = $nickname;
+		$form->LIF_PASSWORD = $password; //must be the original, not the hashed one!
+		$form->LIF_REMEMBER = false;
+		if($form->login()){
+			Yii::app()->user->setFlash('forgottenPassword',$this->trans->PASSWORD_FLASH_SUCCESSFUL);
+		} else {
+			Yii::app()->user->setFlash('forgottenPassword',$this->trans->PASSWORD_FLASH_LOGIN_ERROR); //$form->errorCode
+		}
+		$this->redirect(array('site/login'));
+	}
+	
+	public function actionResetPassword(){
+		// get hash code from url
+		$hash = Yii::app()->getRequest()->getQuery('hash');
+		if (isset($hash) && strlen($hash) > 12){
+			$model = Profiles::model()->findByAttributes(array('PRF_RND'=>$hash));
+		} else {
+			$model=null;
+		}
+		if($model!==null){
+			//check link is still valid / not older than 3 hours
+			$value = $model->PRF_RND;
+			$pos = strrpos($value, "_");
+			if ($pos !== false){
+				$value = substr($value, $pos+1);
+			}
+			if (is_numeric($value) && $value-time() < 10800){ //3h in s
+				//$model->PRF_RND = '';
+				if ($model->PRF_ACTIVE == 0){
+						$model->PRF_ACTIVE = '1';
+						$model->save();
+				}
+				$model->setScenario('pw_change');
+				if(isset($_POST['Profiles'])) {
+					$model->attributes = array_merge($model->attributes, $_POST['Profiles']);
+					if($model->validate()){
+						if (isset($model->new_pw) && $model->new_pw != ''){
+							$model->PRF_PW = crypt($model->new_pw, Randomness::blowfishSalt());
+						}
+						if($model->save(false)){
+							$this->hiddenLogin($model->PRF_NICK, $model->new_pw);
+							return;
+						}
+					}
+				}
+				$this->checkRenderAjax('resetPassword',array('model'=>$model));
+				return;
+			} else {
+				Yii::app()->user->setFlash('forgottenPassword',$this->trans->PASSWORD_FLASH_HASH_INVALID);
+			}
+		} else {
+			Yii::app()->user->setFlash('forgottenPassword',$this->trans->PASSWORD_FLASH_HASH_INVALID);
+		}
+		//echo $hash . "<br>\r\n";
+		//print_r($model);
+		
+		//TODO: do directly log in
+		//$this->redirect('../site/login');
+		$this->redirect(array('site/login'));
+	}
 
-   /*
-    * Changes to the selected language
-    */
+	/*
+	 * Changes to the selected language
+	 */
 	public function actionLanguageChanged() {
 		$action = $_GET['action'];
 		Yii::app()->session['lang'] = $_GET['lang'];
@@ -588,34 +663,34 @@ class ProfilesController extends Controller
 		
 		/* If HTTP response is 200 continue otherwise send to connect page to retry */
 		if (200 == $connection->http_code) {
-		  /* The user has been verified and the access tokens can be saved for future use */
-		  $_SESSION['status'] = 'verified';
-		  //header('Location: ./index.php');
+			/* The user has been verified and the access tokens can be saved for future use */
+			$_SESSION['status'] = 'verified';
+			//header('Location: ./index.php');
 		} else {
-		  /* Save HTTP status for error dialog on connnect page.*/
-		  //header('Location: ./clearsessions.php');
+			/* Save HTTP status for error dialog on connnect page.*/
+			//header('Location: ./clearsessions.php');
 		}
 	}
 	
 	private function twitterAccessRequest($type) {
 		/* Build TwitterOAuth object with client credentials. */
 		$connection = new TwitterOAuth(Yii::app()->params['twitterConsumerKey'], Yii::app()->params['twitterConsumerSecret']);
-		 
+		
 		/* Get temporary credentials. */
 		$request_token = $connection->getRequestToken($this->createAbsoluteUrl("profiles/twitterCallback", array('type'=>$type)));
 
 		/* Save temporary credentials to session. */
 		$_SESSION['oauth_token'] = $token = $request_token['oauth_token'];
 		$_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
-		 
+		
 		/* If last connection failed don't display authorization link. */
 		switch ($connection->http_code) {
-		  case 200:
+		case 200:
 			/* Build authorize URL and redirect user to Twitter. */
 			$url = $connection->getAuthorizeURL($token);
 			header('Location: ' . $url); 
 			break;
-		  default:
+		default:
 			/* Show notification if something went wrong. */
 			echo 'Could not connect to Twitter. Refresh the page or try again later.';
 		}
@@ -691,8 +766,8 @@ class ProfilesController extends Controller
 		}
 	}
 	
-    public function actionDisplaySavedImage($id, $ext)
-    {
+	public function actionDisplaySavedImage($id, $ext)
+	{
 		if (isset($_GET['size'])) {
 			$size = $_GET['size'];
 		} else {
@@ -705,5 +780,5 @@ class ProfilesController extends Controller
 			$modified = $model->CREATED_ON;
 		}
 		return Functions::getImage($modified, $model->PRF_IMG_ETAG, $model->PRF_IMG_FILENAME, $id, 'Profiles', $size);
-    }
+	}
 }

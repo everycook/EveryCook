@@ -113,13 +113,13 @@ See GPLv3.htm in the main folder for details.
 
 		<div class="row">
 			<?php echo $form->labelEx($model,'new_pw'); ?>
-			<?php echo $form->textField($model,'new_pw',array('size'=>60,'maxlength'=>256)); ?>
+			<?php echo $form->passwordField($model,'new_pw',array('size'=>60,'maxlength'=>256, 'autocomplete'=>'off')); ?>
 			<?php echo $form->error($model,'new_pw'); ?>
 		</div>
 		
 		<div class="row">
 			<?php echo $form->labelEx($model,'pw_repeat'); ?>
-			<?php echo $form->textField($model,'pw_repeat',array('size'=>60,'maxlength'=>256)); ?>
+			<?php echo $form->passwordField($model,'pw_repeat',array('size'=>60,'maxlength'=>256)); ?>
 			<?php echo $form->error($model,'pw_repeat'); ?>
 		</div>
 		

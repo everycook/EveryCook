@@ -19,6 +19,16 @@ $this->pageTitle=Yii::app()->name . ' - Login';
 $this->breadcrumbs=array(
 	'Login',
 );
+
+
+
+if(Yii::app()->user->hasFlash('forgottenPassword')){ ?>
+<div class="flash-success">
+	<?php echo Yii::app()->user->getFlash('forgottenPassword');?>
+	<?php echo '<br />'.CHtml::link($this->trans->LOGIN,array('site/login'), array('class' => 'actionlink')); ?>
+</div>
+<?php
+} else {
 ?>
 
 <h1><?php echo $this->trans->TITLE_SITE_LOGIN; ?></h1>
@@ -66,7 +76,11 @@ $this->breadcrumbs=array(
 
 	<div class="buttons">
 		<?php echo CHtml::submitButton('Login', array('id'=>'loginButton')); ?>
-	</div>   
+	</div>
+	<p>
+	<?php echo CHtml::link($this->trans->LOGIN_FORGOTTEN_PASSWORD,array('site/forgottenPassword'), array('class'=>'actionlink')); ?>
+	</p>
 
 <?php $this->endWidget(); ?>
 </div><!-- form -->
+<?php } ?>

@@ -324,6 +324,92 @@ class SiteController extends Controller
 		Yii::app()->user->logout();
 		$this->redirect(Yii::app()->homeUrl);
 	}
+
+	/**
+	 * sends a password recovery link
+	 */
+	public function actionForgottenPassword()
+	{
+		if(isset($_POST['email'])){
+			$mail = $_POST['email'];
+			if (strpos($mail, '@') === false){
+				$this->checkRenderAjax('forgottenPassword',array(
+					'error'=>'Please enter a E-Mail adress.',
+				));
+			} else {
+				$model=Profiles::model()->findByAttributes(array('PRF_EMAIL'=>$mail));
+				//if(isset($model)){
+				if($model!==null){
+					$model->PRF_RND = Randomness::blowfishSalt() . "_" . time();
+					$model->save();
+					$result = $this->sendPasswordMail($model);
+					$this->checkRenderAjax('forgottenPassword',$result);
+				} else {
+					$this->checkRenderAjax('forgottenPassword',array(
+						'error'=>'No user with given E-Mail found.',
+					));
+				}
+			}
+		} else {
+			$this->checkRenderAjax('forgottenPassword',array(
+			));
+		}
+	}
+
+	private function sendPasswordMail($model){
+		$subject = $this->trans->PASSWORD_MAIL_SUBJECT;
+		$link = CController::createAbsoluteUrl("profiles/resetPassword", array("hash"=>$model->PRF_RND));
+		//$body = sprintf($this->trans->PASSWORD_MAIL_CONTENT, $link, $link, Yii::app()->params['verificationRegardsName']);
+		$body =
+		sprintf($this->trans->PASSWORD_MAIL_CONTENT_MESSAGE, '') . "<br>\r\n" . //here could be ' <anrede> <name>'.
+		sprintf($this->trans->PASSWORD_MAIL_CONTENT_LINK, $link, $link) . "<br>\r\n" .
+		sprintf($this->trans->PASSWORD_MAIL_CONTENT_MESSAGE2, '') . "<br>\r\n" .
+		sprintf($this->trans->PASSWORD_MAIL_CONTENT_REGARDS, Yii::app()->params['verificationRegardsName']) . "<br><br><br>\r\n";
+	
+		if (Yii::app()->session['lang'] == 'EN_GB'){
+			$otherLanguage = 'DE_CH';
+		} else {
+			$otherLanguage = 'EN_GB';
+		}
+		$result = Yii::app()->db->createCommand()->select('TXT_NAME,'.$otherLanguage)->from('textes')->where("TXT_NAME like 'PASSWORD_MAIL_CONTENT%'")->queryAll();
+		$otherLanguageTexts = CHtml::listData($result,'TXT_NAME',$otherLanguage);
+		$body .=
+		sprintf($otherLanguageTexts['PASSWORD_MAIL_CONTENT_MESSAGE'], '') . "<br>\r\n" . //here could be ' <anrede> <name>'.
+		sprintf($otherLanguageTexts['PASSWORD_MAIL_CONTENT_LINK'], $link, $link) . "<br>\r\n" .
+		sprintf($otherLanguageTexts['PASSWORD_MAIL_CONTENT_REGARDS'], Yii::app()->params['verificationRegardsName']) . "<br>\r\n";
+		/*
+			$headers="From: <".Yii::app()->params['verificationEmail'].">\r\nReply-To: <".Yii::app()->params['verificationEmail'].">\r\nReturn-Path: <".Yii::app()->params['verificationEmail'].">\r\nBcc: <".Yii::app()->params['verificationBCCEmail'].">\r\nContent-Type: text/html";
+			$programmParam = "-f".Yii::app()->params['verificationEmail'];
+	
+			ini_set('sendmail_from', Yii::app()->params['verificationEmail']);
+			mail($model->PRF_EMAIL, $subject, $body, $headers, $programmParam);
+			*/
+	
+		try {
+			Yii::import('application.extensions.phpmailer.JPhpMailer');
+			$mail = new JPhpMailer(true);
+			//$mail->SMTPDebug = true;
+			$mail->IsSMTP();
+			$mail->Host = Yii::app()->params['SMTPMailHost'];
+			$mail->SMTPAuth = true;
+			$mail->Username = Yii::app()->params['SMTPMailUser'];
+			$mail->Password = Yii::app()->params['SMTPMailPW'];
+			$mail->SMTPSecure = "tls";
+			$mail->SetFrom(Yii::app()->params['verificationEmail'], Yii::app()->params['verificationEmailName']);
+			$mail->Subject = $subject;
+			//$mail->AltBody = 'To view the message, please use an HTML compatible email viewer!';
+			$mail->MsgHTML($body);
+			$mail->AddAddress($model->PRF_EMAIL, $model->PRF_NICK);
+			$mail->Send();
+		} catch(phpmailerException $e){
+			if($this->debug){
+				return array('error'=>$e->getMessage());
+			} else {
+				return array('error'=>$this->trans->PASSWORD_MAIL_ERROR);
+			}
+		}
+		return array('success'=>$this->trans->PASSWORD_MAIL_SUCCESS);
+	}
 	
 	public function actionTrans($lang){
 		self::$trans=new Translations($lang);

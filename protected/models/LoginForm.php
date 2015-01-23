@@ -39,6 +39,7 @@ class LoginForm extends CFormModel
 	public $LIF_REMEMBER;
 
 	private $_identity;
+	public $errorCode;
 
 	/**
 	 * Declares the validation rules.
@@ -76,12 +77,16 @@ class LoginForm extends CFormModel
 		if(!$this->hasErrors())
 		{
 			$this->_identity=new UserIdentity($this->LIF_NICKNAME,$this->LIF_PASSWORD);
-			if(!$this->_identity->authenticate())
-			if($this->_identity->errorCode === 3) {
-				$this->addError('LIF_NICKNAME', Yii::app()->controller->trans->LOGIN_NOT_ACTIVATED . '<br/>' . sprintf(Yii::app()->controller->trans->LOGIN_NOT_ACTIVATED_RESEND, Yii::app()->createUrl('profiles/resendActivationMail', array('nick'=>$this->LIF_NICKNAME))));
-			} else {
-				$this->addError('LIF_PASSWORD', Yii::app()->controller->trans->LOGIN_ERROR);
+			if(!$this->_identity->authenticate()) {
+				if($this->_identity->errorCode === 3) {
+					$this->addError('LIF_NICKNAME', Yii::app()->controller->trans->LOGIN_NOT_ACTIVATED . '<br/>' . sprintf(Yii::app()->controller->trans->LOGIN_NOT_ACTIVATED_RESEND, Yii::app()->createUrl('profiles/resendActivationMail', array('nick'=>$this->LIF_NICKNAME))));
+				} else {
+					$this->addError('LIF_PASSWORD', Yii::app()->controller->trans->LOGIN_ERROR);
+				}
 			}
+			$this->errorCode = $this->_identity->errorCode;
+		} else {
+			$this->errorCode = -1;
 		}
 	}
 
@@ -95,6 +100,7 @@ class LoginForm extends CFormModel
 		{
 			$this->_identity=new UserIdentity($this->LIF_NICKNAME,$this->LIF_PASSWORD);
 			$this->_identity->authenticate();
+			$this->errorCode = $this->_identity->errorCode;
 		}
 		if($this->_identity->errorCode===UserIdentity::ERROR_NONE)
 		{

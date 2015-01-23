@@ -252,7 +252,7 @@ class Controller extends CController
 		} else if (isset(Yii::app()->session['LAST_ACTION']) && isset(Yii::app()->session['LAST_ACTION_PARAMS'])){
 			$this->forwardTo(array(Yii::app()->session['LAST_ACTION']));
 		} else {
-			$this->forwardTo(array('/site/index'));
+			$this->forwardTo(array('site/index'));
 		}
 	}
 

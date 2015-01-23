@@ -18,4 +18,8 @@ $this->beginContent('//layouts/main'); ?>
 <?php $this->renderPartial('//layouts/column1_ajax',array(
 	'content'=>$content,
 )); ?>
+<script>
+var glob = glob || {};
+glob.lastHash = glob.urlHash = '<?php echo $this->route; ?>';
+</script>
 <?php $this->endContent(); ?>
