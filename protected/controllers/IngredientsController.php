@@ -895,7 +895,11 @@ class IngredientsController extends Controller
 		$criteria=new CDbCriteria;
 		$criteria->compare(Ingredients::model()->tableName().'.ING_ID',$ids);
 		
-		$this->prepareSearch('like', null, $criteria);
+		$layout = null;
+		if(isset($_GET['layout']) && strlen($_GET['layout'])>0){
+			$layout = $_GET['layout'];
+		}
+		$this->prepareSearch('like', $layout, $criteria);
 	}
 	public function actionShowNotLike(){
 		$command = Yii::app()->dbp->createCommand()
@@ -907,8 +911,12 @@ class IngredientsController extends Controller
 		$ids = explode(',', $ids);
 		$criteria=new CDbCriteria;
 		$criteria->compare(Ingredients::model()->tableName().'.ING_ID',$ids);
-		
-		$this->prepareSearch('like', null, $criteria);
+
+		$layout = null;
+		if(isset($_GET['layout']) && strlen($_GET['layout'])>0){
+			$layout = $_GET['layout'];
+		}
+		$this->prepareSearch('like', $layout, $criteria);
 	}
 	
 	private function getSubGroupData($model){

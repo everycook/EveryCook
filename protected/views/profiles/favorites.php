@@ -14,23 +14,25 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 
 See GPLv3.htm in the main folder for details.
 */
-
-$this->breadcrumbs=array(
-	'Profiles'=>array('index'),
-	$model->PRF_UID=>array('view','id'=>$model->PRF_UID),
-	'Update',
-);
-
-$this->menu=array(
-	array('label'=>'List Profiles', 'url'=>array('index')),
-	array('label'=>'Create Profiles', 'url'=>array('create')),
-	array('label'=>'View Profiles', 'url'=>array('view', 'id'=>$model->PRF_UID)),
-	array('label'=>'Manage Profiles', 'url'=>array('admin')),
-);
 ?>
-
 <?php echo $this->renderPartial('buttons', array('model'=>$model, 'professional'=>$professional)); ?>
+<div class="favorites">
+<h1><?php echo $this->trans->PROFILES_FAVOURITES; ?></h1>
+<h2><?php echo $this->trans->PROFILES_FAVOURITES_RECIPES; ?></h2>
+<h3><?php echo $this->trans->PROFILES_FAVOURITES_LIKE; ?></h3>
+<?php Yii::app()->runController('recipes/showLike/layout/inline'); ?>
+<h3><?php echo $this->trans->PROFILES_FAVOURITES_NOT_LIKE; ?></h3>
+<?php Yii::app()->runController('recipes/showNotLike/layout/inline'); ?>
 
-<h1><?php printf($this->trans->TITLE_PROFILES_UPDATE, $model->PRF_UID); ?></h1>
+<h2><?php echo $this->trans->PROFILES_FAVOURITES_INGREDIENTS; ?></h2>
+<h3><?php echo $this->trans->PROFILES_FAVOURITES_LIKE; ?></h3>
+<?php Yii::app()->runController('ingredients/showLike/layout/inline'); ?>
+<h3><?php echo $this->trans->PROFILES_FAVOURITES_NOT_LIKE; ?></h3>
+<?php Yii::app()->runController('ingredients/showNotLike/layout/inline'); ?>
 
-<?php echo $this->renderPartial('_form', array('model'=>$model)); ?>
+<h2><?php echo $this->trans->PROFILES_FAVOURITES_PRODUCTS; ?></h2>
+<h3><?php echo $this->trans->PROFILES_FAVOURITES_LIKE; ?></h3>
+<?php Yii::app()->runController('products/showLike/layout/inline'); ?>
+<h3><?php echo $this->trans->PROFILES_FAVOURITES_NOT_LIKE; ?></h3>
+<?php Yii::app()->runController('products/showNotLike/layout/inline'); ?>
+</div>

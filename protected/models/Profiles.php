@@ -30,6 +30,12 @@ See GPLv3.htm in the main folder for details.
  * @property string $PRF_IMG_FILENAME
  * @property string $PRF_IMG_ETAG
  * @property string $PRF_PW
+ * @property string $PRF_WORK_TITLE
+ * @property string $PRF_WORK_LOCATION
+ * @property string $PRF_CUT_IDS
+ * @property string $PRF_PHILOSOPHY
+ * @property string $PRF_EXPERIENCE
+ * @property string $PRF_AWARDS
  * @property double $PRF_LOC_GPS_LAT
  * @property double $PRF_LOC_GPS_LNG
  * @property string $PRF_LOC_GPS_POINT
@@ -133,20 +139,19 @@ class Profiles extends ActiveRecordECPriv
 			array('PRF_IMG_FILENAME', 'length', 'max'=>250),
 			array('PRF_IMG_ETAG', 'length', 'max'=>40),
 			array('PRF_PW', 'length', 'max'=>256),
-			array('PRF_ALLERGY, PRF_DIET_PREF, PRF_COOKING_STOVE_MEASUREMENTS, PRF_ACTIVITY_CALCULATOR', 'length', 'max'=>200),
+			array('PRF_WORK_TITLE, PRF_WORK_LOCATION, PRF_CUT_IDS, PRF_ALLERGY, PRF_DIET_PREF, PRF_COOKING_STOVE_MEASUREMENTS, PRF_ACTIVITY_CALCULATOR', 'length', 'max'=>200),
 			array('PRF_TEMP_MEAT', 'length', 'max'=>11),
 			array('PRF_DESIGN', 'length', 'max'=>20),
 			array('PRF_TWITTER_OAUTH_TOKEN, PRF_TWITTER_OAUTH_TOKEN_SECRET', 'length', 'max'=>50),
 			array('PRF_IMG_FILENAME, PRF_IMG_ETAG', 'required', 'on'=>'withPic'),
-			array('new_pw, pw_repeat, birthday_day, birthday_month, birthday_year, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_HAS_WATER_BOILER', 'safe'),
+			array('new_pw, pw_repeat, birthday_day, birthday_month, birthday_year, PRF_PHILOSOPHY, PRF_EXPERIENCE, PRF_AWARDS, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_LIKES_CUSINE, PRF_LIKES_CUSINESUB, PRF_HAS_WATER_BOILER', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_GENDER, PRF_BIRTHDAY, PRF_EMAIL, PRF_LANG, PRF_IMG_FILENAME, PRF_IMG_ETAG, PRF_PW, PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_LIKES_CUSINE, PRF_LIKES_CUSINESUB, PRF_ALLERGY, PRF_DIET_PREF, PRF_SPEED_PEELING, PRF_ALDENTE_NOODLES, PRF_ALDENTE_VEGETABLES, PRF_TEMP_MEAT, PRF_COOKING_STOVE_STAGES, PRF_COOKING_STOVE_MEASUREMENTS, COS_ID, PRF_HAS_WATER_BOILER, PRF_KCAL, PRF_ACTIVITY_CALCULATOR, PRF_MISE_EN_PLACE, PRF_VIEW_DISTANCE, PRF_DESIGN, PRF_ROLES, PRF_ACTIVE, PRF_RND, PRF_EVERYCOOP_IP, PRF_TWITTER_OAUTH_TOKEN, PRF_TWITTER_OAUTH_TOKEN_SECRET, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('PRF_UID, PRF_FIRSTNAME, PRF_LASTNAME, PRF_NICK, PRF_GENDER, PRF_BIRTHDAY, PRF_EMAIL, PRF_LANG, PRF_IMG_FILENAME, PRF_IMG_ETAG, PRF_WORK_TITLE, PRF_WORK_LOCATION, PRF_CUT_IDS, PRF_PHILOSOPHY, PRF_EXPERIENCE, PRF_AWARDS, PRF_LOC_GPS_LAT, PRF_LOC_GPS_LNG, PRF_LOC_GPS_POINT, PRF_LIKES_I, PRF_LIKES_R, PRF_LIKES_P, PRF_LIKES_S, PRF_NOTLIKES_I, PRF_NOTLIKES_R, PRF_NOTLIKES_P, PRF_SHOPLISTS, PRF_LIKES_CUSINE, PRF_LIKES_CUSINESUB, PRF_ALLERGY, PRF_DIET_PREF, PRF_SPEED_PEELING, PRF_ALDENTE_NOODLES, PRF_ALDENTE_VEGETABLES, PRF_TEMP_MEAT, PRF_COOKING_STOVE_STAGES, PRF_COOKING_STOVE_MEASUREMENTS, COS_ID, PRF_HAS_WATER_BOILER, PRF_KCAL, PRF_ACTIVITY_CALCULATOR, PRF_MISE_EN_PLACE, PRF_VIEW_DISTANCE, PRF_DESIGN, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'), //PRF_PW,   PRF_ROLES, PRF_ACTIVE, PRF_RND, PRF_EVERYCOOP_IP, PRF_TWITTER_OAUTH_TOKEN, PRF_TWITTER_OAUTH_TOKEN_SECRET
 			
 			// register
-			//array('pw_repeat','safe'),
 			array('PRF_IMG_ETAG', 'required', 'on'=>'with_pic'),
-			array('pw_repeat, verifyCaptcha', 'required', 'on'=>'register'),
+			array('PRF_PW, pw_repeat, verifyCaptcha', 'required', 'on'=>'register'),
 			array('pw_repeat', 'compare', 'compareAttribute'=>'PRF_PW', 'on'=>'register'),
 			array('PRF_NICK, PRF_EMAIL','unique', 'on'=>'register'),
 			array('PRF_NICK, PRF_EMAIL','unique', 'on'=>'update'),
@@ -185,6 +190,12 @@ class Profiles extends ActiveRecordECPriv
 			'PRF_IMG_ETAG' => 'Prf Img Etag',
 			'PRF_PW' => 'Prf Pw',
 			'pw_repeat' => 'pw repeat',
+			'PRF_WORK_TITLE' => 'Prf Work Title',
+			'PRF_WORK_LOCATION' => 'Prf Work Location',
+			'PRF_CUT_IDS' => 'Prf Cut Ids',
+			'PRF_PHILOSOPHY' => 'Prf Philosophy',
+			'PRF_EXPERIENCE' => 'Prf Experience',
+			'PRF_AWARDS' => 'Prf Awards',
 			'PRF_LOC_GPS_LAT' => 'Prf Loc Gps Lat',
 			'PRF_LOC_GPS_LNG' => 'Prf Loc Gps Lng',
 			'PRF_LOC_GPS_POINT' => 'Prf Loc Gps Point',
@@ -246,6 +257,12 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare($this->tableName().'.PRF_IMG_FILENAME',$this->PRF_IMG_FILENAME,true);
 		$criteria->compare($this->tableName().'.PRF_IMG_ETAG',$this->PRF_IMG_ETAG,true);
 		$criteria->compare($this->tableName().'.PRF_PW',$this->PRF_PW,true);
+		$criteria->compare($this->tableName().'.PRF_WORK_TITLE',$this->PRF_WORK_TITLE,true);
+		$criteria->compare($this->tableName().'.PRF_WORK_LOCATION',$this->PRF_WORK_LOCATION,true);
+		$criteria->compare($this->tableName().'.PRF_CUT_IDS',$this->PRF_CUT_IDS,true);
+		$criteria->compare($this->tableName().'.PRF_PHILOSOPHY',$this->PRF_PHILOSOPHY,true);
+		$criteria->compare($this->tableName().'.PRF_EXPERIENCE',$this->PRF_EXPERIENCE,true);
+		$criteria->compare($this->tableName().'.PRF_AWARDS',$this->PRF_AWARDS,true);
 		$criteria->compare($this->tableName().'.PRF_LOC_GPS_LAT',$this->PRF_LOC_GPS_LAT);
 		$criteria->compare($this->tableName().'.PRF_LOC_GPS_LNG',$this->PRF_LOC_GPS_LNG);
 		$criteria->compare($this->tableName().'.PRF_LOC_GPS_POINT',$this->PRF_LOC_GPS_POINT,true);
@@ -305,6 +322,12 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare('PRF_IMG_FILENAME',$this->PRF_IMG_FILENAME,true);
 		$criteria->compare('PRF_IMG_ETAG',$this->PRF_IMG_ETAG,true);
 		$criteria->compare('PRF_PW',$this->PRF_PW,true);
+		$criteria->compare('PRF_WORK_TITLE',$this->PRF_WORK_TITLE,true);
+		$criteria->compare('PRF_WORK_LOCATION',$this->PRF_WORK_LOCATION,true);
+		$criteria->compare('PRF_CUT_IDS',$this->PRF_CUT_IDS,true);
+		$criteria->compare('PRF_PHILOSOPHY',$this->PRF_PHILOSOPHY,true);
+		$criteria->compare('PRF_EXPERIENCE',$this->PRF_EXPERIENCE,true);
+		$criteria->compare('PRF_AWARDS',$this->PRF_AWARDS,true);
 		$criteria->compare('PRF_LOC_GPS_LAT',$this->PRF_LOC_GPS_LAT);
 		$criteria->compare('PRF_LOC_GPS_LNG',$this->PRF_LOC_GPS_LNG);
 		$criteria->compare('PRF_LOC_GPS_POINT',$this->PRF_LOC_GPS_POINT,true);

@@ -176,6 +176,56 @@ glob.select2.searchIngredientFormatSelection = function (ingredient) {
 	}
 }
 
+glob.select2.selectCusinesAjax = {
+	url: glob.prefix + "recipes/cusinesAutocomplete",
+	dataType: 'json',
+	quietMillis: 250,
+	data: function (term, page) { // page is the one-based page number tracked by Select2
+		glob.ShowActivity = false;
+		return {
+			'query': term, //search term
+			'page': page, // page number
+			'light_weight':1 //say do not do so much things
+		};
+	},
+	results: function (data, page) {
+		glob.ShowActivity = true;
+		//var more = (page * 30) < data.total_count; // whether or not there are more results available
+		var more = data.more_cut || data.more_cst || data.more_css;
+		
+		// notice we return the value of more so Select2 knows if more results can be loaded
+		return { results: data.items, more: more };
+	}
+};
+
+glob.select2.selectCusinesInitSelection = function(element, callback) {
+	var id = $(element).val();
+	if (id !== "") {
+		$.ajax(glob.prefix + "recipes/cusinesAutocompleteId/?ids=" + id, {
+			dataType: "json"
+		}).done(function(data) { callback(data); });
+	}
+};
+
+glob.select2.selectCusinesFormatResult = function (cusine, elem, query) {
+	var text = glob.select2.selectCusinesFormatSelection(cusine);
+	var searchstart = 0;
+	var pos=text.toLowerCase().indexOf(query.term.toLowerCase(), searchstart);
+	var result = '';
+	if (pos>0){
+		result = '<span>' + text.substr(0, pos) + '</span>';
+	}
+	result = result + '<span class="matchingText">' + text.substr(pos, query.term.length) + '</span>';
+	if (text.length > pos + query.term.length){
+		result = result + '<span>' + text.substr(pos + query.term.length) + '</span>';
+	}
+	return result;
+};
+
+glob.select2.selectCusinesFormatSelection = function (cusine) {
+	return cusine.name;
+}
+
 function ajaxResponceHandler(data, type, asFancy){
 	if (data.indexOf('{')===0){
 		eval('var data = ' + data + ';');
@@ -1562,5 +1612,121 @@ jQuery(function($){
 		jQuery('#modal').hide();
 		jQuery.ajax({'type':'get', 'url':jQuery('#browserErrorCloseLink').val()});
 	});
+	
+	//profile
+	jQuery('body').undelegate('.form .editFieldLink','click').delegate('.form .editFieldLink','click', function(){
+		var elem = jQuery(this);
+		var textElem = elem.closest('.editField');
+		textElem.data('edit', elem);
+		textElem.css('display','inline-block');
+		var minWidth = textElem.width();
+		textElem.css('display','');
+		elem.remove();
+		if(textElem.children().length>0){
+			var text = '';
+			textElem.children().each(function(i){
+				var child = $(this);
+				var value = child.data('value');
+				if (i>0){
+					text = text + ',';
+				}
+				text = text + value;
+			});
+		} else {
+			var text = textElem.text();
+		}
+		textElem.text('');
+		var type = textElem.data('field-type');
+		if (type == 'select2'){
+			var input = $('<input class="selectField" name="' + textElem.data('field') + '" type="hidden"></select>');
+			input.val(text);
+			input.appendTo(textElem);
+			var scriptPrefix = textElem.data('scriptprefix');
+			input.select2({
+				'multiple' : true,
+				'minimumInputLength' : 1,
+				'formatInputTooShort' : null,
+				'openOnEnter' : false,
+				'placeholder' : textElem.data('placeholder'),
+				'ajax' : glob.select2[scriptPrefix + 'Ajax'],
+				'initSelection' : glob.select2[scriptPrefix + 'InitSelection'],
+				'formatResult' : glob.select2[scriptPrefix + 'FormatResult'],
+				'formatSelection' : glob.select2[scriptPrefix + 'FormatSelection'],
+				'containerCssClass' : 'cusinesInput',
+				'escapeMarkup' : function(m) {
+					return m;
+				},
+			});
+			$('<a href="#" class="selectFieldSave actionlink">' + textElem.data('save') + '</a>').appendTo(textElem);
+		} else {
+			var placeholder = textElem.data('placeholder');
+			if (typeof(placeholder) === 'undefined'){
+				placeholder = '';
+			}
+			if (type == 'area'){
+				var input = $('<textarea class="field" placeholder="' + placeholder + '" name="' + textElem.data('field') + '"></textarea>');
+			} else {
+				var input  = $('<input class="field" placeholder="' + placeholder + '" name="' + textElem.data('field') + '" type="text"/>');
+			}
+			input.css('min-width', minWidth + "px");
+			if (text.trim().length>0){
+				input.val(text);
+			}
+			input.appendTo(textElem);
+			input.focus();
+		}
+		return false;
+	});
+	
+	function saveProfileFieldUpdate(input){
+		var textElem = input.closest('.editField');
+		var text = input.val();
+		input.remove();
+		textElem.text(text);
+		var elem = $(textElem.data('edit'));
+		elem.appendTo(textElem);
+		var field = textElem.data('field');
+		var data = 'field=' + field + "&data=" + text
+		jQuery.ajax({'type':'post', 'data':data, 'url':jQuery('#updateProfileLink').val()});
+	}
+	jQuery('body').undelegate('.form .editField .field','blur').delegate('.form .editField .field','blur', function(event){
+		var input = jQuery(this);
+		saveProfileFieldUpdate(input);
+		return false;
+	});
+
+	jQuery('body').undelegate('.form .editField input.field','keyup').delegate('.form .editField input.field','keyup', function(event){
+		var input = jQuery(this);
+		if (event.keyCode == '13') {
+			saveProfileFieldUpdate(input);
+			return false;
+		}
+	});
+
+	jQuery('body').undelegate('.form .editField .selectFieldSave','click').delegate('.form .editField .selectFieldSave','click', function(){
+		var link = jQuery(this);
+		var textElem = link.closest('.editField');
+		var input = textElem.find('.selectField');
+		link.remove();
+		
+		var text = input.select2('val');
+		var values = input.select2('data');
+		input.select2('destroy');
+		input.remove();
+		
+		var classToUse = textElem.data('child-class');
+		for(var index in values){
+			var value = values[index];
+			$('<div class="' + classToUse + '" data-value="' + value['id'] + '">' + value['name'] + '</div>').appendTo(textElem);
+		}
+		var elem = $(textElem.data('edit'));
+		elem.appendTo(textElem);
+		
+		var field = textElem.data('field');
+		var data = 'field=' + field + "&data=" + text
+		jQuery.ajax({'type':'post', 'data':data, 'url':jQuery('#updateProfileLink').val()});
+		return false;
+	});
+	
 });
 

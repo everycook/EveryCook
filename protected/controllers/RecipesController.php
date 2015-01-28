@@ -34,7 +34,7 @@ class RecipesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','searchFridge','displaySavedImage','chooseRecipe','chooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory', 'autocomplete','autocompleteId','actionSuggestion','getCusineSubTypes','getCusineSubSubTypes'),
+				'actions'=>array('index','view','search','searchFridge','displaySavedImage','chooseRecipe','chooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory', 'autocomplete','autocompleteId','actionSuggestion','getCusineSubTypes','getCusineSubSubTypes','cusinesAutocomplete','cusinesAutocompleteId'),
 				//'advanceSearch','advanceChooseRecipe','advanceChooseTemplateRecipe',
 				'users'=>array('*'),
 			),
@@ -1985,7 +1985,11 @@ class RecipesController extends Controller
 		$criteria=new CDbCriteria;
 		$criteria->compare(Recipes::model()->tableName().'.REC_ID',$ids);
 		
-		$this->prepareSearch('like', null, $criteria);
+		$layout = null;
+		if(isset($_GET['layout']) && strlen($_GET['layout'])>0){
+			$layout = $_GET['layout'];
+		}
+		$this->prepareSearch('like', $layout, $criteria);
 	}
 	public function actionShowNotLike(){
 		$command = Yii::app()->dbp->createCommand()
@@ -1998,7 +2002,11 @@ class RecipesController extends Controller
 		$criteria=new CDbCriteria;
 		$criteria->compare(Recipes::model()->tableName().'.REC_ID',$ids);
 		
-		$this->prepareSearch('like', null, $criteria);
+		$layout = null;
+		if(isset($_GET['layout']) && strlen($_GET['layout'])>0){
+			$layout = $_GET['layout'];
+		}
+		$this->prepareSearch('like', $layout, $criteria);
 	}
 	
 	/**
@@ -2563,6 +2571,143 @@ class RecipesController extends Controller
 			'changes'=>$changes,
 			'stepStartIndex'=>$stepStartIndex
 		));
+	}
+	
+
+	public function actionCusinesAutocomplete($query, $page){
+		$this->isFancyAjaxRequest = true;
+		$command = Yii::app()->db->createCommand()
+		->select('("cusine_types") as type, concat("CUT_ID:", CUT_ID) as id, CUT_DESC_' . Yii::app()->session['lang'] . ' as name')
+		->from('cusine_types')
+		->where('CUT_DESC_' . Yii::app()->session['lang'] . ' LIKE :query',array(':query'=>'%'.$query.'%'))
+		->order('CUT_DESC_' . Yii::app()->session['lang'])
+		->limit(5, ($page-1)*5);
+		$data_cut = $command->queryAll();
+
+		$command = Yii::app()->db->createCommand()
+		->select('("cusine_sub_types") as type, concat("CST_ID:", CST_ID) as id, CST_DESC_' . Yii::app()->session['lang'] . ' as name')
+		->from('cusine_sub_types')
+		->where('CST_DESC_' . Yii::app()->session['lang'] . ' LIKE :query',array(':query'=>'%'.$query.'%'))
+		->order('CST_DESC_' . Yii::app()->session['lang'])
+		->limit(10, ($page-1)*10);
+		$data_cst = $command->queryAll();
+
+		$command = Yii::app()->db->createCommand()
+		->select('("cusine_sub_sub_types") as type, concat("CSS_ID:", CSS_ID) as id, CSS_DESC_' . Yii::app()->session['lang'] . ' as name')
+		->from('cusine_sub_sub_types')
+		->where('CSS_DESC_' . Yii::app()->session['lang'] . ' LIKE :query',array(':query'=>'%'.$query.'%'))
+		->order('CSS_DESC_' . Yii::app()->session['lang'])
+		->limit(15, ($page-1)*15);
+		$data_css = $command->queryAll();
+		//if ($this->debug){echo $command->text;}
+	
+		$data = array_merge($data_cut, $data_cst, $data_css);
+	
+		if (count($data_cut) < 5){
+			$total_count_cut = ($page-1)*5 + count($data_cut);
+			$more_cut = false;
+		} else {
+// 			$command = Yii::app()->db->createCommand()
+// 			->select('count(*)')
+// 			->from('cusine_types')
+// 			->where('CUT_DESC_' . Yii::app()->session['lang'] . ' LIKE :query',array(':query'=>'%'.$query.'%'));
+// 			$total_count_cut = $command->queryScalar();
+			$more_cut = true;
+		}
+		if (count($data_cst) < 10){
+			$total_count_cst = ($page-1)*10 + count($data_cst);
+			$more_cst = false;
+		} else {
+// 			$command = Yii::app()->db->createCommand()
+// 			->select('count(*)')
+// 			->from('cusine_sub_types')
+// 			->where('CST_DESC_' . Yii::app()->session['lang'] . ' LIKE :query',array(':query'=>'%'.$query.'%'));
+// 			$total_count_cst = $command->queryScalar();
+			$more_cst = true;
+		}
+		if (count($data_css) < 15){
+			$total_count_css = ($page-1)*15 + count($data_css);
+			$more_css = false;
+		} else {
+// 			$command = Yii::app()->db->createCommand()
+// 			->select('count(*)')
+// 			->from('cusine_sub_sub_types')
+// 			->where('CSS_DESC_' . Yii::app()->session['lang'] . ' LIKE :query',array(':query'=>'%'.$query.'%'));
+// 			$total_count_css = $command->queryScalar();
+			$more_css = true;
+		}
+		$result = array(
+// 				'total_count'=>$total_count_cut + $total_count_cst + $total_count_css,
+				'more_cut'=>$more_cut,
+				'more_cst'=>$more_cst, 
+				'more_css'=>$more_css,
+				'items'=>$data
+		);
+		echo $this->processOutput(CJSON::encode($result));
+	}
+	
+	public static function getCusinesValues($ids){
+		$criteria=new CDbCriteria;
+		if (strlen($ids)>0){
+			$querys = explode(',', $ids);
+			$cut_ids = array();
+			$cst_ids = array();
+			$css_ids = array();
+			$result = array();
+			foreach($querys as $queryText){
+				if (strlen($queryText)>0){
+					$prefix = substr($queryText,0,7);
+					if ($prefix == 'CUT_ID:'){
+						$cut_ids[] = substr($queryText,7);
+					} else if ($prefix == 'CST_ID:'){
+						$cst_ids[] = substr($queryText,7);
+					} else if ($prefix == 'CSS_ID:'){
+						$css_ids[] = substr($queryText,7);
+					} else {
+						$result[] = array('id' => $queryText, 'name' => $queryText, 'type'=>'query');
+					}
+				}
+			}
+			if (count($cut_ids)>0){
+				$criteria=new CDbCriteria;
+				$criteria->addInCondition('CUT_ID',$cut_ids);
+				$command = Yii::app()->db->createCommand()
+				->select('("cusine_types") as type, concat("CUT_ID:", CUT_ID) as id, CUT_DESC_' . Yii::app()->session['lang'] . ' as name')
+				->from('cusine_types');
+				$command->where($criteria->condition, $criteria->params);
+				$data = $command->queryAll();
+				$result = array_merge($result, $data);
+			}
+			if (count($cst_ids)>0){
+				$criteria=new CDbCriteria;
+				$criteria->addInCondition('CST_ID',$cst_ids);
+				$command = Yii::app()->db->createCommand()
+				->select('("cusine_sub_types") as type, concat("CST_ID:", CST_ID) as id, CST_DESC_' . Yii::app()->session['lang'] . ' as name')
+				->from('cusine_sub_types');
+				$command->where($criteria->condition, $criteria->params);
+				$data = $command->queryAll();
+				$result = array_merge($result, $data);
+			}
+			if (count($css_ids)>0){
+				$criteria=new CDbCriteria;
+				$criteria->addInCondition('CSS_ID',$css_ids);
+				$command = Yii::app()->db->createCommand()
+				->select('("cusine_sub_sub_types") as type, concat("CSS_ID:", CSS_ID) as id, CSS_DESC_' . Yii::app()->session['lang'] . ' as name')
+				->from('cusine_sub_sub_types');
+				$command->where($criteria->condition, $criteria->params);
+				$data = $command->queryAll();
+				$result = array_merge($result, $data);
+			}
+			return $result;
+		} else {
+			return array();
+		}
+	}
+	
+	public function actionCusinesAutocompleteId($ids){
+		$this->isFancyAjaxRequest = true;
+		$result = self::getCusinesValues($ids);
+		echo $this->processOutput(CJSON::encode($result));
 	}
 	
 }

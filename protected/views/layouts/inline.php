@@ -15,22 +15,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 See GPLv3.htm in the main folder for details.
 */
 
-$this->breadcrumbs=array(
-	'Profiles'=>array('index'),
-	$model->PRF_UID=>array('view','id'=>$model->PRF_UID),
-	'Update',
-);
-
-$this->menu=array(
-	array('label'=>'List Profiles', 'url'=>array('index')),
-	array('label'=>'Create Profiles', 'url'=>array('create')),
-	array('label'=>'View Profiles', 'url'=>array('view', 'id'=>$model->PRF_UID)),
-	array('label'=>'Manage Profiles', 'url'=>array('admin')),
-);
+/*
+if ($this->route != 'site/index'){
+	Functions::browserCheck();
+}
+*/
 ?>
-
-<?php echo $this->renderPartial('buttons', array('model'=>$model, 'professional'=>$professional)); ?>
-
-<h1><?php printf($this->trans->TITLE_PROFILES_UPDATE, $model->PRF_UID); ?></h1>
-
-<?php echo $this->renderPartial('_form', array('model'=>$model)); ?>
+<?php echo $content; ?>

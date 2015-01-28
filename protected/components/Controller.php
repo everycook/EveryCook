@@ -298,7 +298,7 @@ class Controller extends CController
 				
 				$output=$this->processOutput($output);
 				
-				if (Yii::app()->request->isAjaxRequest && !$this->isFancyAjaxRequest){
+				if (Yii::app()->request->isAjaxRequest && !$this->isFancyAjaxRequest && $ajaxLayout != 'inline'){
 					$json = "{'title':'" . CHtml::encode($this->pageTitle) . "'}";
 					echo strlen($json) . $json;
 				}

@@ -90,7 +90,8 @@ div.detailView {
 	background-color:#FFFFFF;
 }
 
-div.detailView div.options div.otherItems{
+div.detailView div.options div.otherItems,
+.profileView .recipes.otherItems {
 	background-color:#997F7F;
 }
 

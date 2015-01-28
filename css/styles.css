@@ -642,7 +642,7 @@ with this change (fix 100%) it will brake to 2. line also if it's not needed...
     width: 13em;
 }
 
-#recipesResult  {
+#recipeResultArea #recipesResult  {
 	display: table-cell;
 }
 #recipesResult div.resultArea div.options a {
@@ -1797,6 +1797,92 @@ div.historyOverview .buttons {
 	float: left;
 }
 
+
+/* @group profile */
+.shortInfo {
+	margin-top: 1em;
+}
+
+.shortInfo img.profile {
+	width: 10em;
+	height: 10em;
+	float: left;
+	margin-right: 1em;
+}
+.workingTitle {
+	font-size: 1.5em;
+	line-height: 1em;
+}
+.workingLocation {
+	font-size: 0.9em;
+}
+.cusines {
+	margin-top: 0.5em;
+}
+.cusines .cusine {
+	padding-left: 2em;
+	margin-right: 0.5em;
+	float: left;
+}
+.cusines:after {
+	content: " ";
+	clear: both;
+}
+.cusinesInput {
+	min-width: 15em;
+}
+.detailInfo {
+}
+.detailInfo .title {
+	margin-top: 1em;
+	font-size: 1.2em;
+	font-weight: bold;
+}
+.detailInfo .text{
+	
+}
+.editField {
+	
+}
+.editField .select2-container{
+	max-width: calc(100% - 11em);
+}
+.editFieldLink.actionlink,
+.selectFieldSave.actionlink {
+	color: blue;
+	font-size: 0.9em;
+}
+.selectFieldSave.actionlink {
+	margin-left: 0.5em;
+}
+
+.profileView {
+	position: relative;
+}
+.profileView .recipes.otherItems {
+	position: absolute;
+	right: 0;
+	top: 0;
+	border-radius: 0.8em;
+	display: inline-block;
+	padding: 0.8em;
+	width: 20em;
+}
+
+#profiles-form img.profile {
+	width:20em;
+	height:20em;
+	border-radius:0.8em;
+	display: inline-block;
+}
+.favorites h2 {
+	margin-bottom: 0;
+	margin-top: 0.75em;
+}
+.favorites h3 {
+	margin: 0;
+}
+/* @end */
 
 
 /* @group view Size change */

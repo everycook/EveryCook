@@ -14,6 +14,8 @@ class ProfilesController extends Controller
 	
 	protected $createBackup = 'Profiles_Backup';
 	protected $searchBackup = 'Profiles';
+
+	const RECIPES_AMOUNT = 2;
 	
 	/**
 	 * Specifies the access control rules.
@@ -24,11 +26,11 @@ class ProfilesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'register' action
-				'actions'=>array('register', 'verifyRegistration', 'captcha', 'languageChanged', 'displaySavedImage', 'resendActivationMail', 'resetPassword'),
+				'actions'=>array('register', 'verifyRegistration', 'captcha', 'languageChanged', 'displaySavedImage', 'resendActivationMail', 'resetPassword', 'view'),
 				'users'=>array('*'),
 			),
 			array('allow',  // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('index','view','create','update','uploadImage','admin','delete', 'ChangeLanguageMenu', 'changeDesignMenu','cancel'),
+				'actions'=>array('index','create','update','uploadImage','admin','delete', 'ChangeLanguageMenu', 'changeDesignMenu','cancel','updateProfile','favorites'),
 				'users'=>array('@'),
 			),
 			
@@ -79,11 +81,28 @@ class ProfilesController extends Controller
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionView($id)
-	{
-		$this->checkRenderAjax('view',array(
-			'model'=>$this->loadModel($id),
-		));
+	public function actionView($id){
+		$model = $this->loadModel($id);
+		$roles = explode(';', strtolower($model->PRF_ROLES));
+		if (in_array('professional', $roles)){
+			include_once 'RecipesController.php';
+			$cusines = RecipesController::getCusinesValues($model->PRF_CUT_IDS);
+			
+			//Field PRF_UID is not filled!
+			$recipesAmount = Yii::app()->db->createCommand('SELECT count(REC_ID) FROM recipes WHERE CREATED_BY = :id')->bindParam(':id', $id)->queryScalar();
+			$recipes = Yii::app()->db->createCommand()->select('recipes.*')->from('recipes')->where('CREATED_BY = :id', array(':id'=>$id))->order('CHANGED_ON desc')->limit(self::RECIPES_AMOUNT * 2,0)->queryAll();
+			 
+			$this->checkRenderAjax('view',array(
+					'model'=>$model,
+					'cusines'=>$cusines,
+					'edit'=>$id == Yii::app()->user->id,
+					'professional'=>true,
+					'recipes'=>$recipes,
+					'recipesAmount'=>$recipesAmount,
+			));
+		} else {
+			throw new CHttpException(403,'It\'s not a public profile.');
+		}
 	}
 	
 	private function getModelAndOldPic($id){
@@ -213,10 +232,43 @@ class ProfilesController extends Controller
 			Yii::app()->session[$this->createBackup] = $model;
 			Yii::app()->session[$this->createBackup.'_Time'] = time();
 		}
-
+		
+		$roles = explode(';', strtolower($model->PRF_ROLES));
 		$this->checkRenderAjax($view,array(
 			'model'=>$model,
+			'professional'=>in_array('professional', $roles),
 		));
+	}
+	
+	public function actionUpdateProfile($id){
+		if ($id != Yii::app()->user->id){
+			throw new CHttpException(403,'It\'s not allowed to edit profile of other user.');
+		}
+		$allowedFields = array('PRF_WORK_TITLE',
+		'PRF_WORK_LOCATION',
+		'PRF_CUT_IDS',
+		'PRF_PHILOSOPHY',
+		'PRF_EXPERIENCE',
+		'PRF_AWARDS');
+
+		$field = $_POST['field'];
+		if (!in_array($field, $allowedFields)){
+			//throw new CHttpException(403,'It\'s not allowed to edit this field.');
+			throw new CHttpException(500, 'Error while update DB.'); //show incorrect mesage 
+			return;
+		}
+		$data = htmlspecialchars($_POST['data']);
+		//echo CJSON::encode(array($field=>$data));
+		Yii::app()->dbp->createCommand()->update(Profiles::model()->tableName(), array($field=>$data), 'PRF_UID=:id', array(':id'=>$id));
+		
+		//update current backup, so it will not overwritten if profile is saved.
+		$Session_Profiles_Backup = Yii::app()->session[$this->createBackup];
+		if (isset($Session_Profiles_Backup)){
+			$model = $Session_Profiles_Backup;
+			if (isset($model) && $model->PRF_UID == $id){
+				$model->__set($field, $data);
+			}
+		}
 	}
 	
 	/**
@@ -241,9 +293,12 @@ class ProfilesController extends Controller
 	 * If update is successful, the browser will be redirected to the 'view' page.
 	 * @param integer $id the ID of the model to be updated
 	 */
-	public function actionUpdate($id)
-	{
-		$this->prepareCreateOrUpdate($id, 'update');
+	public function actionUpdate(){
+		if (isset(Yii::app()->user->id)){
+			$this->prepareCreateOrUpdate(Yii::app()->user->id, 'update');
+		} else {
+			throw new CHttpException(403,'Please login first.');
+		}
 	}
 
 	/**
@@ -251,8 +306,7 @@ class ProfilesController extends Controller
 	 * If deletion is successful, the browser will be redirected to the 'admin' page.
 	 * @param integer $id the ID of the model to be deleted
 	 */
-	public function actionDelete($id)
-	{
+	public function actionDelete($id){
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
@@ -273,8 +327,7 @@ class ProfilesController extends Controller
 	/**
 	 * Lists all models.
 	 */
-	public function actionIndex()
-	{
+	public function actionIndex(){
 		$this->actionView(Yii::app()->user->id);
 		/*
 		$dataProvider=new CActiveDataProvider('Profiles');
@@ -717,6 +770,20 @@ class ProfilesController extends Controller
 		}
 	}
 	
+	public function actionFavorites(){
+		if (!isset(Yii::app()->user->id)){
+			throw new CHttpException(403,'Please login first.');
+		}
+		$id = Yii::app()->user->id;
+
+		$model = $this->loadModel($id);
+		$roles = explode(';', strtolower($model->PRF_ROLES));
+		$this->checkRenderAjax('favorites',array(
+			'model'=>$model,
+			'professional'=>array_key_exists('professional', array_flip($roles)),
+		));
+	}
+	
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
@@ -742,9 +809,11 @@ class ProfilesController extends Controller
 				$model->PRF_PW = 'demo';
 				$model->isNewRecord = false;
 			} else {
+				/*
 				if ($id != Yii::app()->user->id){
 					throw new CHttpException(403,'It\'s not allowed to open profile of other user.');
 				}
+				*/
 				$model=Profiles::model()->findByPk($id);
 			}
 		}

@@ -738,8 +738,12 @@ class ProductsController extends Controller
 		$ids = explode(',', $ids);
 		$criteria=new CDbCriteria;
 		$criteria->compare(Products::model()->tableName().'.PRO_ID',$ids);
-		
-		$this->prepareSearch('like', null, $criteria);
+
+		$layout = null;
+		if(isset($_GET['layout']) && strlen($_GET['layout'])>0){
+			$layout = $_GET['layout'];
+		}
+		$this->prepareSearch('like', $layout, $criteria);
 	}
 	
 	public function actionShowNotLike(){
@@ -752,8 +756,12 @@ class ProductsController extends Controller
 		$ids = explode(',', $ids);
 		$criteria=new CDbCriteria;
 		$criteria->compare(Products::model()->tableName().'.PRO_ID',$ids);
-		
-		$this->prepareSearch('like', null, $criteria);
+
+		$layout = null;
+		if(isset($_GET['layout']) && strlen($_GET['layout'])>0){
+			$layout = $_GET['layout'];
+		}
+		$this->prepareSearch('like', $layout, $criteria);
 	}
 	
 	/**
