@@ -34,8 +34,8 @@ class IngredientsController extends Controller
 	protected $recipeIngredientIds = null;
 	
 	
-	const RECIPES_AMOUNT = 2;
-	const PRODUCTS_AMOUNT = 2;
+	const RECIPES_AMOUNT = 4;
+	const PRODUCTS_AMOUNT = 4;
 	const PRELOAD_AMOUNT = 3;
 	
 	/**

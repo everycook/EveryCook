@@ -49,8 +49,29 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 	?>
 	<div class="clearfix"></div>
 	
-	<div class="f-left">
+	<?php /*<div class="f-left"> */ ?>
+		<div class="options">
+			<?php
+				echo CHtml::link('&nbsp;', array('delicious', 'id'=>$model['ING_ID']), array('class'=>'delicious noAjax backpic f-left', 'title'=>$this->trans->GENERAL_DELICIOUS));
+				echo CHtml::link('&nbsp;', array('recipes/search', 'ing_id'=>$model['ING_ID']), array('class'=>'cookwith backpic f-right', 'title'=>$this->trans->INGREDIENTS_COOK_WITH));
+				echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$model['ING_ID']), array('class'=>'disgusting noAjax backpic f-center','title'=>$this->trans->GENERAL_DISGUSTING));
+			?>
+		</div>
 		<h1><?php echo $ingredientName; ?></h1>
+		<div class="otherNames">
+			<?php
+			echo '<span class="title">' . $this->trans->GENERAL_OTHER_NAMES . '</span>';
+			foreach($this->allLanguages as $lang=>$name){
+				echo '<div class="label">' . $model->getAttributeLabel('ING_NAME_'.$lang) . '</div><div class="otherName">' . $model->__get('ING_NAME_'.$lang) . '</div>';
+				echo '<div class="clearfix"></div>';
+			}
+			foreach($this->allLanguages as $lang=>$name){
+				echo '<div class="label">' . $model->getAttributeLabel('ING_SYNONYM_'.$lang) . '</div><div class="otherName">' . $model->__get('ING_SYNONYM_'.$lang) . '</div>';
+				echo '<div class="clearfix"></div>';
+			}
+			?>
+		</div>
+		<div class="clearfix"></div>
 		<div class="detail_img f-left">
 			<?php echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$model->ING_ID, 'ext'=>'.png')), $model->__get('ING_NAME_' . Yii::app()->session['lang']), array('class'=>'ingredient', 'title'=>$model->__get('ING_NAME_' . Yii::app()->session['lang']))); ?>
 			<div class="img_auth"><?php if ($model->ING_IMG_ETAG == '') { echo '&nbsp;'; } else {echo '© by ' . $model->ING_IMG_AUTH; } ?></div>
@@ -68,100 +89,7 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 			?>
 		</div>
 		<div class="clearfix"></div>
-	</div>
-	
-	<div class="options">
-		<?php
-			echo CHtml::link('&nbsp;', array('delicious', 'id'=>$model['ING_ID']), array('class'=>'delicious noAjax backpic f-left', 'title'=>$this->trans->GENERAL_DELICIOUS));
-			echo CHtml::link('&nbsp;', array('recipes/search', 'ing_id'=>$model['ING_ID']), array('class'=>'cookwith backpic f-right', 'title'=>$this->trans->INGREDIENTS_COOK_WITH));
-			echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$model['ING_ID']), array('class'=>'disgusting noAjax backpic f-center','title'=>$this->trans->GENERAL_DISGUSTING));
-		?>
-		<div class="recipes otherItems">
-			<?php
-			echo '<div class="otherItemsTitle">'.sprintf($this->trans->INGREDIENTS_MATCHING_RECIPES, $ingredientName).'</div>';
-			if ($otherItemsAmount['recipes'] == 0){
-				echo '<span class="noItems">'.$this->trans->INGREDIENTS_NO_MATCHING_RECIPES .'</span>';
-			} else {
-				if ($otherItemsAmount['recipes'] > IngredientsController::RECIPES_AMOUNT){?>
-					<input name="recipe" class="imgIndex" type="hidden" value="0" />
-					<input name="amount" class="imgIndexAmount" type="hidden" value="<?php echo IngredientsController::RECIPES_AMOUNT; ?>" />
-					<div class="up-arrow"><div class="up1"></div><div class="up2"></div></div>
-					<?php
-					$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe = {};';
-				}
-				$index = 0;
-				foreach($recipes as $recipe){
-					if ($index < IngredientsController::RECIPES_AMOUNT){
-						echo '<div class="item">';
-							echo CHtml::link($recipe['REC_NAME_' . Yii::app()->session['lang']], array('recipes/view', 'id'=>$recipe['REC_ID']), array('class'=>'title'));
-							echo '<div class="small_img">';
-								echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), $recipe['REC_NAME_' . Yii::app()->session['lang']], array('class'=>'recipe', 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']])), array('recipes/view', 'id'=>$recipe['REC_ID']));
-								echo '<div class="img_auth">';
-								if ($recipe['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $recipe['REC_IMG_AUTH']; }
-								echo '</div>';
-							echo '</div>';
-						echo '</div>';
-						if ($otherItemsAmount['recipes'] > IngredientsController::RECIPES_AMOUNT){
-							$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.idx' . $index . ' = {img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$recipe['REC_ID'])).'", auth:"'.$recipe['REC_IMG_AUTH'].'", name:"'.$recipe['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
-						}
-					} else {
-						$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.idx' . $index . ' = {img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$recipe['REC_ID'])).'", auth:"'.$recipe['REC_IMG_AUTH'].'", name:"'.$recipe['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
-					}
-					++$index;
-				}
-				if ($otherItemsAmount['recipes'] > IngredientsController::RECIPES_AMOUNT){
-					$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.nextPreloadIndex = '.$index.';';
-					$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.prevPreloadIndex = -1;';
-					echo '<div class="down-arrow"><div class="down1"></div><div class="down2"></div></div>';
-				}
-			}
-			?>
-		</div>
-		<div class="products otherItems">
-			<?php
-			echo '<div class="otherItemsTitle">'.sprintf($this->trans->INGREDIENTS_MATCHING_PRODUCTS, $ingredientName).'</div>';
-			if ($otherItemsAmount['products'] == 0){
-				echo '<a href="' . Yii::app()->createUrl('products/create',array('ing_id'=>$model['ING_ID'], 'newModel'=>time())) . '" class="shopInfo actionlink" title="' . $this->trans->INGREDIENTS_CREATE_PRODUCTS . '">';
-				echo '<span class="noItems">'.$this->trans->INGREDIENTS_CREATE_PRODUCTS .'</span>';
-				//echo '<span class="noItems">'.$this->trans->INGREDIENTS_NO_MATCHING_PRODUCTS .'</span>';
-				echo '</a>';
-			} else {
-				if ($otherItemsAmount['products'] > IngredientsController::PRODUCTS_AMOUNT){ ?>
-					<input name="product" class="imgIndex" type="hidden" value="0" />
-					<input name="amount" class="imgIndexAmount" type="hidden" value="<?php echo IngredientsController::PRODUCTS_AMOUNT; ?>" />
-					<div class="up-arrow"><div class="up1"></div><div class="up2"></div></div>
-					<?php
-					$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.product = {};';
-				}
-				$index = 0;
-				foreach($products as $product){
-					if ($index < IngredientsController::PRODUCTS_AMOUNT){
-						echo '<div class="item">';
-							echo CHtml::link($product['PRO_NAME_' . Yii::app()->session['lang']], array('products/view', 'id'=>$product['PRO_ID']), array('class'=>'title'));
-							echo '<div class="small_img">';
-								echo CHtml::link(CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$product['PRO_ID'], 'ext'=>'.png')), '', array('class'=>'product', 'alt'=>$product['PRO_NAME_' . Yii::app()->session['lang']], 'title'=>$product['PRO_NAME_' . Yii::app()->session['lang']])), array('products/view', 'id'=>$product['PRO_ID']));
-								echo '<div class="img_auth">';
-								if ($product['PRO_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $product['PRO_IMG_AUTH']; }
-								echo '</div>';
-							echo '</div>';
-						echo '</div>';
-						if ($otherItemsAmount['products'] > IngredientsController::PRODUCTS_AMOUNT){
-							$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.product.idx' . $index . ' = {img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$product['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$product['PRO_ID'])).'", auth:"'.$product['PRO_IMG_AUTH'].'", name:"'.$product['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
-						}
-					} else {
-						$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.product.idx' . $index . ' = {img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$product['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$product['PRO_ID'])).'", auth:"'.$product['PRO_IMG_AUTH'].'", name:"'.$product['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
-					}
-					++$index;
-				}
-				if ($otherItemsAmount['products'] > IngredientsController::PRODUCTS_AMOUNT){
-					$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.product.nextPreloadIndex = '.$index.';';
-					$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.product.prevPreloadIndex = -1;';
-					echo '<div class="down-arrow"><div class="down1"></div><div class="down2"></div></div>';
-				}
-			}
-			?>
-		</div>
-	</div>
+	<?php /*</div> */ ?>
 	
 	<?php
 
@@ -281,7 +209,9 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 			'μg/100 g',
 		);
 		
+
 		echo '<div class="nutrientTable">';
+		echo '<span class="title">' . $this->trans->GENERAL_NUTRIENTS . '</span>';
 		echo '<div class="f-left">';
 		for($group=0; $group<count($fields); $group++){
 			if ($group == 3){
@@ -303,7 +233,97 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 		echo '</div>';
 	}
 ?>
-	
+	<div class="clearfix"></div>
+	<div class="recipes otherItems">
+		<?php
+		echo '<div class="otherItemsTitle">'.sprintf($this->trans->INGREDIENTS_MATCHING_RECIPES, $ingredientName).'</div>';
+		if ($otherItemsAmount['recipes'] == 0){
+			echo '<span class="noItems">'.$this->trans->INGREDIENTS_NO_MATCHING_RECIPES .'</span>';
+		} else {
+			if ($otherItemsAmount['recipes'] > IngredientsController::RECIPES_AMOUNT){?>
+				<input name="recipe" class="imgIndex" type="hidden" value="0" />
+				<input name="amount" class="imgIndexAmount" type="hidden" value="<?php echo IngredientsController::RECIPES_AMOUNT; ?>" />
+				<div class="left-arrow"><div class="left1"></div><div class="left2"></div></div>
+				<?php
+				$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe = {};';
+			}
+			$index = 0;
+			foreach($recipes as $recipe){
+				if ($index < IngredientsController::RECIPES_AMOUNT){
+					echo '<div class="item">';
+						echo CHtml::link($recipe['REC_NAME_' . Yii::app()->session['lang']], array('recipes/view', 'id'=>$recipe['REC_ID']), array('class'=>'title', 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']]));
+						echo '<div class="small_img">';
+							echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), $recipe['REC_NAME_' . Yii::app()->session['lang']], array('class'=>'recipe', 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']])), array('recipes/view', 'id'=>$recipe['REC_ID']));
+							echo '<div class="img_auth">';
+							if ($recipe['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $recipe['REC_IMG_AUTH']; }
+							echo '</div>';
+						echo '</div>';
+					echo '</div>';
+					if ($otherItemsAmount['recipes'] > IngredientsController::RECIPES_AMOUNT){
+						$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.idx' . $index . ' = {img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$recipe['REC_ID'])).'", auth:"'.$recipe['REC_IMG_AUTH'].'", name:"'.$recipe['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
+					}
+				} else {
+					$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.idx' . $index . ' = {img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$recipe['REC_ID'])).'", auth:"'.$recipe['REC_IMG_AUTH'].'", name:"'.$recipe['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
+				}
+				++$index;
+			}
+			if ($otherItemsAmount['recipes'] > IngredientsController::RECIPES_AMOUNT){
+				$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.nextPreloadIndex = '.$index.';';
+				$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.prevPreloadIndex = -1;';
+				echo '<div class="right-arrow"><div class="right1"></div><div class="right2"></div></div>';
+			}
+			echo '<div class="clearfix"></div>';
+		}
+		echo CHtml::link(sprintf($this->trans->INGREDIENTS_MORE_MATCHING_RECIPES, $ingredientName), array('recipes/search', 'ing_id'=>$model['ING_ID']), array('class'=>'button'));
+		?>
+	</div>
+	<?php /* ?>
+	<div class="products otherItems">
+		<?php
+		echo '<div class="otherItemsTitle">'.sprintf($this->trans->INGREDIENTS_MATCHING_PRODUCTS, $ingredientName).'</div>';
+		if ($otherItemsAmount['products'] == 0){
+			echo '<a href="' . Yii::app()->createUrl('products/create',array('ing_id'=>$model['ING_ID'], 'newModel'=>time())) . '" class="shopInfo actionlink" title="' . $this->trans->INGREDIENTS_CREATE_PRODUCTS . '">';
+			echo '<span class="noItems">'.$this->trans->INGREDIENTS_CREATE_PRODUCTS .'</span>';
+			//echo '<span class="noItems">'.$this->trans->INGREDIENTS_NO_MATCHING_PRODUCTS .'</span>';
+			echo '</a>';
+		} else {
+			if ($otherItemsAmount['products'] > IngredientsController::PRODUCTS_AMOUNT){ ?>
+				<input name="product" class="imgIndex" type="hidden" value="0" />
+				<input name="amount" class="imgIndexAmount" type="hidden" value="<?php echo IngredientsController::PRODUCTS_AMOUNT; ?>" />
+				<div class="up-arrow"><div class="up1"></div><div class="up2"></div></div>
+				<?php
+				$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.product = {};';
+			}
+			$index = 0;
+			foreach($products as $product){
+				if ($index < IngredientsController::PRODUCTS_AMOUNT){
+					echo '<div class="item">';
+						echo CHtml::link($product['PRO_NAME_' . Yii::app()->session['lang']], array('products/view', 'id'=>$product['PRO_ID']), array('class'=>'title', 'title'=>$product['PRO_NAME_' . Yii::app()->session['lang']]));
+						echo '<div class="small_img">';
+							echo CHtml::link(CHtml::image($this->createUrl('products/displaySavedImage', array('id'=>$product['PRO_ID'], 'ext'=>'.png')), $product['PRO_NAME_' . Yii::app()->session['lang']], array('class'=>'product', 'title'=>$product['PRO_NAME_' . Yii::app()->session['lang']])), array('products/view', 'id'=>$product['PRO_ID']));
+							echo '<div class="img_auth">';
+							if ($product['PRO_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $product['PRO_IMG_AUTH']; }
+							echo '</div>';
+						echo '</div>';
+					echo '</div>';
+					if ($otherItemsAmount['products'] > IngredientsController::PRODUCTS_AMOUNT){
+						$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.product.idx' . $index . ' = {img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$product['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$product['PRO_ID'])).'", auth:"'.$product['PRO_IMG_AUTH'].'", name:"'.$product['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
+					}
+				} else {
+					$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.product.idx' . $index . ' = {img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$product['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$product['PRO_ID'])).'", auth:"'.$product['PRO_IMG_AUTH'].'", name:"'.$product['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
+				}
+				++$index;
+			}
+			if ($otherItemsAmount['products'] > IngredientsController::PRODUCTS_AMOUNT){
+				$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.product.nextPreloadIndex = '.$index.';';
+				$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.product.prevPreloadIndex = -1;';
+				echo '<div class="down-arrow"><div class="down1"></div><div class="down2"></div></div>';
+			}
+			echo '<div class="clearfix"></div>';
+		}
+		?>
+	</div>
+	<?php */ ?>
 	<div class="clearfix"></div>
 </div>
 <?php echo '<script>' . $preloadedInfoResetScript . "\r\n".'</script>'; ?>

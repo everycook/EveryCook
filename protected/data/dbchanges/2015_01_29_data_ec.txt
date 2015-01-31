@@ -1,0 +1,28 @@
+﻿DELETE FROM `textes` WHERE `TXT_NAME` LIKE 'SHOPPINGLIST\_%';
+
+INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('GENERAL_OPTIONAL', 'Optional', 'Optional', ''),
+('INGREDIENTS_MORE_MATCHING_RECIPES', 'See more recipes with %s', 'Mehr Rezepte mit %s anzeigen', ''),
+('GENERAL_OTHER_NAMES', 'See other names and in other languages', 'Andere Namen und in anderen Sprachen anzeigen', ''),
+('SHOPPINGLISTS_RECIPE_CHANGED_SHOULD_RECREATE', 'The corresponding recipes are changed, you should recreate the shoppinglist.', 'Die dazu gehörenden Rezepte wurde geändert, Sie sollten die Liste neu erstellen.', ''),
+('SHOPPINGLISTS_RECREATE_FROM_RECIPE', 'Recreate from recipes', 'Aus Rezepten neu erstellen', ''),
+('RECIPES_VIEW_SHOPPINGLIST', 'Shopping list', 'Einkaufsliste', ''),
+('SHOPPINGLISTS_PRINT', 'Print', 'Drucken', ''),
+('SHOPPINGLISTS_MAIL', 'Send me as Email', 'Mir als E-Mail zusenden', ''),
+('SHOPPINGLISTS_SAVE', 'Save', 'Speichern', ''),
+('SHOPPINGLISTS_YOU_NEED', 'You need %s gramms.', 'Sie brauchen %s gramm.', ''),
+('SHOPPINGLISTS_HAVE_IT', 'I have it', ' 	Habe ich bereits', ''),
+('SHOPPINGLISTS_CHANGE_PRODUCT', 'Change', 'ändern', ''),
+('SHOPPINGLISTS_ADD_PRODUCT_NEAR_HOME', 'Add Product near home', 'Produkt nahe ihres Wohnorts hinzufügen', ''),
+('SHOPPINGLISTS_ADD_PRODUCT_NEAR_YOU', 'Add Product near me', 'Produkt in ihrer nähe hinzufügen', ''),
+('SHOPPINGLISTS_MEAL_CHANGED_SHOULD_RECREATE', 'The corresponding meal is changed, you should recreate the shoppinglist.', 'Die dazu gehörende Mahlzeit wurde geändert, sie sollten die Liste neu erstellen.', ''),
+('SHOPPINGLISTS_RECREATE_FROM_MEAL', 'Recreate from Meal', 'Aus Mahlzeit neu erstellen', ''),
+('SHOPPINGLISTS_MAIL_SUBJECT', 'EveryCook: shopping list', 'EveryCook: Einkaufsliste', ''),
+('SHOPPINGLISTS_MAIL_CONTENT_MESSAGE', 'Hello%s!<br>\r\nYou have requested to send you this shopping list:', 'Hallo%s!<br>\r\nSie haben um zusendung dieser Einkaufliste gebeten:', ''),
+('SHOPPINGLISTS_MAIL_CONTENT_LINK', '<a href="%s" target="_blank">%s</a>', '<a href="%s" target="_blank">%s</a>', ''),
+('SHOPPINGLISTS_MAIL_CONTENT_MESSAGE2', 'The content of the List:', 'Der Inhalt der Liste:', ''),
+('SHOPPINGLISTS_MAIL_CONTENT_REGARDS', 'Regards<br>\r\n%s', 'Liebe Grüsse<br>\r\n%s', ''),
+('SHOPPINGLISTS_MAIL_ERROR', 'Error while sending E-Mail, please try again or contact support.', 'Fehler beim senden der E-Mail, bitte versuchen Sie es erneut oder kontaktieren Sie den Support', ''),
+('SHOPPINGLISTS_MAIL_SUCCESS', 'Shopping list Mail send.', 'Einkaufslisten Mail gesendet.', ''),
+('SHOPPINGLISTS_BACK_TO_VIEW', 'Back to shopping list', 'Zurück zur Einkaufsliste', ''),
+('DEMO_USER_CANNOT_SEND_MAIL', 'You\'re in demo mode, sending mail is not possible. <a class="actionlink" href="%s">Register</a> to use full functions.', 'Sie sind im Demo Modus, versenden von Mails ist nicht möglich. <a class="actionlink" href="%s">Register</a> um vollen funktionsumfang zu verwenden.', '');

@@ -34,12 +34,12 @@ class RecipesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','searchFridge','displaySavedImage','chooseRecipe','chooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory', 'autocomplete','autocompleteId','actionSuggestion','getCusineSubTypes','getCusineSubSubTypes','cusinesAutocomplete','cusinesAutocompleteId'),
+				'actions'=>array('index','view','search','searchFridge','displaySavedImage','chooseRecipe','chooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory', 'autocomplete','autocompleteId','actionSuggestion','getCusineSubTypes','getCusineSubSubTypes','cusinesAutocomplete','cusinesAutocompleteId','viewShoppingList'),
 				//'advanceSearch','advanceChooseRecipe','advanceChooseTemplateRecipe',
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','uploadImage','delicious','disgusting','hide','cancel','showLike', 'showNotLike', 'getRecipeInfos', 'setHistoryVersion'),
+				'actions'=>array('create','update','uploadImage','delicious','disgusting','hide','cancel','showLike', 'showNotLike', 'getRecipeInfos', 'setHistoryVersion','createShoppingList'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -233,6 +233,171 @@ class RecipesController extends Controller
 		
 		Functions::uploadImage('Recipes', $model, $this->createBackup, 'REC_IMG');
 	}
+	
+	public function actionViewShoppingList($id){
+		$this->saveLastAction = false;
+		$servings = -1;
+		if (isset($_GET['servings'])){
+			$servings = $_GET['servings'];
+		}
+		
+		$shoppingList = $this->prepareShoppingList($id, $servings);
+		$shoppingList->CHANGED_ON = time();
+		Yii::app()->session['Shoppinglists_Backup'] = $shoppingList;
+		Yii::app()->session['Shoppinglists_Backup'.'_Time'] = time();
+		//$this->forwardTo(array('shoppinglists/view', 'id'=>'backup'));
+		$this->forwardTo(array('shoppinglists/preview'));
+	}
+	
+	public function actionCreateShoppingList($id){
+		$this->saveLastAction = false;
+		$servings = -1;
+		if (isset($_GET['servings'])){
+			$servings = $_GET['servings'];
+		}
+		
+		$shoppingList = $this->prepareShoppingList($id, $servings);
+
+		if(Yii::app()->user->demo){
+			$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+		} else {
+			if ($shoppingList->save()){
+				Yii::app()->user->addShoppingListId($shoppingList->SHO_ID);
+				
+				$this->forwardAfterSave(array('shoppinglists/view', 'id'=>$shoppingList->SHO_ID));
+			} else {
+				echo '<pre>';
+				print_r($shoppingList->getErrors());
+				echo '</pre>';
+			}
+		}
+	}
+	
+	public static function prepareShoppingList($id, $servings){
+		$ids = explode(';', $id);
+		if (count($ids)==1){
+			$parts = explode(':', $ids[0]);
+			if (count($parts)==1){
+				$id_portions = array($parts[0] => $servings);
+			} else {
+				$id_portions = array($parts[0] => $parts[1]);
+			}
+			$rec_ids = array($parts[0]);
+		} else {
+			$id_portions = array();
+			foreach($ids as $id){
+				$parts = explode(':', $id);
+				if (count($parts)==1){
+					$id_portions[$parts[0]] = $servings;
+				} else {
+					$id_portions[$parts[0]] = $parts[1];
+				}
+			}
+			$rec_ids = array_keys($id_portions);
+		}
+
+		$criteria=new CDbCriteria;
+		$criteria->addInCondition('recipes.REC_ID',$rec_ids)
+			->addCondition('ingredients.ING_ID IS NOT NULL');
+		
+		$command = Yii::app()->db->createCommand()
+			->select('recipes.*, steps.STE_STEP_NO, steps.STE_GRAMS, ingredients.ING_IMG_AUTH, ingredients.ING_ID, ING_NAME_'.Yii::app()->session['lang'])
+			->from('recipes')
+			->leftJoin('steps', 'steps.REC_ID=recipes.REC_ID')
+			->leftJoin('ingredients', 'ingredients.ING_ID=steps.ING_ID')
+			->where($criteria->condition, $criteria->params)
+			->order('recipes.REC_ID, steps.STE_STEP_NO');
+		$rows = $command->queryAll();
+		
+		$ing_to_weights = array();
+	
+		$rec_id = -1;
+		for($i=0; $i<count($rows); ++$i){
+			$row = $rows[$i];
+			if ($rec_id != $row['REC_ID']){
+// 				$meaToCou = $meaToCous[$row['COU_ID']];
+// 				$meal_gda = $meaToCou['MTC_KCAL_DAY_TOTAL'] * $meaToCou['MEA_PERC_GDA'] / 100;
+// 				$cou_gda = $meal_gda * $meaToCou['MTC_PERC_MEAL'] / 100;
+// 				$rec_gda = $cou_gda * $row['CTR_REC_PROC'] / 100;
+// 				$rec_kcal = $row['REC_KCAL'];
+				$rec_servings = $row['REC_SERVING_COUNT'];
+				$servings = $id_portions[$row['REC_ID']];
+				if ($servings == -1){
+					$rec_proz = 1;
+					if ($rec_servings > 0){
+						$servings = $rec_servings;
+					} else {
+						$servings = 1;
+					}
+				} else {
+					if ($rec_servings > 0){
+						$rec_proz = $servings / $rec_servings;
+					} else {
+						$rec_proz = $servings;
+					}
+				}
+			}
+			$ing_amount = $row['STE_GRAMS'] * $rec_proz;
+				
+			if(isset($ing_to_weights[$row['ING_ID']])){
+				$ing_to_weights[$row['ING_ID']] += $ing_amount;
+			} else {
+				$ing_to_weights[$row['ING_ID']] = $ing_amount;
+			}
+		}
+		
+		$shoppingList = new Shoppinglists;
+		$shoppingList->SHO_DATE = time(); //TODO
+		
+// 		$ing_ids_old = explode(';',$shoppingList->SHO_INGREDIENTS);
+// 		$ing_weights_old = explode(';',$shoppingList->SHO_WEIGHTS);
+// 		$pro_ids_old = explode(';',$shoppingList->SHO_PRODUCTS);
+// 		$amounts_old = explode(';',$shoppingList->SHO_QUANTITIES);
+	
+// 		$ingToIndex = array();
+// 		//$ing_to_weights_old = array();
+// 		for($i=0;$i<count($ing_ids_old);++$i){
+// 			$ing_id = $ing_ids_old[$i];
+// 			if ($ing_id != ''){
+// 				$ingToIndex[$ing_id]=$i;
+// 				//$ing_to_weights_old[$ing_id] = $ing_weights_old[$i];
+// 				if (!isset($ing_to_weights[$ing_id])){
+// 					$ing_to_weights[$ing_id] = $ing_weights_old[$i];
+// 				}
+// 			}
+// 		}
+	
+		$ing_id_text = '';
+		$ing_weight_text = '';
+		$pro_id_text = '';
+		$amount_text = '';
+		$haveIt_text = '';
+		foreach($ing_to_weights as $ing_id=>$ing_weight){
+			if ($ing_id_text != ''){
+				$ing_id_text .= ';';
+				$ing_weight_text .= ';';
+				$pro_id_text .= ';';
+				$amount_text .= ';';
+				$haveIt_text .= ';';
+			}
+			$ing_id_text .= $ing_id;
+			$ing_weight_text .= round($ing_weight, 2);
+// 			if(isset($ingToIndex[$ing_id])){
+// 				$pro_id_text .= $pro_ids_old[$ingToIndex[$ing_id]];
+// 				$amount_text .= $amounts_old[$ingToIndex[$ing_id]];
+// 			}
+		}
+
+		$shoppingList->SHO_RECIPES = $id .':' . $servings;
+		$shoppingList->SHO_INGREDIENTS = $ing_id_text;
+		$shoppingList->SHO_WEIGHTS = $ing_weight_text;
+		$shoppingList->SHO_PRODUCTS = $pro_id_text;
+		$shoppingList->SHO_QUANTITIES = $amount_text;
+		$shoppingList->SHO_HAVE_IT = $haveIt_text;
+		
+		return $shoppingList;
+	}
+	
 	
 	private function readActionsInDetails($coi_ids, $tools, $stepTypeConfig){
 		if (count($coi_ids) == 0){

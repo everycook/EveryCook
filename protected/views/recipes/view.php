@@ -53,6 +53,7 @@ if (!$history){
 		*/
 		?>
 		<?php //echo CHtml::link(CHtml::encode($this->trans->MEALPLANNER_SAVE_TO_SHOPPINGLIST), array('shoppinglists/view', 'rec_id'=>$model->REC_ID), array('class'=>'button')); ?>
+		<?php echo CHtml::link($this->trans->RECIPES_VIEW_SHOPPINGLIST, array('recipes/viewShoppingList', 'id'=>$model->REC_ID), array('class'=>'button', 'id'=>'viewShoppingList')); ?>
 		<div class="otherItems ingredients">
 			<?php echo CHtml::encode($this->trans->RECIPES_INGREDIENTS_NEEDED); ?>
 			<ul>
@@ -105,6 +106,20 @@ if (!$history){
 					}
 				?>
 			</h1>
+			<div class="otherNames">
+				<?php
+				echo '<span class="title">' . $this->trans->GENERAL_OTHER_NAMES . '</span>';
+				foreach($this->allLanguages as $lang=>$name){
+					echo '<div class="label">' . $model->getAttributeLabel('REC_NAME_'.$lang) . '</div><div class="otherName">' . $model->__get('REC_NAME_'.$lang) . '</div>';
+					echo '<div class="clearfix"></div>';
+				}
+				foreach($this->allLanguages as $lang=>$name){
+					echo '<div class="label">' . $model->getAttributeLabel('REC_SYNONYM_'.$lang) . '</div><div class="otherName">' . $model->__get('REC_SYNONYM_'.$lang) . '</div>';
+					echo '<div class="clearfix"></div>';
+				}
+				?>
+			</div>
+			<div class="clearfix"></div>
 			
 			<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>
 			<?php echo CHtml::encode($model->recipeTypes->__get('RET_DESC_' . Yii::app()->session['lang'])); ?>

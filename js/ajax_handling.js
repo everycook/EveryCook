@@ -576,8 +576,8 @@ jQuery(function($){
 	jQuery('body').undelegate('form:not(.ajaxupload):not(.fancyForm):not(.noAjax):not(.submitToUrl)','submit').delegate('form:not(.ajaxupload):not(.fancyForm):not(.noAjax):not(.submitToUrl)','submit',function(){
 		var form = jQuery(this);
 		try {
-			submitValue = "";
-			pressedButton = arguments[0].originalEvent.explicitOriginalTarget;
+			var submitValue = "";
+			var pressedButton = arguments[0].originalEvent.explicitOriginalTarget;
 			submitValue = "&" + encodeURI(pressedButton.name + "=" + pressedButton.value);
 		} catch(ex){
 		}
@@ -616,7 +616,7 @@ jQuery(function($){
 		} else {
 			var queryInput = form.find('#SimpleSearchForm_query');
 			if (queryInput.length && !queryInput.hasClass('notUrl')){
-				queryValue = queryInput.attr('value').trim();
+				var queryValue = queryInput.attr('value').trim();
 				if (queryValue.length > 0){
 					destUrl = glob.urlAddParamStart(destUrl);
 					destUrl = destUrl + 'query=' + encodeURIComponent(queryValue);
@@ -680,7 +680,8 @@ jQuery(function($){
 			url = glob.hashToUrl(url.substr(1));
 		}
 		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(html){
-				glob.setContentWithImageChangeToFancy(html, {});
+				//glob.setContentWithImageChangeToFancy(html, {});
+				ajaxResponceHandler(html, 'ajax', true);
 			},
 			'error':function(xhr){
 				ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
@@ -688,7 +689,23 @@ jQuery(function($){
 		});
 		return false;
 	}
-	
+
+	jQuery('body').undelegate('.fancy_iframe','click').delegate('.fancy_iframe','click', function(){
+		var elem = jQuery(this);
+		var url = elem.attr('href');
+		if (url.indexOf('#')===0){
+			url = glob.hashToUrl(url.substr(1));
+		}
+
+		jQuery.fancybox({
+			'type':'iframe',
+			'href': url,
+			'onComplete': function(){
+				jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );
+			}
+		});
+		return false;
+	});
 	
 	
 	
@@ -718,7 +735,7 @@ jQuery(function($){
 	function openProductMap(elem){
 		var isCurrent;
 		if (elem.hasClass('centerGPSYou')){
-			cord = jQuery('#centerGPSYou').val().split(',');
+			var cord = jQuery('#centerGPSYou').val().split(',');
 			isCurrent = true;
 		} else {
 			cord = jQuery('#centerGPSHome').val().split(',');
@@ -786,8 +803,8 @@ jQuery(function($){
 	jQuery('body').undelegate('.fancyForm','submit').delegate('.fancyForm','submit', function(){
 		var form = jQuery(this);
 		try {
-			submitValue = "";
-			pressedButton = arguments[0].originalEvent.explicitOriginalTarget;
+			var submitValue = "";
+			var pressedButton = arguments[0].originalEvent.explicitOriginalTarget;
 			submitValue = "&" + encodeURI(pressedButton.name + "=" + pressedButton.value);
 		} catch(ex){
 		}
@@ -871,9 +888,9 @@ jQuery(function($){
 	}
 	
 	jQuery('body').undelegate('.openFancyBySubmit','click').delegate('.openFancyBySubmit','click', function(){
-		elem = jQuery(this);
-		form = elem.parents('form:first');
-		url = jQuery('#OpenFancyLink').attr('value');
+		var elem = jQuery(this);
+		var form = elem.parents('form:first');
+		var url = jQuery('#OpenFancyLink').attr('value');
 		submitForm(form, url, '', function(data){
 			glob.setContentWithImageChangeToFancy(data, {});
 		});
@@ -1094,9 +1111,9 @@ jQuery(function($){
 			ajaxpaging.prev = [];
 		}
 		if (type == 'paging'){
-			itemsParent = contentParent.parent();
+			var itemsParent = contentParent.parent();
 		} else {
-			itemsParent = contentParent;
+			var itemsParent = contentParent;
 		}
 		
 		var newNext = {};
@@ -1246,6 +1263,26 @@ jQuery(function($){
 	
 	
 	//Shoppinglist
+	jQuery('body').undelegate('.shoppingList_right .haveIt','change').delegate('.shoppingList_right .haveIt','change',function(){
+		var elem = jQuery(this);
+		if(elem.prop('checked')){
+			var value = '1';
+		} else {
+			var value = '0';
+		}
+		var url = elem.siblings('.setHaveItLink').val();
+		url = glob.urlAddParamStart(url) + 'value=' + value;
+
+		jQuery.ajax({'type':'get', 'url':url,'cache':false,
+			'success':function(data){
+				//nothing to do
+			},
+			'error':function(xhr){
+				ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
+			},
+		});
+	});
+	
 	jQuery('body').undelegate('.shoppingList_right .removeFromList','click').delegate('.shoppingList_right .removeFromList','click',function(){
 		var elem = jQuery(this);
 		var url = elem.attr('href');
@@ -1253,12 +1290,13 @@ jQuery(function($){
 			url = glob.hashToUrl(url.substr(1));
 		}
 		
-		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
-			elem.parents('.resultArea:first').remove();
-		},
-		'error':function(xhr){
-			ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
-		},
+		jQuery.ajax({'type':'get', 'url':url,'cache':false,
+			'success':function(data){
+				elem.parents('.resultArea:first').remove();
+			},
+			'error':function(xhr){
+				ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
+			},
 		});
 		
 		return false;
@@ -1589,9 +1627,22 @@ jQuery(function($){
 	
 	
 	
-	//Recipe detail
-	jQuery('body').undelegate('.nutrientTable .title','click').delegate('.nutrientTable .title','click', function(){
+	//Recipe detail / ingredient detail
+	jQuery('body').undelegate('.nutrientTable .title, .otherNames .title','click').delegate('.nutrientTable .title, .otherNames .title','click', function(){
 		jQuery(this).closest('div').find('div').toggle();
+		return true;
+	});
+
+	jQuery('body').undelegate('.recipes #servingsCount','change').delegate('.recipes #servingsCount','change', function(){
+		var elem = jQuery(this);
+		var servings = elem.val();
+		var shoppingListLink = $('.recipes #viewShoppingList');
+		var href = shoppingListLink.attr('href');
+		href = glob.removeUrlParam(href, 'servings');
+		href = glob.urlAddParamStart(href) + "servings=" + servings;
+		shoppingListLink.attr('href', href);
+		
+		//TODO: update viewed Shoppinglist & amount in steps
 		return true;
 	});
 	

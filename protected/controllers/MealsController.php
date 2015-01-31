@@ -461,11 +461,12 @@ class MealsController extends Controller
 				$rec_kcal = $row['REC_KCAL'];
 				$rec_servings = $row['REC_SERVING_COUNT'];
 				if ($rec_kcal != 0){
-					if ($rec_servings <= 0){
+					//if ($rec_servings <= 0){
 						$rec_proz = $rec_gda / $rec_kcal;
-					} else {
+					/*} else {
+						//it does not matter how much servings it is, it's calculatet by kcal, this formula changes the requested kcal amount
 						$rec_proz = $rec_gda / ($rec_kcal * $rec_servings);
-					}
+					}*/
 				} else {
 					//TODO: this is a data error!, or a recipe without ingredients .... ?
 					$rec_proz = 1;
@@ -545,22 +546,7 @@ class MealsController extends Controller
 		} else {
 			if ($shoppingList->save()){		
 				Yii::app()->dbp->createCommand()->update(Meals::model()->tableName(), array('SHO_ID'=>$shoppingList->SHO_ID), 'MEA_ID = :id', array(':id'=>$id));
-				
-				$shoppinglists = Yii::app()->user->shoppinglists;
-				if (!isset($shoppinglists) || $shoppinglists == null || count($shoppinglists) == 0){
-					$shoppinglists = $shoppingList->SHO_ID;
-					$values = array($shoppingList->SHO_ID);
-				} else {
-					//no dupplicates
-					$values = $shoppinglists;
-					$values[] = $shoppingList->SHO_ID;
-					$values = array_unique($values);
-					//sort($values, SORT_NUMERIC);
-					$shoppinglists = implode(';', $values);
-				}
-				
-				Yii::app()->dbp->createCommand()->update(Profiles::model()->tableName(), array('PRF_SHOPLISTS'=>$shoppinglists), 'PRF_UID = :id', array(':id'=>Yii::app()->user->id));
-				Yii::app()->user->shoppinglists = $values;
+				Yii::app()->user->addShoppingListId($shoppingList->SHO_ID);
 				
 				$this->forwardAfterSave(array('shoppinglists/view', 'id'=>$shoppingList->SHO_ID));
 			} else {

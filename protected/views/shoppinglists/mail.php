@@ -14,24 +14,16 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 
 See GPLv3.htm in the main folder for details.
 */
+
+$this->breadcrumbs=array(
+	'Shoppinglists'=>array('mail'),
+);
 ?>
-<div class="resultArea">
-	<div class="shoppingList_left">
-		<div class="list_img">
-			<?php echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), $data['ING_NAME'], array('class'=>'ingredient', 'title'=>$data['ING_NAME'])); ?>
-			<div class="img_auth"><?php if ($data['ING_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $data['ING_IMG_AUTH']; } ?></div>
-		</div>
-		<div class="data">
-			<div class="name">
-				<?php echo CHtml::encode($data['ING_NAME']); ?>
-			</div>
-			<span><?php printf($this->trans->SHOPPINGLISTS_YOU_NEED, $data['ing_weight']); ?></span>
-		</div>
-	</div>
-	<div class="shoppingList_right">
-		<input type="hidden" class="setHaveItLink" value="<?php echo $this->createUrl('setHaveIt', array('id'=>$data['SHO_ID'], 'ing_id'=>$data['ING_ID'])); ?>"/>
-		<?php echo CHtml::checkBox('haveit['.$index.']', $data['haveIt'] == 1, array('class'=>'haveIt', 'title'=>$this->trans->SHOPPINGLISTS_HAVE_IT)); ?>
-	</div>
-	<div class="clearfix"></div>
-	
-</div>
+
+<p><?php
+if(isset($error)){
+	echo $error; 
+} else if(isset($success)){
+	echo $success;
+} 
+?></p>

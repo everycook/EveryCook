@@ -25,6 +25,9 @@ class WebUser extends CWebUser {
 		if (!$this->hasState('design') || $this->design == ''){
 			$this->setState('design','Aubergine');
 		}
+		if (!$this->hasState('shoppinglists') || $this->shoppinglists == null){
+			$this->setState('shoppinglists',array());
+		}
 	}
 	
 	/**
@@ -88,5 +91,23 @@ class WebUser extends CWebUser {
 		}
 		else
 			throw new CHttpException(403,Yii::t('yii','Login Required'));
+	}
+	
+	public function addShoppingListId($SHO_ID){
+		$shoppinglists = Yii::app()->user->shoppinglists;
+		if (!isset($shoppinglists) || $shoppinglists == null || count($shoppinglists) == 0){
+			$shoppinglists = $SHO_ID;
+			$values = array($SHO_ID);
+		} else {
+			//no dupplicates
+			$values = $shoppinglists;
+			$values[] = $SHO_ID;
+			$values = array_unique($values);
+			//sort($values, SORT_NUMERIC);
+			$shoppinglists = implode(';', $values);
+		}
+		
+		Yii::app()->dbp->createCommand()->update(Profiles::model()->tableName(), array('PRF_SHOPLISTS'=>$shoppinglists), 'PRF_UID = :id', array(':id'=>Yii::app()->user->id));
+		Yii::app()->user->shoppinglists = $values;
 	}
 }

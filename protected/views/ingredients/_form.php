@@ -70,6 +70,14 @@ See GPLv3.htm in the main folder for details.
 	</div>
 	<?php } ?>
 	
+	<?php foreach($this->allLanguages as $lang=>$name){ ?>
+	<div class="row">
+		<?php echo $form->labelEx($model,'ING_SYNONYM_'.$lang); ?>
+		<?php echo $form->textField($model,'ING_SYNONYM_'.$lang,array('size'=>60,'maxlength'=>200)); ?>
+		<?php echo $form->error($model,'ING_SYNONYM_'.$lang); ?>
+	</div>
+	<?php } ?>
+	
 	<?php
 	echo Functions::createInput(null, $model, 'GRP_ID', $groupNames, Functions::DROP_DOWN_LIST, 'groupNames', $htmlOptions_type0, $form);
 	if ($model->GRP_ID){
@@ -98,12 +106,6 @@ See GPLv3.htm in the main folder for details.
 		echo CHtml::link($NutrientDescription, array('nutrientData/chooseNutrientData', 'query'=>$model->ING_NAME_EN_GB), array('class'=>'fancyChoose NutrientDataSelect buttonSmall'));
 		?>
 		</div>
-	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'ING_DENSITY'); ?>
-		<?php echo $form->textField($model,'ING_DENSITY'); ?>
-		<?php echo $form->error($model,'ING_DENSITY'); ?>
 	</div>
 	
 	<?php
@@ -135,20 +137,29 @@ See GPLv3.htm in the main folder for details.
 	</div>
 
 	<div class="row">
+		<?php echo $form->labelEx($model,'ING_NEED_WASH'); ?>
+		<?php
+			echo $this->trans->GENERAL_NO . ' ' . $form->radioButton($model,'ING_NEED_WASH',array('uncheckValue'=>null,'value'=>'N'));
+			echo  '&nbsp;&nbsp;&nbsp;';
+			echo $this->trans->GENERAL_YES . ' ' . $form->radioButton($model,'ING_NEED_WASH',array('uncheckValue'=>null,'value'=>'Y')); ?>
+		<?php echo $form->error($model,'ING_NEED_WASH'); ?>
+	</div>
+
+	<div class="row">
 		<?php echo $form->labelEx($model,'ING_NEED_PEELING'); ?>
-		<?php echo $form->textField($model,'ING_NEED_PEELING',array('size'=>1,'maxlength'=>1)); ?>
+		<?php 
+			echo $this->trans->GENERAL_NO . ' ' . $form->radioButton($model,'ING_NEED_PEELING',array('uncheckValue'=>null,'value'=>'N'));
+			echo  '&nbsp;&nbsp;&nbsp;';
+			echo $this->trans->GENERAL_YES . ' ' . $form->radioButton($model,'ING_NEED_PEELING',array('uncheckValue'=>null,'value'=>'Y')); 
+			echo  '&nbsp;&nbsp;&nbsp;';
+			echo $this->trans->GENERAL_OPTIONAL . ' ' . $form->radioButton($model,'ING_NEED_PEELING',array('uncheckValue'=>null,'value'=>'O')); ?>
 		<?php echo $form->error($model,'ING_NEED_PEELING'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'ING_NEED_WASH'); ?>
-		<?php echo $form->textField($model,'ING_NEED_WASH',array('size'=>1,'maxlength'=>1)); ?>
-		<?php echo $form->error($model,'ING_NEED_WASH'); ?>
-	</div>
-	<div class="row">
-		<?php echo $form->labelEx($model,'ING_WIKI_LINK'); ?>
-		<?php echo $form->textField($model,'ING_WIKI_LINK',array('size'=>60,'maxlength'=>200)); ?>
-		<?php echo $form->error($model,'ING_WIKI_LINK'); ?>
+		<?php echo $form->labelEx($model,'ING_DENSITY'); ?>
+		<?php echo $form->textField($model,'ING_DENSITY'); ?>
+		<?php echo $form->error($model,'ING_DENSITY'); ?>
 	</div>
 
 	<div class="row">
@@ -162,14 +173,14 @@ See GPLv3.htm in the main folder for details.
 		<?php echo $form->textField($model,'ING_WEIGHT_BIG'); ?>
 		<?php echo $form->error($model,'ING_WEIGHT_BIG'); ?>
 	</div>
-
-	<?php foreach($this->allLanguages as $lang=>$name){ ?>
+	
 	<div class="row">
-		<?php echo $form->labelEx($model,'ING_SYNONYM_'.$lang); ?>
-		<?php echo $form->textField($model,'ING_SYNONYM_'.$lang,array('size'=>60,'maxlength'=>200)); ?>
-		<?php echo $form->error($model,'ING_SYNONYM_'.$lang); ?>
+		<?php echo $form->labelEx($model,'ING_WIKI_LINK'); ?>
+		<?php echo $form->textField($model,'ING_WIKI_LINK',array('size'=>60,'maxlength'=>200)); ?>
+		<?php echo $form->error($model,'ING_WIKI_LINK'); ?>
 	</div>
-	<?php } ?>
+	
+
 	<div class="buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE); ?>
 		<?php echo CHtml::link($this->trans->GENERAL_CANCEL, array('cancel'), array('class'=>'button', 'id'=>'cancel')); ?>

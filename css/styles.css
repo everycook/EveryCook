@@ -706,10 +706,11 @@ div#products.detailView div.options div.otherItems {
 	width:10em;
 }
 
-.options .otherItems .noItems {
+.otherItems .noItems {
 	font-size: 0.8em;
 }
 
+    
 div.detailView div.options a.backpic {
 	margin-bottom: 0.8em;
 }
@@ -775,97 +776,6 @@ div#ingredients.detailView div.nutrientTable {
 }
 
 
-
-
-/* @group redesign */
-div#recipes.detailView  {
-	display: table;
-	box-sizing: border-box;
-	width: 100%;
-}
-div#recipes.detailView .shoppingList, div#recipes.detailView .recipeDetail {
-	display: table-cell;
-}
-
-div#recipes.detailView .shoppingList {
-	padding-right: 1em;
-}
-
-div.detailView div.shoppingList div.otherItems img {
-	width:6em;
-	height:6em;
-	border-radius:0.8em;
-	display: inline-block;
-}
-div.detailView div.shoppingList div.otherItems ul {
-	padding: 0;
-	margin: 0;
-}
-div.detailView div.shoppingList div.otherItems li {
-	list-style: none outside none;
-/*	width: 10em;*/
-}
-
-div#recipes.detailView .recipeDetail {
-	width: 100%;
-}
-
-div#recipes.detailView .recipeDetail .backbutton {
-	float: right;
-}
-
-.cookitbar {
-	margin-bottom: 1em;
-}
-
-div#recipes.detailView  div.nutrientTable {
-	margin: 0 0 1em;
-}
-
-div#recipes.detailView  div.nutrientTable .title:before {
-	content: "> ";
-}
-
-div#recipes.detailView  div.nutrientTable .title {
-	font-weight: bold;
-	font-size: 1.2em;
-	cursor: pointer;
-	display: block;
-}
-
-div#recipes.detailView  div.nutrientTable div {
-	display: none;
-}
-
-div#recipes.detailView .step,
-#recipes-form .step,
-#actionList .action {
-	background-color: white;
-	border: 2px solid black;
-	border-radius: 0.5em;
-	margin-bottom: 0.5em;
-	padding: 0.25em 0.5em;
-}
-#recipes-form .step.selected {
-	border-color: red;
-}
-
-div#recipes.detailView .step .stepNo:after,
-#recipes-form .step .stepNo:after {
-    content: ".";
-}
-
-div#recipes.detailView .step .stepNo,
-#recipes-form .step .stepNo {
-	background-color: black;
-	text-align: center;
-	border-radius: 1em;
-	display: inline-block;
-	height: 1.6em;
-	width: 1.6em;
-	color: white;
-}
-/* @end redesign */
 
 
 
@@ -1228,28 +1138,6 @@ div.mealView span.value {
 
 
 
-.shoppingList_left {
-	float: left;
-}
-.shoppingList_right {
-	float: right;
-}
-.shoppingList_right .shoppingList_image {
-	float: right;
-	text-align: center;
-	max-width: 10em;
-}
-.shoppingList_right .shoppingList_image .list_img  {
-	margin-bottom: 0.8em;
-	float: none;
-}
-.shoppingList_right .shoppingList_image .button {
-	min-width: 0;
-}
-
-.shoppingList_right .data_right .button {
-	margin-bottom: 0.8em;
-}
 
 
 #ajaxPaging, 
@@ -1798,6 +1686,113 @@ div.historyOverview .buttons {
 }
 
 
+
+
+
+
+
+
+
+/* @group redesign */
+div#recipes.detailView  {
+	display: table;
+	box-sizing: border-box;
+	width: 100%;
+}
+div#recipes.detailView .shoppingList, div#recipes.detailView .recipeDetail {
+	display: table-cell;
+}
+
+div#recipes.detailView .shoppingList {
+	padding-right: 1em;
+}
+
+div.detailView div.shoppingList div.otherItems img {
+	width:6em;
+	height:6em;
+	border-radius:0.8em;
+	display: inline-block;
+}
+div.detailView div.shoppingList div.otherItems ul {
+	padding: 0;
+	margin: 0;
+}
+div.detailView div.shoppingList div.otherItems li {
+	list-style: none outside none;
+/*	width: 10em;*/
+}
+
+div#recipes.detailView .recipeDetail {
+	width: 100%;
+}
+
+div#recipes.detailView .recipeDetail .backbutton {
+	float: right;
+}
+
+.cookitbar {
+	margin-bottom: 1em;
+}
+
+div#recipes.detailView  div.nutrientTable {
+	margin: 0 0 1em;
+}
+
+div#recipes.detailView div.nutrientTable .title:before,
+div#ingredients.detailView div.nutrientTable .title:before,
+div#recipes.detailView div.otherNames .title:before,
+div#ingredients.detailView div.otherNames .title:before {
+	content: "> ";
+}
+
+div#recipes.detailView div.nutrientTable .title,
+div#ingredients.detailView div.nutrientTable .title,
+div#recipes.detailView div.otherNames .title,
+div#ingredients.detailView div.otherNames .title {
+	font-weight: bold;
+	font-size: 1.2em;
+	cursor: pointer;
+	display: block;
+}
+
+div#recipes.detailView div.nutrientTable div,
+div#ingredients.detailView div.nutrientTable div,
+div#recipes.detailView div.otherNames div,
+div#ingredients.detailView div.otherNames div {
+	display: none;
+}
+
+div#recipes.detailView .step,
+#recipes-form .step,
+#actionList .action {
+	background-color: white;
+	border: 2px solid black;
+	border-radius: 0.5em;
+	margin-bottom: 0.5em;
+	padding: 0.25em 0.5em;
+}
+#recipes-form .step.selected {
+	border-color: red;
+}
+
+div#recipes.detailView .step .stepNo:after,
+#recipes-form .step .stepNo:after {
+    content: ".";
+}
+
+div#recipes.detailView .step .stepNo,
+#recipes-form .step .stepNo {
+	background-color: black;
+	text-align: center;
+	border-radius: 1em;
+	display: inline-block;
+	height: 1.6em;
+	width: 1.6em;
+	color: white;
+}
+/* @end redesign */
+
+
 /* @group profile */
 .shortInfo {
 	margin-top: 1em;
@@ -1884,6 +1879,78 @@ div.historyOverview .buttons {
 }
 /* @end */
 
+/* @group ingredient view */
+div#ingredients.detailView div.otherItems {
+	width:40em;
+	float: left;
+}
+div#ingredients.detailView div.otherItems .item {
+	display: inline-block;
+	float: left;
+	width: 8em;
+}
+div#ingredients.detailView div.otherItems .item .title {
+	display: inline-block;
+	line-height: 1em;
+	height: 2em;
+	overflow: hidden;
+}
+.otherNames {
+	margin-bottom: 0.5em;
+}
+div#ingredients.detailView .otherNames,
+div#recipes.detailView .otherNames {
+	float: left;
+}
+
+.otherNames .label {
+	font-weight: bold;
+	display: inline-block;
+	width: 14em;
+	float: left;
+}
+
+.otherNames .otherName {
+	display: inline-block;
+	float: left;
+}
+/* @end */
+
+
+/* @group shoppingList */
+
+.shoppingList_left {
+	float: left;
+}
+.shoppingList_right {
+	float: right;
+}
+/*
+.shoppingList_right .shoppingList_image {
+	float: right;
+	text-align: center;
+	max-width: 10em;
+}
+.shoppingList_right .shoppingList_image .list_img  {
+	margin-bottom: 0.8em;
+	float: none;
+}
+.shoppingList_right .shoppingList_image .button {
+	min-width: 0;
+}
+
+.shoppingList_right .data_right .button {
+	margin-bottom: 0.8em;
+}
+*/
+.shoppingList_right {
+	padding: 2em;
+}
+.shoppingList_right input.haveIt {
+	width: 3em;
+	height: 3em;
+}
+/* @end */
 
 /* @group view Size change */
 

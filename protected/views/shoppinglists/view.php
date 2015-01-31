@@ -27,16 +27,33 @@ $this->menu=array(
 	array('label'=>'Delete Shoppinglists', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$SHO_ID),'confirm'=>'Are you sure you want to delete this item?')),
 	array('label'=>'Manage Shoppinglists', 'url'=>array('admin')),
 );
-?>
+
+if(Yii::app()->user->hasFlash('shoppinglistsView')){
+	$flash = Yii::app()->user->getFlash('shoppinglistsView');
+	if (isset($flash['error'])){
+		echo '<div class="flash-error">';
+		echo $flash['success'];
+		echo '</div>';
+	} else if (isset($flash['success'])){
+		echo '<div class="flash-success">';
+		echo $flash['success'];
+		echo '</div>';
+	}
+}?>
 
 <h1><?php printf($this->trans->TITLE_SHOPPINGLISTS_VIEW, $SHO_ID); ?></h1>
 
 <?php
 	if (isset($MEA_ID) && $MEA_ID != 0){
 		if (isset($mealChanged) && $mealChanged){
-			echo '<div class="">' . $this->trans->SHOPPINGLIST_MEAL_CHANGED_SHOULD_RECREATE . '</div>';
+			echo '<div class="">' . $this->trans->SHOPPINGLISTS_MEAL_CHANGED_SHOULD_RECREATE . '</div>';
 		}
-		echo CHtml::link($this->trans->SHOPPINGLIST_RECREATE_FROM_MEAL, array('meals/createShoppingList', 'id'=>$MEA_ID), array('class'=>'button f-center'));
+		echo CHtml::link($this->trans->SHOPPINGLISTS_RECREATE_FROM_MEAL, array('meals/createShoppingList', 'id'=>$MEA_ID), array('class'=>'button f-center'));
+	} else if (isset($recipes_id) && $recipes_id != ''){
+		if (isset($mealChanged) && $mealChanged){
+			echo '<div class="">' . $this->trans->SHOPPINGLISTS_RECIPE_CHANGED_SHOULD_RECREATE . '</div>';
+		}
+		echo CHtml::link($this->trans->SHOPPINGLISTS_RECREATE_FROM_RECIPE, array('recipes/viewShoppingList', 'id'=>$recipes_id), array('class'=>'button f-center'));
 	}
 ?>
 
@@ -45,4 +62,12 @@ $this->menu=array(
 	'itemView'=>'_item_view',
 	'id'=>'shoppinglistView',
 )); ?>
+
+<div class="buttons">
+	<?php
+	echo CHtml::link($this->trans->SHOPPINGLISTS_PRINT, array('shoppinglists/print', 'id'=>$SHO_ID), array('class'=>'button fancy_iframe'));
+	echo CHtml::link($this->trans->SHOPPINGLISTS_MAIL, array('shoppinglists/mail', 'id'=>$SHO_ID), array('class'=>'button fancybutton'));
+	echo CHtml::link($this->trans->SHOPPINGLISTS_SAVE, array('shoppinglists/save', 'id'=>$SHO_ID), array('class'=>'button'));
+	?>
+</div>
 
