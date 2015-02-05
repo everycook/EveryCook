@@ -14,30 +14,20 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 
 See GPLv3.htm in the main folder for details.
 */
+if (!isset($linkClass)){
+	$linkClass = '';
+}
+if (!isset($linkTarget)){
+	$linkTarget = '';
+}
 
-$this->breadcrumbs=array(
-	'Ingredients'=>array('index'),
-	'Create',
-);
-
-$this->menu=array(
-	array('label'=>'List Ingredients', 'url'=>array('index')),
-	array('label'=>'Manage Ingredients', 'url'=>array('admin')),
-);
+echo '<div class="item">';
+	echo CHtml::link($ingredient['ING_NAME_' . Yii::app()->session['lang']], array('ingredients/view', 'id'=>$ingredient['ING_ID']), array('class'=>'title ' . $linkClass, 'title'=>$ingredient['ING_NAME_' . Yii::app()->session['lang']], 'target'=>$linkTarget));
+	echo '<div class="small_img">';
+		echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$ingredient['ING_ID'], 'ext'=>'.png')), $ingredient['ING_NAME_' . Yii::app()->session['lang']], array('class'=>'ingredient', 'title'=>$ingredient['ING_NAME_' . Yii::app()->session['lang']])), array('ingredients/view', 'id'=>$ingredient['ING_ID']), array('class'=>$linkClass, 'target'=>$linkTarget));
+		echo '<div class="img_auth">';
+		if ($ingredient['ING_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $ingredient['ING_IMG_AUTH']; }
+		echo '</div>';
+	echo '</div>';
+echo '</div>';
 ?>
-
-<h1><?php echo $this->trans->TITLE_INGREDIENTS_CREATE; ?></h1>
-
-<?php echo $this->renderPartial('_form',array(
-		'model'=>$model,
-		'nutrientData'=>$nutrientData,
-		'groupNames'=>$groupNames,
-		'subgroupNames'=>$subgroupNames,
-		'origins'=>$origins,
-		'ingredientConveniences'=>$ingredientConveniences,
-		'storability'=>$storability,
-		'ingredientStates'=>$ingredientStates,
-		'ingredientConditions'=>$ingredientConditions,
-		'tempGroups'=>$tempGroups,
-		'ingToIng'=>$ingToIng,
-		)); ?>

@@ -26,7 +26,13 @@ See GPLv3.htm in the main folder for details.
  * @property integer $SGR_ID
  * @property integer $IST_ID
  * @property integer $ICO_ID
+ * @property integer $ORI_ID
  * @property integer $STB_ID
+ * @property integer $CND_ID
+ * @property integer $TGR_ID
+ * @property integer $ING_MIN_TEMP
+ * @property integer $ING_MAX_TEMP
+ * @property string $ING_FREEZER
  * @property double $ING_DENSITY
  * @property string $ING_IMG_FILENAME
  * @property string $ING_IMG_AUTH
@@ -75,20 +81,20 @@ class Ingredients extends ActiveRecordEC
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('GRP_ID, IST_ID, ICO_ID, STB_ID, ING_NAME_EN_GB, CREATED_BY, CREATED_ON', 'required'),
+			array('GRP_ID, IST_ID, ICO_ID, ORI_ID, STB_ID, CND_ID, TGR_ID, ING_FREEZER, ING_NAME_EN_GB, CREATED_BY, CREATED_ON', 'required'),
+			array('PRF_UID, NUT_ID, GRP_ID, SGR_ID, IST_ID, ICO_ID, ORI_ID, STB_ID, CND_ID, TGR_ID, ING_MIN_TEMP, ING_MAX_TEMP, ING_SCALE_PRECISION, ING_WEIGHT_SMALL, ING_WEIGHT_BIG, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('ING_IMG_AUTH', 'required', 'on'=>'withPic'),
-			array('PRF_UID, NUT_ID, GRP_ID, SGR_ID, IST_ID, ICO_ID, STB_ID, ING_SCALE_PRECISION, ING_WEIGHT_SMALL, ING_WEIGHT_BIG, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('ING_DENSITY', 'numerical'),
+			array('ING_FREEZER, ING_HAS_ALLERGY_INFO, ING_NEED_PEELING, ING_NEED_WASH, ING_APPROVED', 'length', 'max'=>1),
 			array('ING_IMG_FILENAME', 'length', 'max'=>250),
 			array('ING_IMG_AUTH', 'length', 'max'=>30),
 			array('ING_IMG_ETAG', 'length', 'max'=>40),
-			array('ING_HAS_ALLERGY_INFO, ING_NEED_PEELING, ING_NEED_WASH, ING_APPROVED', 'length', 'max'=>1),
 			array('ING_WIKI_LINK, ING_SYNONYM_EN_GB, ING_SYNONYM_DE_CH', 'length', 'max'=>200),
 			array('ING_NAME_EN_GB, ING_NAME_DE_CH', 'length', 'max'=>100),
 			array('CHANGED_ON, ING_IMG_ETAG, nutrientData, groupNames, subgroupNames, ingredientConveniences, storability, ingredientStates', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('ING_ID, PRF_UID, NUT_ID, GRP_ID, SGR_ID, IST_ID, ICO_ID, STB_ID, ING_DENSITY, ING_IMG_FILENAME, ING_IMG_AUTH, ING_IMG_ETAG, ING_HAS_ALLERGY_INFO, ING_NEED_PEELING, ING_NEED_WASH, ING_SCALE_PRECISION, ING_APPROVED, ING_WIKI_LINK, ING_WEIGHT_SMALL, ING_WEIGHT_BIG, ING_SYNONYM_EN_GB, ING_SYNONYM_DE_CH, ING_NAME_EN_GB, ING_NAME_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('ING_ID, PRF_UID, NUT_ID, GRP_ID, SGR_ID, IST_ID, ICO_ID, ORI_ID, STB_ID, CND_ID, TGR_ID, ING_MIN_TEMP, ING_MAX_TEMP, ING_FREEZER, ING_DENSITY, ING_IMG_FILENAME, ING_IMG_AUTH, ING_IMG_ETAG, ING_HAS_ALLERGY_INFO, ING_NEED_PEELING, ING_NEED_WASH, ING_SCALE_PRECISION, ING_APPROVED, ING_WIKI_LINK, ING_WEIGHT_SMALL, ING_WEIGHT_BIG, ING_SYNONYM_EN_GB, ING_SYNONYM_DE_CH, ING_NAME_EN_GB, ING_NAME_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -102,9 +108,13 @@ class Ingredients extends ActiveRecordEC
 			'nutrientData' => array(self::BELONGS_TO, 'NutrientData', 'NUT_ID'),
 			'groupNames' => array(self::BELONGS_TO, 'GroupNames', 'GRP_ID'),
 			'subgroupNames' => array(self::BELONGS_TO, 'SubgroupNames', 'SGR_ID'),
+			'origins' => array(self::BELONGS_TO, 'Origins', 'ORI_ID'),
 			'ingredientConveniences' => array(self::BELONGS_TO, 'IngredientConveniences', 'ICO_ID'),
 			'storability' => array(self::BELONGS_TO, 'Storability', 'STB_ID'),
 			'ingredientStates' => array(self::BELONGS_TO, 'IngredientStates', 'IST_ID'),
+			'conditions' => array(self::BELONGS_TO, 'Conditions', 'CND_ID'),
+			'tempGroups' => array(self::BELONGS_TO, 'TempGroups', 'TGR_ID'),
+			'ingToIngs' => array(self::HAS_MANY, 'IngToIng', 'ING_ID'),
 		);
 	}
 
@@ -120,7 +130,13 @@ class Ingredients extends ActiveRecordEC
 			'SGR_ID' => 'Ing Subgroup',
 			'IST_ID' => 'Ing State',
 			'ICO_ID' => 'Ing Convenience',
+			'ORI_ID' => 'Ori',
 			'STB_ID' => 'Ing Storability',
+			'CND_ID' => 'ing Condition',
+			'TGR_ID' => 'img temp group',
+			'ING_MIN_TEMP' => 'Ing Min Temp',
+			'ING_MAX_TEMP' => 'Ing Max Temp',
+			'ING_FREEZER' => 'Ing Freezer',
 			'ING_DENSITY' => 'Ing Density',
 			'ING_IMG_FILENAME' => 'Ing Img Filename',
 			'ING_IMG_AUTH' => 'Ing Img Auth',
@@ -158,7 +174,13 @@ class Ingredients extends ActiveRecordEC
 		$criteria->compare($this->tableName().'.SGR_ID',$this->SGR_ID);
 		$criteria->compare($this->tableName().'.IST_ID',$this->IST_ID);
 		$criteria->compare($this->tableName().'.ICO_ID',$this->ICO_ID);
+		$criteria->compare($this->tableName().'.ORI_ID',$this->ORI_ID);
 		$criteria->compare($this->tableName().'.STB_ID',$this->STB_ID);
+		$criteria->compare($this->tableName().'.CND_ID',$this->CND_ID);
+		$criteria->compare($this->tableName().'.TGR_ID',$this->TGR_ID);
+		$criteria->compare($this->tableName().'.ING_MIN_TEMP',$this->ING_MIN_TEMP);
+		$criteria->compare($this->tableName().'.ING_MAX_TEMP',$this->ING_MAX_TEMP);
+		$criteria->compare($this->tableName().'.ING_FREEZER',$this->ING_FREEZER,true);
 		$criteria->compare($this->tableName().'.ING_DENSITY',$this->ING_DENSITY);
 		$criteria->compare($this->tableName().'.ING_IMG_FILENAME',$this->ING_IMG_FILENAME,true);
 		$criteria->compare($this->tableName().'.ING_IMG_AUTH',$this->ING_IMG_AUTH,true);
@@ -200,7 +222,13 @@ class Ingredients extends ActiveRecordEC
 		$criteria->compare('SGR_ID',$this->SGR_ID);
 		$criteria->compare('IST_ID',$this->IST_ID);
 		$criteria->compare('ICO_ID',$this->ICO_ID);
+		$criteria->compare('ORI_ID',$this->ORI_ID);
 		$criteria->compare('STB_ID',$this->STB_ID);
+		$criteria->compare('CND_ID',$this->CND_ID);
+		$criteria->compare('TGR_ID',$this->TGR_ID);
+		$criteria->compare('ING_MIN_TEMP',$this->ING_MIN_TEMP);
+		$criteria->compare('ING_MAX_TEMP',$this->ING_MAX_TEMP);
+		$criteria->compare('ING_FREEZER',$this->ING_FREEZER,true);
 		$criteria->compare('ING_DENSITY',$this->ING_DENSITY);
 		$criteria->compare('ING_IMG_FILENAME',$this->ING_IMG_FILENAME,true);
 		$criteria->compare('ING_IMG_AUTH',$this->ING_IMG_AUTH,true);

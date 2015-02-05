@@ -250,6 +250,7 @@ $cookin = '#cookin#';
 					echo '</div>';
 					echo '<div class="name" title="' . $ingName . '">' . $ingName . '</div>';
 					echo '<div class="amount">' . $ingredientAmount[$ingredient['ING_ID']] . ($ingredientAmount[$ingredient['ING_ID']]==''?'':'g'). '</div>';
+					echo CHtml::link($this->trans->INGREDIENTS_MORE_DETAILS, array('ingredients/view', 'id'=>$ingredient['ING_ID']), array('class'=>'moreInfo fancyLink'));
 					echo CHtml::hiddenField('ingredients['.$ing_index.'][ING_ID]', $ingredient['ING_ID']);
 					echo CHtml::hiddenField('ingredients['.$ing_index.'][AMOUNT]', $ingredientAmount[$ingredient['ING_ID']]);
 				echo '</div>';

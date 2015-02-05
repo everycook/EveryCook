@@ -281,6 +281,7 @@ function ajaxResponceHandler(data, type, asFancy){
 				imgPath.push(elem.attr('src'));
 				elem.attr('src', '');
 			});
+			content.find('a:not(.fancyButton):not(.fancyLink):not(.noAjax):not([target])').attr('target','_blank');
 			jQuery.fancybox({
 				'content':content,
 				'onComplete': function(){
@@ -363,6 +364,7 @@ glob.addContentWithImageChange = function(data, dest, doReplace){
 
 glob.setContentWithImageChangeToFancy = function(data, fancyOptions){
 	var content = jQuery(data);
+	content.find('a:not(.fancyButton):not(.fancyLink):not(.noAjax):not([target])').attr('target','_blank');
 	var images = content.find('img');
 	var imgPath = [];
 	images.each(function(index){
@@ -669,8 +671,11 @@ jQuery(function($){
 		return openInFancy(jQuery(this));
 	});
 	
-	
-	jQuery('body').undelegate('.fancybutton.button','click').delegate('.fancybutton.button','click', function(){
+	jQuery('body').undelegate('.fancyButton.button','click').delegate('.fancyButton.button','click', function(){
+		return openInFancy(jQuery(this));
+	});
+
+	jQuery('body').undelegate('.fancyLink','click').delegate('.fancyLink','click', function(){
 		return openInFancy(jQuery(this));
 	});
 	
@@ -679,6 +684,7 @@ jQuery(function($){
 		if (url.indexOf('#')===0){
 			url = glob.hashToUrl(url.substr(1));
 		}
+		url = glob.urlAddParamStart(url) + 'fancyAjax=1';
 		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(html){
 				//glob.setContentWithImageChangeToFancy(html, {});
 				ajaxResponceHandler(html, 'ajax', true);
@@ -1072,7 +1078,7 @@ jQuery(function($){
 		}
 		
 		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
-			ajaxResponceHandler(data, 'ajax');
+			//ajaxResponceHandler(data, 'ajax');
 		},
 		'error':function(xhr){
 			ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
@@ -1089,7 +1095,7 @@ jQuery(function($){
 		}
 		
 		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(data){
-			ajaxResponceHandler(data, 'ajax');
+			//ajaxResponceHandler(data, 'ajax');
 		},
 		'error':function(xhr){
 			ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
@@ -1192,6 +1198,7 @@ jQuery(function($){
 				elem.replaceWith('');
 			} else {
 				var newElements = jQuery(data);
+				newElements.find('a:not(.fancyButton):not(.fancyLink):not(.noAjax):not([target])').attr('target','_blank');
 				if (elem.is('#ajaxPagingPrev') && newElements.length>3){
 					ajaxpaging.doScrollTop = false;
 					var next = elem.next();

@@ -99,6 +99,12 @@ See GPLv3.htm in the main folder for details.
 }
 #recipes-form #recipeCreator .ingredientEntry .amount {
 }
+#recipes-form #recipeCreator .ingredientEntry .moreInfo {
+	display: none;
+}
+#recipes-form #recipeCreator .ingredientEntry.selected .moreInfo {
+	display: block;
+}
 #recipes-form #recipeCreator .ingredientEntry .add {
 	font-weight: bold;
 }

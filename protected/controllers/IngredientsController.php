@@ -37,6 +37,7 @@ class IngredientsController extends Controller
 	const RECIPES_AMOUNT = 4;
 	const PRODUCTS_AMOUNT = 4;
 	const PRELOAD_AMOUNT = 3;
+	const ORIGIN_IGNORE_ID = 1;
 	
 	/**
 	 * Specifies the access control rules.
@@ -264,6 +265,20 @@ class IngredientsController extends Controller
 			if (isset($oldPictureFilename)){
 				Functions::updatePicture($model,'ING_IMG', $oldPictureFilename);
 			}
+			if(isset($_POST['ingToIngIds'])){
+				$ingToIngIds = split(',', $_POST['ingToIngIds']);
+				$newList = array();
+				//TODO: save other ing relations
+				foreach ($ingToIngIds as $ingId2){
+					if ($ingId2 != ''){
+						$ingToIng = new IngToIng();
+						$ingToIng->ING_ID2 = $ingId2;
+						$ingToIng->ING_RELATION = 'main';
+						$newList[] = $ingToIng;
+					} 
+				}
+				$model->ingToIngs = $newList;
+			}
 			
 			Yii::app()->session[$this->createBackup] = $model;
 			Yii::app()->session[$this->createBackup.'_Time'] = time();
@@ -294,25 +309,43 @@ class IngredientsController extends Controller
 						$transaction=$model->dbConnection->beginTransaction();
 						try {
 							if($model->save()){
-								$changed = Functions::fixPicturePathAfterSave($model,'ING_IMG', $model->ING_IMG_FILENAME);
-								if ($changed){
-									if($model->save()){
+								$saveOK = true;
+								Yii::app()->db->createCommand()->delete(IngToIng::model()->tableName(), 'ING_ID = :id AND ING_RELATION = :type', array(':id'=>$model->ING_ID, ':type'=>'main'));
+								foreach($model->ingToIngs as $rel){
+									$rel->ING_ID = $model->ING_ID;
+									//$rel->CHANGED_ON = $timestamp;
+									//$rel->updateChangeTime = false;
+									$rel->setIsNewRecord(true);
+									if(!$rel->save()){
+										$saveOK = false;
+										if ($this->debug) {echo 'error on save recToCoi: errors:'; var_dump($rel->getErrors());}
+									} else {
+										//$rel->updateChangeTime = true;
+									}
+								}
+								if($saveOK){
+									$changed = Functions::fixPicturePathAfterSave($model,'ING_IMG', $model->ING_IMG_FILENAME);
+									if ($changed){
+										if($model->save()){
+											$transaction->commit();
+											unset(Yii::app()->session[$this->createBackup]);
+											unset(Yii::app()->session[$this->createBackup.'_Time']);
+											$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
+											//$this->forwardAfterSave(array('search', 'query'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
+											return;
+										} else {
+											$transaction->rollBack();
+										}
+									} else {
 										$transaction->commit();
 										unset(Yii::app()->session[$this->createBackup]);
 										unset(Yii::app()->session[$this->createBackup.'_Time']);
 										$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
 										//$this->forwardAfterSave(array('search', 'query'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
 										return;
-									} else {
-										$transaction->rollBack();
 									}
 								} else {
-									$transaction->commit();
-									unset(Yii::app()->session[$this->createBackup]);
-									unset(Yii::app()->session[$this->createBackup.'_Time']);
-									$this->forwardAfterSave(array('view', 'id'=>$model->ING_ID));
-									//$this->forwardAfterSave(array('search', 'query'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
-									return;
+									$transaction->rollBack();
 								}
 							} else {
 								$transaction->rollBack();
@@ -334,21 +367,42 @@ class IngredientsController extends Controller
 		$groupNames = Yii::app()->db->createCommand()->select('GRP_ID,GRP_DESC_'.Yii::app()->session['lang'])->from('group_names')->queryAll();
 		$groupNames = CHtml::listData($groupNames,'GRP_ID','GRP_DESC_'.Yii::app()->session['lang']);
 		$subgroupNames = $this->getSubGroupDataById($model->GRP_ID);
+		$origins = Yii::app()->db->createCommand()->select('ORI_ID,ORI_DESC_'.Yii::app()->session['lang'])->from('origins')->queryAll();
+		$origins = CHtml::listData($origins,'ORI_ID','ORI_DESC_'.Yii::app()->session['lang']);
 		$ingredientConveniences = Yii::app()->db->createCommand()->select('ICO_ID,ICO_DESC_'.Yii::app()->session['lang'])->from('ingredient_conveniences')->queryAll();
 		$ingredientConveniences = CHtml::listData($ingredientConveniences,'ICO_ID','ICO_DESC_'.Yii::app()->session['lang']);
 		$storability = Yii::app()->db->createCommand()->select('STB_ID,STB_DESC_'.Yii::app()->session['lang'])->from('storability')->queryAll();
 		$storability = CHtml::listData($storability,'STB_ID','STB_DESC_'.Yii::app()->session['lang']);
 		$ingredientStates = Yii::app()->db->createCommand()->select('IST_ID,IST_DESC_'.Yii::app()->session['lang'])->from('ingredient_states')->queryAll();
 		$ingredientStates = CHtml::listData($ingredientStates,'IST_ID','IST_DESC_'.Yii::app()->session['lang']);
+		$ingredientConditions = Yii::app()->db->createCommand()->select('CND_ID,CND_DESC_'.Yii::app()->session['lang'])->from('conditions')->queryAll();
+		$ingredientConditions = CHtml::listData($ingredientConditions,'CND_ID','CND_DESC_'.Yii::app()->session['lang']);
+		$tempGroups = Yii::app()->db->createCommand()->select('TGR_ID,TGR_DESC_'.Yii::app()->session['lang'])->from('temp_groups')->queryAll();
+		$tempGroups = CHtml::listData($tempGroups,'TGR_ID','TGR_DESC_'.Yii::app()->session['lang']);
+		$ingToIng = '';
+		if(isset($model->ingToIngs)){
+			foreach ($model->ingToIngs as $rel){
+				if($rel->ING_RELATION == 'main'){
+					if($ingToIng != ''){
+						$ingToIng .= ',';
+					}
+					$ingToIng .= $rel->ING_ID2;
+				}
+			}
+		}
 		
 		$this->checkRenderAjax($view,array(
 			'model'=>$model,
 			'nutrientData'=>$nutrientData,
 			'groupNames'=>$groupNames,
 			'subgroupNames'=>$subgroupNames,
+			'origins'=>$origins,
 			'ingredientConveniences'=>$ingredientConveniences,
 			'storability'=>$storability,
 			'ingredientStates'=>$ingredientStates,
+			'ingredientConditions'=>$ingredientConditions,
+			'tempGroups'=>$tempGroups,
+			'ingToIng'=>$ingToIng,
 		));
 	}
 	
@@ -613,14 +667,17 @@ class IngredientsController extends Controller
 			}
 			
 			$command = Yii::app()->db->createCommand()
-				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, ingredient_conveniences.*, storability.*, ingredient_states.*')
+				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, origins.*, ingredient_conveniences.*, storability.*, ingredient_states.*, conditions.*, temp_groups.*')
 				->from('ingredients')
 				->leftJoin('nutrient_data', 'ingredients.NUT_ID=nutrient_data.NUT_ID')
 				->leftJoin('group_names', 'ingredients.GRP_ID=group_names.GRP_ID')
 				->leftJoin('subgroup_names', 'ingredients.SGR_ID=subgroup_names.SGR_ID')
+				->leftJoin('origins', 'ingredients.ORI_ID=origins.ORI_ID')
 				->leftJoin('ingredient_conveniences', 'ingredients.ICO_ID=ingredient_conveniences.ICO_ID')
 				->leftJoin('storability', 'ingredients.STB_ID=storability.STB_ID')
-				->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID');
+				->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID')
+				->leftJoin('conditions', 'ingredients.CND_ID=conditions.CND_ID')
+				->leftJoin('temp_groups', 'ingredients.TGR_ID=temp_groups.TGR_ID');
 				if (!$this->isFancyAjaxRequest){
 					$command->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
 					->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')

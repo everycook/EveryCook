@@ -1754,6 +1754,7 @@ class RecipesController extends Controller
 		} else {
 			$query = $model2->query;
 		}
+		CDbCriteria::$paramCount = 0;
 		$filters = array();
 		$filterValues = array();
 		$additionalSelect = '';
@@ -1927,16 +1928,21 @@ class RecipesController extends Controller
 		$Session_RecipeSearch = Yii::app()->session[$this->searchBackup];
 		$searchFromSession = false;
 		if (isset($Session_RecipeSearch)){
+			if($this->debug){echo "Session_RecipeSearch isset";}
 			if ($criteria->condition == '' && $criteria->having == '' && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_RecipeSearch['time'])){
-				echo "CDbCriteria::paramCount is: " .CDbCriteria::$paramCount;
+				if($this->debug){echo "CDbCriteria::paramCount is: " .CDbCriteria::$paramCount;}
+				//CDbCriteria::$paramCount = 0;
 				$searchFromSession = true;
 				if (isset($Session_RecipeSearch['query'])){
 					$query = $Session_RecipeSearch['query'];
 					$model2->query = $query;
 				}
+				$criteriaLoaded = false;
 				if (isset($Session_RecipeSearch['criteria'])){
 					$criteria = $Session_RecipeSearch['criteria'];
+					$criteriaLoaded = true;
 				}
+
 				if (isset($Session_RecipeSearch['selectedOrderBy'])){
 					$selectedOrderBy = $Session_RecipeSearch['selectedOrderBy'];
 				}
@@ -1944,11 +1950,13 @@ class RecipesController extends Controller
 					$filters = $Session_RecipeSearch['filters'];
 					$additionalSelect = $filters['additionalSelect'];
 					$additionalSelectParams = $filters['additionalSelectParams'];
-					$criteria->params = array_merge($criteria->params, $additionalSelectParams);
-// 					if ($this->debug) {
-// 						echo 'change CDbCriteria::paramCount, adding ' .count($additionalSelectParams) . '<br />';
-// 					}
-					CDbCriteria::$paramCount+=count($additionalSelectParams);
+					if (!$criteriaLoaded){
+						$criteria->params = array_merge($criteria->params, $additionalSelectParams);
+// 						if ($this->debug) {
+// 							echo 'change CDbCriteria::paramCount, adding ' .count($additionalSelectParams) . '<br />';
+// 						}
+						CDbCriteria::$paramCount+=count($additionalSelectParams);
+					}
 				}
 			}
 		}
@@ -1960,6 +1968,7 @@ class RecipesController extends Controller
 			$Session_RecipeSearch['filters'] = $filters;
 			$Session_RecipeSearch['time'] = time();
 			Yii::app()->session[$this->searchBackup] = $Session_RecipeSearch;
+			var_dump($Session_RecipeSearch);
 		}
 		
 		//Additional display criterias
@@ -1983,7 +1992,10 @@ class RecipesController extends Controller
 		if ($this->debug) {
 			echo 'before run<br/>';
 			var_dump($criteria->params);
-			//die();
+// 			if (CDbCriteria::$paramCount == 2){
+// 				die();
+// 			}
+// 			die();
 		}
 		
 		$command = $this->criteriaToCommand($criteriaDisplay);

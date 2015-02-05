@@ -14,30 +14,20 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 
 See GPLv3.htm in the main folder for details.
 */
+if (!isset($linkClass)){
+	$linkClass = '';
+}
+if (!isset($linkTarget)){
+	$linkTarget = '';
+}
 
-$this->breadcrumbs=array(
-	'Ingredients'=>array('index'),
-	'Create',
-);
-
-$this->menu=array(
-	array('label'=>'List Ingredients', 'url'=>array('index')),
-	array('label'=>'Manage Ingredients', 'url'=>array('admin')),
-);
+echo '<div class="item">';
+	echo CHtml::link($recipe['REC_NAME_' . Yii::app()->session['lang']], array('recipes/view', 'id'=>$recipe['REC_ID']), array('class'=>'title '.$linkClass, 'target'=>$linkTarget, 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']]));
+	echo '<div class="small_img">';
+		echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), $recipe['REC_NAME_' . Yii::app()->session['lang']], array('class'=>'recipe', 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']])), array('recipes/view', 'id'=>$recipe['REC_ID']), array('class'=>$linkClass,'target'=>$linkTarget));
+		echo '<div class="img_auth">';
+			if ($recipe['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $recipe['REC_IMG_AUTH']; }
+		echo '</div>';
+	echo '</div>';
+echo '</div>';
 ?>
-
-<h1><?php echo $this->trans->TITLE_INGREDIENTS_CREATE; ?></h1>
-
-<?php echo $this->renderPartial('_form',array(
-		'model'=>$model,
-		'nutrientData'=>$nutrientData,
-		'groupNames'=>$groupNames,
-		'subgroupNames'=>$subgroupNames,
-		'origins'=>$origins,
-		'ingredientConveniences'=>$ingredientConveniences,
-		'storability'=>$storability,
-		'ingredientStates'=>$ingredientStates,
-		'ingredientConditions'=>$ingredientConditions,
-		'tempGroups'=>$tempGroups,
-		'ingToIng'=>$ingToIng,
-		)); ?>

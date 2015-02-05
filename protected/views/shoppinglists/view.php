@@ -66,7 +66,7 @@ if(Yii::app()->user->hasFlash('shoppinglistsView')){
 <div class="buttons">
 	<?php
 	echo CHtml::link($this->trans->SHOPPINGLISTS_PRINT, array('shoppinglists/print', 'id'=>$SHO_ID), array('class'=>'button fancy_iframe'));
-	echo CHtml::link($this->trans->SHOPPINGLISTS_MAIL, array('shoppinglists/mail', 'id'=>$SHO_ID), array('class'=>'button fancybutton'));
+	echo CHtml::link($this->trans->SHOPPINGLISTS_MAIL, array('shoppinglists/mail', 'id'=>$SHO_ID), array('class'=>'button fancyButton'));
 	echo CHtml::link($this->trans->SHOPPINGLISTS_SAVE, array('shoppinglists/save', 'id'=>$SHO_ID), array('class'=>'button'));
 	?>
 </div>

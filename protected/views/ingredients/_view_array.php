@@ -48,6 +48,7 @@ See GPLv3.htm in the main folder for details.
 		} else {
 			echo CHtml::link($this->trans->GENERAL_SELECT, $data['ING_ID'], array('class'=>'f-right button IngredientSelect'));
 		}
+		echo CHtml::link($this->trans->INGREDIENTS_MORE_DETAILS, array('ingredients/view', 'id'=>$data['ING_ID']), array('class'=>'f-right button fancyButton moreInfo'));
 	} else {
 		?>
 		<div class="options">
@@ -61,7 +62,13 @@ See GPLv3.htm in the main folder for details.
 	
 	<div class="data">
 		<div class="name">
-			<?php echo CHtml::link(CHtml::encode($data['ING_NAME_' . Yii::app()->session['lang']]), array('view', 'id'=>$data['ING_ID'])); ?>&nbsp;
+			<?php
+			if ($this->isFancyAjaxRequest){
+				echo $data['ING_NAME_' . Yii::app()->session['lang']];
+			} else {
+				echo CHtml::link(CHtml::encode($data['ING_NAME_' . Yii::app()->session['lang']]), array('view', 'id'=>$data['ING_ID']));
+			}
+			?>&nbsp;
 		</div>
 		<?php
 		if (!$this->isFancyAjaxRequest){
@@ -154,8 +161,31 @@ See GPLv3.htm in the main folder for details.
 			echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_SUBGROUP) .':</span> <span class="value">' . CHtml::encode($data['SGR_DESC_'.Yii::app()->session['lang']]) ."</span></span>\n";
 		}
 		echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_STORABILITY) .':</span> <span class="value">' . CHtml::encode($data['STB_DESC_'.Yii::app()->session['lang']]) ."</span></span><br>\n";
+		if (isset($data['ORI_ID']) && $data['ORI_ID'] > 0 && $data['ORI_ID'] != IngredientsController::ORIGIN_IGNORE_ID){
+			echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_ORIGINS) .':</span> <span class="value">' . CHtml::encode($data['ORI_DESC_'.Yii::app()->session['lang']]) ."</span></span>\n";
+		}
 		echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_CONVENIENCE) .':</span> <span class="value">' . CHtml::encode($data['ICO_DESC_'.Yii::app()->session['lang']]) ."</span></span>\n";
 		echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_STATE) .':</span> <span class="value">' . CHtml::encode($data['IST_DESC_'.Yii::app()->session['lang']]) ."</span></span>\n";
+		
+		if (isset($data['CND_ID']) && $data['CND_ID'] > 0){
+			echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_CONDITIONS) .':</span> <span class="value">' . CHtml::encode($data['CND_DESC_'.Yii::app()->session['lang']]) ."</span></span>\n";
+		}
+		echo '<br>';
+		echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_STORAGE_TEMP) .':</span> <span class="value">';
+		if (isset($data['ING_MIN_TEMP'])){
+			if (isset($data['ING_MAX_TEMP'])){
+				echo sprintf($this->trans->INGREDIENTS_TEMP_RANGE, $data['ING_MIN_TEMP'], $data['ING_MAX_TEMP']);
+			} else {
+				echo sprintf($this->trans->INGREDIENTS_TEMP_ABOVE, $data['ING_MIN_TEMP']);
+			}
+		} else if (isset($data['ING_MAX_TEMP'])){
+			echo sprintf($this->trans->INGREDIENTS_TEMP_BELOW, $data['ING_MAX_TEMP']);
+		} else {
+			echo CHtml::encode($data['TGR_DESC_'.Yii::app()->session['lang']]);
+		}
+		echo "</span></span>\n";
+		echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_STORAGE_IN_FREEZER) .':</span> <span class="value">' . (($data['ING_FREEZER'] == 'Y')? $this->trans->GENERAL_YES: $this->trans->GENERAL_NO) ."</span></span>\n";
+		
 		?>
 		</div>
 	</div>

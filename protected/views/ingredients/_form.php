@@ -87,9 +87,33 @@ See GPLv3.htm in the main folder for details.
 		echo Functions::createInput(null, $model, 'SGR_ID', array(), Functions::DROP_DOWN_LIST, 'subgroupNames', $htmlOptions_subGroup, $form);
 	}
 	echo Functions::createInput(null, $model, 'STB_ID', $storability, Functions::DROP_DOWN_LIST, 'storability', $htmlOptions_type0, $form);
+
+	echo Functions::createInput(null, $model, 'ORI_ID', $origins, Functions::DROP_DOWN_LIST, 'origins', $htmlOptions_type0, $form);
 	echo Functions::createInput(null, $model, 'ICO_ID', $ingredientConveniences, Functions::DROP_DOWN_LIST, 'ingredientConveniences', $htmlOptions_type0, $form);
 	echo Functions::createInput(null, $model, 'IST_ID', $ingredientStates, Functions::DROP_DOWN_LIST, 'ingredientStates', $htmlOptions_type0, $form);
+	echo Functions::createInput(null, $model, 'CND_ID', $ingredientConditions, Functions::DROP_DOWN_LIST, 'ingredientConditions', $htmlOptions_type0, $form);
+	echo Functions::createInput(null, $model, 'TGR_ID', $tempGroups, Functions::DROP_DOWN_LIST, 'tempGroups', $htmlOptions_type0, $form);
+	?>
+	<div class="row">
+		<?php echo $form->labelEx($model,'ING_MIN_TEMP'); ?>
+		<?php echo Functions::activeSpecialField($model,'ING_MIN_TEMP','number',array('step'=>1,'min'=>-40,'max'=>100,'maxlength'=>3)); ?>
+		<?php echo $form->error($model,'ING_MIN_TEMP'); ?>
+	</div>
+	<div class="row">
+		<?php echo $form->labelEx($model,'ING_MAX_TEMP'); ?>
+		<?php echo Functions::activeSpecialField($model,'ING_MAX_TEMP','number',array('step'=>1,'min'=>-40,'max'=>100,'maxlength'=>3)); ?>
+		<?php echo $form->error($model,'ING_MIAX_TEMP'); ?>
+	</div>
+	<div class="row">
+		<?php echo $form->labelEx($model,'ING_FREEZER'); ?>
+		<?php
+			echo $this->trans->GENERAL_NO . ' ' . $form->radioButton($model,'ING_FREEZER',array('uncheckValue'=>null,'value'=>'N'));
+			echo  '&nbsp;&nbsp;&nbsp;';
+			echo $this->trans->GENERAL_YES . ' ' . $form->radioButton($model,'ING_FREEZER',array('uncheckValue'=>null,'value'=>'Y')); ?>
+		<?php echo $form->error($model,'ING_FREEZER'); ?>
+	</div>
 	
+	<?php
 	if ($model->nutrientData && $model->nutrientData->NUT_DESC){
 		$NutrientDescription = $model->nutrientData->NUT_DESC;
 	} else {
@@ -172,6 +196,32 @@ See GPLv3.htm in the main folder for details.
 		<?php echo $form->labelEx($model,'ING_WEIGHT_BIG'); ?>
 		<?php echo $form->textField($model,'ING_WEIGHT_BIG'); ?>
 		<?php echo $form->error($model,'ING_WEIGHT_BIG'); ?>
+	</div>
+	
+	<div class="row">
+		<?php echo CHtml::label($this->trans->INGREDIENTS_LINKED_MAIN, 'ingToIngIds'); ?>
+		<?php
+		echo CHtml::hiddenField('ingToIngIds', $ingToIng, array('id'=>'mainIngredients'));
+		
+		$this->widget('ext.select2.ESelect2', array(
+			'target' => '#mainIngredients',
+			'config' => array (
+				'multiple' => true,
+				'minimumInputLength' => 1,
+				'formatInputTooShort' => null,
+				'openOnEnter' => false,
+				'placeholder'=>$this->trans->RECIPES_TYPE_AN_INGREDIENT,
+				'ajax' => 'js:glob.select2.searchIngredientAjax',
+				'initSelection' =>'js:glob.select2.searchIngredientInitSelection',
+				'formatResult' => 'js:glob.select2.searchIngredientFormatResult', // omitted for brevity, see the source of this page
+				'formatSelection' => 'js:glob.select2.searchIngredientFormatSelection', // omitted for brevity, see the source of this page
+				//'dropdownCssClass' => 'search_query', // apply css that makes the dropdown taller
+				'containerCssClass' => 'search_query', // apply css that makes the dropdown taller
+				'escapeMarkup' => 'js:function (m) { return m; }' // we do not want to escape markup since we are displaying html in results
+			)
+		));
+		?>
+		<?php echo $form->error($model,'ingToIngIds'); ?>
 	</div>
 	
 	<div class="row">

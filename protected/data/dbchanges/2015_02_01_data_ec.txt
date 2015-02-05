@@ -1,0 +1,37 @@
+﻿INSERT INTO `conditions` (`CND_ID`, `CND_DESC_EN_GB`, `CND_DESC_DE_CH`, `CREATED_BY`, `CREATED_ON`, `CHANGED_BY`, `CHANGED_ON`) VALUES
+(1, 'raw', 'roh', 3, 1422725408, 3, 1422725481),
+(2, 'processed', 'verarbeitet', 3, 1422725428, 3, 1422725428),
+(3, 'cooked', 'gekocht', 3, 1422725444, 3, 1422725444),
+(4, 'smoked', 'geräuchert', 3, 1422725460, 3, 1422725460);
+
+
+INSERT INTO `temp_groups` (`TGR_ID`, `TGR_DESC_EN_GB`, `TGR_DESC_DE_CH`, `CREATED_BY`, `CREATED_ON`, `CHANGED_BY`, `CHANGED_ON`) VALUES
+(1, 'frozen', 'gefroren', 3, 1422778647, 3, 1422778647),
+(2, 'refrigerated', 'gekühlt', 3, 1422778695, 3, 1422778695),
+(3, 'Room temperature', 'Zimmertemperatur', 3, 1422778780, 3, 1422778780);
+
+
+
+INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('FIELD_CND_ID', 'Conditions', 'Zustand', ''),
+('FIELD_CND_DESC_EN_GB', 'Description English', 'Beschreibung Englisch', ''),
+('FIELD_CND_DESC_DE_CH', 'Description German', 'Beschreibung Deutsch', ''),
+('FIELD_TGR_ID', 'Temperature Group', 'Temperatur Gruppe', ''), 
+('FIELD_TGR_DESC_EN_GB', 'Description English', 'Beschreibung Englisch', ''),
+('FIELD_TGR_DESC_DE_CH', 'Description German', 'Beschreibung Deutsch', ''),
+('FIELD_ING_MIN_TEMP', 'min Temperature', 'min. Temepratur', ''),
+('FIELD_ING_MAX_TEMP', 'max Temperature', 'max. Temperatur', ''),
+('FIELD_ING_FREEZER', 'Storage in freezer', 'Aufbewarten in Gerfrierer', ''),
+('INGREDIENTS_CONDITIONS', 'Conditions', 'Zustand', ''), 
+('INGREDIENTS_STORAGE_TEMP', 'Storage temperature', 'Lager Temperatur', ''),
+('INGREDIENTS_TEMP_RANGE', '%d-%d degrees', '%d-%d °C', ''),
+('INGREDIENTS_TEMP_BELOW', 'below %d degrees', 'unter %d °C', ''),
+('INGREDIENTS_TEMP_ABOVE', 'above %d degrees', 'über %d °C', ''),
+('INGREDIENTS_STORAGE_IN_FREEZER', 'Storage in freezer', 'Lagerung im Gefrierer', ''),
+('INGREDIENTS_LINKED_MAIN', 'Main ingredients', 'Haupt Zutaten', ''),
+('FIELD_ORI_ID', 'Origin', 'Herkunft', ''), 
+('FIELD_ORI_DESC_EN_GB', 'Description English', 'Beschreibung Englisch', ''),
+('FIELD_ORI_DESC_DE_CH', 'Description German', 'Beschreibung Deutsch', ''),
+('INGREDIENTS_ORIGINS', 'Origin', 'Herkunft', ''),
+('INGREDIENTS_MAIN_INGREDIENTS', 'Main ingredients for %s', 'Haupt Zutaten zu %s', ''),
+('INGREDIENTS_MORE_DETAILS', 'more details', 'mehr Details', '');

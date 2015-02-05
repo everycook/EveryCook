@@ -16,53 +16,68 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Producers',
+	'Temp Groups',
 );
 
 $this->menu=array(
-	array('label'=>'Create Producers', 'url'=>array('create')),
-	array('label'=>'Manage Producers', 'url'=>array('admin')),
+	array('label'=>'Create TempGroups', 'url'=>array('create')),
+	array('label'=>'Manage TempGroups', 'url'=>array('admin')),
 );
 
-//if ($this->validSearchPerformed){
-	$this->mainButtons = array(
-		array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('producers/create',array('newModel'=>time()))),
-	);
-//}
+if (!$this->isFancyAjaxRequest){
+	//if ($this->validSearchPerformed){
+		$this->mainButtons = array(
+			array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('create',array('newModel'=>time()))),
+		);
+	//}
+}
 
-if ($this->isFancyAjaxRequest){
-	?>
-	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('producers/chooseProducer'); ?>"/>
+$advanceSearch = array(($this->isFancyAjaxRequest)?'advanceChooseIngredient':'advanceSearch');
+if (isset(Yii::app()->session['TempGroups']) && isset(Yii::app()->session['TempGroups']['time'])){
+	$advanceSearch=array_merge($advanceSearch,array('newSearch'=>Yii::app()->session['TempGroups']['time']));
+}
+
+if ($this->isFancyAjaxRequest){ ?>
+	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('chooseTempGroups'); ?>"/>
 	<?php
 }
 ?>
 
+
 <div>
 <?php $form=$this->beginWidget('CActiveForm', array(
 		'action'=>Yii::app()->createUrl($this->route),
-		'id'=>'producers_form',
+		'id'=>'temp-groups_form',
 		'method'=>'post',
 		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 	)); ?>
 	<div class="f-left search">
-		<?php echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query')); ?>
+		<?php if ($model2->query == ''){
+			echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query', 'autofocus'=>'autofocus'));
+		} else {
+			echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query'));
+		} ?>
 		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
+	</div>
+	
+	<div class="f-right">
+		<?php  echo CHtml::link($this->trans->GENERAL_ADVANCE_SEARCH, $advanceSearch, array('class'=>'button', 'id'=>'advanceSearch')); ?><br>
+	</div>
+	
+	<div class="f-center">
+		<?php
+  echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('create','newModel'=>time()), array('class'=>'button', 'id'=>'create')); ?><br>
 	</div>
 	
 	<div class="clearfix"></div>
 
-<?php $this->widget('AjaxPagingListView', array(
+<?php  $this->widget('AjaxPagingListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'ajaxUpdate'=>false,
-	'id'=>'producersResult',
-)); ?>
-<?php
-if ($this->isFancyAjaxRequest){
-	if ($this->validSearchPerformed){
-		echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('producers/createFancy', 'newModel'=>time(), 'afterSave'=>urlencode($this->createUrl($this->route, $this->getActionParams()))), array('class'=>'button noAjax f-center fancyButton'));
-	}
-}
+	'id'=>'ingredientsResult',
+)); 
 ?>
 <?php $this->endWidget(); ?>
+
 </div>

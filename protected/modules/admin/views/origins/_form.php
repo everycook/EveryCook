@@ -14,30 +14,37 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 
 See GPLv3.htm in the main folder for details.
 */
-
-$this->breadcrumbs=array(
-	'Ingredients'=>array('index'),
-	'Create',
-);
-
-$this->menu=array(
-	array('label'=>'List Ingredients', 'url'=>array('index')),
-	array('label'=>'Manage Ingredients', 'url'=>array('admin')),
-);
 ?>
+<div class="form">
 
-<h1><?php echo $this->trans->TITLE_INGREDIENTS_CREATE; ?></h1>
+<?php $form=$this->beginWidget('CActiveForm', array(
+	'id'=>'origins_form',
+	'enableAjaxValidation'=>false,
+)); ?>
 
-<?php echo $this->renderPartial('_form',array(
-		'model'=>$model,
-		'nutrientData'=>$nutrientData,
-		'groupNames'=>$groupNames,
-		'subgroupNames'=>$subgroupNames,
-		'origins'=>$origins,
-		'ingredientConveniences'=>$ingredientConveniences,
-		'storability'=>$storability,
-		'ingredientStates'=>$ingredientStates,
-		'ingredientConditions'=>$ingredientConditions,
-		'tempGroups'=>$tempGroups,
-		'ingToIng'=>$ingToIng,
-		)); ?>
+	<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
+	<?php
+	echo $form->errorSummary($model);
+	if ($this->errorText){
+			echo '<div class="errorSummary">';
+			echo $this->errorText;
+			echo '</div>';
+	}
+	
+	foreach($this->allLanguages as $lang=>$name){
+	echo '<div class="row">'."\r\n";
+		echo $form->labelEx($model,'ORI_DESC_'.$lang) ."\r\n";
+		echo $form->textField($model,'ORI_DESC_'.$lang,array('size'=>60,'maxlength'=>100)) ."\r\n";
+		echo $form->error($model,'ORI_DESC_'.$lang) ."\r\n";
+	echo '</div>'."\r\n";
+	}
+	?>
+	
+	<div class="buttons">
+		<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE); ?>
+		<?php echo CHtml::link($this->trans->GENERAL_CANCEL, array('cancel'), array('class'=>'button', 'id'=>'cancel')); ?>
+	</div>
+	
+<?php $this->endWidget(); ?>
+
+</div><!-- form -->

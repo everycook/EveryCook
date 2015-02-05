@@ -63,9 +63,9 @@ if (!$history){
 				if ($step->ingredient != null){
 					if (!isset($ingredient_printed[$step->ingredient->ING_ID])){
 						echo '<li>';
-							echo CHtml::link($step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']), array('ingredients/view', 'id'=>$step->ingredient->ING_ID), array('title'=>$this->trans->RECIPES_TOOLTIP_OPEN_INGREDIENT));
+							echo CHtml::link($step->ingredient->__get('ING_NAME_' . Yii::app()->session['lang']), array('ingredients/view', 'id'=>$step->ingredient->ING_ID), array('title'=>$this->trans->RECIPES_TOOLTIP_OPEN_INGREDIENT, 'class'=>'fancyLink'));
 							echo '<div class="small_img">';
-								echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$step->ingredient['ING_ID'], 'ext'=>'.png')), $step->ingredient['ING_NAME_' . Yii::app()->session['lang']], array('class'=>'ingredient', 'title'=>$step->ingredient['ING_NAME_' . Yii::app()->session['lang']])), array('ingredients/view', 'id'=>$step->ingredient['ING_ID']));
+								echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$step->ingredient['ING_ID'], 'ext'=>'.png')), $step->ingredient['ING_NAME_' . Yii::app()->session['lang']], array('class'=>'ingredient', 'title'=>$step->ingredient['ING_NAME_' . Yii::app()->session['lang']])), array('ingredients/view', 'id'=>$step->ingredient['ING_ID']), array('class'=>'fancyLink'));
 								echo '<div class="img_auth">';
 								if ($step->ingredient['ING_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $step->ingredient['ING_IMG_AUTH']; }
 								echo '</div>';
