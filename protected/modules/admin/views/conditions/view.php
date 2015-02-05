@@ -16,28 +16,37 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Ingredients'=>array('index'),
-	'Create',
+	'Conditions'=>array('index'),
+	$model->CND_ID,
 );
 
 $this->menu=array(
-	array('label'=>'List Ingredients', 'url'=>array('index')),
-	array('label'=>'Manage Ingredients', 'url'=>array('admin')),
+	array('label'=>'List Conditions', 'url'=>array('index')),
+	array('label'=>'Create Conditions', 'url'=>array('create')),
+	array('label'=>'Update Conditions', 'url'=>array('update', 'id'=>$model->CND_ID)),
+	array('label'=>'Delete Conditions', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->CND_ID),'confirm'=>'Are you sure you want to delete this item?')),
+	array('label'=>'Manage Conditions', 'url'=>array('admin')),
+);
+
+$this->mainButtons = array(
+	array('label'=>$this->trans->GENERAL_EDIT, 'link_id'=>'middle_single', 'url'=>array('update',$this->getActionParams())),
 );
 ?>
 
-<h1><?php echo $this->trans->TITLE_INGREDIENTS_CREATE; ?></h1>
+<h1><?php printf($this->trans->TITLE_CONDITIONS_VIEW, $model->CND_ID); ?></h1><div class="f-center">
+	<?php
+ echo CHtml::link($this->trans->GENERAL_BACK_TO_SEARCH, array('search'), array('class'=>'button')); ?><br>
+</div>
 
-<?php echo $this->renderPartial('_form',array(
-		'model'=>$model,
-		'nutrientData'=>$nutrientData,
-		'groupNames'=>$groupNames,
-		'subgroupNames'=>$subgroupNames,
-		'origins'=>$origins,
-		'ingredientConveniences'=>$ingredientConveniences,
-		'storability'=>$storability,
-		'ingredientStates'=>$ingredientStates,
-		'ingredientConditions'=>$ingredientConditions,
-		'tempGroups'=>$tempGroups,
-		'ingToIng'=>$ingToIng,
-		)); ?>
+<?php $this->widget('zii.widgets.CDetailView', array(
+	'data'=>$model,
+	'attributes'=>array(
+		'CND_ID',
+		'CND_DESC_EN_GB',
+		'CND_DESC_DE_CH',
+		'CREATED_BY',
+		'CREATED_ON',
+		'CHANGED_BY',
+		'CHANGED_ON',
+	),
+)); ?>

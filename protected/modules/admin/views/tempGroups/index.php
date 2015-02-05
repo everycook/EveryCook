@@ -16,28 +16,30 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Ingredients'=>array('index'),
-	'Create',
+	'Temp Groups',
 );
 
 $this->menu=array(
-	array('label'=>'List Ingredients', 'url'=>array('index')),
-	array('label'=>'Manage Ingredients', 'url'=>array('admin')),
+	array('label'=>'Create TempGroups', 'url'=>array('create')),
+	array('label'=>'Manage TempGroups', 'url'=>array('admin')),
 );
+
+if (!$this->isFancyAjaxRequest){
+	//if ($this->validSearchPerformed){
+		$this->mainButtons = array(
+			array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('create',array('newModel'=>time()))),
+		);
+	//}
+}
 ?>
 
-<h1><?php echo $this->trans->TITLE_INGREDIENTS_CREATE; ?></h1>
+<h1><?php echo $this->trans->TITLE_TEMPGROUPS_LIST; ?></h1>
+<div class="f-center">
+	<?php
+  echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('create','newModel'=>time()), array('class'=>'button', 'id'=>'create')); ?><br>
+</div>
 
-<?php echo $this->renderPartial('_form',array(
-		'model'=>$model,
-		'nutrientData'=>$nutrientData,
-		'groupNames'=>$groupNames,
-		'subgroupNames'=>$subgroupNames,
-		'origins'=>$origins,
-		'ingredientConveniences'=>$ingredientConveniences,
-		'storability'=>$storability,
-		'ingredientStates'=>$ingredientStates,
-		'ingredientConditions'=>$ingredientConditions,
-		'tempGroups'=>$tempGroups,
-		'ingToIng'=>$ingToIng,
-		)); ?>
+<?php $this->widget('AjaxPagingListView', array(
+	'dataProvider'=>$dataProvider,
+	'itemView'=>'_view_array',
+)); ?>

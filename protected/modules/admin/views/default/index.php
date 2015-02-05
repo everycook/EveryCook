@@ -45,5 +45,8 @@ $this->breadcrumbs=array(
 	<?php echo CHtml::link('food Allergy', array('foodAllergy/search'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('diet', array('diet/search'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('cooking Stove', array('cookingStove/search'), array('class'=>'button')); ?><br />
+	<?php echo CHtml::link('conditions', array('conditions/search'), array('class'=>'button')); ?><br />
+	<?php echo CHtml::link('tempGroups', array('tempGroups/search'), array('class'=>'button')); ?><br />
+	<?php echo CHtml::link('origins', array('origins/search'), array('class'=>'button')); ?>
 	</div>
 </div>

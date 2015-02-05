@@ -16,28 +16,20 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Ingredients'=>array('index'),
-	'Create',
+	'Temp Groups'=>array('index'),
+	$model->TGR_ID=>array('view','id'=>$model->TGR_ID),
+	'Update',
 );
 
 $this->menu=array(
-	array('label'=>'List Ingredients', 'url'=>array('index')),
-	array('label'=>'Manage Ingredients', 'url'=>array('admin')),
+	array('label'=>'List TempGroups', 'url'=>array('index')),
+	array('label'=>'Create TempGroups', 'url'=>array('create')),
+	array('label'=>'View TempGroups', 'url'=>array('view', 'id'=>$model->TGR_ID)),
+	array('label'=>'Manage TempGroups', 'url'=>array('admin')),
 );
 ?>
 
-<h1><?php echo $this->trans->TITLE_INGREDIENTS_CREATE; ?></h1>
-
-<?php echo $this->renderPartial('_form',array(
-		'model'=>$model,
-		'nutrientData'=>$nutrientData,
-		'groupNames'=>$groupNames,
-		'subgroupNames'=>$subgroupNames,
-		'origins'=>$origins,
-		'ingredientConveniences'=>$ingredientConveniences,
-		'storability'=>$storability,
-		'ingredientStates'=>$ingredientStates,
-		'ingredientConditions'=>$ingredientConditions,
-		'tempGroups'=>$tempGroups,
-		'ingToIng'=>$ingToIng,
-		)); ?>
+<h1><?php printf($this->trans->TITLE_TEMPGROUPS_UPDATE, $model->TGR_ID); ?></h1>
+<?php echo $this->renderPartial('_form', array(
+	'model'=>$model,
+	)); ?>

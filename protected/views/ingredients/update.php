@@ -32,11 +32,15 @@ $this->menu=array(
 <h1><?php printf($this->trans->TITLE_INGREDIENTS_UPDATE, $model->ING_ID); ?></h1>
 
 <?php echo $this->renderPartial('_form',array(
-			'model'=>$model,
-			'nutrientData'=>$nutrientData,
-			'groupNames'=>$groupNames,
-			'subgroupNames'=>$subgroupNames,
-			'ingredientConveniences'=>$ingredientConveniences,
-			'storability'=>$storability,
-			'ingredientStates'=>$ingredientStates,
-			)); ?>
+		'model'=>$model,
+		'nutrientData'=>$nutrientData,
+		'groupNames'=>$groupNames,
+		'subgroupNames'=>$subgroupNames,
+		'origins'=>$origins,
+		'ingredientConveniences'=>$ingredientConveniences,
+		'storability'=>$storability,
+		'ingredientStates'=>$ingredientStates,
+		'ingredientConditions'=>$ingredientConditions,
+		'tempGroups'=>$tempGroups,
+		'ingToIng'=>$ingToIng,
+		)); ?>

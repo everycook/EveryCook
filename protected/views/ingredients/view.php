@@ -37,13 +37,15 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 
 <div class="detailView" id="ingredients">
 <?php
-	if (isset(Yii::app()->session['Ingredients'])){
-		if (isset(Yii::app()->session['Ingredients']['model'])){
-			$back_url = array('ingredients/advanceSearch');
-		} else {
-			$back_url = array('ingredients/search');
+	if (!$this->isFancyAjaxRequest){
+		if (isset(Yii::app()->session['Ingredients'])){
+			if (isset(Yii::app()->session['Ingredients']['model'])){
+				$back_url = array('ingredients/advanceSearch');
+			} else {
+				$back_url = array('ingredients/search');
+			}
+			echo CHtml::link(CHtml::encode($this->trans->INGREDIENTS_BACK_TO_INGREDIENTS), $back_url, array('class'=>'button f-center')); 
 		}
-		echo CHtml::link(CHtml::encode($this->trans->INGREDIENTS_BACK_TO_INGREDIENTS), $back_url, array('class'=>'button f-center')); 
 	}
 	$ingredientName = $model->__get('ING_NAME_'.Yii::app()->session['lang']);
 	?>
@@ -84,8 +86,29 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 				echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_SUBGROUP) .':</span> <span class="value">' . CHtml::encode($model->subgroupNames['SGR_DESC_'.Yii::app()->session['lang']]) ."</span></span><br>\n";
 			}
 			echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_STORABILITY) .':</span> <span class="value">' . CHtml::encode($model->storability['STB_DESC_'.Yii::app()->session['lang']]) ."</span></span><br>\n";
+			if (isset($model->origins) && $model->origins->ORI_ID != IngredientsController::ORIGIN_IGNORE_ID){
+				echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_ORIGINS) .':</span> <span class="value">' . CHtml::encode($model->origins['ORI_DESC_'.Yii::app()->session['lang']]) ."</span></span><br>\n";
+			}
+			
 			echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_CONVENIENCE) .':</span> <span class="value">' . CHtml::encode($model->ingredientConveniences['ICO_DESC_'.Yii::app()->session['lang']]) ."</span></span><br>\n";
-			echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_STATE) .':</span> <span class="value">' . CHtml::encode($model->ingredientStates['IST_DESC_'.Yii::app()->session['lang']]) ."</span></span>\n";
+			echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_STATE) .':</span> <span class="value">' . CHtml::encode($model->ingredientStates['IST_DESC_'.Yii::app()->session['lang']]) ."</span></span><br>\n";
+			if (isset($model->conditions)){
+				echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_CONDITIONS) .':</span> <span class="value">' . CHtml::encode($model->conditions['CND_DESC_'.Yii::app()->session['lang']]) ."</span></span><br>\n";
+			}
+			echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_STORAGE_TEMP) .':</span> <span class="value">';
+			if (isset($model->ING_MIN_TEMP)){
+				if (isset($model->ING_MAX_TEMP)){
+					echo sprintf($this->trans->INGREDIENTS_TEMP_RANGE, $model->ING_MIN_TEMP, $model->ING_MAX_TEMP);
+				} else {
+					echo sprintf($this->trans->INGREDIENTS_TEMP_ABOVE, $model->ING_MIN_TEMP);
+				}
+			} else if (isset($model->ING_MAX_TEMP)){
+				echo sprintf($this->trans->INGREDIENTS_TEMP_BELOW, $model->ING_MAX_TEMP);
+			} else {
+				echo CHtml::encode($model->tempGroups['TGR_DESC_'.Yii::app()->session['lang']]);
+			}
+			echo "</span></span><br>\n";
+			echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_STORAGE_IN_FREEZER) .':</span> <span class="value">' . (($model->ING_FREEZER == 'Y')? $this->trans->GENERAL_YES: $this->trans->GENERAL_NO) ."</span></span>\n";
 			?>
 		</div>
 		<div class="clearfix"></div>
@@ -250,15 +273,7 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 			$index = 0;
 			foreach($recipes as $recipe){
 				if ($index < IngredientsController::RECIPES_AMOUNT){
-					echo '<div class="item">';
-						echo CHtml::link($recipe['REC_NAME_' . Yii::app()->session['lang']], array('recipes/view', 'id'=>$recipe['REC_ID']), array('class'=>'title', 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']]));
-						echo '<div class="small_img">';
-							echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), $recipe['REC_NAME_' . Yii::app()->session['lang']], array('class'=>'recipe', 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']])), array('recipes/view', 'id'=>$recipe['REC_ID']));
-							echo '<div class="img_auth">';
-							if ($recipe['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $recipe['REC_IMG_AUTH']; }
-							echo '</div>';
-						echo '</div>';
-					echo '</div>';
+					$this->checkRenderAjax('../recipes/_preview',array('recipe'=>$recipe, 'linkTarget'=>'_blank'), 'inline');
 					if ($otherItemsAmount['recipes'] > IngredientsController::RECIPES_AMOUNT){
 						$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.idx' . $index . ' = {img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$recipe['REC_ID'])).'", auth:"'.$recipe['REC_IMG_AUTH'].'", name:"'.$recipe['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
 					}
@@ -310,7 +325,7 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 						$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.product.idx' . $index . ' = {img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$product['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$product['PRO_ID'])).'", auth:"'.$product['PRO_IMG_AUTH'].'", name:"'.$product['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
 					}
 				} else {
-					$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.product.idx' . $index . ' = {img:"'.$this->createUrl('products/displaySavedImage', array('id'=>$product['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$product['PRO_ID'])).'", auth:"'.$product['PRO_IMG_AUTH'].'", name:"'.$product['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
+					$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.product.idx' . $index . ' = {img:"'.$this->createUrl('prod ucts/displaySavedImage', array('id'=>$product['PRO_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('products/view', array('id'=>$product['PRO_ID'])).'", auth:"'.$product['PRO_IMG_AUTH'].'", name:"'.$product['PRO_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
 				}
 				++$index;
 			}
@@ -324,6 +339,18 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 		?>
 	</div>
 	<?php */ ?>
+	<?php if (count($model->ingToIngs)>0) { ?>
+	<div class="ingredients otherItems">
+		<?php
+		echo '<div class="otherItemsTitle">'.sprintf($this->trans->INGREDIENTS_MAIN_INGREDIENTS, $ingredientName).'</div>';
+		foreach($model->ingToIngs as $ingToIng){
+			$ingredient = $ingToIng->ingredient2;
+			$this->checkRenderAjax('_preview',array('ingredient'=>$ingredient, 'linkClass'=>'fancyLink'), 'inline');
+		}
+		echo '<div class="clearfix"></div>';
+		?>
+	</div>
+	<?php } ?>
 	<div class="clearfix"></div>
 </div>
 <?php echo '<script>' . $preloadedInfoResetScript . "\r\n".'</script>'; ?>

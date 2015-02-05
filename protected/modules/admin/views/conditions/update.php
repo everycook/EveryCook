@@ -16,28 +16,20 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Ingredients'=>array('index'),
-	'Create',
+	'Conditions'=>array('index'),
+	$model->CND_ID=>array('view','id'=>$model->CND_ID),
+	'Update',
 );
 
 $this->menu=array(
-	array('label'=>'List Ingredients', 'url'=>array('index')),
-	array('label'=>'Manage Ingredients', 'url'=>array('admin')),
+	array('label'=>'List Conditions', 'url'=>array('index')),
+	array('label'=>'Create Conditions', 'url'=>array('create')),
+	array('label'=>'View Conditions', 'url'=>array('view', 'id'=>$model->CND_ID)),
+	array('label'=>'Manage Conditions', 'url'=>array('admin')),
 );
 ?>
 
-<h1><?php echo $this->trans->TITLE_INGREDIENTS_CREATE; ?></h1>
-
-<?php echo $this->renderPartial('_form',array(
-		'model'=>$model,
-		'nutrientData'=>$nutrientData,
-		'groupNames'=>$groupNames,
-		'subgroupNames'=>$subgroupNames,
-		'origins'=>$origins,
-		'ingredientConveniences'=>$ingredientConveniences,
-		'storability'=>$storability,
-		'ingredientStates'=>$ingredientStates,
-		'ingredientConditions'=>$ingredientConditions,
-		'tempGroups'=>$tempGroups,
-		'ingToIng'=>$ingToIng,
-		)); ?>
+<h1><?php printf($this->trans->TITLE_CONDITIONS_UPDATE, $model->CND_ID); ?></h1>
+<?php echo $this->renderPartial('_form', array(
+	'model'=>$model,
+	)); ?>

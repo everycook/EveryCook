@@ -16,28 +16,20 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Ingredients'=>array('index'),
-	'Create',
+	'Origins'=>array('index'),
+	$model->ORI_ID=>array('view','id'=>$model->ORI_ID),
+	'Update',
 );
 
 $this->menu=array(
-	array('label'=>'List Ingredients', 'url'=>array('index')),
-	array('label'=>'Manage Ingredients', 'url'=>array('admin')),
+	array('label'=>'List Origins', 'url'=>array('index')),
+	array('label'=>'Create Origins', 'url'=>array('create')),
+	array('label'=>'View Origins', 'url'=>array('view', 'id'=>$model->ORI_ID)),
+	array('label'=>'Manage Origins', 'url'=>array('admin')),
 );
 ?>
 
-<h1><?php echo $this->trans->TITLE_INGREDIENTS_CREATE; ?></h1>
-
-<?php echo $this->renderPartial('_form',array(
-		'model'=>$model,
-		'nutrientData'=>$nutrientData,
-		'groupNames'=>$groupNames,
-		'subgroupNames'=>$subgroupNames,
-		'origins'=>$origins,
-		'ingredientConveniences'=>$ingredientConveniences,
-		'storability'=>$storability,
-		'ingredientStates'=>$ingredientStates,
-		'ingredientConditions'=>$ingredientConditions,
-		'tempGroups'=>$tempGroups,
-		'ingToIng'=>$ingToIng,
-		)); ?>
+<h1><?php printf($this->trans->TITLE_ORIGINS_UPDATE, $model->ORI_ID); ?></h1>
+<?php echo $this->renderPartial('_form', array(
+	'model'=>$model,
+	)); ?>

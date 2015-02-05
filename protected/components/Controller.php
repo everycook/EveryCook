@@ -115,6 +115,9 @@ class Controller extends CController
 		if (isset($_GET['light_weight']) && $_GET['light_weight']){
 			return true;
 		}
+		if (isset($_GET['fancyAjax']) && $_GET['fancyAjax'] == 1){
+			$this->isFancyAjaxRequest = true;
+		}
 		if (isset($_GET['setDebug'])){
 			Yii::app()->session['debugEnabled'] = $_GET['setDebug'];
 		}
@@ -202,6 +205,9 @@ class Controller extends CController
 		$params = parent::getActionParams();
 		if (isset($params['_'])){ // remove "noCache"-param
 			unset($params['_']);
+		}
+		if (isset($params['fancyAjax'])){
+			unset($params['fancyAjax']);
 		}
 		return $params;
 	}

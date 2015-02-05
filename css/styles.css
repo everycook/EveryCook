@@ -1914,6 +1914,11 @@ div#recipes.detailView .otherNames {
 	display: inline-block;
 	float: left;
 }
+
+/* ingredient list*/
+#ingredientsResult .resultArea .button.moreInfo {
+	margin-right: 1em;
+}
 /* @end */
 
 
