@@ -2024,8 +2024,6 @@ class RecipesController extends Controller
 				$criteriaTypeOfCusine->distinct = true;
 				$criteriaTypeOfCusine->select = 'cut.CUT_ID,cut.CUT_DESC_' . Yii::app()->session['lang'] . $additionalSelect;
 				$commandTypeOfCusine = $this->criteriaToCommand($criteriaTypeOfCusine);
-					var_dump($criteriaTypeOfCusine->params);
-					//die();
 				$commandTypeOfCusine->bindValues($criteriaTypeOfCusine->params);
 				$typeOfCusine = $commandTypeOfCusine->queryAll();
 				if ($this->debug) {
