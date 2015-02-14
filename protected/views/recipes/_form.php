@@ -195,9 +195,11 @@ $cookin = '#cookin#';
 			<div class="imageTip">
 			<?php
 			echo $this->trans->TIP_OWN_IMAGE . '<br>';
+			/*
 			echo $this->trans->TIP_FLICKR_IMAGE . '<br>';
 			printf($this->trans->TIP_LOOK_ON_FLICKR, $model->__get('REC_NAME_EN_GB')); //.Yii::app()->session['lang']
 			echo '<br>';
+			*/
 			echo $form->FileField($model,'filename');
 			?>
 			</div>

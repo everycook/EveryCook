@@ -26,7 +26,9 @@ See GPLv3.htm in the main folder for details.
 	'action'=>Yii::app()->createUrl($this->route, array_merge($this->getActionParams(), array('ajaxform'=>true))),
     'htmlOptions'=>array('enctype' => 'multipart/form-data', 'class'=>'ajaxupload'),
 )); ?>
+<?php /* ?>
 	<div class="mapDetails">
+<?php */ ?>
 		<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
 		
 		<?php
@@ -122,7 +124,8 @@ See GPLv3.htm in the main folder for details.
 			<?php echo $form->passwordField($model,'pw_repeat',array('size'=>60,'maxlength'=>256)); ?>
 			<?php echo $form->error($model,'pw_repeat'); ?>
 		</div>
-		
+
+<?php /* ?>
 		<div class="row">
 			<img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/locate.png" id="setMarkerCurrentGPS"/>
 			<span><?php echo $this->trans->PROFILES_SEARCH_CURRENT_POSITION; ?></span>
@@ -147,7 +150,7 @@ See GPLv3.htm in the main folder for details.
 			<?php echo Functions::activeSpecialField($model, 'PRF_VIEW_DISTANCE', 'number'); ?>
 			<?php echo $form->error($model,'PRF_VIEW_DISTANCE'); ?>
 		</div>
-		
+<?php */ ?>		
 		<div class="row">
 			<?php if(isset($model->PRF_TWITTER_OAUTH_TOKEN) && $model->PRF_TWITTER_OAUTH_TOKEN != '' && isset($model->PRF_TWITTER_OAUTH_TOKEN_SECRET) && $model->PRF_TWITTER_OAUTH_TOKEN_SECRET != '') {
 				echo CHtml::link($this->trans->PROFILES_TWEETER_REMOVE, array('removeTwitter'), array('class'=>'button noAjax', 'id'=>'removeTwitter'));
@@ -156,111 +159,22 @@ See GPLv3.htm in the main folder for details.
 				echo CHtml::link($this->trans->PROFILES_TWEETER_ADD, array('addTwitter'), array('class'=>'button noAjax', 'id'=>'addTwitter'));
 			} ?>
 		</div>
-		
-	<?php /*
-		<div class="row">
-			<?php echo $form->labelEx($model,'PRF_LOC_GPS_POINT'); ?>
-			<?php echo $form->textField($model,'PRF_LOC_GPS_POINT'); ?>
-			<?php echo $form->error($model,'PRF_LOC_GPS_POINT'); ?>
-		</div>
 
-		<div class="row">
-			<?php echo $form->labelEx($model,'PRF_LIKES_I'); ?>
-			<?php echo $form->textArea($model,'PRF_LIKES_I',array('rows'=>6, 'cols'=>50)); ?>
-			<?php echo $form->error($model,'PRF_LIKES_I'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($model,'PRF_LIKES_R'); ?>
-			<?php echo $form->textArea($model,'PRF_LIKES_R',array('rows'=>6, 'cols'=>50)); ?>
-			<?php echo $form->error($model,'PRF_LIKES_R'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($model,'PRF_LIKES_P'); ?>
-			<?php echo $form->textArea($model,'PRF_LIKES_P',array('rows'=>6, 'cols'=>50)); ?>
-			<?php echo $form->error($model,'PRF_LIKES_P'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($model,'PRF_LIKES_S'); ?>
-			<?php echo $form->textArea($model,'PRF_LIKES_S',array('rows'=>6, 'cols'=>50)); ?>
-			<?php echo $form->error($model,'PRF_LIKES_S'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($model,'PRF_NOTLIKES_I'); ?>
-			<?php echo $form->textArea($model,'PRF_NOTLIKES_I',array('rows'=>6, 'cols'=>50)); ?>
-			<?php echo $form->error($model,'PRF_NOTLIKES_I'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($model,'PRF_NOTLIKES_R'); ?>
-			<?php echo $form->textArea($model,'PRF_NOTLIKES_R',array('rows'=>6, 'cols'=>50)); ?>
-			<?php echo $form->error($model,'PRF_NOTLIKES_R'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($model,'PRF_NOTLIKES_P'); ?>
-			<?php echo $form->textArea($model,'PRF_NOTLIKES_P',array('rows'=>6, 'cols'=>50)); ?>
-			<?php echo $form->error($model,'PRF_NOTLIKES_P'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($model,'PRF_SHOPLISTS'); ?>
-			<?php echo $form->textArea($model,'PRF_SHOPLISTS',array('rows'=>6, 'cols'=>50)); ?>
-			<?php echo $form->error($model,'PRF_SHOPLISTS'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($model,'PRF_ACTIVE'); ?>
-			<?php echo $form->textField($model,'PRF_ACTIVE'); ?>
-			<?php echo $form->error($model,'PRF_ACTIVE'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($model,'PRF_RND'); ?>
-			<?php echo $form->textField($model,'PRF_RND',array('size'=>60,'maxlength'=>100)); ?>
-			<?php echo $form->error($model,'PRF_RND'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($model,'CREATED_BY'); ?>
-			<?php echo $form->textField($model,'CREATED_BY'); ?>
-			<?php echo $form->error($model,'CREATED_BY'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($model,'CREATED_ON'); ?>
-			<?php echo $form->textField($model,'CREATED_ON'); ?>
-			<?php echo $form->error($model,'CREATED_ON'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($model,'CHANGED_BY'); ?>
-			<?php echo $form->textField($model,'CHANGED_BY'); ?>
-			<?php echo $form->error($model,'CHANGED_BY'); ?>
-		</div>
-
-		<div class="row">
-			<?php echo $form->labelEx($model,'CHANGED_ON'); ?>
-			<?php echo $form->textField($model,'CHANGED_ON'); ?>
-			<?php echo $form->error($model,'CHANGED_ON'); ?>
-		</div>
-		*/ ?>
 		<div class="buttons">
 			<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE); ?>
 			<?php echo CHtml::link($this->trans->GENERAL_CANCEL, array('cancel'), array('class'=>'button', 'id'=>'cancel')); ?>
 		</div>
+<?php /* ?>
 	</div>
 	<strong><?php echo $this->trans->PROFILES_SELECT_HOME; ?></strong>
 	<div id="map_canvas" style="height:300px; width:300px;"></div>
 	<div class="clearfix"></div>
-
+<?php */ ?>
 <?php $this->endWidget(); ?>
-
+<?php /* ?>
 <script type="text/javascript">
 	loadScript(false, "CH", false, false, true, true);
 </script>
+<?php */ ?>
 
 </div><!-- form -->

@@ -890,7 +890,12 @@ class Functions extends CHtml{
 			Yii::app()->session[$sessionBackupName.'_Time'] = time();
 			
 			if ($sucessfull === true){
-				echo '{imageId:"backup", author:"' . $model->__get($pictureFieldName . '_AUTH') . '"}';
+				if($model->__isset($pictureFieldName . '_AUTH')){
+					$auth = $model->__get($pictureFieldName . '_AUTH');
+				} else {
+					$auth = '';
+				} 
+				echo '{imageId:"backup", author:"' . $auth . '"}';
 				exit;
 			} else if ($sucessfull == -1){
 				//TODO: Yii::app()->controller->trans->

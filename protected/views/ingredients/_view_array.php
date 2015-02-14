@@ -48,7 +48,7 @@ See GPLv3.htm in the main folder for details.
 		} else {
 			echo CHtml::link($this->trans->GENERAL_SELECT, $data['ING_ID'], array('class'=>'f-right button IngredientSelect'));
 		}
-		echo CHtml::link($this->trans->INGREDIENTS_MORE_DETAILS, array('ingredients/view', 'id'=>$data['ING_ID']), array('class'=>'f-right button fancyButton moreInfo'));
+		echo CHtml::link($this->trans->INGREDIENTS_MORE_DETAILS, array('ingredients/view', 'id'=>$data['ING_ID']), array('class'=>'f-right button fancyButton moreInfo reopenCurrentFancyOnClose'));
 	} else {
 		?>
 		<div class="options">

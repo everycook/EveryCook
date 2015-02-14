@@ -32,9 +32,9 @@ if (!$this->isFancyAjaxRequest){
 	//}
 }
 
-$advanceSearch = array(($this->isFancyAjaxRequest)?'advanceChooseIngredient':'advanceSearch');
-if (isset(Yii::app()->session['Conditions']) && isset(Yii::app()->session['Conditions']['time'])){
-	$advanceSearch=array_merge($advanceSearch,array('newSearch'=>Yii::app()->session['Conditions']['time']));
+$simpleSearch = array(($this->isFancyAjaxRequest)?'chooseActionsIn':'search');
+if (isset(Yii::app()->session['ActionsIn']) && isset(Yii::app()->session['ActionsIn']['time'])){
+	$simpleSearch=array_merge($simpleSearch,array('newSearch'=>Yii::app()->session['ActionsIn']['time']));
 }
 
 if ($this->isFancyAjaxRequest){ ?>

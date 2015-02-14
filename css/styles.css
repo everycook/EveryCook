@@ -468,6 +468,7 @@ div.resultArea.adminArea .name a {
 
 .list_img {
 	float: left;
+	position: relative;
 }
 
 .img_auth {
@@ -586,6 +587,8 @@ div.ingInfo .value {
 	font-weight: bold;
 }
 
+/* @group recipe result */
+
 #recipeSearchArea div.search {
 	width: 100%;
 	display: table;
@@ -647,11 +650,26 @@ with this change (fix 100%) it will brake to 2. line also if it's not needed...
 }
 #recipesResult div.resultArea div.options a {
 	margin-bottom: 0.8em;
+	margin-right: 0;
 }
 
 #recipesResult div.resultArea div.options a.last {
 	margin-bottom: 0;
 }
+
+#recipesResult div.resultArea {
+	padding-right: 13.8em;
+}
+
+#recipesResult .resultArea.professional {
+	background-color: lightgray;
+	padding-right: 0.8em;
+}
+
+#recipesResult .resultArea .professionalPic {
+	float: right;
+	margin-left: 1em;
+} 
 
 #recipeOrderBy {
 	position: absolute;
@@ -668,6 +686,25 @@ with this change (fix 100%) it will brake to 2. line also if it's not needed...
 	margin-top: 1em;
 	padding: 1em;
 }
+
+.list_img .pro_flag {
+	background-color: orange;
+	color: white;
+	position: absolute;
+	left: -0.5em;
+	top: 1em;
+	min-width: 5em;
+	text-align: center;
+	text-transform: uppercase;
+	-ms-transform: rotate(-35deg);
+	-webkit-transform: rotate(-35deg);
+	transform: rotate(-35deg);
+}
+#ingredients_form .suggestions {
+	font-size: 2em;
+}
+
+/* @end */
 
 div.detailView {
 	border-radius:1.7em;
@@ -1790,6 +1827,7 @@ div#recipes.detailView .step .stepNo,
 	width: 1.6em;
 	color: white;
 }
+
 /* @end redesign */
 
 
@@ -1955,10 +1993,98 @@ div#recipes.detailView .otherNames {
 	width: 3em;
 	height: 3em;
 }
+
+.containing .item {
+	float: left;
+	background-color: lightgray;
+	padding-right: 0.5em;
+	margin-right: 1em;
+}
+.containing .item .title {
+	line-height: 3.8em;
+}
+.very_small_img {
+    width: 3em;
+}
+.very_small_img .img_auth {
+    color: #c0c0c0;
+    font-size: 0.3em;
+}
+.containing .item .very_small_img .img_auth {
+    white-space: nowrap;
+    color: #333333;
+}
+.very_small_img img {
+    display: inline-block;
+    height: 3em !important;
+    width: 3em !important;
+}
+.containing .item .very_small_img {
+	float: left;
+	margin: 0.2em 0.5em 0.2em 0.2em;
+}
+/* @end */
+
+/* @group MainPage / template */
+#search_form {
+	height: 0;
+}
+#search_form .search {
+	width: auto;
+	padding-top: 2.25em;
+	padding-left: 7.5em;
+}
+#search_form .search_button {
+	height: 2.2em;
+	margin-left: 0.5em;
+}
+.select2-choices {
+    display:-webkit-inline-box;
+    width:250px;
+ 
+}
+
+#search_form .select2-container-multi .select2-choices {
+	/*direction: rtl;*/
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+#search_form .select2-container-multi .select2-choices .select2-search-choice,
+#search_form .select2-container-multi .select2-choices .select2-search-field {
+	/*direction : ltr;*/
+	float: none;
+	display: inline-block;
+}
+/* @end */
+
+/* @group admin*/
+#textesSearch .resultArea,
+#textesAdvanceSearch .resultArea {
+	min-height: auto;
+}
+
+#textesSearch label,
+#textesAdvanceSearch label {
+	display: inline-block;
+	width: 13em;
+}
+
+#textesSearch .resultArea b,
+#textesAdvanceSearch .resultArea b {
+	display: inline-block;
+	width: 13em;
+}
+#textes textarea {
+	height: 10em;
+	width: 40em;
+}
+#textes div.form .row input[type="text"]{
+	width: 36em;
+}
 /* @end */
 
 /* @group view Size change */
-
 @media all and (orientation:portrait) {
 	body {
 		font-size: 0.8em;

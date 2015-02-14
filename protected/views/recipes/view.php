@@ -53,7 +53,7 @@ if (!$history){
 		*/
 		?>
 		<?php //echo CHtml::link(CHtml::encode($this->trans->MEALPLANNER_SAVE_TO_SHOPPINGLIST), array('shoppinglists/view', 'rec_id'=>$model->REC_ID), array('class'=>'button')); ?>
-		<?php echo CHtml::link($this->trans->RECIPES_VIEW_SHOPPINGLIST, array('recipes/viewShoppingList', 'id'=>$model->REC_ID), array('class'=>'button', 'id'=>'viewShoppingList')); ?>
+		<?php echo CHtml::link($this->trans->RECIPES_VIEW_SHOPPINGLIST, array('recipes/viewShoppingList', 'ids'=>$model->REC_ID), array('class'=>'button', 'id'=>'viewShoppingList')); ?>
 		<div class="otherItems ingredients">
 			<?php echo CHtml::encode($this->trans->RECIPES_INGREDIENTS_NEEDED); ?>
 			<ul>

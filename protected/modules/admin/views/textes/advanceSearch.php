@@ -16,12 +16,12 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Action Types',
+	'Textes',
 );
 
 $this->menu=array(
-	array('label'=>'Create ActionTypes', 'url'=>array('create')),
-	array('label'=>'Manage ActionTypes', 'url'=>array('admin')),
+	array('label'=>'Create Textes', 'url'=>array('create')),
+	array('label'=>'Manage Textes', 'url'=>array('admin')),
 );
 
 if (!$this->isFancyAjaxRequest){
@@ -38,16 +38,16 @@ if (isset(Yii::app()->session['ActionsIn']) && isset(Yii::app()->session['Action
 }
 
 if ($this->isFancyAjaxRequest){ ?>
-	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('advanceChooseActionTypes'); ?>"/>
+	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('advanceChooseTextes'); ?>"/>
 	<?php
 }
 ?>
 
-<div id="action-typesAdvanceSearch">
+<div id="textesAdvanceSearch">
 <?php  $form=$this->beginWidget('CActiveForm', array(
 		'action'=>Yii::app()->createUrl($this->route),
 		'method'=>'post',
-		'id'=>'action-types_form',
+		'id'=>'textes_form',
 		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 	)); ?>
 	<div class="f-left search">
@@ -59,7 +59,7 @@ if ($this->isFancyAjaxRequest){ ?>
 		<?php  echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
 	</div>
 	<div class="f-right">
-		<?php  echo CHtml::link($this->trans->GENERAL_SIMPLE_SEARCH, $simpleSearch, array('class'=>'button', 'id'=>'simpleSearch')); ?><br>
+		<?php echo CHtml::link($this->trans->GENERAL_SIMPLE_SEARCH, $simpleSearch, array('class'=>'button', 'id'=>'simpleSearch')); ?><br>
 	</div>
 	<div class="f-center">
 		<?php  echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('create','newModel'=>time()), array('class'=>'button', 'id'=>'create')); ?><br>
@@ -67,34 +67,32 @@ if ($this->isFancyAjaxRequest){ ?>
 	
 	<div class="clearfix"></div>
 	
-<?php
-/*	
-	
 	<div class="row">
-		<?php echo $form->label($model,'ATY_ID'); ?>
-		<?php echo $form->textField($model,'ATY_ID'); ?>
+		<?php echo $form->label($model,'TXT_NAME'); ?>
+		<?php echo $form->textField($model,'TXT_NAME',array('size'=>60,'maxlength'=>100)); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'ATY_DESC_EN_GB'); ?>
-		<?php echo $form->textField($model,'ATY_DESC_EN_GB',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->label($model,'EN_GB'); ?>
+		<?php echo $form->textField($model,'EN_GB',array('size'=>60,'maxlength'=>300)); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'ATY_DESC_DE_CH'); ?>
-		<?php echo $form->textField($model,'ATY_DESC_DE_CH',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->label($model,'DE_CH'); ?>
+		<?php echo $form->textField($model,'DE_CH',array('size'=>60,'maxlength'=>300)); ?>
 	</div>
 
-*/
-?>
-
+	<div class="row">
+		<?php echo $form->label($model,'FR_FR'); ?>
+		<?php echo $form->textField($model,'FR_FR',array('size'=>60,'maxlength'=>300)); ?>
+	</div>
 <br />
 
 <?php $this->widget('AjaxPagingListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'ajaxUpdate'=>false,
-	'id'=>'action-typesResult',
+	'id'=>'textesResult',
 )); ?>
 
 <?php $this->endWidget(); ?>

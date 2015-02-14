@@ -52,6 +52,10 @@ glob.changeLinkUrlParam = function(elem, param, newValue){
 	elem.attr('href', url);
 };
 
+glob.getRandomInt = function (min, max) {
+	return Math.floor(Math.random() * (max - min)) + min;
+}
+
 glob.select2 = {}
 glob.select2.searchRecipeAjax = {
 	url: glob.prefix + "recipes/autocomplete",
@@ -226,7 +230,15 @@ glob.select2.selectCusinesFormatSelection = function (cusine) {
 	return cusine.name;
 }
 
-function ajaxResponceHandler(data, type, asFancy){
+glob.changePage = function(hash){
+	if (glob.prefix && window.location.pathname != glob.prefix){
+		window.location.pathname = glob.prefix + '#' + hash;
+	} else {
+		window.location.hash = hash;
+	}
+}
+
+function ajaxResponceHandler(data, type, asFancy, fancyCloseCallback){
 	if (data.indexOf('{')===0){
 		eval('var data = ' + data + ';');
 	}
@@ -236,11 +248,7 @@ function ajaxResponceHandler(data, type, asFancy){
 				glob.setContentWithImageChangeToFancy(data, {});
 			}});
 		} else {
-			if (glob.prefix && window.location.pathname != glob.prefix){
-				window.location.pathname = glob.prefix + '#' + data.hash;
-			} else {
-				window.location.hash = data.hash;
-			}
+			glob.changePage(data.hash);
 		}
 	} else if (data.fancy){
 		jQuery.ajax({'type':'get', 'url':data.fancy,'cache':false,'success':function(data){
@@ -282,6 +290,9 @@ function ajaxResponceHandler(data, type, asFancy){
 				elem.attr('src', '');
 			});
 			content.find('a:not(.fancyButton):not(.fancyLink):not(.noAjax):not([target])').attr('target','_blank');
+			if (typeof(fancyCloseCallback) === 'undefined'){
+				fancyCloseCallback = function(){};
+			}
 			jQuery.fancybox({
 				'content':content,
 				'onComplete': function(){
@@ -291,7 +302,8 @@ function ajaxResponceHandler(data, type, asFancy){
 						elem.attr('src', url)
 					});
 					jQuery.event.trigger( "newContent", [type, jQuery('#fancybox-content')] );
-				}
+				},
+				'onClosed': fancyCloseCallback,
 			});
 		} else {
 			jQuery('#changable_content').html('');
@@ -543,6 +555,16 @@ jQuery(function($){
 		});
 	}
 	
+	function searchFieldUpdate(type, contentParent){
+		if (type == 'hash' || type == 'initial'){
+			if (glob.lastHash == 'site/index' || glob.lastHash == 'site'){
+				$('#search_form').hide();
+			} else {
+				$('#search_form').show();
+			}
+		}
+	}
+	
 	//All currently used types are: hash, form, ajax, fancy, html, paging
 	function newContentFunction(type, contentParent){
 		if (typeof(contentParent) === 'undefined') return;
@@ -555,6 +577,7 @@ jQuery(function($){
 		initAjaxPaging(type, contentParent);
 		updateHomeGPS(type, contentParent);
 		//initPlaceholders(type, contentParent);
+		searchFieldUpdate(type, contentParent);
 	}
 	
 	$('#page').bind('newContent.ajax_handling', function(e, type, contentParent) {
@@ -679,6 +702,8 @@ jQuery(function($){
 		return openInFancy(jQuery(this));
 	});
 	
+	glob.reopenCurrentFancyOnClose = [];
+	glob.reopenCurrentFancyOnCloseIndex = 0;
 	function openInFancy(elem){
 		var url = elem.attr('href');
 		if (url.indexOf('#')===0){
@@ -687,7 +712,43 @@ jQuery(function($){
 		url = glob.urlAddParamStart(url) + 'fancyAjax=1';
 		jQuery.ajax({'type':'get', 'url':url,'cache':false,'success':function(html){
 				//glob.setContentWithImageChangeToFancy(html, {});
-				ajaxResponceHandler(html, 'ajax', true);
+				var callback = undefined;
+				if(elem.hasClass('reopenCurrentFancyOnClose')){
+					var oldContent = $('#fancybox-content').children().children();
+					var holderId = 'backupFancy' + glob.getRandomInt(10000,99999);
+					var holder = $('<div style="display:none"><div class="fancyDataHolder" id="' + holderId + '"></div></div>');
+					holder.appendTo($('body'));
+					oldContent.appendTo(holder.find('.fancyDataHolder'));
+					callback = function(currentArray, currentIndex, currentOpts){
+						var index = glob.reopenCurrentFancyOnCloseIndex;
+						var oldClose = currentOpts.onClosed;
+						var prevIndex = index-1;
+						currentOpts.onClosed = function(){}; // don't call second time
+						glob.reopenCurrentFancyOnClose[index] = function(){
+							jQuery.fancybox({
+								'href': '#' + holderId,
+								'onComplete': function(){
+									jQuery.event.trigger( "newContent", ['fancy', jQuery('#fancybox-content')] );
+								},
+								'onClosed': function(){
+									holder.remove();
+									glob.reopenCurrentFancyOnClose[index] = undefined;
+									if (index == glob.reopenCurrentFancyOnCloseIndex-1){
+										glob.reopenCurrentFancyOnCloseIndex = index;
+									}
+//									if (typeof(glob.reopenCurrentFancyOnClose[prevIndex]) !== 'undefined'){
+//										window.setTimeout(glob.reopenCurrentFancyOnClose[prevIndex], 250);
+//									}
+//									currentOpts.onClosed = oldClose;
+								}
+							});
+						};
+						window.setTimeout(glob.reopenCurrentFancyOnClose[glob.reopenCurrentFancyOnCloseIndex], 250);
+						glob.reopenCurrentFancyOnCloseIndex++;
+						return false;
+					}
+				}
+				ajaxResponceHandler(html, 'ajax', true, callback);
 			},
 			'error':function(xhr){
 				ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
@@ -1198,7 +1259,9 @@ jQuery(function($){
 				elem.replaceWith('');
 			} else {
 				var newElements = jQuery(data);
-				newElements.find('a:not(.fancyButton):not(.fancyLink):not(.noAjax):not([target])').attr('target','_blank');
+				if (elem.closest('#fancybox-content').length>0){
+					newElements.find('a:not(.fancyButton):not(.fancyLink):not(.noAjax):not([target])').attr('target','_blank');
+				}
 				if (elem.is('#ajaxPagingPrev') && newElements.length>3){
 					ajaxpaging.doScrollTop = false;
 					var next = elem.next();
@@ -1630,6 +1693,11 @@ jQuery(function($){
 				event.preventDefault();
 			}
 		}
+	});
+	
+	//search on main
+	jQuery('body').undelegate('#search_form','submit').delegate('#search_form','submit', function(event){
+		$('#siteSearchRecipe').select2('val', '');
 	});
 	
 	

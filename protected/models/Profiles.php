@@ -70,6 +70,7 @@ See GPLv3.htm in the main folder for details.
  * @property string $PRF_EVERYCOOP_IP
  * @property string $PRF_TWITTER_OAUTH_TOKEN
  * @property string $PRF_TWITTER_OAUTH_TOKEN_SECRET
+ * @property string $PRF_RELOGIN_TOKEN
  * @property integer $CREATED_BY
  * @property integer $CREATED_ON
  * @property integer $CHANGED_BY
@@ -137,7 +138,7 @@ class Profiles extends ActiveRecordECPriv
 			array('PRF_GENDER, PRF_MISE_EN_PLACE', 'length', 'max'=>1),
 			array('PRF_LANG', 'length', 'max'=>10),
 			array('PRF_IMG_FILENAME', 'length', 'max'=>250),
-			array('PRF_IMG_ETAG', 'length', 'max'=>40),
+			array('PRF_IMG_ETAG, PRF_RELOGIN_TOKEN', 'length', 'max'=>40),
 			array('PRF_PW', 'length', 'max'=>256),
 			array('PRF_WORK_TITLE, PRF_WORK_LOCATION, PRF_CUT_IDS, PRF_ALLERGY, PRF_DIET_PREF, PRF_COOKING_STOVE_MEASUREMENTS, PRF_ACTIVITY_CALCULATOR', 'length', 'max'=>200),
 			array('PRF_TEMP_MEAT', 'length', 'max'=>11),
@@ -230,6 +231,7 @@ class Profiles extends ActiveRecordECPriv
 			'PRF_EVERYCOOP_IP' => 'Prf Everycoop Ip',
 			'PRF_TWITTER_OAUTH_TOKEN' => 'Prf Twitter Oauth Token',
 			'PRF_TWITTER_OAUTH_TOKEN_SECRET' => 'Prf Twitter Oauth Token Secret',
+			'PRF_RELOGIN_TOKEN' => 'Prf Relogin Token',
 			//'CREATED_BY' => 'Created By',
 			//'CREATED_ON' => 'Created On',
 			//'CHANGED_BY' => 'Changed By',
@@ -297,6 +299,7 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare($this->tableName().'.PRF_EVERYCOOP_IP',$this->PRF_EVERYCOOP_IP,true);
 		$criteria->compare($this->tableName().'.PRF_TWITTER_OAUTH_TOKEN',$this->PRF_TWITTER_OAUTH_TOKEN,true);
 		$criteria->compare($this->tableName().'.PRF_TWITTER_OAUTH_TOKEN_SECRET',$this->PRF_TWITTER_OAUTH_TOKEN_SECRET,true);
+		$criteria->compare($this->tableName().'.PRF_RELOGIN_TOKEN',$this->PRF_RELOGIN_TOKEN,true);
 		$criteria->compare($this->tableName().'.CREATED_BY',$this->CREATED_BY);
 		$criteria->compare($this->tableName().'.CREATED_ON',$this->CREATED_ON);
 		$criteria->compare($this->tableName().'.CHANGED_BY',$this->CHANGED_BY);
@@ -362,6 +365,7 @@ class Profiles extends ActiveRecordECPriv
 		$criteria->compare('PRF_EVERYCOOP_IP',$this->PRF_EVERYCOOP_IP,true);
 		$criteria->compare('PRF_TWITTER_OAUTH_TOKEN',$this->PRF_TWITTER_OAUTH_TOKEN,true);
 		$criteria->compare('PRF_TWITTER_OAUTH_TOKEN_SECRET',$this->PRF_TWITTER_OAUTH_TOKEN_SECRET,true);
+		$criteria->compare('PRF_RELOGIN_TOKEN',$this->PRF_RELOGIN_TOKEN,true);
 		//$criteria->compare('CREATED_BY',$this->CREATED_BY);
 		//$criteria->compare('CREATED_ON',$this->CREATED_ON);
 		//$criteria->compare('CHANGED_BY',$this->CHANGED_BY);

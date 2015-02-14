@@ -515,26 +515,41 @@ jQuery(function($){
 	
 	jQuery('body').undelegate('.fancyForm .button.RecipeSelect','click').delegate('.fancyForm .button.RecipeSelect','click', function(){
 		var caller = jQuery(this);
-		var elem = jQuery('.activeFancyField');
-		if (elem.length == 0){
-			elem = jQuery('.fancyChoose.RecipeSelect').siblings('input.fancyValue');
-		}
+		
 		var recipeId = jQuery(caller).attr('href');
 		var recipeName = jQuery(caller).parent().find('.name').text().trim();
 		var recipePic = jQuery(caller).parent().find('.recipe');
 		var recipePicUrl = recipePic.attr('src');
 		var recipePicAuthor = recipePic.attr('title');
 		
-		var courseIndex = elem.parent().parent().parent().index();
-		var recipeIndex = elem.parent().index();
-		var newRecipe = jQuery('<div class="cou_recipe"><input type="hidden" id="Meals_meaToCous_' + courseIndex + '_course_couToRecs_' + recipeIndex + '_recipe_REC_ID" name="Meals[meaToCous][' + courseIndex + '][course][couToRecs][' + recipeIndex + '][REC_ID]" value="' + recipeId + '"><img src="' + recipePicUrl + '" title="' + recipePicAuthor + '" alt="" class="cou_recipe"><br><span class="title">' + recipeName + '</span><br><div class="slider_holder"><input type="range" id="Meals_meaToCous_' + courseIndex + '_course_couToRecs_' + recipeIndex + '_CTR_REC_PROC" name="Meals[meaToCous][' + courseIndex + '][course][couToRecs][' + recipeIndex + '][CTR_REC_PROC]" value="100" class="input_range" max="100" min="0"></div><span class="prozValue"><span class="value">100</span>%</span></div>');
-		newRecipe.insertBefore(elem.parent());
-		
-		fixProzentValues_new = true;
-		initSliders('html', newRecipe);
-		newRecipe.find('.input_range').change();
-		fixProzentValues_new = false;
-		
+		var Shoppinglists_containing = jQuery('#shoppinglists').find('.containing');
+		if (Shoppinglists_containing.length>0){
+			var newRecipe = jQuery('<div class="item"><div class="very_small_img"><a href="#recipes/' + recipeId + '"><img alt="' + recipeName + '" src="' + recipePicUrl + '" title="' + recipeName + '" class="recipe"></a><div class="img_auth">&copy; by ' + recipePicAuthor + '</div></div><a href="#recipes/' + recipeId + '" title="' + recipeName + '" class="title">' + recipeName + '</a></div>');
+			var parent = jQuery('#shoppinglists');
+			newRecipe.insertBefore(parent.find('.RecipeSelect'));
+			var link = parent.find('#updateShoppingList');
+			var ids = parent.find('#updateIds').val();
+			ids = ids + ';' + recipeId;
+			var url = link.attr('href');
+			url = glob.removeUrlParam(url, 'ids');
+			url = glob.urlAddParamStart(url) + 'ids=' + ids;
+			link.attr('href', url);
+			glob.changePage(url);
+		} else {
+			var elem = jQuery('.activeFancyField');
+			if (elem.length == 0){
+				elem = jQuery('.fancyChoose.RecipeSelect').siblings('input.fancyValue');
+			}
+			var courseIndex = elem.parent().parent().parent().index();
+			var recipeIndex = elem.parent().index();
+			var newRecipe = jQuery('<div class="cou_recipe"><input type="hidden" id="Meals_meaToCous_' + courseIndex + '_course_couToRecs_' + recipeIndex + '_recipe_REC_ID" name="Meals[meaToCous][' + courseIndex + '][course][couToRecs][' + recipeIndex + '][REC_ID]" value="' + recipeId + '"><img src="' + recipePicUrl + '" title="' + recipePicAuthor + '" alt="" class="cou_recipe"><br><span class="title">' + recipeName + '</span><br><div class="slider_holder"><input type="range" id="Meals_meaToCous_' + courseIndex + '_course_couToRecs_' + recipeIndex + '_CTR_REC_PROC" name="Meals[meaToCous][' + courseIndex + '][course][couToRecs][' + recipeIndex + '][CTR_REC_PROC]" value="100" class="input_range" max="100" min="0"></div><span class="prozValue"><span class="value">100</span>%</span></div>');
+			newRecipe.insertBefore(elem.parent());
+			
+			fixProzentValues_new = true;
+			initSliders('html', newRecipe);
+			newRecipe.find('.input_range').change();
+			fixProzentValues_new = false;
+		}
 		jQuery.fancybox.close();
 		return false;
 	});

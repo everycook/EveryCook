@@ -36,6 +36,41 @@ See GPLv3.htm in the main folder for details.
 		<div id="page">
 			<div id="metaNav">
 				<a href="<?php echo Yii::app()->createUrl('site/index',array()); ?>"><div id="logo" class="backpic" alt="EveryCook Logo"></div></a>
+				<?php $form=$this->beginWidget('CActiveForm', array(
+					'action'=>Yii::app()->createUrl('recipes/search', array('newSearch'=>time())),
+					'id'=>'search_form',
+					'method'=>'post',
+					'htmlOptions'=>array('class'=>'submitToUrl', 'style'=>'display:none;'),
+				)); ?>
+				<div class="search">
+					<?php
+					//echo Functions::specialField('query', '', 'search', array('class'=>'search_query', 'placeholder'=>$this->trans->RECIPES_TYPE_A_DISH));
+					echo CHtml::hiddenField('query', '', array('id'=>'siteSearchRecipe', 'data-placeholder'=>$this->trans->RECIPES_TYPE_A_DISH));
+					
+					//TODO: fix align by selecting element with jQuery('.select2-choices').scrollLeft(5000)
+					$this->widget('ext.select2.ESelect2', array(
+						'target' => '#siteSearchRecipe',
+						'config' => array (
+							'width' => 'resolve',
+							'multiple' => true,
+							'minimumInputLength' => 1,
+							'formatInputTooShort' => null,
+							'openOnEnter' => false,
+							'placeholder'=>$this->trans->RECIPES_TYPE_A_DISH,
+							'ajax' => 'js:glob.select2.searchRecipeAjax',
+							'formatResult' => 'js:glob.select2.searchRecipeFormatResult', // omitted for brevity, see the source of this page
+							'formatSelection' => 'js:glob.select2.searchRecipeFormatSelection', // omitted for brevity, see the source of this page
+							//'dropdownCssClass' => 'search_query', // apply css that makes the dropdown taller
+							'containerCssClass' => 'search_query', // apply css that makes the dropdown taller
+							'escapeMarkup' => 'js:function (m) { return m; }', // we do not want to escape markup since we are displaying html in results
+							'createSearchChoice' => 'js:glob.select2.createSearchChoice',
+							'initSelection' => 'js:function(element, callback) {}',
+						)
+					));
+					echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH));
+					?>
+				</div>
+				<?php $this->endWidget(); ?>
 				<div id="metaNavButtons">
 					<?php
 					$info = Functions::getFromCache('cookingInfo');

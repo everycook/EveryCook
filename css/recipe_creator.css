@@ -24,6 +24,7 @@ See GPLv3.htm in the main folder for details.
 #recipes-form .recipeDetailsTitle {
 	cursor: pointer;
 	font-weight: bold;
+	display: inline;
 }
 #recipes-form .recipeDetailsTitle .subText {
 	font-weight: normal;

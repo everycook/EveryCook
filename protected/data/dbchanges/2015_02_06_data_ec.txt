@@ -1,0 +1,5 @@
+﻿INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('SHOPPINGLISTS_CONTAINING_RECIPES', 'This list is based on the following recipes:', 'Diese Liste bassiert auf folgenden Rezepten:', ''),
+('SHOPPINGLISTS_CONTAINING_ADD', 'Add another recipe', 'Weiteres Rezept hinzufügen', ''),
+('FIELD_PRO_IMG_AUTH', 'Pro', 'Pro', ''),
+('INGREDIENTS_SUGGESTIONS', 'Suggestions', 'Vorschläge', '');

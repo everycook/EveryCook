@@ -16,6 +16,9 @@ See GPLv3.htm in the main folder for details.
 */
 
 class WebUser extends CWebUser {
+	private $needReloginToken = false;
+	private $previousLoggedInUser = -1;
+	
 	public function init() {
 		parent::init();
 		//Set default user values/states
@@ -47,8 +50,7 @@ class WebUser extends CWebUser {
 	 * only within the same request.
 	 * @return boolean whether the operations can be performed by this user.
 	 */
-	public function checkAccess($operation,$params=array(),$allowCaching=true)
-	{
+	public function checkAccess($operation,$params=array(),$allowCaching=true){
 		/*
 		if($allowCaching && $params===array() && isset($this->_access[$operation]))
 			return $this->_access[$operation];
@@ -67,8 +69,7 @@ class WebUser extends CWebUser {
 	 * calling this method.
 	 * After calling this method, the current request processing will be terminated.
 	 */
-	public function loginRequired()
-	{
+	public function loginRequired(){
 		$app=Yii::app();
 		$request=$app->getRequest();
 
@@ -109,5 +110,167 @@ class WebUser extends CWebUser {
 		
 		Yii::app()->dbp->createCommand()->update(Profiles::model()->tableName(), array('PRF_SHOPLISTS'=>$shoppinglists), 'PRF_UID = :id', array(':id'=>Yii::app()->user->id));
 		Yii::app()->user->shoppinglists = $values;
+	}
+	
+	public function login($identity,$duration=0){
+		if($duration>0 && $this->allowAutoLogin){
+			$this->needReloginToken = true;
+		} else {
+			$this->needReloginToken = false;
+		}
+		
+		parent::login($identity, $duration);
+		
+	}
+
+	/**
+	 * This method is called before logging in a user.
+	 * You may override this method to provide additional security check.
+	 * For example, when the login is cookie-based, you may want to verify
+	 * that the user ID together with a random token in the states can be found
+	 * in the database. This will prevent hackers from faking arbitrary
+	 * identity cookies even if they crack down the server private key.
+	 * @param mixed $id the user ID. This is the same as returned by {@link getId()}.
+	 * @param array $states a set of name-value pairs that are provided by the user identity.
+	 * @param boolean $fromCookie whether the login is based on cookie
+	 * @return boolean whether the user should be logged in
+	 * @since 1.1.3
+	 */
+	protected function beforeLogin($id,$states,$fromCookie){
+		if ($fromCookie) {
+			if(count($states) > 3){
+				return false;
+			}
+			
+			//if not from cookie this is tested in UserIdendity on call of authenticate
+			$record = Profiles::model()->findByPk($id);
+			if($record===null) {
+				return false;
+			}
+			if(!isset($states['token']) || !isset($record->PRF_RELOGIN_TOKEN) || $record->PRF_RELOGIN_TOKEN == '' || $record->PRF_RELOGIN_TOKEN != $states['token']){
+				return false;
+			}
+			
+			if($record->PRF_ACTIVE === '0') {
+				return false; //ERROR_ACCOUNT_NOT_ACTIVE
+			} else if($record->PRF_ACTIVE < 0) {
+				return false; //ERROR_ACCOUNT_BLOCKED
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Changes the current user with the specified identity information.
+	 * This method is called by {@link login} and {@link restoreFromCookie}
+	 * when the current user needs to be populated with the corresponding
+	 * identity information. Derived classes may override this method
+	 * by retrieving additional user-related information. Make sure the
+	 * parent implementation is called first.
+	 * @param mixed $id a unique identifier for the user
+	 * @param string $name the display name for the user
+	 * @param array $states identity states
+	 */
+	protected function changeIdentity($id,$name,$states){
+		parent::changeIdentity($id, $name, $states);
+		if ($this->needReloginToken){
+			if (!isset($states['token']) || $states['token'] == null){
+				$token = md5(rand(100000, 99999) . $id . '.' . $name . '.' . Yii::app()->getId() . '.' . time());
+				$updated = Yii::app()->dbp->createCommand()->update(Profiles::model()->tableName(), array('PRF_RELOGIN_TOKEN'=>$token), 'PRF_UID=:id', array(':id'=>$id));
+				if ($updated>0){
+					$this->setState('token', $token);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Retrieves identity states from persistent storage and saves them as an array.
+	 * @return array the identity states
+	 */
+	protected function saveIdentityStates(){
+		//only return values that should be added to relogin Cookie
+		//also change 'if(count($states) > 3){' check on beforeLogin, if added some values
+		$states=array();
+		$states['lang']=$this->getState('lang');
+		$states['design']=$this->getState('design');
+		$states['token']=$this->getState('token');
+		return $states;
+	}
+	
+	/**
+	 * This method is called after the user is successfully logged in.
+	 * You may override this method to do some postprocessing (e.g. log the user
+	 * login IP and time; load the user permission information).
+	 * @param boolean $fromCookie whether the login is based on cookie.
+	 * @since 1.1.3
+	 */
+	protected function afterLogin($fromCookie) {
+		$id = $this->getId();
+		$record = Profiles::model()->findByPk($id);
+		if($record!=null) {
+			$this->setState('nick', $record->PRF_NICK);
+			$this->setState('email', $record->PRF_EMAIL);
+			Yii::app()->session['lang'] = $record->PRF_LANG;
+			$home_gps = array($record->PRF_LOC_GPS_LAT, $record->PRF_LOC_GPS_LNG, $record->PRF_LOC_GPS_POINT);
+			$this->setState('home_gps', $home_gps);
+			$this->setState('view_distance', $record->PRF_VIEW_DISTANCE);
+			$this->setState('design', $record->PRF_DESIGN);
+			$this->setState('roles', explode(';', strtolower($record->PRF_ROLES)));
+			
+			if (!isset($record->PRF_SHOPLISTS) || $record->PRF_SHOPLISTS == null || $record->PRF_SHOPLISTS == ''){
+				$shoppinglists = array();
+			} else {
+				$shoppinglists = explode(';', $record->PRF_SHOPLISTS);
+			}
+			$this->setState('shoppinglists', $shoppinglists);
+			
+			$this->setState('twitterOauthToken', $record->PRF_TWITTER_OAUTH_TOKEN);
+			$this->setState('twitterOauthTokenSecret', $record->PRF_TWITTER_OAUTH_TOKEN_SECRET);
+			
+			
+			$this->setState('demo', false);
+			
+		} else if ($id == 0 && strtolower($this->getName()) == "demo"){
+			$this->setState('nick', 'Demo');
+			$this->setState('email', 'example@example.com');
+			//todo Set basel as home
+			$home_gps = array(47.557473, 7.592926, 'POINT(47.557473 7.592926)');
+			$this->setState('home_gps', $home_gps);
+			$this->setState('view_distance', 5);
+			$this->setState('roles', array('demo','user'));
+			//TODO create demo shoppinglist?
+			$shoppinglists = array();
+			$this->setState('shoppinglists', $shoppinglists);
+			
+			$this->setState('demo', true);
+		}
+	}
+
+
+	/**
+	 * This method is invoked when calling {@link logout} to log out a user.
+	 * If this method return false, the logout action will be cancelled.
+	 * You may override this method to provide additional check before
+	 * logging out a user.
+	 * @return boolean whether to log out the user
+	 * @since 1.1.3
+	 */
+	protected function beforeLogout()
+	{
+		$this->previousLoggedInUser = $this->getId();
+		return true;
+	}
+	
+	/**
+	 * This method is invoked right after a user is logged out.
+	 * You may override this method to do some extra cleanup work for the user.
+	 * @since 1.1.3
+	 */
+	protected function afterLogout(){
+		//remove Token from user.
+		if($this->previousLoggedInUser > 0){
+			$updated = Yii::app()->dbp->createCommand()->update(Profiles::model()->tableName(), array('PRF_RELOGIN_TOKEN'=>''), 'PRF_UID=:id', array(':id'=>$this->previousLoggedInUser));
+		}
 	}
 }

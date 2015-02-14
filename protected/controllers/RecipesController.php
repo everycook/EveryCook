@@ -234,14 +234,17 @@ class RecipesController extends Controller
 		Functions::uploadImage('Recipes', $model, $this->createBackup, 'REC_IMG');
 	}
 	
-	public function actionViewShoppingList($id){
+	public function actionViewShoppingList($ids){
 		$this->saveLastAction = false;
 		$servings = -1;
 		if (isset($_GET['servings'])){
 			$servings = $_GET['servings'];
 		}
-		
-		$shoppingList = $this->prepareShoppingList($id, $servings);
+		$old_id = null;
+		if (isset($_GET['old_id'])){
+			$old_id = $_GET['old_id'];
+		}
+		$shoppingList = $this->prepareShoppingList($ids, $servings, $old_id);
 		$shoppingList->CHANGED_ON = time();
 		Yii::app()->session['Shoppinglists_Backup'] = $shoppingList;
 		Yii::app()->session['Shoppinglists_Backup'.'_Time'] = time();
@@ -273,8 +276,8 @@ class RecipesController extends Controller
 		}
 	}
 	
-	public static function prepareShoppingList($id, $servings){
-		$ids = explode(';', $id);
+	public static function prepareShoppingList($id_string, $servings, $old_id){
+		$ids = explode(';', $id_string);
 		if (count($ids)==1){
 			$parts = explode(':', $ids[0]);
 			if (count($parts)==1){
@@ -295,7 +298,7 @@ class RecipesController extends Controller
 			}
 			$rec_ids = array_keys($id_portions);
 		}
-
+		
 		$criteria=new CDbCriteria;
 		$criteria->addInCondition('recipes.REC_ID',$rec_ids)
 			->addCondition('ingredients.ING_ID IS NOT NULL');
@@ -336,6 +339,7 @@ class RecipesController extends Controller
 						$rec_proz = $servings;
 					}
 				}
+				$rec_id = $row['REC_ID'];
 			}
 			$ing_amount = $row['STE_GRAMS'] * $rec_proz;
 				
@@ -346,8 +350,15 @@ class RecipesController extends Controller
 			}
 		}
 		
-		$shoppingList = new Shoppinglists;
-		$shoppingList->SHO_DATE = time(); //TODO
+		if (isset($old_id)){
+			$shoppingList = Shoppinglists::model()->findByPk($old_id);
+		}
+		if (!isset($shoppingList)){
+			$shoppingList = new Shoppinglists;
+			$shoppingList->SHO_DATE = time(); //TODO
+		} else {
+			$shoppingList->setIsNewRecord(false);
+		}
 		
 // 		$ing_ids_old = explode(';',$shoppingList->SHO_INGREDIENTS);
 // 		$ing_weights_old = explode(';',$shoppingList->SHO_WEIGHTS);
@@ -387,8 +398,12 @@ class RecipesController extends Controller
 // 				$amount_text .= $amounts_old[$ingToIndex[$ing_id]];
 // 			}
 		}
-
-		$shoppingList->SHO_RECIPES = $id .':' . $servings;
+		if (count($ids)==1){
+			$shoppingList->SHO_RECIPES = $rec_id .':' . $servings;
+		} else  {
+			$shoppingList->SHO_RECIPES = $id_string;
+		}
+		
 		$shoppingList->SHO_INGREDIENTS = $ing_id_text;
 		$shoppingList->SHO_WEIGHTS = $ing_weight_text;
 		$shoppingList->SHO_PRODUCTS = $pro_id_text;
@@ -1105,7 +1120,9 @@ class RecipesController extends Controller
 			Yii::app()->session[$this->createBackup] = $model;
 			Yii::app()->session[$this->createBackup.'_Time'] = time();
 			
-			if(!isset($_POST['updateCookIn'])){
+			if(isset($_POST['updateCookIn'])){
+				$model->validate();
+			} else {
 				if(Yii::app()->user->demo){
 					$this->errorText .= sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
 					$model->validate();
@@ -1115,6 +1132,10 @@ class RecipesController extends Controller
 						$transaction=$model->dbConnection->beginTransaction();
 						try {
 							$model->CHANGED_ON = $timestamp;
+							//TODO: only do on create
+							if (in_array('professional', Yii::app()->user->roles)){
+								$model->PRF_UID = Yii::app()->user->id;
+							}
 							$model->updateChangeTime = false;
 							if($model->save()){
 								$saveOK = true;

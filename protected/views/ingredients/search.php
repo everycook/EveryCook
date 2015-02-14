@@ -70,14 +70,23 @@ if ($this->isFancyAjaxRequest){ ?>
 
 	<?php if($this->isRecipeIngredientSelect){
 		echo '<div>' . $this->trans->INGREDIENTS_SELECT_FROM_RECIPE . '</div>';
-	} ?>
+	}
+	if($isSuggestion){
+		echo '<div class="suggestions">' . $this->trans->INGREDIENTS_SUGGESTIONS . '</div>';
+	}
+	?>
 
-<?php $this->widget('AjaxPagingListView', array(
+<?php
+$params = array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'ajaxUpdate'=>false,
 	'id'=>'ingredientsResult',
-)); ?>
+);
+if($isSuggestion){
+	$params['template'] = "{items}";
+}
+$this->widget('AjaxPagingListView', $params); ?>
 <?php if (!$this->isFancyAjaxRequest){ ?>
 <script type="text/javascript">
 	loadScript(false, "CH", false, true, false, false);

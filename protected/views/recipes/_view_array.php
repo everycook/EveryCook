@@ -14,17 +14,25 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 
 See GPLv3.htm in the main folder for details.
 */
-?>
-<div class="resultArea">
-	<?php 
+$isPro = isset($data['PRF_UID']) && $data['PRF_UID'] > 0;
+if ($isPro){
+	echo '<div class="resultArea professional">';
+} else {
+	echo '<div class="resultArea">';	
+}
 	if ($this->isFancyAjaxRequest){
 		echo '<div class="list_img">';
 			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), $data['REC_NAME_' . Yii::app()->session['lang']], array('class'=>'recipe', 'title'=>$data['REC_NAME_' . Yii::app()->session['lang']]));
 			echo '<div class="img_auth">';
-			if ($data['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $data['REC_IMG_AUTH']; } 
+			if ($data['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $data['REC_IMG_AUTH']; }
 			echo '</div>';
+			if ($isPro){
+				echo '<div class="img_auth">' . $this->trans->RECIPES_FLAG_PRO . '</div>';
+			}
 		echo '</div>';
-		
+		if ($isPro){
+			echo CHtml::link(CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>$data['PRF_UID'], 'ext'=>'.png')), 'TODO: name alt text', array('class'=>'profile', 'title'=>'TODO: name title')), array('profiles/view', 'id'=>$data['REC_ID']), array('class'=>'fancyLink professionalPic'));
+		}
 		if ($this->isTemplateChoose){
 			$class = ' RecipeTemplateSelect';
 		} else {
@@ -35,9 +43,15 @@ See GPLv3.htm in the main folder for details.
 		echo '<div class="list_img">';
 			echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), $data['REC_NAME_' . Yii::app()->session['lang']], array('class'=>'recipe', 'title'=>$data['REC_NAME_' . Yii::app()->session['lang']])), array('view', 'id'=>$data['REC_ID'])); 
 			echo '<div class="img_auth">';
-			if ($data['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $data['REC_IMG_AUTH']; } 
+			if ($data['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $data['REC_IMG_AUTH']; }
 			echo '</div>';
+			if ($isPro){
+				echo '<div class="pro_flag">' . $this->trans->RECIPES_FLAG_PRO . '</div>';
+			}
 		echo '</div>';
+		if ($isPro){
+			echo CHtml::link(CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>$data['PRF_UID'], 'ext'=>'.png')), 'TODO: name alt text', array('class'=>'profile', 'title'=>'TODO: name title')), array('profiles/view', 'id'=>$data['REC_ID']), array('class'=>'fancyLink professionalPic'));
+		}	
 		if(!Yii::app()->user->isGuest) {
 			echo '<div class="options">';
 				echo CHtml::link(CHtml::encode($this->trans->RECIPES_DONT_LIKE_IT /*GENERAL_DISGUSTING*/), array('disgusting', 'id'=>$data['REC_ID']), array('class'=>'noAjax button')) . '<br>';
@@ -175,6 +189,7 @@ See GPLv3.htm in the main folder for details.
 		<br />
 		*/ ?>
 		
+		<?php if (!$this->isFancyAjaxRequest){ ?>
 		<div class="buttons">
 			<?php
 			//echo CHtml::link('+', array('user/addrecipes', 'id'=>$data['REC_ID']), array('class'=>'button backpic addRecipe', 'title'=>$this->trans->RECIPES_ADD));
@@ -182,6 +197,7 @@ See GPLv3.htm in the main folder for details.
 			//echo CHtml::link(CHtml::encode($this->trans->MEALPLANNER_SAVE_TO_SHOPPINGLIST), array('shoppinglists/view', 'rec_id'=>$data['REC_ID']), array('class'=>'button'));
 			?>
 		</div>
+		<?php } ?>
 			
 	</div>
 	<div class="clearfix"></div>

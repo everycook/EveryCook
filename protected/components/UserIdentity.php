@@ -40,19 +40,8 @@ class UserIdentity extends CUserIdentity
 		if (strtolower($this->username) == 'demo' && strtolower($this->password) == 'demo'){
 			$this->_id=0;
 			$this->setState('lang', Yii::app()->session['lang']);
-			$this->setState('nick', 'Demo');
-			$this->setState('email', 'example@example.com');
-			//todo Set basel as home
-			$home_gps = array(47.557473, 7.592926, 'POINT(47.557473 7.592926)');
-			$this->setState('home_gps', $home_gps);
-			$this->setState('view_distance', 5);
 			$this->setState('design','Aubergine');
-			$this->setState('roles', array('demo','user'));
-			//TODO create demo shoppinglist?
-			$shoppinglists = array();
-			$this->setState('shoppinglists', $shoppinglists);
-			
-			$this->setState('demo', true);
+			$this->setState('token', 'none');
 			$this->errorCode=self::ERROR_NONE;
 		} else {
 			$record=Profiles::model()->findByAttributes(array('PRF_NICK'=>$this->username));
@@ -70,27 +59,8 @@ class UserIdentity extends CUserIdentity
 				else {
 					$this->_id=$record->PRF_UID;
 					$this->setState('lang', $record->PRF_LANG);
-					$this->setState('nick', $record->PRF_NICK);
-					$this->setState('email', $record->PRF_EMAIL);
-					Yii::app()->session['lang'] = $record->PRF_LANG;
-					$home_gps = array($record->PRF_LOC_GPS_LAT, $record->PRF_LOC_GPS_LNG, $record->PRF_LOC_GPS_POINT);
-					$this->setState('home_gps', $home_gps);
-					$this->setState('view_distance', $record->PRF_VIEW_DISTANCE);
 					$this->setState('design', $record->PRF_DESIGN);
-					$this->setState('roles', explode(';', strtolower($record->PRF_ROLES)));
-					
-					if (!isset($record->PRF_SHOPLISTS) || $record->PRF_SHOPLISTS == null || $record->PRF_SHOPLISTS == ''){
-						$shoppinglists = array();
-					} else {
-						$shoppinglists = explode(';', $record->PRF_SHOPLISTS);
-					}
-					$this->setState('shoppinglists', $shoppinglists);
-					
-					$this->setState('twitterOauthToken', $record->PRF_TWITTER_OAUTH_TOKEN);
-					$this->setState('twitterOauthTokenSecret', $record->PRF_TWITTER_OAUTH_TOKEN_SECRET);
-					
-					
-					$this->setState('demo', false);
+					$this->setState('token', $record->PRF_RELOGIN_TOKEN);
 					$this->errorCode=self::ERROR_NONE;
 				}
 			}

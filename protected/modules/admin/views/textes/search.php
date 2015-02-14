@@ -16,12 +16,12 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Action Types',
+	'Textes',
 );
 
 $this->menu=array(
-	array('label'=>'Create ActionTypes', 'url'=>array('create')),
-	array('label'=>'Manage ActionTypes', 'url'=>array('admin')),
+	array('label'=>'Create Textes', 'url'=>array('create')),
+	array('label'=>'Manage Textes', 'url'=>array('admin')),
 );
 
 if (!$this->isFancyAjaxRequest){
@@ -32,71 +32,46 @@ if (!$this->isFancyAjaxRequest){
 	//}
 }
 
-$simpleSearch = array(($this->isFancyAjaxRequest)?'chooseActionsIn':'search');
-if (isset(Yii::app()->session['ActionsIn']) && isset(Yii::app()->session['ActionsIn']['time'])){
-	$simpleSearch=array_merge($simpleSearch,array('newSearch'=>Yii::app()->session['ActionsIn']['time']));
-}
-
-if ($this->isFancyAjaxRequest){ ?>
-	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('advanceChooseActionTypes'); ?>"/>
-	<?php
+$advanceSearch = array(($this->isFancyAjaxRequest)?'advanceChooseIngredient':'advanceSearch');
+if (isset(Yii::app()->session['Textes']) && isset(Yii::app()->session['Textes']['time'])){
+	$advanceSearch=array_merge($advanceSearch,array('newSearch'=>Yii::app()->session['Textes']['time']));
 }
 ?>
 
-<div id="action-typesAdvanceSearch">
-<?php  $form=$this->beginWidget('CActiveForm', array(
+
+<div id="textesSearch">
+<?php $form=$this->beginWidget('CActiveForm', array(
 		'action'=>Yii::app()->createUrl($this->route),
+		'id'=>'textes_form',
 		'method'=>'post',
-		'id'=>'action-types_form',
 		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 	)); ?>
 	<div class="f-left search">
-		<?php  if ($model2->query == ''){
+		<?php if ($model2->query == ''){
 			echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query', 'autofocus'=>'autofocus'));
 		} else {
 			echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query'));
 		} ?>
-		<?php  echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
+		<?php echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH)); ?>
 	</div>
+	
 	<div class="f-right">
-		<?php  echo CHtml::link($this->trans->GENERAL_SIMPLE_SEARCH, $simpleSearch, array('class'=>'button', 'id'=>'simpleSearch')); ?><br>
+		<?php  echo CHtml::link($this->trans->GENERAL_ADVANCE_SEARCH, $advanceSearch, array('class'=>'button', 'id'=>'advanceSearch')); ?><br>
 	</div>
+	
 	<div class="f-center">
 		<?php  echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('create','newModel'=>time()), array('class'=>'button', 'id'=>'create')); ?><br>
 	</div>
 	
 	<div class="clearfix"></div>
-	
-<?php
-/*	
-	
-	<div class="row">
-		<?php echo $form->label($model,'ATY_ID'); ?>
-		<?php echo $form->textField($model,'ATY_ID'); ?>
-	</div>
 
-	<div class="row">
-		<?php echo $form->label($model,'ATY_DESC_EN_GB'); ?>
-		<?php echo $form->textField($model,'ATY_DESC_EN_GB',array('size'=>60,'maxlength'=>100)); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'ATY_DESC_DE_CH'); ?>
-		<?php echo $form->textField($model,'ATY_DESC_DE_CH',array('size'=>60,'maxlength'=>100)); ?>
-	</div>
-
-*/
-?>
-
-<br />
-
-<?php $this->widget('AjaxPagingListView', array(
+<?php  $this->widget('AjaxPagingListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'ajaxUpdate'=>false,
-	'id'=>'action-typesResult',
-)); ?>
-
+	'id'=>'ingredientsResult',
+)); 
+?>
 <?php $this->endWidget(); ?>
 
 </div>

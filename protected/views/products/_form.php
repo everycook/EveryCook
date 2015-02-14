@@ -122,15 +122,15 @@ See GPLv3.htm in the main folder for details.
 	<div class="row">
 		<?php
 		echo $form->labelEx($model,'filename') . "\r\n";
-		/*
 		echo '<div class="imageTip">';
 		echo $this->trans->TIP_OWN_IMAGE . '<br>';
+		/*
 		echo $this->trans->TIP_FLICKR_IMAGE . '<br>';
 		printf($this->trans->TIP_LOOK_ON_FLICKR, $model->__get('PRO_NAME_EN_GB')); //.Yii::app()->session['lang']
 		echo '<br>';
 		*/
 		echo $form->FileField($model,'filename') . "\r\n";
-		//e3cho '</div>';
+		echo '</div>';
 		echo $form->error($model,'filename');
 		?>
 	</div>

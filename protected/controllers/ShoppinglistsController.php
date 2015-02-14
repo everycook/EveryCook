@@ -194,7 +194,7 @@ class ShoppinglistsController extends Controller
 		$datas = $values['data'];
 		$text = sprintf($this->trans->TITLE_SHOPPINGLISTS_VIEW, $values['SHO_ID']);
 		if ($id == 'backup'){
-			$link = $this->createUrl('recipes/viewShoppingList', array('id'=>$values['recipes_id'])); 
+			$link = $this->createUrl('recipes/viewShoppingList', array('ids'=>$values['recipes_id'])); 
 		} else {
 			$link = $this->createUrl('shoppinglist/view', array('id'=>$id));
 		}
@@ -286,6 +286,10 @@ class ShoppinglistsController extends Controller
 		}
 		
 		$model = $this->loadModel($id);
+		if ($id == 'backup'){
+			$id = $model->SHO_ID;
+		}
+		
 		$recipeEntrys = explode(';',$model->SHO_RECIPES);
 		$recipes = array();
 		foreach ($recipeEntrys as $entry){
@@ -319,6 +323,7 @@ class ShoppinglistsController extends Controller
 				}
 			}
 		}
+		$model=Yii::app()->session[$this->createBackup] = $model;
 		
 		return $this->viewList($rec_ids, $ing_ids, $ing_weights, $pro_ids, $gramm_values, $haveIt_values, $id, null, $changed, $model->SHO_RECIPES, $view);
 	}
@@ -423,6 +428,24 @@ class ShoppinglistsController extends Controller
 		
 		$pro_criteria=new CDbCriteria;
 		$pro_criteria->compare('products.PRO_ID',$pro_ids,true);
+		
+
+		$command = Yii::app()->db->createCommand()
+			->select('REC_ID, REC_IMG_AUTH, REC_IMG_ETAG, REC_NAME_'.Yii::app()->session['lang'])
+			->from('recipes')
+			->where($rec_criteria->condition, $rec_criteria->params);
+		
+		$recipe_rows = $command->queryAll();
+		
+		//sort recipes like in id string
+		$recipe_indexed = array();
+		foreach ($recipe_rows as $row){
+			$recipe_indexed[$row['REC_ID']] = $row;
+		}
+		$recipe_names = array();
+		foreach($rec_ids as $rec_id){
+			$recipe_names[] = $recipe_indexed[$rec_id]; 
+		}
 		
 		
 		$command = Yii::app()->db->createCommand()
@@ -575,7 +598,8 @@ class ShoppinglistsController extends Controller
 				'SHO_ID'=>$SHO_ID,
 				'MEA_ID'=>$MEA_ID,
 				'mealChanged'=>$mealChanged,
-				'recipes_id'=>$recipes_id
+				'recipes_id'=>$recipes_id,
+				'recipe_names'=>$recipe_names,
 			);
 		}
 		
@@ -597,6 +621,7 @@ class ShoppinglistsController extends Controller
 			'mealChanged'=>$mealChanged,
 			'recipes_id'=>$recipes_id,
 			'dataProvider'=>$dataProvider,
+			'recipe_names'=>$recipe_names, 
 		),($view=='print'?'inline':null));
 	}
 	
@@ -835,7 +860,11 @@ class ShoppinglistsController extends Controller
 		if ($id == 'backup'){
 			$model=Yii::app()->session[$this->createBackup];
 		} else {
-			$model=Shoppinglists::model()->findByPk($id);
+			if (isset(Yii::app()->session[$this->createBackup]) && Yii::app()->session[$this->createBackup]['SHO_ID'] == $id){
+				$model=Yii::app()->session[$this->createBackup];
+			} else {
+				$model=Shoppinglists::model()->findByPk($id);
+			}
 		}
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');

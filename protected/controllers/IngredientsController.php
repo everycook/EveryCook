@@ -571,100 +571,109 @@ class IngredientsController extends Controller
 		
 		if ($this->isRecipeIngredientSelect && $criteriaString != ''){
 			$criteria = null;
+			$isSuggestion = false;
+		} else {
+			if($criteriaString == '' && $criteria == null && !$modelAvailable){
+				$isSuggestion = true;
+			} else {
+				$isSuggestion = false;
+			}
 		}
 		
-		if ($modelAvailable || $criteriaString != '' || $criteria != null){
-			if (!$this->isFancyAjaxRequest){
-				$distanceForGroupSQL = 'SELECT storeAmountView.ING_ID, storeAmountView.min_dist, storeAmountView.store_count, productAmountView.pro_count
-					FROM
-					(
-						SELECT
-						storeView.ING_ID,
-						MAX(min_dist) as min_dist,
-						SUM(amount_range) as store_count
-						FROM (
-							(SELECT
-								@count := 0,
-								@oldId := 0 AS ING_ID,
-								0 AS min_dist,
-								0 As amount_range)
-							UNION
-							(SELECT
-								@count := if(@oldId = id, @count+1, 0),
-								@oldId := id,
-								if(@count = 0, value, 0),
-								if(value < :view_distance, 1, 0)
-							FROM
-								(SELECT products.ING_ID as id, cosines_distance(stores.STO_GPS_POINT, GeomFromText(\':point\')) as value
-								FROM products
-								LEFT JOIN pro_to_sto ON pro_to_sto.PRO_ID=products.PRO_ID 
-								LEFT JOIN stores ON pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID
-								WHERE stores.STO_GPS_POINT IS NOT NULL
-								GROUP BY products.ING_ID, stores.STO_ID
-								ORDER BY products.ING_ID, value ASC) AS ingStoreTable
-							)
-						) AS storeView
-						WHERE storeView.ING_ID != 0 AND amount_range != 0
-						GROUP BY storeView.ING_ID
-					) as storeAmountView
-					LEFT JOIN
-					(
-						SELECT
-						productView.ING_ID,
-						SUM(amount_range) as pro_count
-						FROM (
-							(SELECT
-								@count := 0,
-								@oldId := 0 AS PRO_ID,
-								0 as ING_ID,
-								0 As amount_range)
-							UNION
-							(SELECT
-								@count := if(@oldId = id, @count+1, 0),
-								@oldId := id,
-								ing_id,
-								if(@count = 0 AND value < :view_distance, 1, 0)
-							FROM
-								(SELECT products.PRO_ID as id, products.ING_ID as ing_id, cosines_distance(stores.STO_GPS_POINT, GeomFromText(\':point\')) as value
-								FROM products
-								LEFT JOIN pro_to_sto ON pro_to_sto.PRO_ID=products.PRO_ID 
-								LEFT JOIN stores ON pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID
-								WHERE stores.STO_GPS_POINT IS NOT NULL
-								GROUP BY products.PRO_ID, stores.STO_ID
-								ORDER BY products.PRO_ID, value ASC) AS proStoreTable
-							)
-						) AS productView
-						WHERE productView.ING_ID != 0 AND amount_range != 0
-						GROUP BY productView.ING_ID
-					) as productAmountView ON productAmountView.ING_ID = storeAmountView.ING_ID;';
+		
+		
+		if ($modelAvailable || $criteriaString != '' || $criteria != null || $isSuggestion){
+// 			if (!$this->isFancyAjaxRequest){
+// 				$distanceForGroupSQL = 'SELECT storeAmountView.ING_ID, storeAmountView.min_dist, storeAmountView.store_count, productAmountView.pro_count
+// 					FROM
+// 					(
+// 						SELECT
+// 						storeView.ING_ID,
+// 						MAX(min_dist) as min_dist,
+// 						SUM(amount_range) as store_count
+// 						FROM (
+// 							(SELECT
+// 								@count := 0,
+// 								@oldId := 0 AS ING_ID,
+// 								0 AS min_dist,
+// 								0 As amount_range)
+// 							UNION
+// 							(SELECT
+// 								@count := if(@oldId = id, @count+1, 0),
+// 								@oldId := id,
+// 								if(@count = 0, value, 0),
+// 								if(value < :view_distance, 1, 0)
+// 							FROM
+// 								(SELECT products.ING_ID as id, cosines_distance(stores.STO_GPS_POINT, GeomFromText(\':point\')) as value
+// 								FROM products
+// 								LEFT JOIN pro_to_sto ON pro_to_sto.PRO_ID=products.PRO_ID 
+// 								LEFT JOIN stores ON pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID
+// 								WHERE stores.STO_GPS_POINT IS NOT NULL
+// 								GROUP BY products.ING_ID, stores.STO_ID
+// 								ORDER BY products.ING_ID, value ASC) AS ingStoreTable
+// 							)
+// 						) AS storeView
+// 						WHERE storeView.ING_ID != 0 AND amount_range != 0
+// 						GROUP BY storeView.ING_ID
+// 					) as storeAmountView
+// 					LEFT JOIN
+// 					(
+// 						SELECT
+// 						productView.ING_ID,
+// 						SUM(amount_range) as pro_count
+// 						FROM (
+// 							(SELECT
+// 								@count := 0,
+// 								@oldId := 0 AS PRO_ID,
+// 								0 as ING_ID,
+// 								0 As amount_range)
+// 							UNION
+// 							(SELECT
+// 								@count := if(@oldId = id, @count+1, 0),
+// 								@oldId := id,
+// 								ing_id,
+// 								if(@count = 0 AND value < :view_distance, 1, 0)
+// 							FROM
+// 								(SELECT products.PRO_ID as id, products.ING_ID as ing_id, cosines_distance(stores.STO_GPS_POINT, GeomFromText(\':point\')) as value
+// 								FROM products
+// 								LEFT JOIN pro_to_sto ON pro_to_sto.PRO_ID=products.PRO_ID 
+// 								LEFT JOIN stores ON pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID
+// 								WHERE stores.STO_GPS_POINT IS NOT NULL
+// 								GROUP BY products.PRO_ID, stores.STO_ID
+// 								ORDER BY products.PRO_ID, value ASC) AS proStoreTable
+// 							)
+// 						) AS productView
+// 						WHERE productView.ING_ID != 0 AND amount_range != 0
+// 						GROUP BY productView.ING_ID
+// 					) as productAmountView ON productAmountView.ING_ID = storeAmountView.ING_ID;';
 								
-				if (isset(Yii::app()->session['current_gps']) && isset(Yii::app()->session['current_gps'][2])) {
-					$point = Yii::app()->session['current_gps'][2];
-					$count = 5;
-					$youDistanceForGroupSQL = str_replace(':point', $point, $distanceForGroupSQL);
-					$youDistanceForGroupSQL = str_replace(':count', $count, $youDistanceForGroupSQL);
-					$youDistanceForGroupSQL = str_replace(':view_distance', Yii::app()->user->view_distance, $youDistanceForGroupSQL);
-					$youDistCommand = Yii::app()->db->createCommand($youDistanceForGroupSQL);
-					$hasYouDist = true;
-				} else {
-					$hasYouDist = false;
-				}
+// 				if (isset(Yii::app()->session['current_gps']) && isset(Yii::app()->session['current_gps'][2])) {
+// 					$point = Yii::app()->session['current_gps'][2];
+// 					$count = 5;
+// 					$youDistanceForGroupSQL = str_replace(':point', $point, $distanceForGroupSQL);
+// 					$youDistanceForGroupSQL = str_replace(':count', $count, $youDistanceForGroupSQL);
+// 					$youDistanceForGroupSQL = str_replace(':view_distance', Yii::app()->user->view_distance, $youDistanceForGroupSQL);
+// 					$youDistCommand = Yii::app()->db->createCommand($youDistanceForGroupSQL);
+// 					$hasYouDist = true;
+// 				} else {
+// 					$hasYouDist = false;
+// 				}
 				
-				if (!Yii::app()->user->isGuest && isset(Yii::app()->user->home_gps) && isset(Yii::app()->user->home_gps[2])){
-					$point = Yii::app()->user->home_gps[2];
-					$count = 5;
-					$homeDistanceForGroupSQL = str_replace(':point', $point, $distanceForGroupSQL);
-					$homeDistanceForGroupSQL = str_replace(':count', $count, $homeDistanceForGroupSQL);
-					$homeDistanceForGroupSQL = str_replace(':view_distance', Yii::app()->user->view_distance, $homeDistanceForGroupSQL);
-					$HomeDistCommand = Yii::app()->db->createCommand($homeDistanceForGroupSQL);
-					$hasHomeDist = true;
-				} else {
-					$hasHomeDist = false;
-				}
-			} else {
+// 				if (!Yii::app()->user->isGuest && isset(Yii::app()->user->home_gps) && isset(Yii::app()->user->home_gps[2])){
+// 					$point = Yii::app()->user->home_gps[2];
+// 					$count = 5;
+// 					$homeDistanceForGroupSQL = str_replace(':point', $point, $distanceForGroupSQL);
+// 					$homeDistanceForGroupSQL = str_replace(':count', $count, $homeDistanceForGroupSQL);
+// 					$homeDistanceForGroupSQL = str_replace(':view_distance', Yii::app()->user->view_distance, $homeDistanceForGroupSQL);
+// 					$HomeDistCommand = Yii::app()->db->createCommand($homeDistanceForGroupSQL);
+// 					$hasHomeDist = true;
+// 				} else {
+// 					$hasHomeDist = false;
+// 				}
+// 			} else {
 				$hasYouDist = false;
 				$hasHomeDist = false;
-			}
+// 			}
 			
 			$command = Yii::app()->db->createCommand()
 				->select('ingredients.*, nutrient_data.*, group_names.*, subgroup_names.*, origins.*, ingredient_conveniences.*, storability.*, ingredient_states.*, conditions.*, temp_groups.*')
@@ -754,6 +763,14 @@ class IngredientsController extends Controller
 				$command->where($criteriaString);
 				//$suppliersCommand->where($criteriaString);
 				$this->validSearchPerformed = true;
+			} else if ($isSuggestion){
+				$isSuggestion = true;
+				$max = Yii::app()->db->createCommand()
+					->select('count(*)')
+					->from('ingredients')
+					->queryScalar();
+				$pos = mt_rand(0, $max-6);
+				$command->limit(6, $pos);
 			}
 			
 			$rows = $command->queryAll();
@@ -879,12 +896,14 @@ class IngredientsController extends Controller
 				'ingredientConveniences'=>$ingredientConveniences,
 				'storability'=>$storability,
 				'ingredientStates'=>$ingredientStates,
+				'isSuggestion'=>$isSuggestion,
 			), $ajaxLayout);
 		} else {
 			$this->checkRenderAjax($view,array(
 				'model'=>$model,
 				'model2'=>$model2,
 				'dataProvider'=>$dataProvider,
+				'isSuggestion'=>$isSuggestion,
 			), $ajaxLayout);
 		}
 	}

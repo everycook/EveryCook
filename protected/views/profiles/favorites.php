@@ -29,10 +29,11 @@ See GPLv3.htm in the main folder for details.
 <?php Yii::app()->runController('ingredients/showLike/layout/inline'); ?>
 <h3><?php echo $this->trans->PROFILES_FAVOURITES_NOT_LIKE; ?></h3>
 <?php Yii::app()->runController('ingredients/showNotLike/layout/inline'); ?>
-
+<?php /* ?>
 <h2><?php echo $this->trans->PROFILES_FAVOURITES_PRODUCTS; ?></h2>
 <h3><?php echo $this->trans->PROFILES_FAVOURITES_LIKE; ?></h3>
 <?php Yii::app()->runController('products/showLike/layout/inline'); ?>
 <h3><?php echo $this->trans->PROFILES_FAVOURITES_NOT_LIKE; ?></h3>
 <?php Yii::app()->runController('products/showNotLike/layout/inline'); ?>
+<?php */ ?>
 </div>

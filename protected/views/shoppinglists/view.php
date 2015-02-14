@@ -40,7 +40,7 @@ if(Yii::app()->user->hasFlash('shoppinglistsView')){
 		echo '</div>';
 	}
 }?>
-
+<div id="shoppinglists">
 <h1><?php printf($this->trans->TITLE_SHOPPINGLISTS_VIEW, $SHO_ID); ?></h1>
 
 <?php
@@ -53,8 +53,25 @@ if(Yii::app()->user->hasFlash('shoppinglistsView')){
 		if (isset($mealChanged) && $mealChanged){
 			echo '<div class="">' . $this->trans->SHOPPINGLISTS_RECIPE_CHANGED_SHOULD_RECREATE . '</div>';
 		}
-		echo CHtml::link($this->trans->SHOPPINGLISTS_RECREATE_FROM_RECIPE, array('recipes/viewShoppingList', 'id'=>$recipes_id), array('class'=>'button f-center'));
+		echo CHtml::hiddenField('updateIds', $recipes_id, array('id'=>'updateIds'));
+		echo CHtml::link($this->trans->SHOPPINGLISTS_RECREATE_FROM_RECIPE, array('recipes/viewShoppingList', 'ids'=>$recipes_id, 'old_id'=>$SHO_ID), array('class'=>'button f-center', 'id'=>'updateShoppingList'));
 	}
+	echo '<div class="containing">';
+	echo '<div class="title">' . $this->trans->SHOPPINGLISTS_CONTAINING_RECIPES . '</div>';
+	foreach($recipe_names as $recipe){
+		echo '<div class="item">';
+			echo '<div class="very_small_img">';
+				echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), $recipe['REC_NAME_' . Yii::app()->session['lang']], array('class'=>'recipe', 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']])), array('recipes/view', 'id'=>$recipe['REC_ID']), array());
+				echo '<div class="img_auth">';
+					if ($recipe['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $recipe['REC_IMG_AUTH']; }
+				echo '</div>';
+			echo '</div>';
+			echo CHtml::link($recipe['REC_NAME_' . Yii::app()->session['lang']], array('recipes/view', 'id'=>$recipe['REC_ID']), array('class'=>'title', 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']]));
+		echo '</div>';
+	}
+	echo CHtml::link($this->trans->SHOPPINGLISTS_CONTAINING_ADD, array('recipes/chooseRecipe'), array('class'=>'button fancyChoose RecipeSelect'));
+	echo '<div class="clearfix"></div>';
+	echo '</div>';
 ?>
 
 <?php $this->widget('AjaxPagingListView', array(
@@ -70,4 +87,4 @@ if(Yii::app()->user->hasFlash('shoppinglistsView')){
 	echo CHtml::link($this->trans->SHOPPINGLISTS_SAVE, array('shoppinglists/save', 'id'=>$SHO_ID), array('class'=>'button'));
 	?>
 </div>
-
+</div>
