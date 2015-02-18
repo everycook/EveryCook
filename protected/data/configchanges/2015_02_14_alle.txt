@@ -1,0 +1,15 @@
+	'components'=>array(
+		...
+		'user'=>array(
+			...
+			'autoRenewCookie' => true,
+			'authTimeout' => 31557600,
+		),
+		...
+		'session' => array(
+			'class'=>'CHttpSession',
+			'timeout'=>3600, // 1h
+			//'autoStart'=>true,
+		),
+		...
+	),

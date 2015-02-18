@@ -88,22 +88,22 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 		}
 		if (isset($id) && $id != null){
 			if (!isset($oldmodel) || $oldmodel-><?php echo $this->tableSchema->primaryKey; ?> != $id){
-				$oldmodel = $this->loadModel($id, true);
+				$oldmodel = $this->loadModel($id);
 			}
 		}
 		
 		if (isset($oldmodel)){
 			$model = $oldmodel;
-			$oldPicture = $oldmodel-><?php echo $this->tableSchema->primaryKey; ?>_IMG;
+			$oldPictureFilename = $oldmodel-><?php echo $tablePrefix; ?>_IMG_FILENAME;
 		} else {
 			$model=new <?php echo $this->modelClass; ?>;
-			$oldPicture = null;
+			$oldPictureFilename = null;
 		}
 		
-		if (isset($model-><?php echo $tablePrefix; ?>_IMG) && $model-><?php echo $tablePrefix; ?>_IMG != ''){
+		if (isset($model-><?php echo $tablePrefix; ?>_IMG_FILENAME) && $model-><?php echo $tablePrefix; ?>_IMG_FILENAME != ''){
 			$model->setScenario('withPic');
 		}
-		return array($model, $oldPicture);
+		return array($model, $oldPictureFilename);
 	}
 	
 	public function actionUploadImage(){
@@ -113,16 +113,16 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 		} else {
 			$id=null;
 		}
-		list($model, $oldPicture) = $this->getModelAndOldPic($id);
+		list($model, $oldPictureFilename) = $this->getModelAndOldPic($id);
 		
-		Functions::uploadImage('<?php echo $this->modelClass; ?>', $model, $this->createBackup, '<?php echo $this->tableSchema->primaryKey; ?>_IMG');
+		Functions::uploadImage('<?php echo $this->modelClass; ?>', $model, $this->createBackup, '<?php echo $tablePrefix; ?>_IMG', true);
 	}
 	
 	private function prepareCreateOrUpdate($id, $view){
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 		
-		list($model, $oldPicture) = $this->getModelAndOldPic($id);
+		list($model, $oldPictureFilename) = $this->getModelAndOldPic($id);
 		
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
@@ -130,14 +130,38 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 		if(isset($_POST['<?php echo $this->modelClass; ?>']))
 		{
 			$model->attributes=$_POST['<?php echo $this->modelClass; ?>'];
-			if($model->save()){
-				unset(Yii::app()->session[$this->createBackup]);
-				unset(Yii::app()->session[$this->createBackup.'_Time']);
-				$this->forwardAfterSave(array('view', 'id'=>$model-><?php echo $this->tableSchema->primaryKey; ?>));
-				//$this->forwardAfterSave(array('search', 'query'=>$model->__get('<?php echo $tablePrefix; ?>_DESC_' . Yii::app()->session['lang'])));
-				return;
+			if (isset($oldPictureFilename)){
+				Functions::updatePicture($model,'<?php echo $tablePrefix; ?>_IMG', $oldPictureFilename, true);
+			}
+			$transaction=$model->dbConnection->beginTransaction();
+			try {
+				if($model->save()){
+					$changed = Functions::fixPicturePathAfterSave($model,'<?php echo $tablePrefix; ?>_IMG', $model-><?php echo $tablePrefix; ?>_IMG_FILENAME);
+					if ($changed){
+						if($model->save()){
+							$transaction->commit();
+							unset(Yii::app()->session[$this->createBackup]);
+							unset(Yii::app()->session[$this->createBackup.'_Time']);
+							$this->forwardAfterSave(array('view', 'id'=>$model-><?php echo $tablePrefix; ?>_ID));
+							return;
+						} else {
+							$transaction->rollBack();
+						}
+					} else {
+						$transaction->commit();
+						unset(Yii::app()->session[$this->createBackup]);
+						unset(Yii::app()->session[$this->createBackup.'_Time']);
+						$this->forwardAfterSave(array('view', 'id'=>$model-><?php echo $tablePrefix; ?>_ID));
+						return;
+					}
+				}
+			} catch(Exception $e) {
+				if ($this->debug) echo 'Exception occured -&gt; rollback. Exeption was: ' . $e;
+				$transaction->rollBack();
 			}
 		}
+		Yii::app()->session[$this->createBackup] = $model;
+		Yii::app()->session[$this->createBackup.'_Time'] = time();
 
 		$this->checkRenderAjax($view,array(
 			'model'=>$model,
@@ -176,7 +200,11 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
-			$this->loadModel($id)->delete();
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				$this->loadModel($id)->delete();
+			}
 
 			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 			if(!isset($_GET['ajax']))
@@ -401,7 +429,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 			$size = 0;
 		}
 		$this->saveLastAction = false;
-		$model=$this->loadModel($id, true);
+		$model=$this->loadModel($id);
 		$modified = $model->CHANGED_ON;
 		if (!$modified){
 			$modified = $model->CREATED_ON;

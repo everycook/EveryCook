@@ -46,6 +46,8 @@ $this->mainButtons = array(
 		'CST_GPS_LAT',
 		'CST_GPS_LNG',
 		'CST_GOOGLE_REGION',
+		'CST_IMG_FILENAME',
+		'CST_IMG_ETAG',
 		'CST_DESC_EN_GB',
 		'CST_DESC_DE_CH',
 		'CREATED_BY',

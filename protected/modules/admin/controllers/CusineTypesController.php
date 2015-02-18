@@ -37,11 +37,11 @@ class CusineTypesController extends Controller
 	public function accessRules(){
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','chooseCusineTypes','advanceChooseCusineTypes'),
+				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','chooseCusineTypes','advanceChooseCusineTypes'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','cancel','delicious','disgusting','showLike', 'showNotLike'),
+				'actions'=>array('create','update','uploadImage','cancel','delicious','disgusting','showLike', 'showNotLike'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -72,30 +72,48 @@ class CusineTypesController extends Controller
 		));
 	}
 	
-	private function getModel($id){
+	private function getModelAndOldPic($id){
 		$Session_Backup = Yii::app()->session[$this->createBackup];
 		if (isset($Session_Backup)){
 			$oldmodel = $Session_Backup;
 		}
 		if (isset($id) && $id != null){
 			if (!isset($oldmodel) || $oldmodel->CUT_ID != $id){
-				$oldmodel = $this->loadModel($id, true);
+				$oldmodel = $this->loadModel($id);
 			}
 		}
 		
 		if (isset($oldmodel)){
 			$model = $oldmodel;
+			$oldPictureFilename = $oldmodel->CUT_IMG_FILENAME;
 		} else {
 			$model=new CusineTypes;
+			$oldPictureFilename = null;
 		}
-		return $model;
+		
+		if (isset($model->CUT_IMG_FILENAME) && $model->CUT_IMG_FILENAME != ''){
+			$model->setScenario('withPic');
+		}
+		return array($model, $oldPictureFilename);
+	}
+	
+	public function actionUploadImage(){
+		$this->saveLastAction = false;
+		if (isset($_GET['id'])){
+			$id = $_GET['id'];
+		} else {
+			$id=null;
+		}
+		list($model, $oldPictureFilename) = $this->getModelAndOldPic($id);
+		
+		Functions::uploadImage('CusineTypes', $model, $this->createBackup, 'CUT_IMG', false);
 	}
 	
 	private function prepareCreateOrUpdate($id, $view){
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 		
-		$model = $this->getModel($id);
+		list($model, $oldPictureFilename) = $this->getModelAndOldPic($id);
 		
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
@@ -103,14 +121,38 @@ class CusineTypesController extends Controller
 		if(isset($_POST['CusineTypes']))
 		{
 			$model->attributes=$_POST['CusineTypes'];
-			if($model->save()){
-				unset(Yii::app()->session[$this->createBackup]);
-				unset(Yii::app()->session[$this->createBackup.'_Time']);
-				$this->forwardAfterSave(array('view', 'id'=>$model->CUT_ID));
-				//$this->forwardAfterSave(array('search', 'query'=>$model->__get('CUT_DESC_' . Yii::app()->session['lang'])));
-				return;
+			if (isset($oldPictureFilename)){
+				Functions::updatePicture($model,'CUT_IMG', $oldPictureFilename, false);
+			}
+			$transaction=$model->dbConnection->beginTransaction();
+			try {
+				if($model->save()){
+					$changed = Functions::fixPicturePathAfterSave($model,'CUT_IMG', $model->CUT_IMG_FILENAME);
+					if ($changed){
+						if($model->save()){
+							$transaction->commit();
+							unset(Yii::app()->session[$this->createBackup]);
+							unset(Yii::app()->session[$this->createBackup.'_Time']);
+							$this->forwardAfterSave(array('view', 'id'=>$model->CUT_ID));
+							return;
+						} else {
+							$transaction->rollBack();
+						}
+					} else {
+						$transaction->commit();
+						unset(Yii::app()->session[$this->createBackup]);
+						unset(Yii::app()->session[$this->createBackup.'_Time']);
+						$this->forwardAfterSave(array('view', 'id'=>$model->CUT_ID));
+						return;
+					}
+				}
+			} catch(Exception $e) {
+				if ($this->debug) echo 'Exception occured -&gt; rollback. Exeption was: ' . $e;
+				$transaction->rollBack();
 			}
 		}
+		Yii::app()->session[$this->createBackup] = $model;
+		Yii::app()->session[$this->createBackup.'_Time'] = time();
 
 		$this->checkRenderAjax($view,array(
 			'model'=>$model,
@@ -149,7 +191,11 @@ class CusineTypesController extends Controller
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
-			$this->loadModel($id)->delete();
+			if(Yii::app()->user->demo){
+				$this->errorText = sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+			} else {
+				$this->loadModel($id)->delete();
+			}
 
 			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 			if(!isset($_GET['ajax']))
@@ -366,4 +412,19 @@ class CusineTypesController extends Controller
 			Yii::app()->end();
 		}
 	}
+	
+    public function actionDisplaySavedImage($id, $ext){
+		if (isset($_GET['size'])) {
+			$size = $_GET['size'];
+		} else {
+			$size = 0;
+		}
+		$this->saveLastAction = false;
+		$model=$this->loadModel($id);
+		$modified = $model->CHANGED_ON;
+		if (!$modified){
+			$modified = $model->CREATED_ON;
+		}
+		return Functions::getImage($modified, $model->CUT_IMG_ETAG, $model->CUT_IMG_FILENAME, $id, 'CusineTypes', $size);
+    }
 }

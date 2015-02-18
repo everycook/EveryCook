@@ -18,9 +18,16 @@ See GPLv3.htm in the main folder for details.
 <div class="resultArea">
 <?php
 	if ($this->isFancyAjaxRequest){
+		echo '<div class="list_img">';
+			echo CHtml::image($this->createUrl('displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), '', array('class'=>'cusineSubSubTypes', 'alt'=>$data['REC_DESC_' . Yii::app()->session['lang']], 'title'=>$data['REC_DESC_' . Yii::app()->session['lang']]));
+		echo '</div>';
+		
 		echo CHtml::link($this->trans->GENERAL_SELECT, $data['CSS_ID'], array('class'=>'f-right button CusineSubSubTypesSelect'));
-	/*
 	} else {
+		echo '<div class="list_img">';
+			echo CHtml::link(CHtml::image($this->createUrl('displaySavedImage', array('id'=>$data['CSS_ID'], 'ext'=>'.png')), '', array('class'=>'cusineSubSubTypes', 'alt'=>$data['CSS_DESC_' . Yii::app()->session['lang']], 'title'=>$data['CSS_DESC_' . Yii::app()->session['lang']])), array('view', 'id'=>$data['CSS_ID'])); 
+		echo '</div>';
+		/*
 		echo '<div class="options">';
 			echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data['CSS_ID']), array('class'=>'delicious noAjax backpic', 'title'=>$this->trans->GENERAL_DELICIOUS));
 			//echo CHtml::link('&nbsp;', array('<controller>/<page>', 'CSS_ID'=>$data['CSS_ID']), array('class'=>'cookwith backpic', 'title'=>$this->trans->???));
@@ -60,6 +67,14 @@ See GPLv3.htm in the main folder for details.
 
 		<b><?php echo CHtml::encode($data->getAttributeLabel('CSS_GOOGLE_REGION')); ?>:</b>
 		<?php echo CHtml::encode($data->CSS_GOOGLE_REGION); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('CSS_IMG_FILENAME')); ?>:</b>
+		<?php echo CHtml::encode($data->CSS_IMG_FILENAME); ?>
+		<br />
+
+		<b><?php echo CHtml::encode($data->getAttributeLabel('CSS_IMG_ETAG')); ?>:</b>
+		<?php echo CHtml::encode($data->CSS_IMG_ETAG); ?>
 		<br />
 
 		<b><?php echo CHtml::encode($data->getAttributeLabel('CSS_DESC_EN_GB')); ?>:</b>

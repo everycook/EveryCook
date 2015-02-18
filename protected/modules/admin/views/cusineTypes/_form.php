@@ -15,12 +15,16 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 See GPLv3.htm in the main folder for details.
 */
 ?>
+<input type="hidden" id="uploadImageLink" value="<?php echo $this->createUrl('uploadImage',array('id'=>$model->CUT_ID)); ?>"/>
+<input type="hidden" id="imageLink" value="<?php echo $this->createUrl('displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
 <div class="form">
 
 <div class="mapDetails">
 	<?php $form=$this->beginWidget('CActiveForm', array(
 		'id'=>'cusine-types_form',
 		'enableAjaxValidation'=>false,
+		'action'=>Yii::app()->createUrl($this->route, array_merge($this->getActionParams(), array('ajaxform'=>true))),
+	    'htmlOptions'=>array('enctype' => 'multipart/form-data', 'class'=>'ajaxupload'),
 	)); ?>
 	
 		<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
@@ -39,17 +43,32 @@ See GPLv3.htm in the main folder for details.
 			echo $form->error($model,'CUT_DESC_'.$lang) ."\r\n";
 		echo '</div>'."\r\n";
 		}
-		
-		/*
-		//Example for select / checkboxlist
-		$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
-		$htmlOptions_type1 = array('template'=>'<li>{input} {label}</li>', 'separator'=>"\n", 'checkAll'=>$this->trans->INGREDIENTS_SEARCH_CHECK_ALL, 'checkAllLast'=>false);
-		
-		echo Functions::createInput(null, $model, 'GRP_ID', $groupNames, Functions::DROP_DOWN_LIST, 'groupNames', $htmlOptions_type0, $form);
-		echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_STORABILITY, $model, 'STB_ID', $storability, Functions::CHECK_BOX_LIST, 'storability', $htmlOptions_type1);
-		*/
 		?>
-		
+	
+	
+	<?php
+		if (isset(Yii::app()->session[$this->createBackup]) && isset(Yii::app()->session[$this->createBackup]->CUT_IMG_ETAG)){
+			echo CHtml::image($this->createUrl('displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())), '', array('class'=>'ingredient'));
+		} else if ($model->CUT_ID && isset($model->CUS_IMG_ETAG)) {
+			echo CHtml::image($this->createUrl('displaySavedImage', array('id'=>$model->CUT_ID, 'ext'=>'.png')), '', array('class'=>'ingredient'));
+		}
+	?>
+		<div class="row">
+			<?php echo $form->labelEx($model,'filename') ?>
+			<div class="imageTip">
+			<?php
+			echo $this->trans->TIP_OWN_IMAGE . '<br>';
+			echo $form->FileField($model,'filename', array('class'=>'noCrop')). '<br>' . "\r\n";
+			echo $form->error($model,'filename') . "\r\n";
+			?>
+			</div>
+		</div>
+	
+		<div class="row">
+			<?php echo $form->labelEx($model,'CUT_IMG_AUTH'); ?>
+			<?php echo $form->textField($model,'CUT_IMG_AUTH',array('size'=>30,'maxlength'=>30)); ?>
+			<?php echo $form->error($model,'CUT_IMG_AUTH'); ?>
+		</div>
 		<div class="row">
 			<?php echo $form->labelEx($model,'CUT_GPS_LAT'); ?>
 			<?php echo $form->textField($model,'CUT_GPS_LAT'); ?>

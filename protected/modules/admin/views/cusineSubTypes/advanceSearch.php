@@ -118,6 +118,16 @@ if ($this->isFancyAjaxRequest){ ?>
 	</div>
 
 	<div class="row">
+		<?php echo $form->label($model,'CST_IMG_FILENAME'); ?>
+		<?php echo $form->textField($model,'CST_IMG_FILENAME',array('size'=>60,'maxlength'=>250)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'CST_IMG_ETAG'); ?>
+		<?php echo $form->textField($model,'CST_IMG_ETAG',array('size'=>40,'maxlength'=>40)); ?>
+	</div>
+
+	<div class="row">
 		<?php echo $form->label($model,'CST_DESC_EN_GB'); ?>
 		<?php echo $form->textField($model,'CST_DESC_EN_GB',array('size'=>60,'maxlength'=>100)); ?>
 	</div>

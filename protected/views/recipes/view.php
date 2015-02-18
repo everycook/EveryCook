@@ -129,6 +129,9 @@ if (!$history){
 			if (!empty($model->cusineTypes)) {
 				echo '<b>' . CHtml::encode($this->trans->FIELD_CUT_ID) . '</b>';
 				//if (!empty($model->cusineTypes)) {
+					if (!empty($model->cusineTypes['CUT_IMG_ETAG'])) {
+						echo CHtml::image($this->createUrl('savedImage/cusineTypes', array('id'=>$model['CUT_ID'], 'ext'=>'.png')), $model->cusineTypes->__get('CUT_DESC_' . Yii::app()->session['lang']), array('class'=>'cusineImg'));
+					}
 					echo CHtml::encode($model->cusineTypes->__get('CUT_DESC_' . Yii::app()->session['lang']));
 				/*} else {
 					echo $this->trans->GENERAL_UNDEFINED;
@@ -140,7 +143,23 @@ if (!$history){
 			if (!empty($model->cusineSubTypes)) {
 				echo '<b>' . CHtml::encode($this->trans->FIELD_CST_ID) . '</b>';
 				//if (!empty($model->cusineSubTypes)) {
+					if (!empty($model->cusineSubTypes['CST_IMG_ETAG'])) {
+						echo CHtml::image($this->createUrl('savedImage/cusineSubTypes', array('id'=>$model['CST_ID'], 'ext'=>'.png')), $model->cusineSubTypes->__get('CST_DESC_' . Yii::app()->session['lang']), array('class'=>'cusineImg'));
+					}
 					echo CHtml::encode($model->cusineSubTypes->__get('CST_DESC_' . Yii::app()->session['lang']));
+				/*} else {
+					echo $this->trans->GENERAL_UNDEFINED;
+				}*/
+				echo '<br />';
+			} ?>
+			<?php
+			if (!empty($model->cusineSubSubTypes)) {
+				echo '<b>' . CHtml::encode($this->trans->FIELD_CSS_ID) . '</b>';
+				//if (!empty($model->cusineSubTypes)) {
+					if (!empty($model->cusineSubSubTypes['CSS_IMG_ETAG'])) {
+						echo CHtml::image($this->createUrl('savedImage/cusineSubTypes', array('id'=>$model['CSS_ID'], 'ext'=>'.png')), $model->cusineSubSubTypes->__get('CSS_DESC_' . Yii::app()->session['lang']), array('class'=>'cusineImg'));
+					}
+					echo CHtml::encode($model->cusineSubSubTypes->__get('CSS_DESC_' . Yii::app()->session['lang']));
 				/*} else {
 					echo $this->trans->GENERAL_UNDEFINED;
 				}*/

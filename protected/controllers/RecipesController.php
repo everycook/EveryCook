@@ -1401,6 +1401,7 @@ class RecipesController extends Controller
 	}
 	
 	public function actionGetRecipeInfos($id){
+		header('Content-type: application/json');
 		$this->saveLastAction = false;
 		$model = $this->loadModel($id);
 		if (isset($model->steps) && isset($model->steps[0])/* && !isset($model->steps[0]->ingredient)*/){
@@ -1451,6 +1452,7 @@ class RecipesController extends Controller
 		$ingredientsJSON = CJSON::encode($usedIngredients);
 		$modelJSON = CJSON::encode($model);
 		echo '{steps:'.$stepsJSON.', ingredients:'.$ingredientsJSON.', model:'.$modelJSON.', recToCois:'.$recToCoisJSON.'}';
+		Yii::app()->end();
 	}
 	
 	
@@ -1668,6 +1670,7 @@ class RecipesController extends Controller
 	}
 	
 	public function actionAutocomplete($query, $page){
+		header('Content-type: application/json');
 		$this->isFancyAjaxRequest = true;
 		
 		$commandQuery = Yii::app()->db->createCommand()
@@ -1714,9 +1717,11 @@ class RecipesController extends Controller
 			'items'=>$data
 		);
 		echo $this->processOutput(CJSON::encode($result));
+		Yii::app()->end();
 	}
 	
 	public function actionAutocompleteId($ids){
+		header('Content-type: application/json');
 		$this->isFancyAjaxRequest = true;
 		
 		$criteria=new CDbCriteria;
@@ -1749,6 +1754,7 @@ class RecipesController extends Controller
 		} else {
 			echo '[]';
 		}
+		Yii::app()->end();
 	}
 	
 	private function prepareSearch($view, $ajaxLayout, $criteria)
@@ -1999,9 +2005,11 @@ class RecipesController extends Controller
 		$criteriaDisplay->mergeWith(array(
 			'join'=>'LEFT JOIN cusine_types cut ON cut.CUT_ID = recipes.CUT_ID'.
 			' LEFT JOIN cusine_sub_types cst ON cst.CST_ID = recipes.CST_ID'.
-			' LEFT JOIN recipe_types ret ON recipes.RET_ID=ret.RET_ID'
+			' LEFT JOIN cusine_sub_sub_types css ON css.CSS_ID = recipes.CSS_ID'.
+			' LEFT JOIN recipe_types ret ON recipes.RET_ID=ret.RET_ID'.
+			' LEFT JOIN professional_profiles prf ON recipes.PRF_UID=prf.PRF_UID'
 		));
-		$criteriaDisplay->select = $criteriaDisplay->select . ', cut.CUT_DESC_' . Yii::app()->session['lang'] . ' as CUT_DESC, cst.CST_DESC_' . Yii::app()->session['lang'] . ' as CST_DESC';
+		$criteriaDisplay->select = $criteriaDisplay->select . ', cut.CUT_ID, cst.CST_ID, css.CSS_ID, cut.CUT_IMG_ETAG, cst.CST_IMG_ETAG, css.CSS_IMG_ETAG, cut.CUT_DESC_' . Yii::app()->session['lang'] . ' as CUT_DESC, cst.CST_DESC_' . Yii::app()->session['lang'] . ' as CST_DESC, css.CSS_DESC_' . Yii::app()->session['lang'] . ' as CSS_DESC, prf.*';
 		
 		
 		$orderByKeyToField = array('N'=>'REC_NAME_' . Yii::app()->session['lang'],'n'=>'REC_NAME_' . Yii::app()->session['lang'] . ' DESC','K'=>'REC_KCAL','k'=>'REC_KCAL DESC','C'=>'REC_COMPLEXITY','c'=>'REC_COMPLEXITY DESC'/*,'P'=>'PreparationTime','R'=>'Rating',''=>'',*/);
@@ -2043,7 +2051,7 @@ class RecipesController extends Controller
 				$criteriaTypeOfCusine->mergeWith($criteria);
 				//unset($criteriaTypeOfCusine->having);
 				$criteriaTypeOfCusine->distinct = true;
-				$criteriaTypeOfCusine->select = 'cut.CUT_ID,cut.CUT_DESC_' . Yii::app()->session['lang'] . $additionalSelect;
+				$criteriaTypeOfCusine->select = 'cut.CUT_ID,cut.CUT_IMG_ETAG,cut.CUT_DESC_' . Yii::app()->session['lang'] . $additionalSelect;
 				$commandTypeOfCusine = $this->criteriaToCommand($criteriaTypeOfCusine);
 				$commandTypeOfCusine->bindValues($criteriaTypeOfCusine->params);
 				$typeOfCusine = $commandTypeOfCusine->queryAll();
@@ -2051,11 +2059,20 @@ class RecipesController extends Controller
 					echo $commandTypeOfCusine->text . '<br>';
 					var_dump($criteriaTypeOfCusine->params);
 				}
-				$typeOfCusine = CHtml::listData($typeOfCusine,'CUT_ID','CUT_DESC_'.Yii::app()->session['lang']);
-				if(array_key_exists(null,$typeOfCusine)){
-					$typeOfCusine[null] = $this->trans->GENERAL_UNDEFINED;
+				$typeOfCusineList = array();
+				$url = $this->createUrl("savedImage/cusineTypes");
+				foreach ($typeOfCusine as $row){
+					if(isset($row['CUT_IMG_ETAG']) && $row['CUT_IMG_ETAG'] != ''){
+						$value = CHtml::image($url . $row['CUT_ID'] . '.png',  $cusine['name'], array('class'=>'cusineImg')) . $row['CUT_DESC_'.Yii::app()->session['lang']];
+					} else  {
+						$value = $row['CUT_DESC_'.Yii::app()->session['lang']];
+					}
+					$typeOfCusineList[$row['CUT_ID']] = $value;
 				}
-				$filters['possibleTypeOfCusine'] = $typeOfCusine;
+				if(array_key_exists(null,$typeOfCusineList)){
+					$typeOfCusineList[null] = $this->trans->GENERAL_UNDEFINED;
+				}
+				$filters['possibleTypeOfCusine'] = $typeOfCusineList;
 				
 				//Type
 				$criteriaType=new CDbCriteria;
@@ -2067,12 +2084,12 @@ class RecipesController extends Controller
 				$criteriaType->select = 'ret.RET_ID,ret.RET_DESC_' . Yii::app()->session['lang'] . $additionalSelect;
 				$commandType = $this->criteriaToCommand($criteriaType);
 				$commandType->bindValues($criteriaType->params);
-				$typeOfCusine = $commandType->queryAll();
+				$type = $commandType->queryAll();
 				if ($this->debug) {
 					echo $commandType->text . '<br>';
 					var_dump($criteriaType->params);
 				}
-				$type = CHtml::listData($typeOfCusine,'RET_ID','RET_DESC_'.Yii::app()->session['lang']);
+				$type = CHtml::listData($type,'RET_ID','RET_DESC_'.Yii::app()->session['lang']);
 				if(array_key_exists(null,$type)){
 					$type[null] = $this->trans->GENERAL_UNDEFINED;
 				}
@@ -2771,25 +2788,29 @@ class RecipesController extends Controller
 	
 
 	public function actionCusinesAutocomplete($query, $page){
+		header('Content-type: application/json');
 		$this->isFancyAjaxRequest = true;
+		$url = $this->createUrl("savedImage/cusineTypes");
 		$command = Yii::app()->db->createCommand()
-		->select('("cusine_types") as type, concat("CUT_ID:", CUT_ID) as id, CUT_DESC_' . Yii::app()->session['lang'] . ' as name')
+		->select('("cusine_types") as type, concat("CUT_ID:", CUT_ID) as id, CUT_DESC_' . Yii::app()->session['lang'] . ' as name, CASE WHEN CUT_IMG_ETAG IS NOT NULL AND CUT_IMG_ETAG <> \'\' THEN concat("' . $url . '/", CUT_ID ,".png") ELSE "" END as img')
 		->from('cusine_types')
 		->where('CUT_DESC_' . Yii::app()->session['lang'] . ' LIKE :query',array(':query'=>'%'.$query.'%'))
 		->order('CUT_DESC_' . Yii::app()->session['lang'])
 		->limit(5, ($page-1)*5);
 		$data_cut = $command->queryAll();
 
+		$url = $this->createUrl("savedImage/cusineSubTypes");
 		$command = Yii::app()->db->createCommand()
-		->select('("cusine_sub_types") as type, concat("CST_ID:", CST_ID) as id, CST_DESC_' . Yii::app()->session['lang'] . ' as name')
+		->select('("cusine_sub_types") as type, concat("CST_ID:", CST_ID) as id, CST_DESC_' . Yii::app()->session['lang'] . ' as name, CASE WHEN CST_IMG_ETAG IS NOT NULL AND CST_IMG_ETAG <> \'\' THEN concat("' . $url . '/", CST_ID ,".png") ELSE "" END as img')
 		->from('cusine_sub_types')
 		->where('CST_DESC_' . Yii::app()->session['lang'] . ' LIKE :query',array(':query'=>'%'.$query.'%'))
 		->order('CST_DESC_' . Yii::app()->session['lang'])
 		->limit(10, ($page-1)*10);
 		$data_cst = $command->queryAll();
 
+		$url = $this->createUrl("savedImage/cusineSubSubTypes");
 		$command = Yii::app()->db->createCommand()
-		->select('("cusine_sub_sub_types") as type, concat("CSS_ID:", CSS_ID) as id, CSS_DESC_' . Yii::app()->session['lang'] . ' as name')
+		->select('("cusine_sub_sub_types") as type, concat("CSS_ID:", CSS_ID) as id, CSS_DESC_' . Yii::app()->session['lang'] . ' as name, CASE WHEN CSS_IMG_ETAG IS NOT NULL AND CSS_IMG_ETAG <> \'\' THEN concat("' . $url . '/", CSS_ID ,".png") ELSE "" END as img')
 		->from('cusine_sub_sub_types')
 		->where('CSS_DESC_' . Yii::app()->session['lang'] . ' LIKE :query',array(':query'=>'%'.$query.'%'))
 		->order('CSS_DESC_' . Yii::app()->session['lang'])
@@ -2840,9 +2861,10 @@ class RecipesController extends Controller
 				'items'=>$data
 		);
 		echo $this->processOutput(CJSON::encode($result));
+		Yii::app()->end();
 	}
 	
-	public static function getCusinesValues($ids){
+	public static function getCusinesValues($ids, $url1, $url2, $url3){
 		$criteria=new CDbCriteria;
 		if (strlen($ids)>0){
 			$querys = explode(',', $ids);
@@ -2868,7 +2890,7 @@ class RecipesController extends Controller
 				$criteria=new CDbCriteria;
 				$criteria->addInCondition('CUT_ID',$cut_ids);
 				$command = Yii::app()->db->createCommand()
-				->select('("cusine_types") as type, concat("CUT_ID:", CUT_ID) as id, CUT_DESC_' . Yii::app()->session['lang'] . ' as name')
+				->select('("cusine_types") as type, concat("CUT_ID:", CUT_ID) as id, CUT_DESC_' . Yii::app()->session['lang'] . ' as name, CASE WHEN CUT_IMG_ETAG IS NOT NULL AND CUT_IMG_ETAG <> \'\' THEN concat("' . $url1 . '/", CUT_ID ,".png") ELSE "" END as img')
 				->from('cusine_types');
 				$command->where($criteria->condition, $criteria->params);
 				$data = $command->queryAll();
@@ -2878,7 +2900,7 @@ class RecipesController extends Controller
 				$criteria=new CDbCriteria;
 				$criteria->addInCondition('CST_ID',$cst_ids);
 				$command = Yii::app()->db->createCommand()
-				->select('("cusine_sub_types") as type, concat("CST_ID:", CST_ID) as id, CST_DESC_' . Yii::app()->session['lang'] . ' as name')
+				->select('("cusine_sub_types") as type, concat("CST_ID:", CST_ID) as id, CST_DESC_' . Yii::app()->session['lang'] . ' as name, CASE WHEN CST_IMG_ETAG IS NOT NULL AND CST_IMG_ETAG <> \'\' THEN concat("' . $url2 . '/", CST_ID ,".png") ELSE "" END as img')
 				->from('cusine_sub_types');
 				$command->where($criteria->condition, $criteria->params);
 				$data = $command->queryAll();
@@ -2888,7 +2910,7 @@ class RecipesController extends Controller
 				$criteria=new CDbCriteria;
 				$criteria->addInCondition('CSS_ID',$css_ids);
 				$command = Yii::app()->db->createCommand()
-				->select('("cusine_sub_sub_types") as type, concat("CSS_ID:", CSS_ID) as id, CSS_DESC_' . Yii::app()->session['lang'] . ' as name')
+				->select('("cusine_sub_sub_types") as type, concat("CSS_ID:", CSS_ID) as id, CSS_DESC_' . Yii::app()->session['lang'] . ' as name, CASE WHEN CSS_IMG_ETAG IS NOT NULL AND CSS_IMG_ETAG <> \'\' THEN concat("' . $url3 . '/", CSS_ID ,".png") ELSE "" END as img')
 				->from('cusine_sub_sub_types');
 				$command->where($criteria->condition, $criteria->params);
 				$data = $command->queryAll();
@@ -2901,9 +2923,11 @@ class RecipesController extends Controller
 	}
 	
 	public function actionCusinesAutocompleteId($ids){
+		header('Content-type: application/json');
 		$this->isFancyAjaxRequest = true;
-		$result = self::getCusinesValues($ids);
+		$result = self::getCusinesValues($ids, $this->createUrl("savedImage/cusineTypes"), $this->createUrl("savedImage/cusineSubTypes"), $this->createUrl("savedImage/cusineSubSubTypes"));
 		echo $this->processOutput(CJSON::encode($result));
+		Yii::app()->end();
 	}
 	
 }

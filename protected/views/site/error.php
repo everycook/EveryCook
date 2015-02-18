@@ -19,6 +19,7 @@ $this->pageTitle=Yii::app()->name . ' - Error';
 $this->breadcrumbs=array(
 	'Error',
 );
+header('Content-type: text/html; charset=UTF-8');
 ?>
 
 <h2><?php echo $this->trans->GENERAL_ERRORPAGE_TITLE . ' ' . $code; ?></h2>

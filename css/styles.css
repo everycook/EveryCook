@@ -1853,9 +1853,16 @@ div#recipes.detailView .step .stepNo,
 	margin-top: 0.5em;
 }
 .cusines .cusine {
-	padding-left: 2em;
 	margin-right: 0.5em;
-	float: left;
+	display: inline-block;
+}
+#recipes .recipeDetail .cusineImg,
+#recipesResult .resultArea .cusineImg,
+.recipeResultArea .typeOfCusine .cusineImg,
+.cusines .cusineImg {
+	display: inline-block;
+	padding-right: 0.25em;
+	height: 1em;
 }
 .cusines:after {
 	content: " ";
@@ -2082,6 +2089,12 @@ div#recipes.detailView .otherNames {
 #textes div.form .row input[type="text"]{
 	width: 36em;
 }
+
+#cusineTypesResult .list_img .cusineTypes,
+#cusineSubTypesResult .list_img .cusineSubTypes,
+#cusineSubSubTypesResult .list_img .cusineSubSubTypes {
+	width: 12em;
+} 
 /* @end */
 
 /* @group view Size change */

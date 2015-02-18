@@ -17,6 +17,7 @@ See GPLv3.htm in the main folder for details.
 $isPro = isset($data['PRF_UID']) && $data['PRF_UID'] > 0;
 if ($isPro){
 	echo '<div class="resultArea professional">';
+	$proName = $data['PRF_FIRSTNAME'] . ' ' . $data['PRF_LASTNAME'];
 } else {
 	echo '<div class="resultArea">';	
 }
@@ -31,7 +32,7 @@ if ($isPro){
 			}
 		echo '</div>';
 		if ($isPro){
-			echo CHtml::link(CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>$data['PRF_UID'], 'ext'=>'.png')), 'TODO: name alt text', array('class'=>'profile', 'title'=>'TODO: name title')), array('profiles/view', 'id'=>$data['REC_ID']), array('class'=>'fancyLink professionalPic'));
+			echo CHtml::link(CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>$data['PRF_UID'], 'ext'=>'.png')), $proName, array('class'=>'profile', 'title'=>$proName)), array('profiles/view', 'id'=>$data['PRF_UID']), array('class'=>'fancyLink professionalPic'));
 		}
 		if ($this->isTemplateChoose){
 			$class = ' RecipeTemplateSelect';
@@ -50,7 +51,7 @@ if ($isPro){
 			}
 		echo '</div>';
 		if ($isPro){
-			echo CHtml::link(CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>$data['PRF_UID'], 'ext'=>'.png')), 'TODO: name alt text', array('class'=>'profile', 'title'=>'TODO: name title')), array('profiles/view', 'id'=>$data['REC_ID']), array('class'=>'fancyLink professionalPic'));
+			echo CHtml::link(CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>$data['PRF_UID'], 'ext'=>'.png')), $proName, array('class'=>'profile', 'title'=>$proName)), array('profiles/view', 'id'=>$data['PRF_UID']), array('class'=>'fancyLink professionalPic'));
 		}	
 		if(!Yii::app()->user->isGuest) {
 			echo '<div class="options">';
@@ -139,7 +140,10 @@ if ($isPro){
 		if (!empty($data['CUT_DESC'])) {
 			echo '<b>' . CHtml::encode($this->trans->FIELD_CUT_ID) . '</b>';
 			//if (!empty($data['CUT_DESC'])) {
-				echo CHtml::encode($data['CUT_DESC']); 
+				if (!empty($data['CUT_IMG_ETAG'])) {
+					echo CHtml::image($this->createUrl('savedImage/cusineTypes', array('id'=>$data['CUT_ID'], 'ext'=>'.png')), $data['CUT_DESC'], array('class'=>'cusineImg'));
+				}
+				echo CHtml::encode($data['CUT_DESC']);
 			/*} else {
 				echo $this->trans->GENERAL_UNDEFINED;
 			}*/
@@ -150,7 +154,23 @@ if ($isPro){
 		if (!empty($data['CST_DESC'])) {
 			echo '<b>' . CHtml::encode($this->trans->FIELD_CST_ID) . '</b>';
 			//if (!empty($data['CST_DESC'])) {
+				if (!empty($data['CST_IMG_ETAG'])) {
+					echo CHtml::image($this->createUrl('savedImage/cusineSubTypes', array('id'=>$data['CST_ID'], 'ext'=>'.png')), $data['CST_DESC'], array('class'=>'cusineImg'));
+				}
 				echo CHtml::encode($data['CST_DESC']);
+			/*} else {
+				echo $this->trans->GENERAL_UNDEFINED;
+			}*/
+			echo '<br />';
+		} ?>
+		<?php
+		if (!empty($data['CSS_DESC'])) {
+			echo '<b>' . CHtml::encode($this->trans->FIELD_CSS_ID) . '</b>';
+			//if (!empty($data['CSS_DESC'])) {
+				if (!empty($data['CSS_IMG_ETAG'])) {
+					echo CHtml::image($this->createUrl('savedImage/cusineSubSubTypes', array('id'=>$data['CSS_ID'], 'ext'=>'.png')), $data['CSS_DESC'], array('class'=>'cusineImg'));
+				}
+				echo CHtml::encode($data['CSS_DESC']);
 			/*} else {
 				echo $this->trans->GENERAL_UNDEFINED;
 			}*/

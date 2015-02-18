@@ -212,7 +212,7 @@ glob.select2.selectCusinesInitSelection = function(element, callback) {
 };
 
 glob.select2.selectCusinesFormatResult = function (cusine, elem, query) {
-	var text = glob.select2.selectCusinesFormatSelection(cusine);
+	var text = cusine.name;
 	var searchstart = 0;
 	var pos=text.toLowerCase().indexOf(query.term.toLowerCase(), searchstart);
 	var result = '';
@@ -223,11 +223,18 @@ glob.select2.selectCusinesFormatResult = function (cusine, elem, query) {
 	if (text.length > pos + query.term.length){
 		result = result + '<span>' + text.substr(pos + query.term.length) + '</span>';
 	}
+	if (cusine.img != ''){
+		result = '<img src=' + cusine.img + ' class="cusineImg"/><span class="text">' + result + '</span>';
+	}
 	return result;
 };
 
 glob.select2.selectCusinesFormatSelection = function (cusine) {
-	return cusine.name;
+	if (cusine.img != ''){
+		return '<img src=' + cusine.img + ' class="cusineImg"/><span class="text">' + cusine.name + '</span>';
+	} else {
+		return '<span class="text">' + cusine.name + '</span>';
+	}
 }
 
 glob.changePage = function(hash){
@@ -1753,10 +1760,12 @@ jQuery(function($){
 			textElem.children().each(function(i){
 				var child = $(this);
 				var value = child.data('value');
-				if (i>0){
-					text = text + ',';
+				if (typeof(value) !== 'undefined'){
+					if (text != ''){
+						text = text + ',';
+					}
+					text = text + value;
 				}
-				text = text + value;
 			});
 		} else {
 			var text = textElem.text();
@@ -1843,7 +1852,11 @@ jQuery(function($){
 		var classToUse = textElem.data('child-class');
 		for(var index in values){
 			var value = values[index];
-			$('<div class="' + classToUse + '" data-value="' + value['id'] + '">' + value['name'] + '</div>').appendTo(textElem);
+			var imgContent = '';
+			if (value['img'] != ''){
+				imgContent = '<img src=' + value['img'] + ' class="' + classToUse + 'Img"/>';
+			}
+			$(imgContent + '<div class="' + classToUse + '" data-value="' + value['id'] + '">' + value['name'] + '</div>').appendTo(textElem);
 		}
 		var elem = $(textElem.data('edit'));
 		elem.appendTo(textElem);

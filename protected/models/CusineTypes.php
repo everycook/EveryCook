@@ -23,6 +23,8 @@ See GPLv3.htm in the main folder for details.
  * @property double $CUT_GPS_LAT
  * @property double $CUT_GPS_LNG
  * @property string $CUT_GOOGLE_REGION
+ * @property string $CUT_IMG_FILENAME
+ * @property string $CUT_IMG_ETAG
  * @property string $CUT_DESC_EN_GB
  * @property string $CUT_DESC_DE_CH
  * @property integer $CREATED_BY
@@ -32,6 +34,8 @@ See GPLv3.htm in the main folder for details.
  */
 class CusineTypes extends ActiveRecordEC
 {
+	public $filename;
+	public $imagechanged;
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @return CusineTypes the static model class
@@ -54,14 +58,16 @@ class CusineTypes extends ActiveRecordEC
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('CUT_DESC_EN_GB, CUT_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
+			array('CUT_IMG_FILENAME, CUT_IMG_ETAG, CUT_DESC_EN_GB, CUT_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
 			array('CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('CUT_GPS_LAT, CUT_GPS_LNG', 'numerical'),
 			array('CUT_GOOGLE_REGION', 'length', 'max'=>50),
+			array('CUT_IMG_FILENAME', 'length', 'max'=>250),
+			array('CUT_IMG_ETAG', 'length', 'max'=>40),
 			array('CUT_DESC_EN_GB, CUT_DESC_DE_CH', 'length', 'max'=>100),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('CUT_ID, CUT_GPS_LAT, CUT_GPS_LNG, CUT_GOOGLE_REGION, CUT_DESC_EN_GB, CUT_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('CUT_ID, CUT_GPS_LAT, CUT_GPS_LNG, CUT_GOOGLE_REGION, CUT_IMG_FILENAME, CUT_IMG_ETAG, CUT_DESC_EN_GB, CUT_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -84,6 +90,8 @@ class CusineTypes extends ActiveRecordEC
 			'CUT_GPS_LAT' => 'Cut Gps Lat',
 			'CUT_GPS_LNG' => 'Cut Gps Lng',
 			'CUT_GOOGLE_REGION' => 'Cut Google Region',
+			'CUT_IMG_FILENAME' => 'Cut Img Filename',
+			'CUT_IMG_ETAG' => 'Cut Img Etag',
 			'CUT_DESC_EN_GB' => 'Cut Desc En Gb',
 			'CUT_DESC_DE_CH' => 'Cut Desc De Ch',
 			'CREATED_BY' => 'Created By',
@@ -105,6 +113,8 @@ class CusineTypes extends ActiveRecordEC
 		$criteria->compare($this->tableName().'.CUT_GPS_LAT',$this->CUT_GPS_LAT);
 		$criteria->compare($this->tableName().'.CUT_GPS_LNG',$this->CUT_GPS_LNG);
 		$criteria->compare($this->tableName().'.CUT_GOOGLE_REGION',$this->CUT_GOOGLE_REGION,true);
+		$criteria->compare($this->tableName().'.CUT_IMG_FILENAME',$this->CUT_IMG_FILENAME,true);
+		$criteria->compare($this->tableName().'.CUT_IMG_ETAG',$this->CUT_IMG_ETAG,true);
 		$criteria->compare($this->tableName().'.CUT_DESC_EN_GB',$this->CUT_DESC_EN_GB,true);
 		$criteria->compare($this->tableName().'.CUT_DESC_DE_CH',$this->CUT_DESC_DE_CH,true);
 		$criteria->compare($this->tableName().'.CREATED_BY',$this->CREATED_BY);
@@ -124,6 +134,8 @@ class CusineTypes extends ActiveRecordEC
 		$criteria->compare('CUT_GPS_LAT',$this->CUT_GPS_LAT);
 		$criteria->compare('CUT_GPS_LNG',$this->CUT_GPS_LNG);
 		$criteria->compare('CUT_GOOGLE_REGION',$this->CUT_GOOGLE_REGION,true);
+		$criteria->compare('CUT_IMG_FILENAME',$this->CUT_IMG_FILENAME,true);
+		$criteria->compare('CUT_IMG_ETAG',$this->CUT_IMG_ETAG,true);
 		$criteria->compare('CUT_DESC_EN_GB',$this->CUT_DESC_EN_GB,true);
 		$criteria->compare('CUT_DESC_DE_CH',$this->CUT_DESC_DE_CH,true);
 		$criteria->compare('CREATED_BY',$this->CREATED_BY);

@@ -55,7 +55,10 @@ if ($edit){
 	<div class="workingLocation<?php if($edit){echo ' editField" data-field="PRF_WORK_LOCATION" data-placeholder="' . $this->trans->PROFILES_VIEW_WORK_LOCATION_PLACEHOLDER;} ?>"><?php echo $model->PRF_WORK_LOCATION; echo $editLink;?></div>
 	<div class="cusines<?php if($edit){echo ' editField" data-field="PRF_CUT_IDS" data-child-class="cusine" data-field-type="select2" data-placeholder="' . $this->trans->PROFILES_VIEW_CUSINES_PLACEHOLDER . '" data-save="' . $this->trans->GENERAL_SAVE . '" data-scriptprefix="selectCusines' ;} ?>">
 	<?php foreach($cusines as $cusine){
-		echo '<div class="cusine" data-value="' . $cusine["id"] . '">' . $cusine["name"] . '</div>';
+		if (isset($cusine['img']) && $cusine['img'] != ''){
+			echo CHtml::image($cusine['img'],  $cusine['name'], array('class'=>'cusineImg'));
+		}
+		echo '<div class="cusine" data-value="' . $cusine['id'] . '">' . $cusine['name'] . '</div>';
 	}?>
 	<?php echo $editLink;?></div>
 	<div class="clearfix"></div>

@@ -731,7 +731,7 @@ class Functions extends CHtml{
 		}
 	}
 	
-	public static function updatePicture($model, $picFieldName, $oldPictureFilename){
+	public static function updatePicture($model, $picFieldName, $oldPictureFilename, $resize = true){
 		$file = CUploadedFile::getInstance($model,'filename');
 		if (isset($file)){
 //			echo 'updatePicture file is set'."\r\n";
@@ -744,7 +744,8 @@ class Functions extends CHtml{
 			$model->setScenario('withPic');
 		} else {
 //			echo 'updatePicture file not set'."\r\n";
-			if ($model->__get($picFieldName . '_FILENAME') == '' && $oldPictureFilename != ''){
+			$filename = $model->__get($picFieldName . '_FILENAME');
+			if ($filename == '' && $oldPictureFilename != ''){
 //				echo 'set missing filename'."\r\n";
 				$model->__set($picFieldName . '_FILENAME', $oldPictureFilename);
 				$img_md5 = md5(file_get_contents($oldPictureFilename));
@@ -753,21 +754,24 @@ class Functions extends CHtml{
 			} else {
 				$cropInfosAvailable = isset($_POST['imagecrop_w']) && ($_POST['imagecrop_w'] > 0) && isset($_POST['imagecrop_h']) && ($_POST['imagecrop_h'] > 0);
 //				echo 'cropping, info available:' . $cropInfosAvailable . ' filename is:' . $model->__get($picFieldName . '_FILENAME')."\r\n";
-				if (($model->imagechanged == true || $cropInfosAvailable) && $model->__get($picFieldName . '_FILENAME') != ''){
+				if (($model->imagechanged == true || $cropInfosAvailable) && $filename != ''){
 //					echo 'do cropping'."\r\n";
-					$filename = $model->__get($picFieldName . '_FILENAME');
 					if (strpos($filename, '_temp') === false){
 						$tempfile = self::generatePictureName($model, true);
 					} else {
 						$tempfile = $filename;
 					}
-					if ($cropInfosAvailable){
-						self::resizePicturePart($filename, $tempfile, self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG, $_POST['imagecrop_x'], $_POST['imagecrop_y'], $_POST['imagecrop_w'], $_POST['imagecrop_h'], true);
-					} else {
-						self::resizePictureWithFill($filename, $tempfile, self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG, true);
+					if ($resize){
+						if ($cropInfosAvailable){
+							self::resizePicturePart($filename, $tempfile, self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG, $_POST['imagecrop_x'], $_POST['imagecrop_y'], $_POST['imagecrop_w'], $_POST['imagecrop_h'], true);
+						} else {
+							self::resizePictureWithFill($filename, $tempfile, self::IMG_WIDTH, self::IMG_HEIGHT, 0.8, IMAGETYPE_PNG, true);
+						}
+					} else if($filename != $tempfile){
+						copy($filename,$tempfile);
 					}
 					$model->__set($picFieldName . '_FILENAME', $tempfile);
-					$img_md5 = md5(file_get_contents($oldPictureFilename));
+					$img_md5 = md5(file_get_contents($tempfile));
 					$model->__set($picFieldName . '_ETAG', $img_md5);
 					$model->imagechanged = false;
 				}
@@ -775,7 +779,7 @@ class Functions extends CHtml{
 		}
 	}
 	
-	private static function uploadPicture($model, $picFieldName){
+	private static function uploadPicture($model, $picFieldName, $checkMin = true){
 		$file = CUploadedFile::getInstance($model,'filename');
 		if ($file){
 			$filename = $file->getTempName();
@@ -797,7 +801,7 @@ class Functions extends CHtml{
 			$imginfo = self::changePictureType($filename,$filename, IMAGETYPE_PNG);
 			if ($imginfo !== false){
 				//if ($imginfo[0]>=self::IMG_WIDTH && $imginfo[1]>=self::IMG_HEIGHT){
-				if ($imginfo[0]>=self::IMG_WIDTH || $imginfo[1]>=self::IMG_HEIGHT){
+				if (!$checkMin || ($imginfo[0]>=self::IMG_WIDTH || $imginfo[1]>=self::IMG_HEIGHT)){
 					$img_md5 = md5(file_get_contents($filename));
 					$temp_filename = self::generatePictureName($model, true);
 					copy($filename, $temp_filename);
@@ -817,8 +821,8 @@ class Functions extends CHtml{
 		}
 	}
 	
-	private static function uploadFlickrPicture($model, $picFieldName, $link){
-		//http://www.flickr.com/photos/bea_spoli/6931369423) "/sizes/o/" anf�gen
+	private static function uploadFlickrPicture($model, $picFieldName, $link, $checkMin = true){
+		//http://www.flickr.com/photos/bea_spoli/6931369423) "/sizes/o/" anfügen
 		if (strpos($link, '/sizes/o') === false){
 			$parts = explode('/', $link);
 			if ($parts[0] != 'http:' && $parts[0] != 'https:'){
@@ -878,13 +882,13 @@ class Functions extends CHtml{
 		}
 	}
 	
-	public static function uploadImage($modelName, $model, $sessionBackupName, $pictureFieldName){
+	public static function uploadImage($modelName, $model, $sessionBackupName, $pictureFieldName, $checkMin = true){
 		if (isset($_POST[$modelName]) || isset($_POST['flickr_link'])){
 			$model->attributes=$_POST[$modelName];
 			if (isset($_POST['flickr_link']) && $_POST['flickr_link'] != ''){
-				$sucessfull = Functions::uploadFlickrPicture($model, $pictureFieldName, $_POST['flickr_link']);
+				$sucessfull = Functions::uploadFlickrPicture($model, $pictureFieldName, $_POST['flickr_link'], $checkMin);
 			} else {
-				$sucessfull = Functions::uploadPicture($model, $pictureFieldName);
+				$sucessfull = Functions::uploadPicture($model, $pictureFieldName, $checkMin);
 			}
 			Yii::app()->session[$sessionBackupName] = $model;
 			Yii::app()->session[$sessionBackupName.'_Time'] = time();

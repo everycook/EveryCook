@@ -75,7 +75,7 @@ if ($this->isFancyAjaxRequest){ ?>
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view_array',
 	'ajaxUpdate'=>false,
-	'id'=>'ingredientsResult',
+	'id'=>'cusineTypesResult',
 )); 
 ?>
 <?php $this->endWidget(); ?>

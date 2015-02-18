@@ -24,6 +24,8 @@ See GPLv3.htm in the main folder for details.
  * @property double $CST_GPS_LAT
  * @property double $CST_GPS_LNG
  * @property string $CST_GOOGLE_REGION
+ * @property string $CST_IMG_FILENAME
+ * @property string $CST_IMG_ETAG
  * @property string $CST_DESC_EN_GB
  * @property string $CST_DESC_DE_CH
  * @property integer $CREATED_BY
@@ -33,6 +35,8 @@ See GPLv3.htm in the main folder for details.
  */
 class CusineSubTypes extends ActiveRecordEC
 {
+	public $filename;
+	public $imagechanged;
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @return CusineSubTypes the static model class
@@ -55,14 +59,16 @@ class CusineSubTypes extends ActiveRecordEC
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('CUT_ID, CST_DESC_EN_GB, CST_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
+			array('CUT_ID, CST_IMG_FILENAME, CST_IMG_ETAG, CST_DESC_EN_GB, CST_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
 			array('CUT_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('CST_GPS_LAT, CST_GPS_LNG', 'numerical'),
 			array('CST_GOOGLE_REGION', 'length', 'max'=>50),
+			array('CST_IMG_FILENAME', 'length', 'max'=>250),
+			array('CST_IMG_ETAG', 'length', 'max'=>40),
 			array('CST_DESC_EN_GB, CST_DESC_DE_CH', 'length', 'max'=>100),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('CST_ID, CUT_ID, CST_GPS_LAT, CST_GPS_LNG, CST_GOOGLE_REGION, CST_DESC_EN_GB, CST_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('CST_ID, CUT_ID, CST_GPS_LAT, CST_GPS_LNG, CST_GOOGLE_REGION, CST_IMG_FILENAME, CST_IMG_ETAG, CST_DESC_EN_GB, CST_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -86,6 +92,8 @@ class CusineSubTypes extends ActiveRecordEC
 			'CST_GPS_LAT' => 'Cst Gps Lat',
 			'CST_GPS_LNG' => 'Cst Gps Lng',
 			'CST_GOOGLE_REGION' => 'Cst Google Region',
+			'CST_IMG_FILENAME' => 'Cst Img Filename',
+			'CST_IMG_ETAG' => 'Cst Img Etag',
 			'CST_DESC_EN_GB' => 'Cst Desc En Gb',
 			'CST_DESC_DE_CH' => 'Cst Desc De Ch',
 			'CREATED_BY' => 'Created By',
@@ -108,6 +116,8 @@ class CusineSubTypes extends ActiveRecordEC
 		$criteria->compare($this->tableName().'.CST_GPS_LAT',$this->CST_GPS_LAT);
 		$criteria->compare($this->tableName().'.CST_GPS_LNG',$this->CST_GPS_LNG);
 		$criteria->compare($this->tableName().'.CST_GOOGLE_REGION',$this->CST_GOOGLE_REGION,true);
+		$criteria->compare($this->tableName().'.CST_IMG_FILENAME',$this->CST_IMG_FILENAME,true);
+		$criteria->compare($this->tableName().'.CST_IMG_ETAG',$this->CST_IMG_ETAG,true);
 		$criteria->compare($this->tableName().'.CST_DESC_EN_GB',$this->CST_DESC_EN_GB,true);
 		$criteria->compare($this->tableName().'.CST_DESC_DE_CH',$this->CST_DESC_DE_CH,true);
 		$criteria->compare($this->tableName().'.CREATED_BY',$this->CREATED_BY);
@@ -128,6 +138,8 @@ class CusineSubTypes extends ActiveRecordEC
 		$criteria->compare('CST_GPS_LAT',$this->CST_GPS_LAT);
 		$criteria->compare('CST_GPS_LNG',$this->CST_GPS_LNG);
 		$criteria->compare('CST_GOOGLE_REGION',$this->CST_GOOGLE_REGION,true);
+		$criteria->compare('CST_IMG_FILENAME',$this->CST_IMG_FILENAME,true);
+		$criteria->compare('CST_IMG_ETAG',$this->CST_IMG_ETAG,true);
 		$criteria->compare('CST_DESC_EN_GB',$this->CST_DESC_EN_GB,true);
 		$criteria->compare('CST_DESC_DE_CH',$this->CST_DESC_DE_CH,true);
 		$criteria->compare('CREATED_BY',$this->CREATED_BY);

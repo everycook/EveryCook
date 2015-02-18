@@ -24,6 +24,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 See GPLv3.htm in the main folder for details.
 */
 ?>
+<input type="hidden" id="uploadImageLink" value="<?php echo '<?php'; ?> echo $this->createUrl('uploadImage',array('id'=>$model-><?php echo $this->tableSchema->primaryKey; ?>)); ?>"/>
 <input type="hidden" id="imageLink" value="<?php echo '<?php'; ?> echo $this->createUrl('displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
 <div class="form">
 
@@ -62,6 +63,14 @@ See GPLv3.htm in the main folder for details.
 	*/
 	?>
 	
+	<?php echo '<?php'."\r\n"; ?>
+		if (isset(Yii::app()->session[$this->createBackup]) && isset(Yii::app()->session[$this->createBackup]-><?php echo $tablePrefix; ?>_IMG_ETAG)){
+			echo CHtml::image($this->createUrl('displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())), $model->__get('<?php echo $tablePrefix; ?>_DESC_' . Yii::app()->session['lang']), array('class'=>'<?php echo $this->modelClass; ?>' .(($model->imagechanged)?' cropable':''), 'title'=>$model->__get('<?php echo $tablePrefix; ?>_DESC_' . Yii::app()->session['lang'])));
+		} else if ($model-><?php echo $tablePrefix; ?>_ID && isset($model-><?php echo $tablePrefix; ?>_IMG_ETAG)) {
+			echo CHtml::image($this->createUrl('displaySavedImage', array('id'=>$model-><?php echo $tablePrefix; ?>_ID, 'ext'=>'.png')), $model->__get('<?php echo $tablePrefix; ?>_DESC_' . Yii::app()->session['lang']), array('class'=>'<?php echo $this->modelClass; ?>', 'title'=>$model->__get('<?php echo $tablePrefix; ?>_DESC_' . Yii::app()->session['lang'])));
+		}
+	?>
+	
 	<div class="row">
 		<?php echo "<?php echo \$form->labelEx(\$model,'filename') ?>\r\n"; ?>
 		<div class="imageTip">
@@ -69,9 +78,11 @@ See GPLv3.htm in the main folder for details.
 		echo $this->trans->TIP_OWN_IMAGE . '<br>';
 		echo $form->FileField($model,'filename'). '<br>' . "\r\n";
 		echo $form->error($model,'filename') . "\r\n";
+		<?php  /*
 		echo $this->trans->TIP_FLICKR_IMAGE . '<br>';
 		printf($this->trans->TIP_LOOK_ON_FLICKR, $model->__get('<?php echo $tablePrefix; ?>_DESC_EN_GB'));//'<?php echo $tablePrefix; ?>_DESC_'.Yii::app()->session['lang']
 		echo '<br>' . $this->trans->TIP_FLICKR_LINK . '<input type="text" name="flickr_link" class="flickr_link"/> <div class="buttonSmall loadFromFlickr">' . $this->trans->TIP_FLICKR_LINK_LOAD . '</div>'
+		*/?>
 		?>
 		</div>
 	</div>

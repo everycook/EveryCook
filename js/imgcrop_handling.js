@@ -141,9 +141,14 @@ jQuery(function($){
 			imageParent.find('img').remove();
 			imageParent.find('#img_error').remove();
 			var rand = Math.floor(Math.random()*1000000000);
-			var image = jQuery('<img src="' + jQuery('#imageLink').attr('value') + '?rand=' + rand+ '" class="cropable"/>');
-			image.insertBefore(imageBefore);
-			initCrop('form', imageBefore.parent());
+			if (elem.hasClass('noCrop')){
+				var image = jQuery('<img src="' + jQuery('#imageLink').attr('value') + '?rand=' + rand+ '"/>');
+				image.insertBefore(imageBefore);
+			} else {
+				var image = jQuery('<img src="' + jQuery('#imageLink').attr('value') + '?rand=' + rand+ '" class="cropable"/>');
+				image.insertBefore(imageBefore);
+				initCrop('form', imageBefore.parent());
+			}
 			elem.attr('value','');
 		} else {
 			//No image/unknown type uploaded...

@@ -286,7 +286,7 @@ class ShoppinglistsController extends Controller
 		}
 		
 		$model = $this->loadModel($id);
-		if ($id == 'backup'){
+		if ($id == 'backup' && isset($model->SHO_ID) && $model->SHO_ID > 0){
 			$id = $model->SHO_ID;
 		}
 		

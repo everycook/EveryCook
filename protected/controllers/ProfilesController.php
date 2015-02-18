@@ -86,7 +86,7 @@ class ProfilesController extends Controller
 		$roles = explode(';', strtolower($model->PRF_ROLES));
 		if (in_array('professional', $roles)){
 			include_once 'RecipesController.php';
-			$cusines = RecipesController::getCusinesValues($model->PRF_CUT_IDS);
+			$cusines = RecipesController::getCusinesValues($model->PRF_CUT_IDS, $this->createUrl("savedImage/cusineTypes"), $this->createUrl("savedImage/cusineSubTypes"), $this->createUrl("savedImage/cusineSubSubTypes"));
 			
 			//Field PRF_UID is not filled!
 			$recipesAmount = Yii::app()->db->createCommand('SELECT count(REC_ID) FROM recipes WHERE CREATED_BY = :id')->bindParam(':id', $id)->queryScalar();
@@ -794,7 +794,7 @@ class ProfilesController extends Controller
 		if ($id == 'backup'){
 			$model=Yii::app()->session[$this->createBackup];
 		} else {
-			if(Yii::app()->user->demo){
+			if(!Yii::app()->user->isGuest && $id == 0 && Yii::app()->user->demo){
 				$model=new Profiles;
 				$model->PRF_UID = 0;
 				$model->PRF_FIRSTNAME = 'Demo';
