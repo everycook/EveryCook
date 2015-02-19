@@ -1,0 +1,2 @@
+﻿INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('INGREDIENTS_SEARCH_TITLE', 'search ingredient', 'Zutat suchen', '');

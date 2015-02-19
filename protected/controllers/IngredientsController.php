@@ -30,6 +30,7 @@ class IngredientsController extends Controller
 	protected $createBackup = 'Ingredients_Backup';
 	protected $searchBackup = 'Ingredients';
 	protected $getNextAmountBackup = 'Ingredients_GetNextAmount';
+	protected $isFancySelect = false;
 	protected $isRecipeIngredientSelect = false;
 	protected $recipeIngredientIds = null;
 	
@@ -583,7 +584,7 @@ class IngredientsController extends Controller
 		
 		
 		if ($modelAvailable || $criteriaString != '' || $criteria != null || $isSuggestion){
-// 			if (!$this->isFancyAjaxRequest){
+// 			if (!$this->isFancySelect){
 // 				$distanceForGroupSQL = 'SELECT storeAmountView.ING_ID, storeAmountView.min_dist, storeAmountView.store_count, productAmountView.pro_count
 // 					FROM
 // 					(
@@ -687,7 +688,7 @@ class IngredientsController extends Controller
 				->leftJoin('ingredient_states', 'ingredients.IST_ID=ingredient_states.IST_ID')
 				->leftJoin('conditions', 'ingredients.CND_ID=conditions.CND_ID')
 				->leftJoin('temp_groups', 'ingredients.TGR_ID=temp_groups.TGR_ID');
-				if (!$this->isFancyAjaxRequest){
+				if (!$this->isFancySelect){
 					$command->leftJoin('products', 'ingredients.ING_ID=products.ING_ID')
 					->leftJoin('pro_to_sto', 'pro_to_sto.PRO_ID=products.PRO_ID')
 					->leftJoin('stores', 'pro_to_sto.SUP_ID=stores.SUP_ID AND pro_to_sto.STY_ID=stores.STY_ID');
@@ -775,7 +776,8 @@ class IngredientsController extends Controller
 			
 			$rows = $command->queryAll();
 			
-			if (!$this->isFancyAjaxRequest){
+			/*
+			if (!$this->isFancySelect){
 				if ($hasYouDist){
 					$youDistRows = $youDistCommand->queryAll();
 					$youDistArray = array();
@@ -834,6 +836,7 @@ class IngredientsController extends Controller
 					}
 				}
 			}
+			*/
 			
 			
 			/*
@@ -920,16 +923,19 @@ class IngredientsController extends Controller
 	
 	public function actionChooseIngredient(){
 		$this->isFancyAjaxRequest = true;
+		$this->isFancySelect = true;
 		$this->prepareSearch('search', 'none', null);
 	}
 	
 	public function actionAdvanceChooseIngredient(){
 		$this->isFancyAjaxRequest = true;
+		$this->isFancySelect = true;
 		$this->prepareSearch('advanceSearch', 'none', null);
 	}
 	
 	public function actionChooseIngredientInRecipe(){
 		$this->isFancyAjaxRequest = true;
+		$this->isFancySelect = true;
 		$this->isRecipeIngredientSelect = true;
 		
 		if (isset($_GET['ajaxPaging'])){

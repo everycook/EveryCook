@@ -14,12 +14,16 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 
 See GPLv3.htm in the main folder for details.
 */
+$fancyLinkClass = '';
+if($this->isFancyAjaxRequest){
+	$fancyLinkClass = ' fancyLink reopenCurrentFancyOnClose';
+}
 ?>
 <div class="resultArea">
 	<div class="list_img">
 	<?php
-	if (!$this->isFancyAjaxRequest){
-		echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), $data['ING_NAME_' . Yii::app()->session['lang']], array('class'=>'ingredient', 'title'=>$data['ING_NAME_' . Yii::app()->session['lang']])), array('view', 'id'=>$data['ING_ID']));
+	if (!$this->isFancySelect){
+		echo CHtml::link(CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), $data['ING_NAME_' . Yii::app()->session['lang']], array('class'=>'ingredient', 'title'=>$data['ING_NAME_' . Yii::app()->session['lang']])), array('view', 'id'=>$data['ING_ID']), array('class'=>$fancyLinkClass));
 	} else {
 		echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), $data['ING_NAME_' . Yii::app()->session['lang']], array('class'=>'ingredient', 'title'=>$data['ING_NAME_' . Yii::app()->session['lang']]));
 	}
@@ -28,7 +32,7 @@ See GPLv3.htm in the main folder for details.
 	</div>
 	
 	<?php
-	if ($this->isFancyAjaxRequest){
+	if ($this->isFancySelect){
 		if($this->isRecipeIngredientSelect){
 			if ($this->recipeIngredientIds != null){
 				$found = false;
@@ -48,12 +52,12 @@ See GPLv3.htm in the main folder for details.
 		} else {
 			echo CHtml::link($this->trans->GENERAL_SELECT, $data['ING_ID'], array('class'=>'f-right button IngredientSelect'));
 		}
-		echo CHtml::link($this->trans->INGREDIENTS_MORE_DETAILS, array('ingredients/view', 'id'=>$data['ING_ID']), array('class'=>'f-right button fancyButton moreInfo reopenCurrentFancyOnClose'));
+		echo CHtml::link($this->trans->INGREDIENTS_MORE_DETAILS, array('ingredients/view', 'id'=>$data['ING_ID'], 'searchType'=>$this->route), array('class'=>'f-right button fancyButton moreInfo reopenCurrentFancyOnClose'));
 	} else {
 		?>
 		<div class="options">
 			<?php echo CHtml::link('&nbsp;', array('delicious', 'id'=>$data['ING_ID']), array('class'=>'delicious noAjax backpic', 'title'=>$this->trans->GENERAL_DELICIOUS)); ?>
-			<?php echo CHtml::link('&nbsp;', array('recipes/search', 'ing_id'=>$data['ING_ID']), array('class'=>'cookwith backpic', 'title'=>$this->trans->INGREDIENTS_COOK_WITH)); ?>
+			<?php //echo CHtml::link('&nbsp;', array('recipes/search', 'ing_id'=>$data['ING_ID']), array('class'=>'cookwith backpic', 'title'=>$this->trans->INGREDIENTS_COOK_WITH)); ?>
 			<?php echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$data['ING_ID']), array('class'=>'disgusting noAjax backpic last','title'=>$this->trans->GENERAL_DISGUSTING)); ?>
 		</div>
 		<?php
@@ -63,16 +67,16 @@ See GPLv3.htm in the main folder for details.
 	<div class="data">
 		<div class="name">
 			<?php
-			if ($this->isFancyAjaxRequest){
+			if ($this->isFancySelect){
 				echo $data['ING_NAME_' . Yii::app()->session['lang']];
 			} else {
-				echo CHtml::link(CHtml::encode($data['ING_NAME_' . Yii::app()->session['lang']]), array('view', 'id'=>$data['ING_ID']));
+				echo CHtml::link(CHtml::encode($data['ING_NAME_' . Yii::app()->session['lang']]), array('view', 'id'=>$data['ING_ID']), array('class'=>$fancyLinkClass));
 			}
 			?>&nbsp;
 		</div>
 		<?php
-		if (!$this->isFancyAjaxRequest){
-			echo '<a href="' . Yii::app()->createUrl('nutrientData/view',array('id'=>$data['NUT_ID'], 'ing_id'=>$data['ING_ID'])) . '" class="nutrientInfo" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
+		if (!$this->isFancySelect){
+			echo '<a href="' . Yii::app()->createUrl('nutrientData/view',array('id'=>$data['NUT_ID'], 'ing_id'=>$data['ING_ID'])) . '" class="nutrientInfo'.$fancyLinkClass.'" title="' . $this->trans->INGREDIENTS_VIEW_FOOD . '">';
 		}
 		?>
 			<div class="nutrientInfo">
@@ -89,9 +93,9 @@ See GPLv3.htm in the main folder for details.
 					echo '&nbsp;';
 				} ?>
 			</div>
-		<?php if (!$this->isFancyAjaxRequest){
+		<?php if (!$this->isFancySelect){
 			echo '</a>';
-			
+			/*
 			if($data['pro_count'] != 0){ // || $data['sup_names'] != ''
 				if ($data['distance_to_you_prod'] == -1){
 						echo '<a href="#" class="shopInfo" id="updateCurrentGPS">';
@@ -139,6 +143,7 @@ See GPLv3.htm in the main folder for details.
 				echo '<div class="shopInfo">' . $this->trans->INGREDIENTS_CREATE_PRODUCTS . '</div>';
 				echo '</a>';
 			}
+			*/
 		/*
 		} else {
 			if($data['pro_count'] != 0 || $data['sup_names'] != ''){
@@ -153,7 +158,7 @@ See GPLv3.htm in the main folder for details.
 		?>
 		<div class="ingInfo">
 		<?php
-		if (!$this->isFancyAjaxRequest){
+		if (!$this->isFancySelect){
 			echo '<a href="' . Yii::app()->createUrl('ingredients/update',array('id'=>$data['ING_ID'])) . '" class="button f-right">' . $this->trans->GENERAL_EDIT . '</a>';
 		}
 		echo '<span><span class="title">' . CHtml::encode($this->trans->INGREDIENTS_GROUP) .':</span> <span class="value">' . CHtml::encode($data['GRP_DESC_'.Yii::app()->session['lang']]) ."</span></span>\n";

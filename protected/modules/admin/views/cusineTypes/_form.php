@@ -65,11 +65,6 @@ See GPLv3.htm in the main folder for details.
 		</div>
 	
 		<div class="row">
-			<?php echo $form->labelEx($model,'CUT_IMG_AUTH'); ?>
-			<?php echo $form->textField($model,'CUT_IMG_AUTH',array('size'=>30,'maxlength'=>30)); ?>
-			<?php echo $form->error($model,'CUT_IMG_AUTH'); ?>
-		</div>
-		<div class="row">
 			<?php echo $form->labelEx($model,'CUT_GPS_LAT'); ?>
 			<?php echo $form->textField($model,'CUT_GPS_LAT'); ?>
 			<?php echo $form->error($model,'CUT_GPS_LAT'); ?>

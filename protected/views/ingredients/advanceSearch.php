@@ -31,17 +31,19 @@ if (!$this->isFancyAjaxRequest){
 		);
 	//}
 }
+$urlParams = array();
 if ($this->isFancyAjaxRequest){
 	?>
 	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('ingredients/advanceChooseIngredient'); ?>"/>
 	<?php
+	$urlParams['fancyAjax'] = '1';
 }
 ?>
 <input type="hidden" id="SubGroupSearchLink" value="<?php echo $this->createUrl('ingredients/getSubGroupSearch'); ?>"/>
 
 <div id="ingredientsAdvanceSearch">
 <?php $form=$this->beginWidget('CActiveForm', array(
-		'action'=>Yii::app()->createUrl($this->route),
+		'action'=>Yii::app()->createUrl($this->route, $urlParams),
 		'method'=>'post',
 		'id'=>'ingredients_form',
 		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),

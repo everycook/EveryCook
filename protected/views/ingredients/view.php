@@ -32,9 +32,32 @@ $this->mainButtons = array(
 	array('label'=>$this->trans->GENERAL_EDIT, 'link_id'=>'middle_single', 'url'=>array('ingredients/update',$this->getActionParams())),
 );
 $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preloadedInfo = {};';
+$searchType = 'ingredients/search';
+if(isset($_GET['searchType']) && strlen($_GET['searchType'])>0){
+	$searchType = $_GET['searchType'];
+}
+$urlParams = array();
+if($this->isFancyAjaxRequest){
+	$urlParams['fancyAjax'] = '1';
+}
 ?>
 <input type="hidden" id="getNextLink" value="<?php echo $this->createUrl('ingredients/getNext', array('ing_id'=>$model->ING_ID)); ?>"/>
 
+<?php $form=$this->beginWidget('CActiveForm', array(
+		'action'=>Yii::app()->createUrl($searchType, $urlParams),
+		'id'=>'ingredients_form',
+		'method'=>'post',
+		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
+	)); ?>
+	<div class="f-right search ingSearch">
+		<?php
+		echo Functions::label($this->trans->INGREDIENTS_SEARCH_TITLE, Functions::getIdByName('SimpleSearchForm[query]'));
+		echo Functions::specialField('SimpleSearchForm[query]', '', 'search', array('class'=>'search_query', 'autofocus'=>'autofocus'));
+		echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH));
+		?>
+	</div>
+	<div class="clearfix"></div>
+<?php $this->endWidget(); ?>
 <div class="detailView" id="ingredients">
 <?php
 	if (!$this->isFancyAjaxRequest){
@@ -55,7 +78,7 @@ $preloadedInfoResetScript = "\r\n".'var glob = glob || {};'."\r\n".'glob.preload
 		<div class="options">
 			<?php
 				echo CHtml::link('&nbsp;', array('delicious', 'id'=>$model['ING_ID']), array('class'=>'delicious noAjax backpic f-left', 'title'=>$this->trans->GENERAL_DELICIOUS));
-				echo CHtml::link('&nbsp;', array('recipes/search', 'ing_id'=>$model['ING_ID']), array('class'=>'cookwith backpic f-right', 'title'=>$this->trans->INGREDIENTS_COOK_WITH));
+				//echo CHtml::link('&nbsp;', array('recipes/search', 'ing_id'=>$model['ING_ID']), array('class'=>'cookwith backpic f-right', 'title'=>$this->trans->INGREDIENTS_COOK_WITH));
 				echo CHtml::link('&nbsp;', array('disgusting', 'id'=>$model['ING_ID']), array('class'=>'disgusting noAjax backpic f-center','title'=>$this->trans->GENERAL_DISGUSTING));
 			?>
 		</div>

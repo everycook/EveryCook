@@ -1925,6 +1925,9 @@ div#recipes.detailView .step .stepNo,
 /* @end */
 
 /* @group ingredient view */
+div#ingredients.detailView {
+	min-width: 45em;
+}
 div#ingredients.detailView div.otherItems {
 	width:40em;
 	float: left;
@@ -1958,6 +1961,13 @@ div#recipes.detailView .otherNames {
 .otherNames .otherName {
 	display: inline-block;
 	float: left;
+}
+.search.ingSearch {
+	margin-bottom: 0;
+	width: auto;
+}
+.search.ingSearch .input_search {
+	margin: 0 0.5em;
 }
 
 /* ingredient list*/

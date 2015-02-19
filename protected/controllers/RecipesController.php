@@ -1995,7 +1995,6 @@ class RecipesController extends Controller
 			$Session_RecipeSearch['filters'] = $filters;
 			$Session_RecipeSearch['time'] = time();
 			Yii::app()->session[$this->searchBackup] = $Session_RecipeSearch;
-			var_dump($Session_RecipeSearch);
 		}
 		
 		//Additional display criterias

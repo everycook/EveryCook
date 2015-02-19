@@ -36,17 +36,18 @@ $ingSearch = array(($this->isFancyAjaxRequest)?'ingredients/advanceChooseIngredi
 if (isset(Yii::app()->session['Ingredients']) && isset(Yii::app()->session['Ingredients']['time'])){
 	$ingSearch=array_merge($ingSearch,array('newSearch'=>Yii::app()->session['Ingredients']['time']));
 }
-
+$urlParams = array();
 if ($this->isFancyAjaxRequest){ ?>
 	<input type="hidden" id="FancyChooseSubmitLink" value="<?php echo $this->createUrl('ingredients/chooseIngredient'); ?>"/>
 	<?php
+	$urlParams['fancyAjax'] = '1';
 }
 ?>
 
 
 <div>
 <?php $form=$this->beginWidget('CActiveForm', array(
-		'action'=>Yii::app()->createUrl($this->route),
+		'action'=>Yii::app()->createUrl($this->route, $urlParams),
 		'id'=>'ingredients_form',
 		'method'=>'post',
 		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
@@ -87,11 +88,11 @@ if($isSuggestion){
 	$params['template'] = "{items}";
 }
 $this->widget('AjaxPagingListView', $params); ?>
-<?php if (!$this->isFancyAjaxRequest){ ?>
+<?php /*if (!$this->isFancyAjaxRequest){ ?>
 <script type="text/javascript">
 	loadScript(false, "CH", false, true, false, false);
 </script>
-<?php } ?>
+<?php }*/ ?>
 <?php $this->endWidget(); ?>
 
 </div>
