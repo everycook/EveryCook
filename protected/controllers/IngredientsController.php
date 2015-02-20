@@ -493,8 +493,9 @@ class IngredientsController extends Controller
 	
 	public function actionAutocomplete($query, $page){
 		$this->isFancyAjaxRequest = true;
+		$url = $this->createUrl("displaySavedImage");
 		$command = Yii::app()->db->createCommand()
-			->select('ING_ID as id, ING_NAME_' . Yii::app()->session['lang'] . ' as name, ING_SYNONYM_' . Yii::app()->session['lang'] . ' as synonym')
+			->select('ING_ID as id, ING_NAME_' . Yii::app()->session['lang'] . ' as name, ING_SYNONYM_' . Yii::app()->session['lang'] . ' as synonym, ING_IMG_AUTH as auth, CASE WHEN ING_IMG_ETAG IS NOT NULL AND ING_IMG_ETAG <> \'\' THEN concat("' . $url . '/", ING_ID ,".png") ELSE "" END as img')
 			->from('ingredients')
 			->where('ING_NAME_' . Yii::app()->session['lang'] . ' LIKE :query OR ING_SYNONYM_' . Yii::app()->session['lang'] . ' LIKE :query2',array(':query'=>'%'.$query.'%', ':query2'=>'%'.$query.'%'))
 			->order('ING_NAME_' . Yii::app()->session['lang'] . ', ING_SYNONYM_' . Yii::app()->session['lang'])
@@ -514,7 +515,9 @@ class IngredientsController extends Controller
 			'total_count'=>$total_count,
 			'items'=>$data
 		);
+		header('Content-type: application/json');
 		echo $this->processOutput(CJSON::encode($result));
+		Yii::app()->end();
 	}
 	
 	public function actionAutocompleteId($ids){
@@ -523,13 +526,16 @@ class IngredientsController extends Controller
 		$criteria=new CDbCriteria;
 		$ids = explode(',', $ids);
 		$criteria->addInCondition('ING_ID',$ids);
-			
+		
+		$url = $this->createUrl("displaySavedImage");
 		$command = Yii::app()->db->createCommand()
-			->select('ING_ID as id, ING_NAME_' . Yii::app()->session['lang'] . ' as name, ING_SYNONYM_' . Yii::app()->session['lang'] . ' as synonym')
+			->select('ING_ID as id, ING_NAME_' . Yii::app()->session['lang'] . ' as name, ING_SYNONYM_' . Yii::app()->session['lang'] . ' as synonym, ING_IMG_AUTH as auth, CASE WHEN ING_IMG_ETAG IS NOT NULL AND ING_IMG_ETAG <> \'\' THEN concat("' . $url . '/", ING_ID ,".png") ELSE "" END as img')
 			->from('ingredients')
 			->where($criteria->condition, $criteria->params);
 		$data = $command->queryAll();
+		header('Content-type: application/json');
 		echo $this->processOutput(CJSON::encode($data));
+		Yii::app()->end();
 	}
 	
 	private function prepareSearch($view, $ajaxLayout, $criteria){

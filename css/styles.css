@@ -594,11 +594,11 @@ div.ingInfo .value {
 	display: table;
 }
 
-#recipeSearchArea div.search  input.search_query, #recipeSearchArea  div.search  .search_query .select2-choices {
+#recipeSearchArea div.search input.search_query, #recipeSearchArea  div.search  .search_query .select2-choices {
 	width: auto;
 }
 
-#recipeSearchArea div.search  .search_query {
+#recipeSearchArea div.search .search_query {
 	width: 100%;
 	display: table-cell;
 }
@@ -638,11 +638,20 @@ with this change (fix 100%) it will brake to 2. line also if it's not needed...
 .filter .values .value {
 }
 
-#filters  .search_query .select2-choices {
+#filters .search_query .select2-choices {
 	border-radius:0.8em;
 	padding:0 0.5em;
 	box-sizing: border-box;
     width: 13em;
+}
+
+
+.select2-results .ingredientImg,
+.select2-search-choice .ingredientImg {
+	display: inline-block;
+	padding-right: 0.25em;
+	height: 2em;
+	vertical-align: middle;
 }
 
 #recipeResultArea #recipesResult  {

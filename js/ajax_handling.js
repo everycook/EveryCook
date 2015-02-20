@@ -102,14 +102,8 @@ glob.select2.searchRecipeInitSelection = function(element, callback) {
 	}
 };
 
-glob.select2.searchRecipeFormatResult = function (recipe, elem, query) {
-	var text = glob.select2.searchRecipeFormatSelection(recipe);
+glob.select2.formatResult = function (text, query) {
 	var searchstart = 0;
-	/*
-	if (recipe.type == 'query'){
-		searchstart = 7;
-	}
-	*/
 	var pos=text.toLowerCase().indexOf(query.term.toLowerCase(), searchstart);
 	var result = '';
 	if (pos>0){
@@ -119,6 +113,20 @@ glob.select2.searchRecipeFormatResult = function (recipe, elem, query) {
 	if (text.length > pos + query.term.length){
 		result = result + '<span>' + text.substr(pos + query.term.length) + '</span>';
 	}
+	return result;
+}
+
+glob.select2.formatResultImg = function (text, origText, data, imgClass) {
+	if (data.img != ''){
+		return '<img src=' + data.img + ' alt="' + origText + '" title="' + data.auth + '" class="' + imgClass + '"/><span class="text">' + text + '</span>';
+	} else {
+		return '<span class="text">' + text + '</span>';
+	}	
+}
+
+glob.select2.searchRecipeFormatResult = function (recipe, elem, query) {
+	var text = glob.select2.searchRecipeFormatSelection(recipe);
+	var result = glob.select2.formatResult(text, query);
 	return result;
 };
 
@@ -168,16 +176,23 @@ glob.select2.searchIngredientInitSelection = function(element, callback) {
 	}
 };
 
-glob.select2.searchIngredientFormatResult = function (ingredient) {
-	return glob.select2.searchIngredientFormatSelection(ingredient);
+glob.select2.searchIngredientFormatResult = function (ingredient, elem, query) {
+	if (ingredient.synonym){
+		var text = ingredient.name + '(' + ingredient.synonym + ')';
+	} else {
+		var text = /*ingredient.type + ': ' +*/ ingredient.name;
+	}
+	var result = glob.select2.formatResult(text, query);
+	return glob.select2.formatResultImg(result, text, ingredient, 'ingredientImg');
 };
 
 glob.select2.searchIngredientFormatSelection = function (ingredient) {
 	if (ingredient.synonym){
-		return ingredient.name + '(' + ingredient.synonym + ')';
+		var text = ingredient.name + '(' + ingredient.synonym + ')';
 	} else {
-		return /*ingredient.type + ': ' +*/ ingredient.name;
+		var text = /*ingredient.type + ': ' +*/ ingredient.name;
 	}
+	return glob.select2.formatResultImg(text, text, ingredient, 'ingredientImg');
 }
 
 glob.select2.selectCusinesAjax = {
@@ -212,29 +227,12 @@ glob.select2.selectCusinesInitSelection = function(element, callback) {
 };
 
 glob.select2.selectCusinesFormatResult = function (cusine, elem, query) {
-	var text = cusine.name;
-	var searchstart = 0;
-	var pos=text.toLowerCase().indexOf(query.term.toLowerCase(), searchstart);
-	var result = '';
-	if (pos>0){
-		result = '<span>' + text.substr(0, pos) + '</span>';
-	}
-	result = result + '<span class="matchingText">' + text.substr(pos, query.term.length) + '</span>';
-	if (text.length > pos + query.term.length){
-		result = result + '<span>' + text.substr(pos + query.term.length) + '</span>';
-	}
-	if (cusine.img != ''){
-		result = '<img src=' + cusine.img + ' class="cusineImg"/><span class="text">' + result + '</span>';
-	}
-	return result;
+	var result = glob.select2.formatResult(cusine.name, query);
+	return glob.select2.formatResultImg(result, cusine.name, cusine, 'cusineImg');
 };
 
 glob.select2.selectCusinesFormatSelection = function (cusine) {
-	if (cusine.img != ''){
-		return '<img src=' + cusine.img + ' class="cusineImg"/><span class="text">' + cusine.name + '</span>';
-	} else {
-		return '<span class="text">' + cusine.name + '</span>';
-	}
+	return glob.select2.formatResultImg(cusine.name, cusine.name, cusine, 'cusineImg');
 }
 
 glob.changePage = function(hash){
