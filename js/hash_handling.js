@@ -110,6 +110,19 @@ jQuery(function($){
 		// Hide any visible ajax content.
 		//$( '.bbq-content' ).children( ':visible' ).hide();
 		
+		var queryPos = hash.indexOf('?');
+		if (queryPos !== false){
+			var params = glob.getUrlParams(hash.substr(queryPos+1));
+			var scrollTo = params['scrollTo'];
+			if (typeof(scrollTo) === 'undefined'){
+				scrollTo = '';
+			} else {
+				hash = glob.removeUrlParam(hash, 'scrollTo');
+			}
+		} else {
+			var scrollTo = '';
+		}
+		
 		if (hash === ''){
 			hash = glob.urlHash;
 		}
@@ -133,6 +146,10 @@ jQuery(function($){
 					$( '.bbq-loading' ).hide();
 					glob.lastHash = hash;
 					ajaxResponceHandler(data, 'hash');
+					var scrollElem = $('#' + scrollTo);
+					if(scrollElem.length>0){
+						$(window).scrollTop(scrollElem.offset().top);
+					}
 					_gaq.push(['_trackPageview', hash]);
 				},
 				'error':function(xhr){
@@ -152,6 +169,11 @@ jQuery(function($){
 				$( '.bbq-loading' ).hide();
 				glob.lastHash = hash;
 			});*/
+		} else if (scrollTo != ''){
+			var scrollElem = $('#' + scrollTo);
+			if(scrollElem.length>0){
+				$(window).scrollTop(scrollElem.offset().top);
+			}
 		}
 	});
 	

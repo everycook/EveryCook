@@ -20,6 +20,21 @@ glob.prefix = glob.prefix || window.location.pathname.substr(0,window.location.p
 
 glob.fancyImages = {};
 
+glob.getUrlParams = function(queryString) {
+	var a = queryString.split('&')
+    if (a == "") return {};
+    var b = {};
+    for (var i = 0; i < a.length; ++i) {
+        var p=a[i].split('=', 2);
+        if (p.length == 1) {
+            b[p[0]] = "";
+        } else {
+            b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+        }
+    }
+    return b;
+};
+
 glob.removeUrlParam = function(url, key){
 	var paramStart = url.indexOf(key+'=');
 	var paramEnd = url.indexOf('&', paramStart);
@@ -28,6 +43,10 @@ glob.removeUrlParam = function(url, key){
 			url = url.substr(0,paramStart) + url.substr(paramEnd);
 		} else {
 			url = url.substr(0,paramStart)
+		}
+		url = url.replace('&&','&').replace('?&','?');
+		if (url.slice(-1) == '&'){
+			url = url.substr(0,url.length-1);
 		}
 	}
 	return url;
@@ -237,7 +256,7 @@ glob.select2.selectCusinesFormatSelection = function (cusine) {
 
 glob.changePage = function(hash){
 	if (glob.prefix && window.location.pathname != glob.prefix){
-		window.location.pathname = glob.prefix + '#' + hash;
+		window.location = glob.prefix + '#' + hash;
 	} else {
 		window.location.hash = hash;
 	}
@@ -520,6 +539,7 @@ jQuery(function($){
 		var focusElement = contentParent.find('input[autofocus]');
 		if (focusElement.length > 0) {
 			focusElement.get(0).focus();
+			focusElement.filter(":first").select();
 			focusElement.removeAttr('autofocus');
 		}
 	}

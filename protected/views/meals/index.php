@@ -24,7 +24,11 @@ $this->menu=array(
 	array('label'=>'Manage Meals', 'url'=>array('admin')),
 );
 ?>
-<?php echo CHtml::link($this->trans->MEALLIST_SHOW_ALL, array('', 'showAll'=>'true'), array('class'=>'button f-right')); ?>
+<?php
+if (!isset($_GET['showAll']) || $_GET['showAll'] != 'true') {
+	echo CHtml::link($this->trans->MEALLIST_SHOW_ALL, array('', 'showAll'=>'true'), array('class'=>'button f-right'));
+}
+?>
 <h1><?php echo $this->trans->TITLE_MEALS_LIST; ?></h1>
 
 <?php $this->widget('AjaxPagingListView', array(

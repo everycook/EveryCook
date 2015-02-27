@@ -296,7 +296,7 @@ if($this->isFancyAjaxRequest){
 			$index = 0;
 			foreach($recipes as $recipe){
 				if ($index < IngredientsController::RECIPES_AMOUNT){
-					$this->checkRenderAjax('../recipes/_preview',array('recipe'=>$recipe, 'linkTarget'=>'_blank'), 'inline');
+					$this->renderAjax('../recipes/_preview',array('recipe'=>$recipe, 'linkTarget'=>'_blank'), 'inline');
 					if ($otherItemsAmount['recipes'] > IngredientsController::RECIPES_AMOUNT){
 						$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.idx' . $index . ' = {img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$recipe['REC_ID'])).'", auth:"'.$recipe['REC_IMG_AUTH'].'", name:"'.$recipe['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
 					}

@@ -1,0 +1,3 @@
+﻿INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('RECIPES_FLAG_PRO', 'pro', 'pro', ''),
+('RECIPES_FLAG_PRO_TITLE', 'Professional', 'Professional', '');

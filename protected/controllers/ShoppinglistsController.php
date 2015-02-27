@@ -444,7 +444,9 @@ class ShoppinglistsController extends Controller
 		}
 		$recipe_names = array();
 		foreach($rec_ids as $rec_id){
-			$recipe_names[] = $recipe_indexed[$rec_id]; 
+			if (isset($recipe_indexed[$rec_id])){
+				$recipe_names[] = $recipe_indexed[$rec_id];
+			} 
 		}
 		
 		

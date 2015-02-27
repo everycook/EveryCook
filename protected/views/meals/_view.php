@@ -15,7 +15,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 See GPLv3.htm in the main folder for details.
 */
 ?>
-<div <?php if(isset($elemID)){ echo 'id="' . $elemID . '" '; } if(isset($hideElem) && $hideElem){ echo 'style="display:none" '; } ?> class="resultArea mealView">
+<div <?php if(isset($elemID)){ echo 'id="' . $elemID . '" '; } else { echo 'id="mea_' . $data->MEA_ID . '" '; } if(isset($hideElem) && $hideElem){ echo 'style="display:none" '; } ?> class="resultArea mealView">
 	<?php
 	echo '<div>';
 		if(isset($editMode) && $editMode){

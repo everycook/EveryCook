@@ -2008,14 +2008,14 @@ class RecipesController extends Controller
 			' LEFT JOIN recipe_types ret ON recipes.RET_ID=ret.RET_ID'.
 			' LEFT JOIN professional_profiles prf ON recipes.PRF_UID=prf.PRF_UID'
 		));
-		$criteriaDisplay->select = $criteriaDisplay->select . ', cut.CUT_ID, cst.CST_ID, css.CSS_ID, cut.CUT_IMG_ETAG, cst.CST_IMG_ETAG, css.CSS_IMG_ETAG, cut.CUT_DESC_' . Yii::app()->session['lang'] . ' as CUT_DESC, cst.CST_DESC_' . Yii::app()->session['lang'] . ' as CST_DESC, css.CSS_DESC_' . Yii::app()->session['lang'] . ' as CSS_DESC, prf.*';
+		$criteriaDisplay->select = $criteriaDisplay->select . ', cut.CUT_ID, cst.CST_ID, css.CSS_ID, cut.CUT_IMG_ETAG, cst.CST_IMG_ETAG, css.CSS_IMG_ETAG, cut.CUT_DESC_' . Yii::app()->session['lang'] . ' as CUT_DESC, cst.CST_DESC_' . Yii::app()->session['lang'] . ' as CST_DESC, css.CSS_DESC_' . Yii::app()->session['lang'] . ' as CSS_DESC, prf.*, (CASE WHEN recipes.PRF_UID IS NOT NULL THEN 1 ELSE 0 END) AS pro';
 		
 		
 		$orderByKeyToField = array('N'=>'REC_NAME_' . Yii::app()->session['lang'],'n'=>'REC_NAME_' . Yii::app()->session['lang'] . ' DESC','K'=>'REC_KCAL','k'=>'REC_KCAL DESC','C'=>'REC_COMPLEXITY','c'=>'REC_COMPLEXITY DESC'/*,'P'=>'PreparationTime','R'=>'Rating',''=>'',*/);
 		if (isset($orderByKeyToField[$selectedOrderBy])){
-			$criteriaDisplay->order = $orderByKeyToField[$selectedOrderBy];
+			$criteriaDisplay->order = 'pro DESC, ' . $orderByKeyToField[$selectedOrderBy];
 		} else {
-			$criteriaDisplay->order = 'REC_NAME_' . Yii::app()->session['lang'];
+			$criteriaDisplay->order = 'pro DESC, ' . 'REC_NAME_' . Yii::app()->session['lang'];
 		}
 		if ($this->debug) {
 			echo 'before run<br/>';

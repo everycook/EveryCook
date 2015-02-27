@@ -21,19 +21,23 @@ if ($isPro){
 } else {
 	echo '<div class="resultArea">';	
 }
-	if ($this->isFancyAjaxRequest){
-		echo '<div class="list_img">';
+	echo '<div class="list_img">';
+		if ($this->isFancyAjaxRequest){
 			echo CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), $data['REC_NAME_' . Yii::app()->session['lang']], array('class'=>'recipe', 'title'=>$data['REC_NAME_' . Yii::app()->session['lang']]));
-			echo '<div class="img_auth">';
-			if ($data['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $data['REC_IMG_AUTH']; }
-			echo '</div>';
-			if ($isPro){
-				echo '<div class="img_auth">' . $this->trans->RECIPES_FLAG_PRO . '</div>';
-			}
+		} else {
+			echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), $data['REC_NAME_' . Yii::app()->session['lang']], array('class'=>'recipe', 'title'=>$data['REC_NAME_' . Yii::app()->session['lang']])), array('view', 'id'=>$data['REC_ID']));
+		}
+		echo '<div class="img_auth">';
+		if ($data['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $data['REC_IMG_AUTH']; }
 		echo '</div>';
 		if ($isPro){
-			echo CHtml::link(CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>$data['PRF_UID'], 'ext'=>'.png')), $proName, array('class'=>'profile', 'title'=>$proName)), array('profiles/view', 'id'=>$data['PRF_UID']), array('class'=>'fancyLink professionalPic'));
+			echo '<div class="pro_flag" title="' . $this->trans->RECIPES_FLAG_PRO_TITLE . '">' . $this->trans->RECIPES_FLAG_PRO . '</div>';
 		}
+	echo '</div>';
+	if ($isPro){
+		echo CHtml::link(CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>$data['PRF_UID'], 'ext'=>'.png')), $proName, array('class'=>'profile', 'title'=>$proName)), array('profiles/view', 'id'=>$data['PRF_UID']), array('class'=>'fancyLink professionalPic'));
+	}
+	if ($this->isFancyAjaxRequest){
 		if ($this->isTemplateChoose){
 			$class = ' RecipeTemplateSelect';
 		} else {
@@ -41,18 +45,6 @@ if ($isPro){
 		}
 		echo CHtml::link($this->trans->GENERAL_SELECT, $data['REC_ID'], array('class'=>'f-right button'.$class));
 	} else {
-		echo '<div class="list_img">';
-			echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$data['REC_ID'], 'ext'=>'.png')), $data['REC_NAME_' . Yii::app()->session['lang']], array('class'=>'recipe', 'title'=>$data['REC_NAME_' . Yii::app()->session['lang']])), array('view', 'id'=>$data['REC_ID'])); 
-			echo '<div class="img_auth">';
-			if ($data['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $data['REC_IMG_AUTH']; }
-			echo '</div>';
-			if ($isPro){
-				echo '<div class="pro_flag">' . $this->trans->RECIPES_FLAG_PRO . '</div>';
-			}
-		echo '</div>';
-		if ($isPro){
-			echo CHtml::link(CHtml::image($this->createUrl('profiles/displaySavedImage', array('id'=>$data['PRF_UID'], 'ext'=>'.png')), $proName, array('class'=>'profile', 'title'=>$proName)), array('profiles/view', 'id'=>$data['PRF_UID']), array('class'=>'fancyLink professionalPic'));
-		}	
 		if(!Yii::app()->user->isGuest) {
 			echo '<div class="options">';
 				echo CHtml::link(CHtml::encode($this->trans->RECIPES_DONT_LIKE_IT /*GENERAL_DISGUSTING*/), array('disgusting', 'id'=>$data['REC_ID']), array('class'=>'noAjax button')) . '<br>';

@@ -62,7 +62,12 @@ class MealsController extends Controller
 		unset(Yii::app()->session[$this->createBackup.'_Time']);
 		if (isset($Session_Backup) && isset($Session_Backup->MEA_ID)){
 			unset(Yii::app()->session[$this->createBackup]);
-			$this->forwardAfterSave(array('view', 'id'=>$Session_Backup->MEA_ID));
+			//$this->forwardAfterSave(array('view', 'id'=>$Session_Backup->MEA_ID));
+			if ($Session_Backup->MEA_DATE >= time()){
+				$this->forwardAfterSave(array('mealList', 'scrollTo'=>'mea_'.$Session_Backup->MEA_ID));
+			} else {
+				$this->forwardAfterSave(array('mealList', 'showAll'=>'true', 'scrollTo'=>'mea_'.$Session_Backup->MEA_ID));
+			}
 		} else {
 			unset(Yii::app()->session[$this->createBackup]);
 			$this->showLastNotCreateAction();
@@ -312,7 +317,12 @@ class MealsController extends Controller
 									$this->forwardAfterSave(array('createShoppingList', 'id'=>$model->MEA_ID));
 								}
 							} else {
-								$this->forwardAfterSave(array('mealList', 'id'=>$model->MEA_ID));
+								//$this->forwardAfterSave(array('view', 'id'=>$model->MEA_ID));
+								if ($model->MEA_DATE >= time()){
+									$this->forwardAfterSave(array('mealList', 'scrollTo'=>'mea_'.$model->MEA_ID));
+								} else {
+									$this->forwardAfterSave(array('mealList', 'showAll'=>'true', 'scrollTo'=>'mea_'.$model->MEA_ID));
+								}
 							}
 							return;
 						} else {
