@@ -58,13 +58,14 @@ class CusineTypes extends ActiveRecordEC
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('CUT_IMG_FILENAME, CUT_IMG_ETAG, CUT_DESC_EN_GB, CUT_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
+			array('CUT_DESC_EN_GB, CUT_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
 			array('CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('CUT_GPS_LAT, CUT_GPS_LNG', 'numerical'),
 			array('CUT_GOOGLE_REGION', 'length', 'max'=>50),
 			array('CUT_IMG_FILENAME', 'length', 'max'=>250),
 			array('CUT_IMG_ETAG', 'length', 'max'=>40),
 			array('CUT_DESC_EN_GB, CUT_DESC_DE_CH', 'length', 'max'=>100),
+			array('CUT_IMG_ETAG', 'required', 'on'=>'withPic'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('CUT_ID, CUT_GPS_LAT, CUT_GPS_LNG, CUT_GOOGLE_REGION, CUT_IMG_FILENAME, CUT_IMG_ETAG, CUT_DESC_EN_GB, CUT_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
@@ -104,7 +105,6 @@ class CusineTypes extends ActiveRecordEC
 	public function getSearchFields(){
 		return array('CUT_ID', 'CUT_DESC_' . Yii::app()->session['lang']);
 	}
-	
 	
 	public function getCriteriaString(){
 		$criteria=new CDbCriteria;

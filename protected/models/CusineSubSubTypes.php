@@ -59,13 +59,14 @@ class CusineSubSubTypes extends ActiveRecordEC
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('CST_ID, CSS_IMG_FILENAME, CSS_IMG_ETAG, CSS_DESC_EN_GB, CSS_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
+			array('CST_ID, CSS_DESC_EN_GB, CSS_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
 			array('CST_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('CSS_GPS_LAT, CSS_GPS_LNG', 'numerical'),
 			array('CSS_GOOGLE_REGION', 'length', 'max'=>50),
 			array('CSS_IMG_FILENAME', 'length', 'max'=>250),
 			array('CSS_IMG_ETAG', 'length', 'max'=>40),
 			array('CSS_DESC_EN_GB, CSS_DESC_DE_CH', 'length', 'max'=>100),
+			array('CSS_IMG_ETAG', 'required', 'on'=>'withPic'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('CSS_ID, CST_ID, CSS_GPS_LAT, CSS_GPS_LNG, CSS_GOOGLE_REGION, CSS_IMG_FILENAME, CSS_IMG_ETAG, CSS_DESC_EN_GB, CSS_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
