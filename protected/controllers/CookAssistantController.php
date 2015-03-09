@@ -245,7 +245,7 @@ class CookAssistantController extends Controller {
 				if ($rec_servings <= 0){
 					$rec_proz = $rec_gda / $rec_kcal;
 				} else {
-					$rec_proz = $rec_gda / ($rec_kcal * $rec_servings);
+					$rec_proz = $rec_gda / ($rec_kcal * $rec_servings); //new recipes have REC_KCAL per serving not per recipe
 				}
 			} else {
 				//TODO: this is a data error!, or a recipe without ingredients .... ?

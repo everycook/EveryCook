@@ -144,7 +144,7 @@ class Recipes extends ActiveRecordEC
 	}
 
 	public function getSearchFields(){
-		return array('REC_ID', 'REC_NAME_' . Yii::app()->session['lang']);
+		return array('REC_ID', 'REC_NAME_' . Yii::app()->session['lang'], 'REC_SYNONYM_' . Yii::app()->session['lang']);
 	}
 	
 	

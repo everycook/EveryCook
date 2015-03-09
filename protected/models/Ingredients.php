@@ -161,7 +161,7 @@ class Ingredients extends ActiveRecordEC
 	}
 	
 	public function getSearchFields(){
-		return array('ING_ID', 'ING_NAME_' . Yii::app()->session['lang']);
+		return array('ING_ID', 'ING_NAME_' . Yii::app()->session['lang'], 'ING_SYNONYM_' . Yii::app()->session['lang']);
 	}
 	
 	public function getCriteriaString(){

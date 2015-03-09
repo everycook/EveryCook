@@ -84,7 +84,7 @@ class Controller extends CController
 	}
 	
 	//protected $allLanguages = array('EN_GB'=>'English','DE_CH'=>'Deutsch','FR_FR'=>'Francais');
-	protected $allLanguages = array('EN_GB'=>'English','DE_CH'=>'Deutsch');
+	protected static $allLanguages = array('EN_GB'=>'English','DE_CH'=>'Deutsch');
 	
 	public function getAllLanguages(){
 		return $allLanguages;
@@ -109,6 +109,52 @@ class Controller extends CController
 	{
 		return self::$trans;
 	}
+
+	public static function loadTranslations($langToUse){
+		if (isset($langToUse)){
+			if (array_key_exists($langToUse, self::$allLanguages)){
+				Yii::app()->session['lang'] = $langToUse;
+				$trans = new Translations(Yii::app()->session['lang']);
+				Yii::app()->setLanguage(Yii::app()->session['lang']);
+				return $trans;
+			}
+		}
+		// if user isGuest, take session cookie
+		if (Yii::app()->user->isGuest){
+			// if no language is defined, set default language
+			if (!isset(Yii::app()->session['lang'])){
+				if (Yii::app()->request->preferredLanguage !== false){
+					//get best matching language
+					$langToUse = 'EN_GB';
+					$pref = strtoupper(Yii::app()->request->preferredLanguage);
+					$lang_part = substr($pref,0,2);
+					foreach ($this->allLanguages as $key=>$value){
+						if ($pref == $key){
+							$langToUse = $key;
+							break;
+						} else if ($lang_part == substr($key,0,2)){
+							$langToUse = $key;
+						}
+					}
+					Yii::app()->session['lang'] = $langToUse;
+				} else {
+					Yii::app()->session['lang'] = 'EN_GB';
+				}
+			}
+			//echo 'load text, guest';
+			$trans = new Translations(Yii::app()->session['lang']);
+			Yii::app()->setLanguage(Yii::app()->session['lang']);
+		}
+	
+		// if user is registeredUser, load its saved language setting
+		else {
+			//echo 'load text, user';
+			$trans=new Translations(Yii::app()->user->lang);
+			Yii::app()->session['lang'] = Yii::app()->user->lang;
+			Yii::app()->setLanguage(Yii::app()->user->lang);
+		}
+		return $trans;
+	}
 	
 	protected function beforeAction($action)
 	{
@@ -125,44 +171,14 @@ class Controller extends CController
 			$this->debug = Yii::app()->session['debugEnabled'];
 		}
 		if ($this->trans===null){
-			// if user isGuest, take session cookie
-			if (Yii::app()->user->isGuest){
-				// if no language is defined, set default language
-				if (!isset(Yii::app()->session['lang'])){
-					if (Yii::app()->request->preferredLanguage !== false){
-						//get best matching language
-						$langToUse = 'EN_GB';
-						$pref = strtoupper(Yii::app()->request->preferredLanguage);
-						$lang_part = substr($pref,0,2);
-						foreach ($this->allLanguages as $key=>$value){
-							if ($pref == $key){
-								$langToUse = $key;
-								break;
-							} else if ($lang_part == substr($key,0,2)){
-								$langToUse = $key;
-							}
-						}
-						Yii::app()->session['lang'] = $langToUse;
-					} else {
-						Yii::app()->session['lang'] = 'EN_GB';
-					}
-				}
-				//echo 'load text, guest';
-				self::$trans = new Translations(Yii::app()->session['lang']);
-				Yii::app()->setLanguage(Yii::app()->session['lang']);
-			}
-
-			// if user is registeredUser, load its saved language setting
-			else {
-				//echo 'load text, user';
-				self::$trans=new Translations(Yii::app()->user->lang);
-				Yii::app()->session['lang'] = Yii::app()->user->lang;
-				Yii::app()->setLanguage(Yii::app()->user->lang);
-			}
+			self::$trans=self::loadTranslations(null);
 		}
 		
 		if($this->trans===null)
 			throw new CHttpException(404,'Error loading translation texts.');
+		if($this->debug){
+			self::$trans->showKeyIfAbsent = true;
+		}
 		$params = $this->getActionParams();
 		if (isset($params) && isset($params['afterSave'])){
 			Yii::app()->session['AFTER_SAVE_ACTION'] = urldecode($params['afterSave']);

@@ -19,6 +19,9 @@ class Translations
 {
 	private $_textes=array();				// text name => text value
 	
+	public $showKeyIfAbsent = false;
+	public $showKeyAlways = false;
+	
 	/**
 	 * Constructor.
 	 * @param string $lang language name.
@@ -36,10 +39,16 @@ class Translations
 	 * @see getAttribute
 	 */
 	public function __get($name) {
-		if(isset($this->_textes[$name])) {
+		if($this->showKeyAlways){
+			return $name;
+		} else if(isset($this->_textes[$name])) {
 			return $this->_textes[$name];
 		} else {
-			return null;
+			if ($this->showKeyIfAbsent){
+				return '???' . $name . '???';
+			} else {
+				return null;
+			}
 		}
 	}
 

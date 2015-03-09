@@ -29,6 +29,24 @@ class SavedImageController extends Controller
 		$this->displaySavedImage($id, $model, 'CUT', 'CusineTypes');
 	}
 
+	public function actionRecipes($id, $ext){
+		if ($id == 'backup'){
+			$model=Yii::app()->session['Recipes_Backup'];
+		} else {
+			$model=Recipes::model()->findByPk($id);
+		}
+		$this->displaySavedImage($id, $model, 'REC', 'Recipes');
+	}
+
+	public function actionIngredients($id, $ext){
+		if ($id == 'backup'){
+			$model=Yii::app()->session['Ingredients_Backup'];
+		} else {
+			$model=Ingredients::model()->findByPk($id);
+		}
+		$this->displaySavedImage($id, $model, 'ING', 'Ingredients');
+	}
+
 
 	private function displaySavedImage($id, $model, $prefix, $type){
 		if($model===null)
