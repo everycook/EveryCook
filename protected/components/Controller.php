@@ -87,7 +87,7 @@ class Controller extends CController
 	public static $allLanguages = array('EN_GB'=>'English','DE_CH'=>'Deutsch');
 	
 	public function getAllLanguages(){
-		return $allLanguages;
+		return self::$allLanguages;
 	}
 	
 	public function getJumpTos(){

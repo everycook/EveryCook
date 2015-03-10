@@ -48,18 +48,79 @@ class ApiController extends CController
 	protected function setLangIfValid($lang){
 		foreach (Controller::$allLanguages as $key=>$desc){
 			if (strcasecmp($lang, $key) == 0) {
-				$this->lang = $desc;
+				$this->lang = $key;
 				return;
 			}
 		}
 	}
 	
+	
+	protected $criteriaMappingRecipes = array();
+	protected $fieldMappingRecipes = array();
+	protected $resultFieldsRecipes = array();
+	
+	protected $fieldMappingRecipeDetail = array();
+	protected $fieldMappingRecipeDetailIngredients = array();
+	protected $fieldMappingRecipeDetailSteps = array();
+	
+	protected $criteriaMappingIngredients = array();
+	protected $fieldMappingIngredients = array();
+	
+	protected function prepareMappings($lang){
+		$recipesImgUrl = Yii::app()->createAbsoluteUrl("savedImage/recipes");
+		$ingredientsImgUrl = Yii::app()->createAbsoluteUrl("savedImage/ingredients");
+		
+		$this->criteriaMappingRecipes = array(
+				'rec_type'=>'recipes.RET_ID',
+				//'rec_cuisine'=>array('recipes.CUT_ID','recipes.CST_ID','recipes.CSS_ID')
+				'rec_cuisine'=>'recipes.CUT_ID'
+		);
+		$this->fieldMappingRecipes = array(
+				'title' => 'REC_NAME_' . $lang,
+				'img_url' => 'CASE WHEN REC_IMG_ETAG IS NOT NULL AND REC_IMG_ETAG <> \'\' THEN concat("' . $recipesImgUrl . '/", REC_ID ,".png") ELSE "" END',
+				'rec_id' => array('select'=>'REC_ID', 'type'=>'int'),
+				'rec_type' => array('select'=>'recipes.RET_ID', 'type'=>'int'),
+				'rec_cuisine' => array('select'=>'recipes.CUT_ID', 'type'=>'int'),
+ 				'autor' =>  'CASE WHEN recipes.PRF_UID IS NOT NULL THEN concat(professional_profiles.PRF_FIRSTNAME, " " ,professional_profiles.PRF_LASTNAME) ELSE NULL END',
+		);
+//		$this->resultFieldsRecipes =  array('title','img_url','rec_id');
+		$this->resultFieldsRecipes = array_keys($this->fieldMappingRecipes);
+		
+		$this->fieldMappingRecipeDetail = array(
+				'title' => 'REC_NAME_' . $lang,
+				'img_url' => 'CASE WHEN REC_IMG_ETAG IS NOT NULL AND REC_IMG_ETAG <> \'\' THEN concat("' . $recipesImgUrl . '/", REC_ID ,".png") ELSE "" END',
+				'rec_id' => array('select'=>'REC_ID', 'type'=>'int'),
+		);
+		$this->fieldMappingRecipeDetailIngredients = array(
+				'ing_name' => 'ING_NAME_' . $lang,
+				'img_url' => 'CASE WHEN ING_IMG_ETAG IS NOT NULL AND ING_IMG_ETAG <> \'\' THEN concat("' . $ingredientsImgUrl . '/", ingredients.ING_ID ,".png") ELSE "" END',
+				'ing_id' => array('select'=>'ingredients.ING_ID', 'type'=>'int'),
+				'ing_qty' => array('select'=>'steps.STE_GRAMS', 'type'=>'int'),
+				'qty_unit' => '"g"',
+		);
+		$this->fieldMappingRecipeDetailSteps = array(
+				'step_no' => array('select'=>'STE_STEP_NO', 'type'=>'int'),
+				'ing_id' => array('select'=>'ING_ID', 'type'=>'int'),
+				'action' => 'AIN_DESC_' . $lang,
+// 				'action' => 'AOU_DESC_' . $lang,
+		);
+		
+		
+		$this->criteriaMappingIngredients = array();
+		$this->fieldMappingIngredients = array(
+				'title' => 'ING_NAME_' . $lang,
+				'img_url' => 'CASE WHEN ING_IMG_ETAG IS NOT NULL AND ING_IMG_ETAG <> \'\' THEN concat("' . $ingredientsImgUrl . '/", ING_ID ,".png") ELSE "" END',
+				'ing_id' => array('select'=>'ING_ID', 'type'=>'int'),
+		);
+	}
+		
+	
 	protected function beforeAction($action)
 	{
 		if (isset($_GET['lang'])){
-			setLangIfValid($_GET['lang']);
+			$this->setLangIfValid($_GET['lang']);
 		} else if (isset($_POST['lang'])){
-			setLangIfValid($_POST['lang']);
+			$this->setLangIfValid($_POST['lang']);
 		}
 		
 		if (isset($_GET['token'])){
@@ -76,6 +137,7 @@ class ApiController extends CController
 			$this->error($this->lang, 'API_GENERAL_TOKEN_INVALID');
 			return false;
 		}
+		$this->prepareMappings($this->lang);
 		return true;
 	}
 
@@ -156,12 +218,7 @@ class ApiController extends CController
 		}
 	
 		//query Recipe informations
-		$url = Yii::app()->createAbsoluteUrl("savedImage/recipes");
-		$fieldMapping = array(
-				'title' => 'REC_NAME_' . $this->lang,
-				'img_url' => 'CASE WHEN REC_IMG_ETAG IS NOT NULL AND REC_IMG_ETAG <> \'\' THEN concat("' . $url . '/", REC_ID ,".png") ELSE "" END',
-				'rec_id' => 'REC_ID',
-		);
+		$fieldMapping = $this->fieldMappingRecipeDetail;
 
 		$fieldsToSelect = array_merge($fieldMapping, array(
 				'REC_KCAL',
@@ -170,15 +227,7 @@ class ApiController extends CController
 		));
 		$command = Yii::app()->db->createCommand();
 		//set selected fields
-		$selectStatement = '';
-		foreach($fieldsToSelect as $alias=>$field){
-			if (is_numeric($alias)){
-				$selectStatement .= ', ' . $field;
-			} else {
-				$selectStatement .= ', ' . $field . ' as ' . $alias;
-			}
-		}
-		$command->select = substr($selectStatement, 2);
+		$command->select = $this->fieldMappingToSelect($fieldsToSelect);
 		$command->from = 'recipes';
 		$command->where('recipes.REC_ID = :id', array(':id'=>$rec_id));
 		$recipe = $command->queryRow();
@@ -214,20 +263,10 @@ class ApiController extends CController
 		
 		//query ingredient Informations
 		$url = Yii::app()->createAbsoluteUrl("savedImage/ingredients");
-		$fieldMappingIngredients = array(
-				'ing_name' => 'ING_NAME_' . $this->lang,
-				'img_url' => 'CASE WHEN ING_IMG_ETAG IS NOT NULL AND ING_IMG_ETAG <> \'\' THEN concat("' . $url . '/", ingredients.ING_ID ,".png") ELSE "" END',
-				'ing_id' => 'ingredients.ING_ID',
-				'ing_qty' => 'steps.STE_GRAMS',
-				'qty_unit' => '"g"',
-		);
+		$fieldMappingIngredients = $this->fieldMappingRecipeDetailIngredients;
 		$ingredientsCommand = Yii::app()->db->createCommand();
 		//set selected fields
-		$selectStatement = '';
-		foreach($fieldMappingIngredients as $alias=>$field){
-			$selectStatement .= ', ' . $field . ' as ' . $alias;
-		}
-		$ingredientsCommand->select = substr($selectStatement, 2);
+		$ingredientsCommand->select = $this->fieldMappingToSelect($fieldMappingIngredients);
 		$ingredientsCommand->from = 'steps';
 		$ingredientsCommand->join('ingredients', 'steps.ING_ID=ingredients.ING_ID'); //because of "join" (not "leftJoin") a condition "AND steps.ING_ID is NOT NULL" is not needed
 		$ingredientsCommand->where('steps.REC_ID = :id', array(':id'=>$rec_id));
@@ -237,12 +276,7 @@ class ApiController extends CController
 		
 		
 		//query step Informations
-		$fieldMappingSteps = array(
-				'step_no' => 'STE_STEP_NO',
-				'ing_id' => 'ING_ID',
-				'action' => 'AIN_DESC_' . $this->lang,
-// 				'action' => 'AOU_DESC_' . $this->lang,
-		);
+		$fieldMappingSteps = $this->fieldMappingRecipeDetailSteps;
 		$actionTextFields = array_flip(Steps::getFieldToCssClass());
 		$actionTextFields['cookin'] = '("#cookin#")';
 		//$actionTextFields['tools'] = 'action_out.TOO_ID';
@@ -250,11 +284,7 @@ class ApiController extends CController
 		
 		$stepsCommand = Yii::app()->db->createCommand();
 		//set selected fields
-		$selectStatement = '';
-		foreach($fieldMappingStepsSelect as $alias=>$field){
-			$selectStatement .= ', ' . $field . ' as ' . $alias;
-		}
-		$stepsCommand->select = substr($selectStatement, 2);
+		$stepsCommand->select = $this->fieldMappingToSelect($fieldMappingStepsSelect);
 		$stepsCommand->from = 'steps';
 		// 		'ING_ID'=>'ingredient',
 		// 		'TOO_ID'=>'tool',
@@ -274,41 +304,40 @@ class ApiController extends CController
 		
 		
 		
-		
 		//prepare result object
 		//remove technical fields
-		$recipeResult = array();
-		foreach ($fieldMapping as $alias=>$field){
-			$recipeResult[$alias] = $recipe[$alias];
-		}
+		$recipeResult = $this->copyMappedfields($fieldMapping, $recipe);
 		
 		//format ingredients
 		$ingredientsResult = array();
 		foreach($ingredients as $ingredient){
-			$ingredientResult = array();
-			foreach($fieldMappingIngredients as $alias=>$field){
-				$ingredientResult[$alias] = $ingredient[$alias];
+			$ingredientResult = $this->copyMappedfields($fieldMappingIngredients, $ingredient);
+			//calculate changed amount of ingredient
+			if(isset($ingredientResult['ing_qty'])){
+				$ingredientResult['ing_qty'] = $ingredientResult['ing_qty'] * $rec_proz;
 			}
-			$ingredientsResult[$ingredient['ing_id']] = $ingredientResult;
+			$ingredientsResult[$ingredientResult['ing_id']] = $ingredientResult;
 		}
 		$recipeResult['ingredients'] = $ingredientsResult;
 		
 		//format steps
 		$stepsResult = array();
 		foreach ($steps as $key=>$step){
-			$stepResult = array();
-			foreach($fieldMappingSteps as $alias=>$field){
-				$stepResult[$alias] = $step[$alias];
-			}
+			$stepResult = $this->copyMappedfields($fieldMappingSteps, $step);
+			
 			$textParams = array();
 			foreach($actionTextFields as $alias=>$field){
 				$textParams[$alias] = $step[$alias];
 			}
+			if(isset($textParams['ingredient'])){
+				$textParams['ingredient'] = intval($textParams['ingredient']);
+			}
+			
 			//calculate changed amount of ingredient
 			if(isset($textParams['weight']) && is_numeric($textParams['weight'])){
 				$textParams['weight'] = $textParams['weight'] * $rec_proz;
 			}
-			$textParams['time_sec'] = $textParams['time'];
+			$textParams['time_sec'] = intval($textParams['time']);
 			$textParams['time'] = date('H:i:s', $textParams['time']-3600);
 			
 // 			$textParams['weight_unit'] = 'g';
@@ -329,8 +358,7 @@ class ApiController extends CController
 		$result = array(
 				'success' => true,
 				'data' => $recipeResult,
-// 				$prepareParam['servings']
-// 				$prepareParam['calories']
+				'prepareParam' => $prepareParam,
 		);
 		
 		//output result
@@ -409,7 +437,7 @@ class ApiController extends CController
 			$searchParam['rec_cuisine'] = $_POST['rec_cuisine'];
 		}
 		
-		$resultField = array('lang','title','img_url','rec_id');
+		$resultField = $this->resultFieldsRecipes;
 		$this->performSearch('recipes', $searchParam, $resultField);
 	}
 	
@@ -430,7 +458,7 @@ class ApiController extends CController
 			try {
 				$this->performYiiSearch($type, $searchParam, $resultField);
 			} catch (Exception $e){
-				$this->error($this->lang, 'API_SEARCH_ERROR_PERFORMING_SEARCH');
+				$this->error($this->lang, 'API_SEARCH_ERROR_PERFORMING_SEARCH', array('errorTrace'=>$e));
 			}
 		} else {
 			$this->error($this->lang, 'API_SEARCH_INVALID_SEARCH_ENGINE');
@@ -463,28 +491,14 @@ class ApiController extends CController
 		}
 		if ($type == 'recipes'){
 			$model = Recipes::model();
-			$titleFields = array('REC_NAME_' . $this->lang,'REC_SYNONYM_' . $this->lang); //$model->getSearchFields()
-			$criteriaMapping = array(
-					'rec_type'=>'recipes.RET_ID',
-					//'rec_cuisine'=>array('recipes.CUT_ID','recipes.CST_ID','recipes.CSS_ID')
-					'rec_cuisine'=>'recipes.CUT_ID'
-			);
-			$url = Yii::app()->createAbsoluteUrl("savedImage/recipes");
-			$fieldMapping = array(
-					'title' => 'REC_NAME_' . $this->lang,
-					'img_url' => 'CASE WHEN REC_IMG_ETAG IS NOT NULL AND REC_IMG_ETAG <> \'\' THEN concat("' . $url . '/", REC_ID ,".png") ELSE "" END',
-					'rec_id' => 'REC_ID',
-			);
+			$titleFields = array('REC_NAME_' . $this->lang,'REC_SYNONYM_' . $this->lang); //$model->getSearchFields()	
+			$criteriaMapping = $this->criteriaMappingRecipes;
+			$fieldMapping = $this->fieldMappingRecipes;
 		} else if ($type == 'ingredients'){
 			$model = Ingredients::model();
 			$titleFields = array('ING_NAME_' . $this->lang,'ING_SYNONYM_' . $this->lang); //$model->getSearchFields()
-			$criteriaMapping = array();
-			$url = Yii::app()->createAbsoluteUrl("savedImage/ingredients");
-			$fieldMapping = array(
-					'title' => 'ING_NAME_' . $this->lang,
-					'img_url' => 'CASE WHEN ING_IMG_ETAG IS NOT NULL AND ING_IMG_ETAG <> \'\' THEN concat("' . $url . '/", ING_ID ,".png") ELSE "" END',
-					'ing_id' => 'ING_ID',
-			);
+			$criteriaMapping = $this->criteriaMappingIngredients;
+			$fieldMapping = $this->fieldMappingIngredients;
 		} else {
 			$this->error($this->lang, 'API_SEARCH_INVALID_TYPE');
 			return;
@@ -492,21 +506,16 @@ class ApiController extends CController
 		$commandBuilder = $criteriaString = $model->commandBuilder;
 		
 		//set selected fields
-		$selectStatement = '';
-		foreach($resultField as $field){
-			if(isset($fieldMapping[$field])){
-				$selectStatement .= ', ' . $fieldMapping[$field] . ' as ' . $field;
-			}
-		}
+		$selectStatement = $this->fieldMappingToSelectFiltered($resultField, $fieldMapping);
 		if ($selectStatement == ''){
 			$this->error($this->lang, 'API_SEARCH_NO_FIELD_TO_RETURN');
 			return;
 		}
 		if ($type == 'ingredients'){
-			$criteria->select = substr($selectStatement, 2);
+			$criteria->select = $selectStatement;
 		} else if ($type == 'recipes'){
-			//$criteria->select = '(CASE WHEN recipes.PRF_UID IS NOT NULL THEN 1 ELSE 0 END) AS pro' . $selectStatement;
-			$criteria->select = substr($selectStatement, 2);
+			//$criteria->select = '(CASE WHEN recipes.PRF_UID IS NOT NULL THEN 1 ELSE 0 END) AS pro, ' . $selectStatement;
+			$criteria->select = $selectStatement;
 		}
 		
 		//add query/title criterias
@@ -529,7 +538,7 @@ class ApiController extends CController
 				$ids = $searchParam['w_ing'];
 				//$criteria->addInCondition(Steps::model()->tableName().'.ING_ID',$ids);
 				$idsCount = count($ids);
-				$this->addIngredientIdCondition($criteria, $ids, 'ingCount', $ingCount);
+				$this->addIngredientIdCondition($criteria, $ids, 'ingCount', $idsCount);
 			}
 			if(isset($searchParam['wo_ing']) && count($searchParam['wo_ing'])>0){
 				$ids = $searchParam['wo_ing'];
@@ -621,6 +630,13 @@ class ApiController extends CController
 			$rows = $command->queryAll();
 		}
 		
+		//optimize output
+		$data = array();
+		foreach($rows as $key=>$row){
+			$entry = $this->copyMappedfields($fieldMapping, $row);
+			$data[$key] = $entry;
+		}
+		
 		//prepare result object
 		$result = array(
 				'success' => true,
@@ -629,7 +645,7 @@ class ApiController extends CController
 				'length' => count($rows),
 				'total' => $totalCount,
 				'lang' => $this->lang,
-				'data' => $rows,
+				'data' => $data,
 				'searchParam' => $searchParam,
 		);
 		
@@ -638,7 +654,8 @@ class ApiController extends CController
 	}
 	
 	
-	
+
+	/* ################################################# helpers ################################################# */
 	
 	private function addIngredientIdCondition($criteria, $ids, $alias, $amount){
 		$stepModel = new Steps;
@@ -657,6 +674,61 @@ class ApiController extends CController
 		//$additionalSelectParams = array_merge($additionalSelectParams, $ingCriteria->params);
 	}
 
+	
+
+	private function fieldMappingToSelectFiltered($requestedFields, $fieldMapping){
+		$selectStatement = '';
+		foreach($requestedFields as $alias){
+			if(isset($fieldMapping[$alias])){
+				$field = $fieldMapping[$alias];
+				if(is_array($field)){
+					$selectStatement .= ', ' . $field['select'] . ' as ' . $alias;
+				} else {
+					$selectStatement .= ', ' . $field . ' as ' . $alias;
+				}
+			}
+		}
+		if ($selectStatement == ''){
+			return $selectStatement;
+		} else {
+			return substr($selectStatement, 2);
+		}
+	}
+	
+	private function fieldMappingToSelect($fieldMapping){
+		$selectStatement = '';
+		foreach($fieldMapping as $alias=>$field){
+			if (is_numeric($alias)){
+				$selectStatement .= ', ' . $field;
+			} else {
+				if(is_array($field)){
+					$selectStatement .= ', ' . $field['select'] . ' as ' . $alias;
+				} else {
+					$selectStatement .= ', ' . $field . ' as ' . $alias;
+				}
+			}
+		}
+		return substr($selectStatement, 2);
+	}
+	
+	private function copyMappedfields($fieldMapping, $data){
+		$result = array();
+	
+		foreach($fieldMapping as $alias=>$field){
+			$result[$alias] = $data[$alias];
+			if(isset($result[$alias])){
+				if (is_array($field)){
+					if (isset($field['type'])){
+						if ($field['type'] == 'int'){
+							$result[$alias] = intval($result[$alias]);
+						}
+					}
+				}
+			}
+		}
+		return $result;
+	}
+	
 	private function mergeConditions($cond1, $cond2){
 		if (!isset($cond1) || $cond1 == ''){
 			return $cond2;
@@ -690,6 +762,10 @@ class ApiController extends CController
 		if (isset($criteria->join)){
 			$command->join = $criteria->join;
 		}
+		if (strpos($criteria->select, 'professional_profiles.') !== false){
+			$command->leftJoin('professional_profiles', 'recipes.PRF_UID=professional_profiles.PRF_UID');
+		}
+		
 		if (strpos($criteria->condition, 'ingredients.') !== false){
 			$command->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID');
 			$command->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID');
