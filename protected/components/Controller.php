@@ -84,7 +84,7 @@ class Controller extends CController
 	}
 	
 	//protected $allLanguages = array('EN_GB'=>'English','DE_CH'=>'Deutsch','FR_FR'=>'Francais');
-	protected static $allLanguages = array('EN_GB'=>'English','DE_CH'=>'Deutsch');
+	public static $allLanguages = array('EN_GB'=>'English','DE_CH'=>'Deutsch');
 	
 	public function getAllLanguages(){
 		return $allLanguages;

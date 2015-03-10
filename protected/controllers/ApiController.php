@@ -44,15 +44,22 @@ class ApiController extends CController
 	{
 		return self::$trans;
 	}
+
+	protected function setLangIfValid($lang){
+		foreach (Controller::$allLanguages as $key=>$desc){
+			if (strcasecmp($lang, $key) == 0) {
+				$this->lang = $desc;
+				return;
+			}
+		}
+	}
 	
 	protected function beforeAction($action)
 	{
 		if (isset($_GET['lang'])){
-			$this->lang = $_GET['lang'];
+			setLangIfValid($_GET['lang']);
 		} else if (isset($_POST['lang'])){
-			$this->lang = $_POST['lang'];
-		} else {
-			$this->lang='EN_GB';
+			setLangIfValid($_POST['lang']);
 		}
 		
 		if (isset($_GET['token'])){
@@ -78,7 +85,7 @@ class ApiController extends CController
 	
 	private function error($lang, $errorKey, $additionalValues = null){
 		self::$trans = Controller::loadTranslations($lang);
-		self::$trans->showKeyIfAbsent = true; //TODO r
+		self::$trans->showKeyIfAbsent = true; //TODO remove
 		$error = array(
 				'success' => false,
 				'lang' => $lang,
@@ -135,7 +142,7 @@ class ApiController extends CController
 		} else if (isset($_POST['co_in'])){
 			$prepareParam['co_in'] = $_POST['co_in'];
 		} else {
-			$prepareParam['co_in'] = 'hand';
+			$prepareParam['co_in'] = 3; //COI_ID for Cooking pot
 		}
 		if (isset($prepareParam['co_in'])){
 			if (!is_numeric($prepareParam['co_in'])){
@@ -335,19 +342,19 @@ class ApiController extends CController
 	// http://localhost/EveryCook/api/searchrecipe?token=everycook&query=risotto
 	
 	public $pageStart = 0;
-	public $pageLength = 10;
+	public $pageLimit = 10;
 	public $searchSort = 'score';
 	protected function loadPaginationInformations(){
 		if (isset($_GET['start'])){
-			$this->pageStart = $_GET['start'];
+			$this->pageStart = intval($_GET['start']);
 		} else if (isset($_POST['start'])){
-			$this->pageStart = $_POST['start'];
+			$this->pageStart = intval($_POST['start']);
 		}
 		
-		if (isset($_GET['length'])){
-			$this->pageLength = $_GET['length'];
-		} else if (isset($_POST['length'])){
-			$this->pageLength = $_POST['length'];
+		if (isset($_GET['limit'])){
+			$this->pageLimit = intval($_GET['limit']);
+		} else if (isset($_POST['limit'])){
+			$this->pageLimit = intval($_POST['limit']);
 		}
 		
 		if (isset($_GET['sort'])){
@@ -459,7 +466,8 @@ class ApiController extends CController
 			$titleFields = array('REC_NAME_' . $this->lang,'REC_SYNONYM_' . $this->lang); //$model->getSearchFields()
 			$criteriaMapping = array(
 					'rec_type'=>'recipes.RET_ID',
-					'rec_cuisine'=>array('recipes.CUT_ID','recipes.CST_ID','recipes.CSS_ID')
+					//'rec_cuisine'=>array('recipes.CUT_ID','recipes.CST_ID','recipes.CSS_ID')
+					'rec_cuisine'=>'recipes.CUT_ID'
 			);
 			$url = Yii::app()->createAbsoluteUrl("savedImage/recipes");
 			$fieldMapping = array(
@@ -534,11 +542,22 @@ class ApiController extends CController
 			if (isset($searchParam[$param])){
 				$value = $searchParam[$param];
 				if(is_array($queryField)){
+					if (is_array($value)){
+						//error not allowed combination, only use first value!
+						$value = array_shift($value);
+					}
+					$columns=array();
+					foreach ($queryField as $field){
+						$columns[$field]=$value;
+					}
+					$criteria->addColumnCondition($columns,'OR');
+					/*
 					foreach ($queryField as $field){
 						$criteria->addInCondition($field, $value);
 					}
+					*/
 				} else {
-					$criteria->addInCondition($queryField, $value);
+					$criteria->compare($queryField, $value);
 				}
 			}
 		}
@@ -586,7 +605,7 @@ class ApiController extends CController
 		$command = $this->criteriaToCommand($criteria);
 		$searchSql = $command->getText();
 		$totalCommand = Yii::app()->db->createCommand('SELECT count(*) FROM (' . $searchSql . ') AS innerQuery');
-		$totalCount = $totalCommand->queryScalar($command->params);
+		$totalCount = intval($totalCommand->queryScalar($command->params));
 		
 		//prepare main result
 		if ($totalCount == 0){
@@ -598,7 +617,7 @@ class ApiController extends CController
 		} else {
 			//TODO optimice / speedup
 			$command = $this->criteriaToCommand($criteria); //command must recrate, because getText for totalCommand, make limit(next line) has no effect...
-			$command->limit($this->pageLength, $this->pageStart);
+			$command->limit($this->pageLimit, $this->pageStart);
 			$rows = $command->queryAll();
 		}
 		
@@ -606,10 +625,12 @@ class ApiController extends CController
 		$result = array(
 				'success' => true,
 				'start' => $this->pageStart,
-				'limit' => $this->pageLength,
+				'limit' => $this->pageLimit,
 				'length' => count($rows),
 				'total' => $totalCount,
+				'lang' => $this->lang,
 				'data' => $rows,
+				'searchParam' => $searchParam,
 		);
 		
 		//output result
