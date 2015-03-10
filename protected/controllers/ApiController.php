@@ -1,6 +1,6 @@
 <?php
 
-class APIController extends CController
+class ApiController extends CController
 {
 	/**
 	 * @return array action filters
@@ -21,7 +21,7 @@ class APIController extends CController
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('searchRecipe','searchIngredient','recipeDetail','ingredientDetail'),
+				'actions'=>array('searchRecipes','searchIngredients','recipeDetail','ingredientDetail'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -357,7 +357,7 @@ class APIController extends CController
 		}
 	}
 	
-	public function actionSearchRecipe(){
+	public function actionSearchRecipes(){
 		$this->loadPaginationInformations();
 		
 		$searchParam = array();
