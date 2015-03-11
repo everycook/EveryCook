@@ -169,7 +169,7 @@ jQuery(function($){
 	};
 	
 	
-	jQuery('body').undelegate('[name*="[filename]"]','change').delegate('[name*="[filename]"]','change', function(){
+	jQuery('body').undelegate('[name*="[filename]"]','change.cropHandling').delegate('[name*="[filename]"]','change.cropHandling', function(){
 		var elem = jQuery(this);
 		var form = elem.parents('form:first');
 		var oldAction = form.attr('action');

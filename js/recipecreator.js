@@ -983,7 +983,7 @@ jQuery(function($){
 		updateTimeout = timeoutInfo;
 	}
 	
-	jQuery('body').undelegate('#recipes-form [name^="Recipes"], #recipes-form [name^="COI_ID"]','change').delegate('#recipes-form [name^="Recipes"], #recipes-form [name^="COI_ID"]','change',function(){
+	jQuery('body').undelegate('#recipes-form [name^="Recipes"], #recipes-form [name^="COI_ID"]','change.recipeCreatorFields').delegate('#recipes-form [name^="Recipes"], #recipes-form [name^="COI_ID"]','change.recipeCreatorFields',function(){
 		var dataField = jQuery(this);
 		
 		SendDataToBackendSetTimeout('', dataField.attr('name'));
