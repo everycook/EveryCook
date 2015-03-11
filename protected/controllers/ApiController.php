@@ -95,7 +95,7 @@ class ApiController extends CController
 				'ing_name' => 'ING_NAME_' . $lang,
 				'img_url' => 'CASE WHEN ING_IMG_ETAG IS NOT NULL AND ING_IMG_ETAG <> \'\' THEN concat("' . $ingredientsImgUrl . '/", ingredients.ING_ID ,".png") ELSE "" END',
 				'ing_id' => array('select'=>'ingredients.ING_ID', 'type'=>'int'),
-				'ing_qty' => array('select'=>'steps.STE_GRAMS', 'type'=>'int'),
+				'ing_qty' => array('select'=>'sum(steps.STE_GRAMS)', 'type'=>'int'),
 				'qty_unit' => '"g"',
 		);
 		$this->fieldMappingRecipeDetailSteps = array(
@@ -271,6 +271,7 @@ class ApiController extends CController
 		$ingredientsCommand->join('ingredients', 'steps.ING_ID=ingredients.ING_ID'); //because of "join" (not "leftJoin") a condition "AND steps.ING_ID is NOT NULL" is not needed
 		$ingredientsCommand->where('steps.REC_ID = :id', array(':id'=>$rec_id));
 		$ingredientsCommand->order('steps.STE_STEP_NO');
+		$ingredientsCommand->group('ingredients.ING_ID');
 		$ingredients = $ingredientsCommand->queryAll();
 	
 		
@@ -369,14 +370,14 @@ class ApiController extends CController
 	// http://localhost/EveryCook/api/searchrecipe?token=everycook&start=30&length=20
 	// http://localhost/EveryCook/api/searchrecipe?token=everycook&query=risotto
 	
-	public $pageStart = 0;
+	public $pageOffset = 0;
 	public $pageLimit = 10;
 	public $searchSort = 'score';
 	protected function loadPaginationInformations(){
-		if (isset($_GET['start'])){
-			$this->pageStart = intval($_GET['start']);
-		} else if (isset($_POST['start'])){
-			$this->pageStart = intval($_POST['start']);
+		if (isset($_GET['offset'])){
+			$this->pageOffset = intval($_GET['offset']);
+		} else if (isset($_POST['offset'])){
+			$this->pageOffset = intval($_POST['offset']);
 		}
 		
 		if (isset($_GET['limit'])){
@@ -620,13 +621,13 @@ class ApiController extends CController
 		if ($totalCount == 0){
 			//TODO: return no results
 			$rows = array();
-		} else if ($totalCount <= $this->pageStart){
+		} else if ($totalCount <= $this->pageOffset){
 			//TODO: return no more results
 			$rows = array(); 
 		} else {
 			//TODO optimice / speedup
 			$command = $this->criteriaToCommand($criteria); //command must recrate, because getText for totalCommand, make limit(next line) has no effect...
-			$command->limit($this->pageLimit, $this->pageStart);
+			$command->limit($this->pageLimit, $this->pageOffset);
 			$rows = $command->queryAll();
 		}
 		
@@ -640,7 +641,7 @@ class ApiController extends CController
 		//prepare result object
 		$result = array(
 				'success' => true,
-				'start' => $this->pageStart,
+				'offset' => $this->pageOffset,
 				'limit' => $this->pageLimit,
 				'length' => count($rows),
 				'total' => $totalCount,
