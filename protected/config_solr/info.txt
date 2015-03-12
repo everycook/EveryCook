@@ -1,0 +1,69 @@
+5.0.0:
+#create new empty config
+solr create -c digimeals -d basic_configs
+
+#start solr on windows
+cd c:\tools\solr-5.0.0
+bin\solr start -d server -s D:\htdocs\EveryCook\protected\config_solr\data
+
+#start solr on linux
+sudo service solr start
+# sudo /etc/init.d/solr start
+
+
+#installing new instance
+./install_solr_service.sh solr-5.0.0.tgz -s solr_test -p 8984
+
+
+
+security:
+/opt/solr/server/solr-webapp/webapp/WEB-INF/web.xml
+add
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>solr service info</web-resource-name>
+			<url-pattern>/admin/info/system</url-pattern>
+		</web-resource-collection>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Solr authenticated application</web-resource-name>
+			<url-pattern>/recipes/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>recipes-role</role-name>
+			<role-name>admin-role</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Solr authenticated application</web-resource-name>
+			<url-pattern>/admin/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>admin-role</role-name>
+		</auth-constraint>
+	</security-constraint>
+	
+	<login-config>
+		<auth-method>BASIC</auth-method>
+		<realm-name>solr realm</realm-name>
+	</login-config>
+
+/opt/solr/server/etc/jetty.xml
+add
+    <Call name="addBean">
+      <Arg>
+        <New class="org.eclipse.jetty.security.HashLoginService">
+          <Set name="name">solr realm</Set>
+          <Set name="config"><SystemProperty name="jetty.home" default="."/>/etc/realm.properties</Set>
+          <Set name="refreshInterval">0</Set>
+        </New>
+      </Arg>
+    </Call>
+
+
+/opt/solr/server/etc/realm.properties
+add
+guest:guest,recipes-role
+admin:admin,admin-role
