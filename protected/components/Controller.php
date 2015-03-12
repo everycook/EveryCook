@@ -128,7 +128,7 @@ class Controller extends CController
 					$langToUse = 'EN_GB';
 					$pref = strtoupper(Yii::app()->request->preferredLanguage);
 					$lang_part = substr($pref,0,2);
-					foreach ($this->allLanguages as $key=>$value){
+					foreach (self::$allLanguages as $key=>$value){
 						if ($pref == $key){
 							$langToUse = $key;
 							break;

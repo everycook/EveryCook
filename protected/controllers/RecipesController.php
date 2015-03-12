@@ -770,7 +770,7 @@ class RecipesController extends Controller
 							$actionIndex=$_POST['to'];
 						}
 					}
-					if ($this->debug) {echo "action:$action,actionIndex:$actionIndex\n";}
+					//if ($this->debug) {echo "action:$action,actionIndex:$actionIndex\n";}
 					$dataArray = $_POST['Steps'];
 					if ($actionIndex != -1){
 						$changeModel = new StepChanges;
@@ -826,6 +826,19 @@ class RecipesController extends Controller
 							if ($this->debug) {echo 'error on save: ';  var_dump($changeModel->getErrors());}
 						}
 					} else {
+						if (count($changes)>0){
+							$changeModel = reset($changes);
+							if (!isset($changeModel->CHANGED_BY)){
+								$changeModel->CHANGED_BY = Yii::app()->user->id;
+							}
+						} else {
+							$changeModel = new RecipeChanges;
+							$changeModel->REC_ID = $model->REC_ID;
+							$changeModel->REC_CHANGED_ON = $model->CHANGED_ON;
+							$changeModel->CHANGED_ON = $timestamp;
+							$changeModel->CHANGED_BY = Yii::app()->user->id;
+						}
+						
 						echo '{"action":"RECIPE","undoKey":"'.$this->getRecipeUndoKey($changeModel).'","prevValues":'.CJSON::encode($oldValues).'}';
 					}
 				
@@ -1757,6 +1770,211 @@ class RecipesController extends Controller
 		Yii::app()->end();
 	}
 	
+	private function prepareSolrSearch($view, $ajaxLayout, $criteria){
+		if(isset($_GET['query'])){
+			$query = $_GET['query'];
+		} else if(isset($_POST['query'])){
+			$query = $_POST['query'];
+		} else {
+			$query = '';
+		}
+
+		$selectedOrderBy = 'N';
+		if(isset($_GET['orderby'])){
+			$selectedOrderBy = $_GET['orderby'];
+		} else if(isset($_POST['orderby'])){
+			$selectedOrderBy = $_POST['orderby'];
+		}
+		
+		$sort=new ASolrSort;
+		$sort->attributes = array(
+			'name' => array(
+				'asc' =>'autor asc, REC_NAME_' . Yii::app()->session['lang'] . ' asc',
+				'desc'=>'autor asc, REC_NAME_' . Yii::app()->session['lang'] . ' desc',
+			),
+			'kcal' => array(
+				'asc' =>'autor asc, REC_KCAL asc',
+				'desc'=>'autor asc, REC_KCAL desc',
+			),
+			'complexity' => array(
+				'asc' =>'autor asc, REC_COMPLEXITY asc',
+				'desc'=>'autor asc, REC_COMPLEXITY desc',
+			),
+			'preparationTime' => array(
+				'asc' =>'autor asc, preparationTime asc',
+				'desc'=>'autor asc, preparationTime desc',
+			),
+			'rating' => array(
+				'asc' =>'autor asc, rating asc',
+				'desc'=>'autor asc, rating desc',
+			),
+			'score' => array(
+				'asc' =>'autor asc, score asc',
+				'desc'=>'autor asc, score desc',
+			),
+			/*
+			// String and array attributes work as usual:
+			'title',
+			'latest'=>array(
+				'asc'=>'created_at asc',
+				'desc'=>'created_at desc',
+			),
+			// Solr parameters can be defined like this:
+			'keyword'=>array(
+				'asc'=>array(
+					// Each of these parameters is set through setParam() in Solr.
+					// Make sure you also have a 'sort' parameter here.
+					'sortingQ'	=>'{!edismax qf="title^8.0"} '.$keyword,
+					'sort'		=>'product(query($sortingQ),scale(stars,1,5)) asc',
+				),
+				'desc'=>array(
+					'sort'		=>'product(query($sortingQ),scale(stars,1,5)) desc',
+					'sortingQ'	=>'{!edismax qf="title^8.0"} '.$keyword,
+				),
+			),
+			*/
+		);
+		//$sort->defaultOrder = 'score';
+		$sort->defaultOrder = array(
+			 'score'=>CSort::SORT_DESC,
+		);
+		$activeFacets = array(
+			'autor'=>								array('title'=>$this->trans->RECIPES_CHEF, 'type'=>'field', 'multiSelect'=>true),
+			'RET_DESC_'.Yii::app()->language=>		array('title'=>$this->trans->RECIPES_TYPE, 'type'=>'field', 'multiSelect'=>true),
+			Yii::app()->language.'_ingredients_facet'=>	array('title'=>$this->trans->RECIPES_INGREDIENTS, 'type'=>'field', 'multiSelect'=>true),
+			Yii::app()->language.'_cusines_facet'=>		array('title'=>$this->trans->FIELD_CUT_ID, 'type'=>'field', 'multiSelect'=>false),
+			'REC_KCAL'=>							array('title'=>'kcal', 'type'=>'range', 'multiSelect'=>true),
+		);
+		
+		$selectedFacets = array();
+		$hasAnySelectedFacetValue = false;
+		foreach($activeFacets as $name=>$fieldName){
+			$values = array();
+			if(isset($_GET[$name])){
+				$values = $_GET[$name];
+			} else if(isset($_POST[$name])){
+				$values = $_POST[$name];
+			}
+			if(count($values)>0){
+				$hasAnySelectedFacetValue = true;
+			}
+			$selectedFacets[$name] = $values;
+		}
+		
+		$dataProvider = new ASolrDataProvider(RecipesSolr::model(),
+			array(
+				'pagination'=>array(
+						'pageSize'=>10,
+				),
+				'sort'=> $sort,
+			)
+		);
+		$dataProvider->setCriteria($dataProvider->model->getSolrCriteria());
+		$criteria = $dataProvider->getCriteria();
+		$criteria->query = $query;
+		
+		//create filter query
+		if ($hasAnySelectedFacetValue){
+			foreach($selectedFacets as $facet=>$values){
+				if (count($values)>0){
+					$facetsOptions = $activeFacets[$facet];
+					if ($facetsOptions['multiSelect']){
+						if ($facetsOptions['type'] == 'field'){
+							$values = implode(',', $values);
+							//use of localParam tag and ex are to return "other values" on facet and not nothing
+							$criteria->addFilterQuery('{!tag='.$facet.'}'.$facet.':'.$values);
+							$criteria->addFacetField('{!ex='.$facet.'}'.$facet);
+						} else if ($facetsOptions['type'] == 'range' || $facetsOptions['type'] == 'date'){
+							$valuesNew = array();
+							foreach($values as $value){
+								$pos = strpos($value, '-');
+								if ($pos === false){
+									$valuesNew[] = $facet.':['.$value.' TO *]';
+								} else {
+									$valuesNew[] = $facet.':['.substr($value, 0, $pos).' TO '.substr($value, $pos+1).']';
+								}
+							}
+							$values = implode(' OR ', $valuesNew);
+							//use of localParam tag and ex are to return "other values" on facet and not nothing
+							$criteria->addFilterQuery('{!tag='.$facet.'}'.$values);
+// 							$criteria->addFacetRangeField('{!ex='.$facet.'}'.$facet); //function addFacetRangeField does not exist..
+							$criteria->addParam('facet.'.$facetsOptions['type'], '{!ex='.$facet.'}'.$facet);
+						}
+					} else {
+						if(is_array($values)){
+							$values = reset($values);
+							$selectedFacets[$facet]=$values;
+						}
+						$criteria->addFilterQuery($facet.':'.$values);
+						$criteria->addParam('facet.'.$facetsOptions['type'], $facet);
+					}
+				} else {
+					$criteria->addFacetField($facet);
+				}
+			}
+		}
+		if ($this->debug){
+			echo "2{}<br>\r\n\r\n";
+			echo 'http://localhost:8983/solr/recipes/select?' . $criteria->toString();
+			echo "<br>\r\n\r\n";
+		}
+		
+		
+		/*
+		echo 'query<br>';
+		var_dump($query);
+		echo 'dataProvider->getCriteria()->getPreparedParams()<br>';
+		var_dump($dataProvider->getCriteria()->getPreparedParams());
+		echo 'dataProvider->getCriteria()->getParams())<br>';
+		var_dump($dataProvider->getCriteria()->getParams());
+
+		echo 'dataProvider->getData()<br>';
+		var_dump($dataProvider->getData(true));
+		echo 'dataProvider<br>';
+		var_dump($dataProvider);
+		die();
+		*/
+		/*
+		echo 'dataProvider->getData()<br>';
+		//var_dump($dataProvider->getData(true));
+		foreach ($dataProvider->getData(true) as $i=>$recipe){
+			echo $i .'<br>';
+			var_dump($recipe, );
+		}
+		die();
+		*/
+// 		echo 'activeFacets<br>';
+// 		var_dump($activeFacets);
+// 		echo 'this->getFacets($dataProvider)<br>';
+// 		//var_dump($this->getFacets($dataProvider)->toArray());
+// 		foreach ($this->getFacets($dataProvider)->toArray() as $name=>$facet){
+// 			echo $name .'<br>';
+// 			var_dump($facet->toArray());
+// 		}
+// 		die();
+		//$dataProvider->getCriteria()->
+		
+		$this->checkRenderAjax($view,array(
+			'query'=>$query,
+			'dataProvider'=>$dataProvider,
+			'activeFacets'=>$activeFacets,
+			'selectedFacets'=>$selectedFacets,
+			'facets'=>$this->getFacets($dataProvider),
+			'sort'=>$sort,
+		), $ajaxLayout);
+	}
+	
+	private function getFacets(ASolrDataProvider $dataProvider){
+		$allFacets = new CAttributeCollection;
+		$allFacets->mergeWith($dataProvider->getDateFacets());
+		$allFacets->mergeWith($dataProvider->getFieldFacets());
+		$allFacets->mergeWith($dataProvider->getQueryFacets());
+		$allFacets->mergeWith($dataProvider->getRangeFacets());
+		return $allFacets;
+	}
+	
+	
+
 	private function prepareSearch($view, $ajaxLayout, $criteria)
 	{
 		$model=new Recipes('search');
@@ -1946,7 +2164,7 @@ class RecipesController extends Controller
 		} else if(isset($_POST['orderby'])){
 			$selectedOrderBy = $_POST['orderby'];
 		}
-
+		
 // 		if ($this->debug) {
 // 			echo "before session check \r\n";
 // 			var_dump($criteria->params);
@@ -1969,7 +2187,7 @@ class RecipesController extends Controller
 					$criteria = $Session_RecipeSearch['criteria'];
 					$criteriaLoaded = true;
 				}
-
+				
 				if (isset($Session_RecipeSearch['selectedOrderBy'])){
 					$selectedOrderBy = $Session_RecipeSearch['selectedOrderBy'];
 				}
@@ -2119,7 +2337,7 @@ class RecipesController extends Controller
 			$this->checkRenderAjax($view,array(
 				'model'=>$model,
 				'model2'=>$model2,
-				'dataProvider'=>$dataProvider,			
+				'dataProvider'=>$dataProvider,
 				'filters'=>$filters,
 				'selectedOrderBy'=>$selectedOrderBy,
 				'possibleOrderBys'=>$possibleOrderBys
@@ -2140,7 +2358,14 @@ class RecipesController extends Controller
 	*/
 	public function actionSearch()
 	{
-		$this->prepareSearch('search', null, null);
+		if (isset($_GET['setSolr'])){
+			Yii::app()->session['solrSearch'] = $_GET['setSolr'];
+		}
+		if (isset(Yii::app()->session['solrSearch']) && Yii::app()->session['solrSearch']){
+			$this->prepareSolrSearch('searchSolr', null, null);
+		} else {
+			$this->prepareSearch('search', null, null);
+		}
 	}
 	
 	public function actionChooseRecipe(){
@@ -2251,8 +2476,8 @@ class RecipesController extends Controller
 		}
 	}
 	
-    public function actionDisplaySavedImage($id, $ext)
-    {
+	public function actionDisplaySavedImage($id, $ext)
+	{
 		if (isset($_GET['size'])) {
 			$size = $_GET['size'];
 		} else {
@@ -2265,7 +2490,7 @@ class RecipesController extends Controller
 			$modified = $model->CREATED_ON;
 		}
 		return Functions::getImage($modified, $model->REC_IMG_ETAG, $model->REC_IMG_FILENAME, $id, 'Recipes', $size);
-    }
+	}
 	
 	public function actionDelicious($id){
 		$this->saveLastAction = false;
@@ -2432,7 +2657,6 @@ class RecipesController extends Controller
 					}
 					if ($this->debug) {echo $rightIndex . ', down:' . $moved . ',' . $alignIndex  . "<br>\n";}
 				}
-				
 			}
 		}
 		return $changeSign;
@@ -2571,7 +2795,7 @@ class RecipesController extends Controller
 					}
 					if ($changes[$i][0] != $changeSign){
 						if ($this->debug) {echo $leftIndex . ', class:' . $changes[$i][0] . ' =&gt;' . $changeSign  . "<br>\n";}
-						$changes[$i][0] = $changeSign;	
+						$changes[$i][0] = $changeSign;
 					}
 				}
 			}
@@ -2797,7 +3021,7 @@ class RecipesController extends Controller
 		->order('CUT_DESC_' . Yii::app()->session['lang'])
 		->limit(5, ($page-1)*5);
 		$data_cut = $command->queryAll();
-
+		
 		$url = $this->createUrl("savedImage/cusineSubTypes");
 		$command = Yii::app()->db->createCommand()
 		->select('("cusine_sub_types") as type, concat("CST_ID:", CST_ID) as id, CST_DESC_' . Yii::app()->session['lang'] . ' as name, CASE WHEN CST_IMG_ETAG IS NOT NULL AND CST_IMG_ETAG <> \'\' THEN concat("' . $url . '/", CST_ID ,".png") ELSE "" END as img')
@@ -2806,7 +3030,7 @@ class RecipesController extends Controller
 		->order('CST_DESC_' . Yii::app()->session['lang'])
 		->limit(10, ($page-1)*10);
 		$data_cst = $command->queryAll();
-
+		
 		$url = $this->createUrl("savedImage/cusineSubSubTypes");
 		$command = Yii::app()->db->createCommand()
 		->select('("cusine_sub_sub_types") as type, concat("CSS_ID:", CSS_ID) as id, CSS_DESC_' . Yii::app()->session['lang'] . ' as name, CASE WHEN CSS_IMG_ETAG IS NOT NULL AND CSS_IMG_ETAG <> \'\' THEN concat("' . $url . '/", CSS_ID ,".png") ELSE "" END as img')
@@ -2855,7 +3079,7 @@ class RecipesController extends Controller
 		$result = array(
 // 				'total_count'=>$total_count_cut + $total_count_cst + $total_count_css,
 				'more_cut'=>$more_cut,
-				'more_cst'=>$more_cst, 
+				'more_cst'=>$more_cst,
 				'more_css'=>$more_css,
 				'items'=>$data
 		);

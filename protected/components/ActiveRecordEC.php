@@ -48,4 +48,31 @@ class ActiveRecordEC extends ActiveRecordECSimple {
 		preg_match("/dbname=([^;]+)/i", $this->dbConnection->connectionString, $matches);
 		return $matches[1].'.table_name';
 	}
+
+	public function getExportSelectFieldsIgnore(){
+		return array(
+				'CREATED_BY',
+				'CREATED_ON',
+				'CHANGED_BY',
+				'CHANGED_ON'
+		);
+	}
+
+	public function getExportSelectFieldsPrefix(){
+		//return '';
+		return $this->tableName() . '.';
+	}
+	
+	public function getExportSelectFields(){
+		$fields='';
+		$prefix = $this->getExportSelectFieldsPrefix();
+		$ignoreFields = $this->getExportSelectFieldsIgnore();
+		foreach($this->getMetaData()->columns as $name=>$column){
+			if (!in_array($name, $ignoreFields)){
+				$fields.=','.$prefix.$name;
+			}
+		}
+		return $fields;
+	}
+	
 }

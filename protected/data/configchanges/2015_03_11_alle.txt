@@ -1,0 +1,22 @@
+	'import'=>array(
+		...
+		'packages.solr.*',
+		'application.models_solr.*',
+	),
+	"aliases" => array(
+		"packages" => dirname(__DIR__)."/packages/",
+	),
+	'components'=>array(
+		...
+		"solr" => array(
+			"class" => "packages.solr.ASolrConnection",
+			"clientOptions" => array(
+				"hostname" => "localhost",
+				"port" => 8983,
+				"path" => "/solr/recipes",
+				"login" => "guest",
+				"password" => "guest",
+			),
+		),
+		...
+	),
