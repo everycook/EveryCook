@@ -23,6 +23,7 @@ class RecipesController extends Controller
 	
 	protected $createBackup = 'Recipes_Backup';
 	protected $searchBackup = 'Recipes';
+	protected $searchBackupSolr = 'RecipesSolr';
 	public $isTemplateChoose = false;
 	
 	/**
@@ -170,6 +171,7 @@ class RecipesController extends Controller
 	public function actionView($id){
 		if (isset($_GET['nosearch']) && $_GET['nosearch'] == 'true'){
 			unset(Yii::app()->session[$this->searchBackup]);
+			unset(Yii::app()->session[$this->searchBackupSolr]);
 		}
 		$model = $this->loadModel($id);
 		$cookin = "#cookin";
@@ -192,6 +194,7 @@ class RecipesController extends Controller
 	public function actionViewHistory($id, $CHANGED_ON){
 		if (isset($_GET['nosearch']) && $_GET['nosearch'] == 'true'){
 			unset(Yii::app()->session[$this->searchBackup]);
+			unset(Yii::app()->session[$this->searchBackupSolr]);
 		}
 		$model=RecipesHistory::model()->findByPk(array('REC_ID'=>$id, 'CHANGED_ON'=>$CHANGED_ON));
 		$cookin = "#cookin";
@@ -1779,7 +1782,7 @@ class RecipesController extends Controller
 			$query = '';
 		}
 
-		$selectedOrderBy = 'N';
+		$selectedOrderBy = 'score';
 		if(isset($_GET['orderby'])){
 			$selectedOrderBy = $_GET['orderby'];
 		} else if(isset($_POST['orderby'])){
@@ -1839,11 +1842,11 @@ class RecipesController extends Controller
 			 'score'=>CSort::SORT_DESC,
 		);
 		$activeFacets = array(
-			'autor'=>								array('title'=>$this->trans->RECIPES_CHEF, 'type'=>'field', 'multiSelect'=>true),
-			'RET_DESC_'.Yii::app()->language=>		array('title'=>$this->trans->RECIPES_TYPE, 'type'=>'field', 'multiSelect'=>true),
+			'autor'=>									array('title'=>$this->trans->RECIPES_CHEF, 'type'=>'field', 'multiSelect'=>true),
+			'RET_DESC_'.Yii::app()->language=>			array('title'=>$this->trans->RECIPES_TYPE, 'type'=>'field', 'multiSelect'=>true),
 			Yii::app()->language.'_ingredients_facet'=>	array('title'=>$this->trans->RECIPES_INGREDIENTS, 'type'=>'field', 'multiSelect'=>true),
 			Yii::app()->language.'_cusines_facet'=>		array('title'=>$this->trans->FIELD_CUT_ID, 'type'=>'field', 'multiSelect'=>false),
-			'REC_KCAL'=>							array('title'=>'kcal', 'type'=>'range', 'multiSelect'=>true),
+			'REC_KCAL'=>								array('title'=>'kcal', 'type'=>'range', 'multiSelect'=>true),
 		);
 		
 		$selectedFacets = array();
@@ -1861,14 +1864,41 @@ class RecipesController extends Controller
 			$selectedFacets[$name] = $values;
 		}
 		
+		$Session_RecipeSearch = Yii::app()->session[$this->searchBackupSolr];
+		$searchFromSession = false;
+		if (isset($Session_RecipeSearch)){
+			if($this->debug){echo "Session_RecipeSearchSolr isset";}
+			if ($query == '' && !$hasAnySelectedFacetValue && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_RecipeSearch['time'])){
+				$searchFromSession = true;
+				if (isset($Session_RecipeSearch['query'])){
+					$query = $Session_RecipeSearch['query'];
+				}
+				if (isset($Session_RecipeSearch['selectedOrderBy'])){
+					$selectedOrderBy = $Session_RecipeSearch['selectedOrderBy'];
+				}
+				if (isset($Session_RecipeSearch['facets'])){
+					$selectedFacets = $Session_RecipeSearch['facets'];
+				}
+			}
+		}
+		if (!$searchFromSession){
+			$Session_RecipeSearch = array();
+			$Session_RecipeSearch['query'] = $query;
+			$Session_RecipeSearch['selectedOrderBy'] = $selectedOrderBy;
+			$Session_RecipeSearch['facets'] = $selectedFacets;
+			$Session_RecipeSearch['time'] = time();
+			Yii::app()->session[$this->searchBackupSolr] = $Session_RecipeSearch;
+		}
+		
 		$dataProvider = new ASolrDataProvider(RecipesSolr::model(),
-			array(
-				'pagination'=>array(
-						'pageSize'=>10,
-				),
-				'sort'=> $sort,
-			)
+				array(
+						'pagination'=>array(
+								'pageSize'=>10,
+						),
+						'sort'=> $sort,
+				)
 		);
+		
 		$dataProvider->setCriteria($dataProvider->model->getSolrCriteria());
 		$criteria = $dataProvider->getCriteria();
 		$criteria->query = $query;
@@ -1918,7 +1948,6 @@ class RecipesController extends Controller
 			echo 'http://localhost:8983/solr/recipes/select?' . $criteria->toString();
 			echo "<br>\r\n\r\n";
 		}
-		
 		
 		/*
 		echo 'query<br>';
@@ -2208,7 +2237,7 @@ class RecipesController extends Controller
 		if (!$searchFromSession){
 			$Session_RecipeSearch = array();
 			$Session_RecipeSearch['query'] = $query;
-			$Session_RecipeSearch['criteria'] = $criteria;;
+			$Session_RecipeSearch['criteria'] = $criteria;
 			$Session_RecipeSearch['selectedOrderBy'] = $selectedOrderBy;
 			$Session_RecipeSearch['filters'] = $filters;
 			$Session_RecipeSearch['time'] = time();
@@ -2548,6 +2577,7 @@ class RecipesController extends Controller
 	public function actionHistory($id){
 		if (isset($_GET['nosearch']) && $_GET['nosearch'] == 'true'){
 			unset(Yii::app()->session[$this->searchBackup]);
+			unset(Yii::app()->session[$this->searchBackupSolr]);
 		}
 		$model = $this->loadModel($id);
 		$history = Yii::app()->db->createCommand()->select('REC_ID,REC_NAME_'.Yii::app()->session['lang'].',REC_SUMMARY,CHANGED_BY,CHANGED_ON')

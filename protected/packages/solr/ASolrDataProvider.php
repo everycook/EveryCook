@@ -171,12 +171,16 @@ class ASolrDataProvider extends CActiveDataProvider {
 	 */
 	protected function calculateTotalItemCount()
 	{
-		if ($this->model instanceof CActiveRecord) {
-			// this should be a model with ASolrSearchable attached
-			return $this->model->getSolrDocument()->count($this->getCriteria());
-		}
-		else {
-			return $this->model->count($this->getCriteria());
+		if (isset($this->_solrQueryResponse)){
+			return $this->_solrQueryResponse->getResults()->total;
+		} else {
+			if ($this->model instanceof CActiveRecord) {
+				// this should be a model with ASolrSearchable attached
+				return $this->model->getSolrDocument()->count($this->getCriteria());
+			}
+			else {
+				return $this->model->count($this->getCriteria());
+			}
 		}
 	}
 
