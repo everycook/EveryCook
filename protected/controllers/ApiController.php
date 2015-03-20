@@ -82,6 +82,7 @@ class ApiController extends CController
 				'rec_type' => array('select'=>'recipes.RET_ID', 'type'=>'int'),
 				'rec_cuisine' => array('select'=>'recipes.CUT_ID', 'type'=>'int'),
  				'autor' =>  'CASE WHEN recipes.PRF_UID IS NOT NULL THEN concat(professional_profiles.PRF_FIRSTNAME, " " ,professional_profiles.PRF_LASTNAME) ELSE NULL END',
+				'lastchange' => array('select'=>'recipes.CHANGED_ON', 'type'=>'int'),
 		);
 //		$this->resultFieldsRecipes =  array('title','img_url','rec_id');
 		$this->resultFieldsRecipes = array_keys($this->fieldMappingRecipes);
@@ -90,6 +91,7 @@ class ApiController extends CController
 				'title' => 'REC_NAME_' . $lang,
 				'img_url' => 'CASE WHEN REC_IMG_ETAG IS NOT NULL AND REC_IMG_ETAG <> \'\' THEN concat("' . $recipesImgUrl . '/", REC_ID ,".png") ELSE "" END',
 				'rec_id' => array('select'=>'REC_ID', 'type'=>'int'),
+				'lastchange' => array('select'=>'recipes.CHANGED_ON', 'type'=>'int'),
 		);
 		$this->fieldMappingRecipeDetailIngredients = array(
 				'ing_name' => 'ING_NAME_' . $lang,

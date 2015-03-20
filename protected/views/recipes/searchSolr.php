@@ -56,7 +56,26 @@ if ($this->isFancyAjaxRequest){ ?>
 )); ?>
 	<div class="f-left search">
 		<?php
-		//echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query'));
+		echo '<div class="search_query">';
+		echo Functions::specialField('query', $query, 'search', array('class'=>'search_query'));
+		echo '</div>';
+		
+		Yii::app()->clientScript->registerScript('searchRecipe_typeahead', "
+		$('#recipeSearchArea div.search input.search_query').typeahead({
+			highlight: true,
+		}, {
+			name: 'recipes',
+			displayKey: 'name',
+			source: glob.typeahead.recipes.ttAdapter(),
+			templates: {
+				suggestion: function(data){
+					return data.name + '<span style=\"color:lightgrey\"> (' + data.src + ')</span>';
+				}
+			},
+		});
+		");
+		
+		/*
 		echo CHtml::hiddenField('query', $query, array('id'=>'searchRecipe', 'data-placeholder'=>$this->trans->RECIPES_TYPE_A_DISH));
 		
 		$this->widget('ext.select2.ESelect2', array(
@@ -77,9 +96,50 @@ if ($this->isFancyAjaxRequest){ ?>
 				'createSearchChoice' => 'js:glob.select2.createSearchChoice',
 			)
 		));
+		*/
 		echo CHtml::imageButton(Yii::app()->request->baseUrl . '/pics/search.png', array('class'=>'search_button', 'title'=>$this->trans->GENERAL_SEARCH));
 		?>
 	</div>
+	<?php
+	
+	if(count($collations)>0){
+		if(isset($collations['_max'])){
+			$value = $collations['_max'];
+		} else {
+			$value = key($collations);
+		}
+		$others = $collations;
+		$dym = $value;
+	} else if(count($suggestions)>0){
+		$suggestions=reset($suggestions); //get first word only
+		if(isset($suggestions['_max'])){
+			$value = $suggestions['_max'];
+		} else {
+			$value = key($suggestions);
+		}
+		$others = $suggestions;
+		$dym = $value;
+	}
+	if (isset($dym) && $dym != '_max'){
+		unset($others['_max']);
+		unset($others[$value]);
+		function strrnatcmp($a, $b){
+			return strnatcmp($b, $a);
+		};
+		uasort ($others, "strrnatcmp");
+		$others = array_keys($others);
+		if (count($others)>0){
+			echo '<div id="didYouMean"><span class="title">' . $this->trans->GENERAL_DID_YOU_MEAN . '</span>';
+			echo '<span class="text">' . $dym . '</span>';
+			foreach($others as $other){
+				echo '<span class="text">' . $other . '</span>';
+			}
+			echo '</div>';
+		} else {
+			echo '<div id="didYouMean"><span class="title">' . $this->trans->GENERAL_DID_YOU_MEAN . '</span><span class="text">' . $dym . '</span></div>';
+		}
+	} 
+	?>
 <?php /*if (!$this->isFancyAjaxRequest){ ?>	
 	<div class="f-right">
 		<?php echo CHtml::link($this->trans->GENERAL_ADVANCE_SEARCH, array($advanceURL, $newRecSearch), array('class'=>'button')); ?><br>

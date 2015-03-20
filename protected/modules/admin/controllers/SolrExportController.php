@@ -231,6 +231,15 @@ class SolrExportController extends Controller
 		}
 		//$recipeSolr->getSolrConnection()->commit();
 		Yii::app()->solr->commit();
+		
+		//rebuild suggest indexes
+		$criteria = new ASolrCriteria();
+		//$criteria->setParam('qt','suggest' . strtolower(Yii::app()->language));
+		$criteria->setParam('qt','suggest');
+		$criteria->setParam('suggest.build','true');
+		$criteria->setParam('spellcheck.build','true');
+		
+		Yii::app()->solr->search($criteria);
 	}
 	
 }

@@ -35,7 +35,7 @@ class RecipesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','searchFridge','displaySavedImage','chooseRecipe','chooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory', 'autocomplete','autocompleteId','actionSuggestion','getCusineSubTypes','getCusineSubSubTypes','cusinesAutocomplete','cusinesAutocompleteId','viewShoppingList'),
+				'actions'=>array('index','view','search','searchFridge','displaySavedImage','chooseRecipe','chooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory', 'autocomplete','autocompleteId','actionSuggestion','getCusineSubTypes','getCusineSubSubTypes','cusinesAutocomplete','cusinesAutocompleteId','viewShoppingList', 'autocompleteSolr'),
 				//'advanceSearch','advanceChooseRecipe','advanceChooseTemplateRecipe',
 				'users'=>array('*'),
 			),
@@ -1685,8 +1685,80 @@ class RecipesController extends Controller
 		return '(' . $result. ')';
 	}
 	
-	public function actionAutocomplete($query, $page){
+	public function actionAutocompleteSolr($query){
+		$this->isFancyAjaxRequest = true;
+		$oldDebug = $this->debug;
+		$this->debug = false;
+		
+		$criteria = new ASolrCriteria();
+		$criteria->query = $query;
+		//$criteria->setParam('qt','suggest' . strtolower(Yii::app()->language));
+		$criteria->setParam('qt','suggest');
+		
+		$recipesSolrModel = new RecipesSolr();
+		/*$data =*/ $recipesSolrModel->findAll($criteria);
+		$response = $recipesSolrModel->getSolrConnection()->getLastQueryResponse();
+		$solrObject = $response->getSolrObject();
+		
+		list($query_suggestions, $query_collations, $correctlySpelled) = $this->parseSpellCheck($solrObject);
+		list($suggest_types, $suggest_merge) = $this->parseSuggest($solrObject);
+		
+		//format and merge lists
+		$items = array();
+		unset($query_collations['_max']);
+// 		foreach ($query_collations as $value=>$freq){
+// 			$items[$value] = array('name'=>$value, 'rank'=>$freq, 'src'=>'spell');
+// 		}
+		$suggest_types['spellCollation'] = $query_collations;
+		
+		$firstWord = reset($query_suggestions); //get spell suggestions for first word only
+		if ($firstWord !== false){
+			unset($firstWord['_max']);
+			$suggest_types['spellSuggestion'] = $firstWord;
+		}
+		
+		foreach ($suggest_types as $type=>$values){
+			if (isset($values)){
+				foreach ($values as $value=>$rank){
+					$value = preg_replace('/<[^>]*>/', '', $value);
+					if(is_null($rank)){
+						$rank = 0;
+					}
+					if (isset($items[$value])){
+						$items[$value] = array('name'=>$value, 'rank'=>max($rank, $items[$value]['rank']), 'src'=>$items[$value]['src'] .",".$type);
+					} else {
+						$items[$value] = array('name'=>$value, 'rank'=>$rank, 'src'=>$type);
+					}
+				}
+			}
+		}
+		function strrnatcmp($a, $b){
+			$comp = strnatcmp($b['rank'], $a['rank']);
+			if ($comp == 0){
+				$comp = strnatcmp(strtolower($a['name']), strtolower($b['name']));
+			}
+			return $comp;
+		};
+		usort ($items, "strrnatcmp");
+		
+// 		$result = array(
+// 			'items'=>$items,
+// 		);
+		$result = $items;
+// 		if ($oldDebug){
+// 			$result = array();
+// 			foreach($items as $value){
+// 				$value['name'] = $value['name'] . '('.  $value['src']  .')'; 
+// 				$result[] = $value;			
+// 			}
+// 		}
+
 		header('Content-type: application/json');
+		echo $this->processOutput(CJSON::encode($result));
+		Yii::app()->end();
+	}
+	
+	public function actionAutocomplete($query, $page){
 		$this->isFancyAjaxRequest = true;
 		
 		$commandQuery = Yii::app()->db->createCommand()
@@ -1732,6 +1804,8 @@ class RecipesController extends Controller
 			'total_count'=>$total_countQuery + $total_count,
 			'items'=>$data
 		);
+
+		header('Content-type: application/json');
 		echo $this->processOutput(CJSON::encode($result));
 		Yii::app()->end();
 	}
@@ -1867,7 +1941,7 @@ class RecipesController extends Controller
 		$Session_RecipeSearch = Yii::app()->session[$this->searchBackupSolr];
 		$searchFromSession = false;
 		if (isset($Session_RecipeSearch)){
-			if($this->debug){echo "Session_RecipeSearchSolr isset";}
+			//if($this->debug){echo "Session_RecipeSearchSolr isset";}
 			if ($query == '' && !$hasAnySelectedFacetValue && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_RecipeSearch['time'])){
 				$searchFromSession = true;
 				if (isset($Session_RecipeSearch['query'])){
@@ -1898,8 +1972,8 @@ class RecipesController extends Controller
 						'sort'=> $sort,
 				)
 		);
-		
-		$dataProvider->setCriteria($dataProvider->model->getSolrCriteria());
+		//initialice default Scope:
+		$dataProvider->model->getSolrCriteria();
 		$criteria = $dataProvider->getCriteria();
 		$criteria->query = $query;
 		
@@ -1943,11 +2017,12 @@ class RecipesController extends Controller
 				}
 			}
 		}
-		if ($this->debug){
-			echo "2{}<br>\r\n\r\n";
-			echo 'http://localhost:8983/solr/recipes/select?' . $criteria->toString();
-			echo "<br>\r\n\r\n";
-		}
+		/*
+		$criteria->addParam('spellcheck.extendedResults', 'true');
+		$criteria->addParam('spellcheck.collateExtendedResults', 'true');
+		$criteria->addParam('spellcheck.onlyMorePopular', 'false');
+		$criteria->addParam('spellcheck.maxCollations', 10); 
+		*/
 		
 		/*
 		echo 'query<br>';
@@ -1981,7 +2056,19 @@ class RecipesController extends Controller
 // 			var_dump($facet->toArray());
 // 		}
 // 		die();
-		//$dataProvider->getCriteria()->
+		
+		
+		$dataProvider->getData(); //fetch data 
+		$response = $dataProvider->getSolrQueryResponse();
+		$solrObject = $response->getSolrObject();
+
+		if ($this->debug){
+			echo "2{}<br>\r\n\r\n";
+			echo 'http://localhost:8983/solr/recipes/select?' . $response->criteria->toString();
+			echo "<br>\r\n\r\n";
+		}
+		
+		list($query_suggestions, $query_collations, $correctlySpelled) = $this->parseSpellCheck($solrObject);
 		
 		$this->checkRenderAjax($view,array(
 			'query'=>$query,
@@ -1989,6 +2076,8 @@ class RecipesController extends Controller
 			'activeFacets'=>$activeFacets,
 			'selectedFacets'=>$selectedFacets,
 			'facets'=>$this->getFacets($dataProvider),
+			'suggestions'=>$query_suggestions,
+			'collations'=>$query_collations,
 			'sort'=>$sort,
 		), $ajaxLayout);
 	}
@@ -2002,6 +2091,115 @@ class RecipesController extends Controller
 		return $allFacets;
 	}
 	
+	private function parseSpellCheck($solrObject){
+		$query_suggestions = array();
+		$query_collations = array();
+		$correctlySpelled = null;
+		if (isset($solrObject->spellcheck)){
+			$showDYM=true;
+			if (isset($solrObject->spellcheck->correctlySpelled)){
+				$correctlySpelled = $solrObject->spellcheck->correctlySpelled; 
+				$showDYM = !$correctlySpelled;
+			}
+			if ($showDYM){
+				$spellcheck = $solrObject->spellcheck;
+				// 				if ($this->debug){
+				// 					var_dump($spellcheck->suggestions);
+				// 					var_dump($spellcheck->collations);
+				// 				}
+				if (isset($spellcheck->suggestions)){
+					// 					if(is_array($spellcheck->suggestions)){
+					// 						$names = array_keys($spellcheck->suggestions);
+					// 					} else {
+					// 						$names = $spellcheck->suggestions->getPropertyNames();
+					// 					}
+					// 					foreach ($names as $name){
+					// 						$name = trim($name);
+					// 						$obj = $spellcheck->suggestions->$name;
+					foreach ($spellcheck->suggestions as $name=>$obj){
+						/*
+						 $numFound = $obj->numFound; //occurenc in query string
+						 $startOffset = $obj->startOffset; //in orig search string
+						 $endOffset = $obj->endOffset;//in orig search string
+						 */
+						if (isset($obj->origFreq)){ //only avail if spellcheck.extendedResults=true
+							$origFreq = $obj->origFreq;
+						}
+						$suggestions = $obj->suggestion;
+						$values = array();
+						$maxVal=0;
+						$maxSuggestion=null;
+						foreach($suggestions as $suggestion){
+							if (is_object($suggestion)){ //only if spellcheck.extendedResults=true is set
+								$freq = $suggestion->freq;
+								$suggestion = $suggestion->word;
+								if ($freq>$maxVal){
+									$maxVal=$freq;
+									$maxSuggestion=$suggestion;
+								}
+							} else {
+								$freq = null;
+							}
+							if ($this->debug){
+								echo 'Suggestion for "'.$name.'": '. $suggestion .'('.$freq.")<br>\n";
+							}
+							$values[$suggestion]=$freq;
+						}
+						$values['_max']=$maxSuggestion;
+						$query_suggestions[$name]=$values;
+					}
+				}
+				if (isset($spellcheck->collations)){
+					$maxVal=0;
+					$maxCollation=null;
+					// 					foreach($spellcheck->collations->getPropertyNames() as $name){
+					// 						$name = trim($name);
+					// 						$obj = $spellcheck->collations->$name;
+					foreach($spellcheck->collations as $name=>$obj){
+						if (is_object($obj)){ //only if spellcheck.collateExtendedResults=true is set
+							$hits = $obj->hits;
+							$collationQuery = $obj->collationQuery;
+							//$misspellingsAndCorrections = $obj->misspellingsAndCorrections; //array with changes words: word_in_search=>word_in_collation
+							if($hits>$maxVal){
+								$maxVal=$hits;
+								$maxCollation=$collationQuery;
+							}
+						} else {
+							$hits = null;
+							$collationQuery = $obj;
+						}
+						if ($this->debug){
+							echo 'collationQuery: '. $collationQuery .'('.$hits.")<br>\n";
+						}
+						$query_collations[$collationQuery]=$hits;
+					}
+					$query_collations['_max']=$maxCollation;
+				}
+			}
+		}
+		return array($query_suggestions, $query_collations, $correctlySpelled);
+	}
+	
+	private function parseSuggest($solrObject){
+		$suggest_types = array();
+		$suggest_merge = array();
+		if (isset($solrObject->suggest)){
+			$suggest = $solrObject->suggest;
+			foreach($suggest as $suggester=>$values){
+				$suggestions = array();
+				foreach($values as $searchTerm=>$infos){
+					if ($infos->numFound>0){
+						foreach($infos->suggestions as $index=>$suggestion){
+							$suggestions[$suggestion->term] = $suggestion->weight;
+						}
+					}
+				} 
+				$suggest_types[$suggester] = $suggestions;
+				$suggest_merge = array_merge($suggest_merge, $suggestions);
+			}
+		}
+		return array($suggest_types, $suggest_merge);
+	}
 	
 
 	private function prepareSearch($view, $ajaxLayout, $criteria)

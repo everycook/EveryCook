@@ -358,6 +358,7 @@ class Controller extends CController
 				
 				$request_baseurl = Yii::app()->request->baseUrl ;
 				Yii::app()->clientscript->registerScriptFile($request_baseurl. '/js/jquery.iframe-post-form.js', CClientScript::POS_HEAD);
+				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/typeahead.bundle.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/ajax_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/hash_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/rowcontainer_handling.js', CClientScript::POS_HEAD);

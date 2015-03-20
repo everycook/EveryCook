@@ -23,7 +23,7 @@ class RecipesSolr extends MultiLangSolrDocument {
 	 */
 	public function setDefaults(ASolrCriteria $criteria)
 	{
-		parent::setDefaults($criteria);
+		//parent::setDefaults($criteria); //options set there are implizit
 		$criteria->setParam('qt','searchRecipes_' . strtolower(Yii::app()->language));
 	}
 	

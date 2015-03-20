@@ -254,6 +254,27 @@ glob.select2.selectCusinesFormatSelection = function (cusine) {
 	return glob.select2.formatResultImg(cusine.name, cusine.name, cusine, 'cusineImg');
 }
 
+glob.typeahead = {};
+
+glob.typeahead.recipes = new Bloodhound({
+	datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+	queryTokenizer: Bloodhound.tokenizers.whitespace,
+	remote: {
+		url: glob.prefix + 'recipes/autocompleteSolr?query=%QUERY',
+		filter: function(parsedResponse){
+			//return parsedResponse.items;
+			return parsedResponse;
+		}
+	},
+	limit: 20,
+//	sorter: function(a, b){
+//		return a.id.localeCompare(b.id);
+//	}
+	// https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
+});
+glob.typeahead.recipes.initialize();
+
+
 glob.changePage = function(hash){
 	if (glob.prefix && window.location.pathname != glob.prefix){
 		window.location = glob.prefix + '#' + hash;
@@ -628,7 +649,9 @@ jQuery(function($){
 		try {
 			var submitValue = "";
 			var pressedButton = arguments[0].originalEvent.explicitOriginalTarget;
-			submitValue = "&" + encodeURI(pressedButton.name + "=" + pressedButton.value);
+			if ($(pressedButton).not('[type="text"],[type="search"]').length>0){
+				submitValue = "&" + encodeURI(pressedButton.name + "=" + pressedButton.value);
+			}
 		} catch(ex){
 		}
 		return submitForm(form, form.attr('action'), submitValue, ajaxResponceHandler);
@@ -897,7 +920,9 @@ jQuery(function($){
 		try {
 			var submitValue = "";
 			var pressedButton = arguments[0].originalEvent.explicitOriginalTarget;
-			submitValue = "&" + encodeURI(pressedButton.name + "=" + pressedButton.value);
+			if ($(pressedButton).not('[type="text"],[type="search"]').length>0){
+				submitValue = "&" + encodeURI(pressedButton.name + "=" + pressedButton.value);
+			}
 		} catch(ex){
 		}
 		//jQuery.ajax({'type':'post', 'url':jQuery('#FancyChooseSubmitLink').attr('value'),'data':form.serialize() + submitValue,'cache':false,'success':function(html){
@@ -1719,6 +1744,13 @@ jQuery(function($){
 			}
 		}
 	});
+
+	jQuery('body').undelegate('#didYouMean .text','click').delegate('#didYouMean .text','click', function(event){
+		//$('#searchRecipe .select2-input').val($(this).text());
+		//$('#searchRecipe').select2('val',$(this).text());
+		$('#recipeSearchArea .search_query').val($(this).text());
+		jQuery(this).closest('form').submit();
+	});
 	
 	//search on main
 	jQuery('body').undelegate('#search_form','submit').delegate('#search_form','submit', function(event){
@@ -1850,7 +1882,7 @@ jQuery(function($){
 
 	jQuery('body').undelegate('.form .editField input.field','keyup').delegate('.form .editField input.field','keyup', function(event){
 		var input = jQuery(this);
-		if (event.keyCode == '13') {
+		if (event.which == '13') {
 			saveProfileFieldUpdate(input);
 			return false;
 		}

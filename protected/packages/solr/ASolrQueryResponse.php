@@ -245,4 +245,8 @@ class ASolrQueryResponse extends CComponent {
             $this->getSolrObject()->debug['explain'][$id] :
             null;
     }
+    
+    public function getCriteria(){
+    	return $this->_criteria;
+    }
 }

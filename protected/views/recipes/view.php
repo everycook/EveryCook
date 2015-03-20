@@ -82,7 +82,7 @@ if (!$history){
 	<div class="recipeDetail">
 		<?php echo CHtml::link($this->trans->RECIPES_HISTORY, array('history', 'id'=>$model->REC_ID), array('class'=>'button history')); ?>
 		<?php
-		if (isset(Yii::app()->session['Recipes'])){
+		if (isset(Yii::app()->session['Recipes']) || isset(Yii::app()->session['RecipesSolr'])){
 			if (isset(Yii::app()->session['Recipes']['model'])){
 				echo CHtml::link($this->trans->SEARCH_BACK_TO_RESULTS, array('recipes/advancesearch'), array('class'=>'button backbutton'));
 			} else {

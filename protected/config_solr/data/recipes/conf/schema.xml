@@ -187,19 +187,27 @@
 	
 	<field name="EN_GB_ingredients"			type="text_en" 	indexed="true"  stored="true" required="false" multiValued="true"/>
 	<field name="DE_CH_ingredients" 		type="text_de" 	indexed="true"  stored="true" required="false" multiValued="true"/>
-	<field name="FR_FR_ingredients" 		type="text_de" 	indexed="true"  stored="true" required="false" multiValued="true"/>
+	<field name="FR_FR_ingredients" 		type="text_fr" 	indexed="true"  stored="true" required="false" multiValued="true"/>
 	<field name="EN_GB_ingredients_facet" 		type="string" 	indexed="true"  stored="false" required="false" multiValued="true"/>
 	<field name="DE_CH_ingredients_facet" 		type="string" 	indexed="true"  stored="false" required="false" multiValued="true"/>
 	<field name="FR_FR_ingredients_facet" 		type="string" 	indexed="true"  stored="false" required="false" multiValued="true"/>
 	
+	<field name="EN_GB_spell"			type="text_en_spell" 	indexed="true"  stored="true" required="false" multiValued="true"/>
+	<field name="DE_CH_spell" 			type="text_de_spell" 	indexed="true"  stored="true" required="false" multiValued="true"/>
+	<field name="FR_FR_spell" 			type="text_fr_spell" 	indexed="true"  stored="true" required="false" multiValued="true"/>
+	
+	<field name="weight_spell" 			type="float"  			indexed="true"  stored="true" required="false" multiValued="true"/>
+	
 	<!-- TODO: change stored back to false after testing phase-->
 	<field name="EN_GB_text"			type="text_en" 	indexed="true"  stored="true" required="false" multiValued="true"/>
 	<field name="DE_CH_text" 			type="text_de" 	indexed="true"  stored="true" required="false" multiValued="true"/>
-	<field name="FR_FR_text" 			type="text_de" 	indexed="true"  stored="true" required="false" multiValued="true"/>
+	<field name="FR_FR_text" 			type="text_fr" 	indexed="true"  stored="true" required="false" multiValued="true"/>
 	
 	<field name="EN_GB_text_search" 	type="text_en_partial" 	indexed="true"  stored="true" required="false" multiValued="true"/>
 	<field name="DE_CH_text_search" 	type="text_de_partial" 	indexed="true"  stored="true" required="false" multiValued="true"/>
 	<field name="FR_FR_text_search" 	type="text_fr_partial" 	indexed="true"  stored="true" required="false" multiValued="true"/>
+	
+	
 	<!-- fields for copyfield (end) -->
 
 
@@ -276,6 +284,7 @@
   <!-- copyField commands copy one field to another at the time a document
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
+	
 	<copyField source="*_EN_GB" 		dest="EN_GB_text"/>
 	<copyField source="*_DE_CH" 		dest="DE_CH_text"/>
 	<copyField source="*_FR_FR" 		dest="FR_FR_text"/>
@@ -289,9 +298,23 @@
 	<copyField source="ING_NAME_*" 		dest="*_ingredients"/>
 	<copyField source="ING_SYNONYM_*" 	dest="*_ingredients"/>
 	
+	<copyField source="ING_NAME_*" 		dest="*_ingredients_facet"/>
+	<copyField source="ING_SYNONYM_*" 	dest="*_ingredients_facet"/>
+	
 	<copyField source="CUT_DESC_*" 		dest="*_cusines"/>
 	<copyField source="CST_DESC_*" 		dest="*_cusines"/>
 	<copyField source="CSS_DESC_*" 		dest="*_cusines"/>
+	<copyField source="CUT_DESC_*" 		dest="*_cusines_facet"/>
+	<copyField source="CST_DESC_*" 		dest="*_cusines_facet"/>
+	<copyField source="CSS_DESC_*" 		dest="*_cusines_facet"/>
+	
+	<copyField source="REC_NAME_*" 		dest="*_spell"/>
+	<copyField source="REC_SYNONYM_*" 	dest="*_spell"/>
+	<copyField source="ING_NAME_*" 		dest="*_spell"/>
+	<copyField source="ING_SYNONYM_*" 	dest="*_spell"/>
+	<copyField source="CUT_DESC_*" 		dest="*_spell"/>
+	<copyField source="CST_DESC_*" 		dest="*_spell"/>
+	<copyField source="CSS_DESC_*" 		dest="*_spell"/>
 	-->
 	
 	<copyField source="REC_NAME_EN_GB" 		dest="EN_GB_text_search"/>
@@ -308,8 +331,15 @@
 	<copyField source="CUT_DESC_EN_GB" 		dest="EN_GB_cusines_facet"/>
 	<copyField source="CST_DESC_EN_GB" 		dest="EN_GB_cusines_facet"/>
 	<copyField source="CSS_DESC_EN_GB" 		dest="EN_GB_cusines_facet"/>
+	<copyField source="REC_NAME_EN_GB" 		dest="EN_GB_spell"/>
+	<copyField source="REC_SYNONYM_EN_GB" 	dest="EN_GB_spell"/>
+	<copyField source="ING_NAME_EN_GB" 		dest="EN_GB_spell"/>
+	<copyField source="ING_SYNONYM_EN_GB" 	dest="EN_GB_spell"/>
+	<copyField source="CUT_DESC_EN_GB" 		dest="EN_GB_spell"/>
+	<copyField source="CST_DESC_EN_GB" 		dest="EN_GB_spell"/>
+	<copyField source="CSS_DESC_EN_GB" 		dest="EN_GB_spell"/>
 
-	<copyField source="REC_NAME_DE_CH"		 dest="DE_CH_text_search"/>
+	<copyField source="REC_NAME_DE_CH" 		dest="DE_CH_text_search"/>
 	<copyField source="REC_SYNONYM_DE_CH" 	dest="DE_CH_text_search"/>
 	<copyField source="ING_NAME_DE_CH" 		dest="DE_CH_text_search"/>
 	<copyField source="ING_SYNONYM_DE_CH" 	dest="DE_CH_text_search"/>
@@ -323,6 +353,13 @@
 	<copyField source="CUT_DESC_DE_CH" 		dest="DE_CH_cusines_facet"/>
 	<copyField source="CST_DESC_DE_CH" 		dest="DE_CH_cusines_facet"/>
 	<copyField source="CSS_DESC_DE_CH" 		dest="DE_CH_cusines_facet"/>
+	<copyField source="REC_NAME_DE_CH" 		dest="DE_CH_spell"/>
+	<copyField source="REC_SYNONYM_DE_CH" 	dest="DE_CH_spell"/>
+	<copyField source="ING_NAME_DE_CH" 		dest="DE_CH_spell"/>
+	<copyField source="ING_SYNONYM_DE_CH" 	dest="DE_CH_spell"/>
+	<copyField source="CUT_DESC_DE_CH" 		dest="DE_CH_spell"/>
+	<copyField source="CST_DESC_DE_CH" 		dest="DE_CH_spell"/>
+	<copyField source="CSS_DESC_DE_CH" 		dest="DE_CH_spell"/>
 
 	<copyField source="REC_NAME_FR_FR" 		dest="FR_FR_text_search"/>
 	<copyField source="REC_SYNONYM_FR_FR" 	dest="FR_FR_text_search"/>
@@ -338,6 +375,13 @@
 	<copyField source="CUT_DESC_FR_FR" 		dest="FR_FR_cusines_facet"/>
 	<copyField source="CST_DESC_FR_FR" 		dest="FR_FR_cusines_facet"/>
 	<copyField source="CSS_DESC_FR_FR" 		dest="FR_FR_cusines_facet"/>
+	<copyField source="REC_NAME_FR_FR" 		dest="FR_FR_spell"/>
+	<copyField source="REC_SYNONYM_FR_FR" 	dest="FR_FR_spell"/>
+	<copyField source="ING_NAME_FR_FR" 		dest="FR_FR_spell"/>
+	<copyField source="ING_SYNONYM_FR_FR" 	dest="FR_FR_spell"/>
+	<copyField source="CUT_DESC_FR_FR" 		dest="FR_FR_spell"/>
+	<copyField source="CST_DESC_FR_FR" 		dest="FR_FR_spell"/>
+	<copyField source="CSS_DESC_FR_FR" 		dest="FR_FR_spell"/>
 	
    <!-- Above, multiple source fields are copied to the [text] field. 
 	  Another way to map multiple source fields to the same 
@@ -358,6 +402,138 @@
        standard package such as org.apache.solr.analysis
     -->
 
+	
+	<!-- compound words / zusammengesetzte wörter
+	http://stackoverflow.com/questions/11080287/solr-compound-word-tokenizer-results-treated-as-or-statement
+	http://br0sk.blogspot.ch/2012/08/how-to-split-long-concatenated-words-in.html
+	<filter class="solr.DictionaryCompoundWordTokenFilterFactory" dictionary="english-compound-words.txt" minWordSize="5" minSubwordSize="2" maxSubwordSize="15" onlyLongestMatch="true"/>
+	<filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+	-->
+	<fieldType name="text_en" class="solr.TextField" positionIncrementGap="100">
+      <analyzer>
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_en.txt" />
+		<filter class="solr.EnglishPossessiveFilterFactory"/>
+        <filter class="solr.PorterStemFilterFactory"/>
+      </analyzer>
+    </fieldType>
+    
+	<fieldType name="text_en_partial" class="solr.TextField" positionIncrementGap="100">
+		 <analyzer type="index">
+			<tokenizer class="solr.StandardTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+			<filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_en.txt" format="snowball" />
+			<filter class="solr.NGramFilterFactory" minGramSize="3" maxGramSize="25"/>
+		</analyzer>
+      <analyzer type="query">
+			<tokenizer class="solr.StandardTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+			<filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_en.txt" format="snowball" />
+		</analyzer>
+	</fieldType>
+	<fieldType name="text_en_spell" class="solr.TextField" positionIncrementGap="100">
+		 <analyzer type="index">
+			<tokenizer class="solr.StandardTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+			<filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_en.txt" format="snowball" />
+		</analyzer>
+      <analyzer type="query">
+			<tokenizer class="solr.StandardTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+			<filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_en.txt" format="snowball" />
+		</analyzer>
+	</fieldType>
+	
+    <!-- German -->
+    <fieldType name="text_de" class="solr.TextField" positionIncrementGap="100">
+      <analyzer> 
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_de.txt" format="snowball" />
+        <filter class="solr.GermanNormalizationFilterFactory"/>
+        <filter class="solr.GermanLightStemFilterFactory"/>
+        <!-- less aggressive: <filter class="solr.GermanMinimalStemFilterFactory"/> -->
+        <!-- more aggressive: <filter class="solr.SnowballPorterFilterFactory" language="German2"/> -->
+      </analyzer>
+    </fieldType>
+	
+    <fieldType name="text_de_partial" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_de.txt" format="snowball" />
+		<filter class="solr.NGramFilterFactory" minGramSize="3" maxGramSize="25"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_de.txt" format="snowball" />
+      </analyzer>
+    </fieldType>
+	
+    <fieldType name="text_de_spell" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_de.txt" format="snowball" />
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_de.txt" format="snowball" />
+      </analyzer>
+    </fieldType>
+	
+    <!-- French -->
+    <fieldType name="text_fr" class="solr.TextField" positionIncrementGap="100">
+      <analyzer> 
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <!-- removes l', etc -->
+        <filter class="solr.ElisionFilterFactory" ignoreCase="true" articles="lang/contractions_fr.txt"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_fr.txt" format="snowball" />
+        <filter class="solr.FrenchLightStemFilterFactory"/>
+        <!-- less aggressive: <filter class="solr.FrenchMinimalStemFilterFactory"/> -->
+        <!-- more aggressive: <filter class="solr.SnowballPorterFilterFactory" language="French"/> -->
+      </analyzer>
+    </fieldType>
+	
+    <fieldType name="text_fr_partial" class="solr.TextField" positionIncrementGap="100">
+	  <analyzer type="index">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <!-- removes l', etc -->
+        <filter class="solr.ElisionFilterFactory" ignoreCase="true" articles="lang/contractions_fr.txt"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_fr.txt" format="snowball" />
+		<filter class="solr.NGramFilterFactory" minGramSize="3" maxGramSize="25"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <!-- removes l', etc -->
+        <filter class="solr.ElisionFilterFactory" ignoreCase="true" articles="lang/contractions_fr.txt"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_fr.txt" format="snowball" />
+      </analyzer>
+    </fieldType>
+	
+    <fieldType name="text_fr_spell" class="solr.TextField" positionIncrementGap="100">
+	  <analyzer type="index">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <!-- removes l', etc -->
+        <filter class="solr.ElisionFilterFactory" ignoreCase="true" articles="lang/contractions_fr.txt"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_fr.txt" format="snowball" />
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <!-- removes l', etc -->
+        <filter class="solr.ElisionFilterFactory" ignoreCase="true" articles="lang/contractions_fr.txt"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_fr.txt" format="snowball" />
+      </analyzer>
+    </fieldType>
+	
     <!-- The StrField type is not analyzed, but indexed/stored verbatim.
        It supports doc values but in that case the field needs to be
        single-valued and either required or have a default value.
@@ -614,78 +790,6 @@
         <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
     </fieldType>
-	
-	 <fieldType name="text_en" class="solr.TextField" positionIncrementGap="100">
-      <analyzer>
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_en.txt" />
-		<filter class="solr.EnglishPossessiveFilterFactory"/>
-        <filter class="solr.PorterStemFilterFactory"/>
-      </analyzer>
-    </fieldType>
-    
-	<fieldType name="text_en_partial" class="solr.TextField" positionIncrementGap="100">
-		<analyzer>
-			<tokenizer class="solr.StandardTokenizerFactory"/>
-			<filter class="solr.LowerCaseFilterFactory"/>
-			<filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_en.txt" format="snowball" />
-			<filter class="solr.NGramFilterFactory" minGramSize="3" maxGramSize="25"/>
-		</analyzer>
-	</fieldType>
-	
-    <!-- German -->
-    <fieldType name="text_de" class="solr.TextField" positionIncrementGap="100">
-      <analyzer> 
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_de.txt" format="snowball" />
-        <filter class="solr.GermanNormalizationFilterFactory"/>
-        <filter class="solr.GermanLightStemFilterFactory"/>
-        <!-- less aggressive: <filter class="solr.GermanMinimalStemFilterFactory"/> -->
-        <!-- more aggressive: <filter class="solr.SnowballPorterFilterFactory" language="German2"/> -->
-      </analyzer>
-    </fieldType>
-	
-    <fieldType name="text_de_partial" class="solr.TextField" positionIncrementGap="100">
-      <analyzer> 
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_de.txt" format="snowball" />
-		<filter class="solr.NGramFilterFactory" minGramSize="3" maxGramSize="25"/>
-      </analyzer>
-    </fieldType>
-	
-    
-    <!-- French -->
-    <fieldType name="text_fr" class="solr.TextField" positionIncrementGap="100">
-      <analyzer> 
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <!-- removes l', etc -->
-        <filter class="solr.ElisionFilterFactory" ignoreCase="true" articles="lang/contractions_fr.txt"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_fr.txt" format="snowball" />
-        <filter class="solr.FrenchLightStemFilterFactory"/>
-        <!-- less aggressive: <filter class="solr.FrenchMinimalStemFilterFactory"/> -->
-        <!-- more aggressive: <filter class="solr.SnowballPorterFilterFactory" language="French"/> -->
-      </analyzer>
-    </fieldType>
-	
-    <fieldType name="text_fr_partial" class="solr.TextField" positionIncrementGap="100">
-      <analyzer> 
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <!-- removes l', etc -->
-        <filter class="solr.ElisionFilterFactory" ignoreCase="true" articles="lang/contractions_fr.txt"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_fr.txt" format="snowball" />
-        <filter class="solr.FrenchLightStemFilterFactory"/>
-        <!-- less aggressive: <filter class="solr.FrenchMinimalStemFilterFactory"/> -->
-        <!-- more aggressive: <filter class="solr.SnowballPorterFilterFactory" language="French"/> -->
-		<!-- this increase indedx size massively, and have an effect on indexing speed -->
-		<filter class="solr.NGramFilterFactory" minGramSize="3" maxGramSize="25"/>
-      </analyzer>
-    </fieldType>
-	
 
     <!-- charFilter + WhitespaceTokenizer  -->
     <!--
@@ -737,6 +841,22 @@
         <filter class="solr.LowerCaseFilterFactory" />
       </analyzer>
     </fieldType>
+	
+	<fieldType name="suggestTypeLc" class="solr.TextField" positionIncrementGap="100">
+		<analyzer>
+			<charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[^a-zA-Z0-9]" replacement=" " />
+			<tokenizer class="solr.WhitespaceTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+		</analyzer>
+	</fieldType>
+	<fieldtype name="phrase_suggest" class="solr.TextField">
+		<analyzer>
+			<tokenizer class="solr.KeywordTokenizerFactory"/>
+			<filter class="solr.PatternReplaceFilterFactory" pattern="([^\p{L}\p{M}\p{N}\p{Cs}]*[\p{L}\p{M}\p{N}\p{Cs}\_]+:)|([^\p{L}\p{M}\p{N}\p{Cs}])+" replacement=" " replace="all"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+			<filter class="solr.TrimFilterFactory"/>
+		</analyzer>
+	</fieldtype>
 
     <!-- 
       Example of using PathHierarchyTokenizerFactory at index time, so

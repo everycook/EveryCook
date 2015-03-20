@@ -907,7 +907,11 @@
 			<str name="q.alt">*:*</str>
 			<str name="rows">10</str>
 			<str name="fl">REC_*,PRF_*,*_DE_CH,score</str>
-
+			
+			<!-- mlt = MoreLikeThis
+			https://wiki.apache.org/solr/MoreLikeThis
+			https://wiki.apache.org/solr/MoreLikeThisHandler
+			-->
 			<str name="mlt.qf">
 			REC_ID^15.0 REC_NAME_DE_CH^10.0 REC_SYNONYM_DE_CH^9.0 DE_CH_ingredients^6.0 autor^3.0
 			DE_CH_cusines^5.0 DE_CH_text_search^2.0 DE_CH_text^0.5
@@ -939,7 +943,7 @@
 			<str name="facet.range">REC_KCAL</str>
 			<int name="f.REC_KCAL.facet.range.start">0</int>
 			<int name="f.REC_KCAL.facet.range.end">10000</int>
-			<int name="f.REC_KCAL.facet.range.gap">50</int>
+			<int name="f.REC_KCAL.facet.range.gap">100</int>
 			<str name="facet.range">REC_SERVING_COUNT</str>
 			<int name="f.REC_SERVING_COUNT.facet.range.start">0</int>
 			<int name="f.REC_SERVING_COUNT.facet.range.end">10</int>
@@ -1009,16 +1013,16 @@
 			
 			<!-- Spell checking defaults -->
 			<str name="spellcheck">on</str>
-			<str name="spellcheck.extendedResults">false</str>
+			<str name="spellcheck.extendedResults">true</str>
 			<!--  The number of suggestions to return -->
 			<str name="spellcheck.count">10</str>
-			<str name="spellcheck.onlyMorePopular">true</str>
+			<str name="spellcheck.onlyMorePopular">false</str>
 			<str name="spellcheck.alternativeTermCount">10</str>
 			<str name="spellcheck.maxResultsForSuggest">5</str>
 			<str name="spellcheck.collate">true</str>
 			<str name="spellcheck.collateExtendedResults">true</str>
 			<str name="spellcheck.maxCollationTries">5</str>
-			<str name="spellcheck.maxCollations">3</str>
+			<str name="spellcheck.maxCollations">10</str>
 			
 			<str name="spellcheck.dictionary">spell_de_ch</str>
 		</lst>
@@ -1700,21 +1704,21 @@
 	
     <lst name="spellchecker">
         <str name="name">spell_en_gb</str>
-        <str name="field">EN_GB_text</str>
+        <str name="field">EN_GB_spell</str>
         <str name="buildOnOptimize">true</str>
         <str name="buildOnCommit">true</str>
         <str name="spellcheckIndexDir">./spellchecker_en_gb</str>
     </lst>
     <lst name="spellchecker">
         <str name="name">spell_de_ch</str>
-        <str name="field">DE_CH_text</str>
+        <str name="field">DE_CH_spell</str>
         <str name="buildOnOptimize">true</str>
         <str name="buildOnCommit">true</str>
         <str name="spellcheckIndexDir">./spellchecker_de_ch</str>
     </lst>
     <lst name="spellchecker">
         <str name="name">spell_fr_fr</str>
-        <str name="field">FR_FR_text</str>
+        <str name="field">FR_FR_spell</str>
         <str name="buildOnOptimize">true</str>
         <str name="buildOnCommit">true</str>
         <str name="spellcheckIndexDir">./spellchecker_fr_fr</str>
@@ -1806,28 +1810,219 @@
     </arr>
   </requestHandler>
 
-  <!-- This causes long startup times on big indexes, even when never used.  See SOLR-6679
+  <queryConverter name="queryConverter" class="org.apache.solr.spelling.SuggestQueryConverter"/>
+  <!-- This causes long startup times on big indexes, even when never used.  See SOLR-6679 -->
   <searchComponent name="suggest" class="solr.SuggestComponent">
     <lst name="suggester">
-      <str name="name">mySuggester</str>
+      <str name="name">fuzzySuggester</str>
+	  <!--
+	  org.apache.solr.spelling.suggest.fst.FuzzyLookupFactory
+	  -->
       <str name="lookupImpl">FuzzyLookupFactory</str>
+	  <!--
+		org.apache.solr.spelling.suggest.DocumentDictionaryFactory
+		org.apache.solr.spelling.suggest.HighFrequencyDictionaryFactory
+	  -->
       <str name="dictionaryImpl">DocumentDictionaryFactory</str>
-      <str name="field">cat</str>
-      <str name="weightField">price</str>
-      <str name="suggestAnalyzerFieldType">string</str>
+      <str name="storeDir">./suggester_fuzzy_dir</str>
+      <str name="field">DE_CH_spell</str>
+      <str name="weightField">weight_spell</str>
+	<!--
+    <str name="suggestAnalyzerFieldType">text_de_spell</str>
+	-->
+    <str name="suggestAnalyzerFieldType">suggestTypeLc</str>
     </lst>
-  </searchComponent>
+	
+  <lst name="suggester">
+    <str name="name">infixSuggester</str>
+	  <!--
+	  org.apache.solr.spelling.suggest.fst.AnalyzingInfixLookupFactory
+	  -->
+    <str name="lookupImpl">AnalyzingInfixLookupFactory</str>
+    <str name="indexPath">./suggester_infix_dir</str>
+    <str name="dictionaryImpl">DocumentDictionaryFactory</str>
+    <str name="field">DE_CH_spell</str>
+    <str name="weightField">weight_spell</str>
+	<!--
+    <str name="suggestAnalyzerFieldType">text_de_spell</str>
+	-->
+    <str name="suggestAnalyzerFieldType">suggestTypeLc</str>
+    <str name="buildOnStartup">false</str>
+    <str name="buildCommit">false</str>
+  </lst>
+  <lst name="suggester">
+    <str name="name">wfstSuggester</str>
+	<!--
+	org.apache.solr.spelling.suggest.fst.FSTLookupFactory
+	org.apache.solr.spelling.suggest.fst.WFSTLookupFactory
+	-->
+    <str name="lookupImpl">WFSTLookupFactory</str>
+    <str name="storeDir">./suggester_wfst_dir</str>
+    <str name="dictionaryImpl">DocumentDictionaryFactory</str>
+    <str name="field">DE_CH_spell</str>
+    <str name="weightField">weight_spell</str>
+	<float name="threshold">0.0005</float>
+	<bool name="exactMatchFirst">true</bool>
+	<str name="sourceLocation">./phrasesuggest.txt</str>
+	<!--
+	<str name="sourceLocation">./file with text lines to use</str>
+    <str name="suggestAnalyzerFieldType">text_de_spell</str>
+	-->
+    <str name="suggestAnalyzerFieldType">suggestTypeLc</str>
+    <str name="buildOnStartup">false</str>
+    <str name="buildCommit">false</str>
+  </lst>
+  <lst name="suggester">
+    <str name="name">tstSuggester</str>
+    <str name="lookupImpl">org.apache.solr.spelling.suggest.tst.TSTLookupFactory</str>
+    <str name="storeDir">./suggester_tst_dir</str>
+    <str name="dictionaryImpl">DocumentDictionaryFactory</str>
+    <str name="field">DE_CH_spell</str>
+    <str name="weightField">weight_spell</str>
+	<float name="threshold">0.0005</float>
+	<bool name="exactMatchFirst">true</bool>
+	<str name="sourceLocation">./phrasesuggest.txt</str>
+	<!--
+	<str name="sourceLocation">./file with text lines to use</str>
+    <str name="suggestAnalyzerFieldType">text_de_spell</str>
+	-->
+    <str name="suggestAnalyzerFieldType">suggestTypeLc</str>
+    <str name="buildOnStartup">false</str>
+    <str name="buildCommit">false</str>
+  </lst>
+  <lst name="suggester">
+    <str name="name">jaspellSuggester</str>
+    <str name="lookupImpl">org.apache.solr.spelling.suggest.jaspell.JaspellLookupFactory</str>
+    <str name="storeDir">./suggester_jaspell_dir</str>
+    <str name="dictionaryImpl">DocumentDictionaryFactory</str>
+    <str name="field">DE_CH_spell</str>
+    <str name="weightField">weight_spell</str>
+	<!--
+    <str name="suggestAnalyzerFieldType">text_de_spell</str>
+	-->
+    <str name="suggestAnalyzerFieldType">suggestTypeLc</str>
+    <str name="buildOnStartup">false</str>
+    <str name="buildCommit">false</str>
+  </lst>
+</searchComponent>
 
-  <requestHandler name="/suggest" class="solr.SearchHandler" startup="lazy">
+  <requestHandler name="suggest1" class="solr.SearchHandler" startup="lazy">
     <lst name="defaults">
       <str name="suggest">true</str>
       <str name="suggest.count">10</str>
+	  <str name="suggest.dictionary">fuzzySuggester</str>
+	  
+      <str name="suggest.onlyMorePopular">false</str>
     </lst>
     <arr name="components">
       <str>suggest</str>
     </arr>
   </requestHandler>
-  -->
+  
+  <searchComponent name="suggest2" class="solr.SpellCheckComponent">
+    <lst name="spellchecker">
+      <str name="name">spellSuggester</str>
+      <str name="classname">org.apache.solr.spelling.suggest.Suggester</str>
+      <str name="lookupImpl">org.apache.solr.spelling.suggest.tst.TSTLookupFactory</str>
+      <!-- Alternatives to lookupImpl: 
+           org.apache.solr.spelling.suggest.fst.FSTLookupFactory   [finite state automaton]
+           org.apache.solr.spelling.suggest.fst.WFSTLookupFactory [weighted finite state automaton]
+           org.apache.solr.spelling.suggest.jaspell.JaspellLookupFactory [default, jaspell-based]
+           org.apache.solr.spelling.suggest.tst.TSTLookupFactory   [ternary trees]
+      -->
+      <str name="field">DE_CH_spell</str>  <!-- the indexed field to derive suggestions from -->
+      <float name="threshold">0.005</float>
+      <str name="buildOnCommit">true</str>
+<!--
+      <str name="sourceLocation">american-english</str>
+-->
+    </lst>
+  </searchComponent>
+  <requestHandler class="solr.SearchHandler" name="suggest2">
+    <lst name="defaults">
+      <str name="spellcheck">true</str>
+      <str name="spellcheck.dictionary">spellSuggester</str>
+      <str name="spellcheck.onlyMorePopular">false</str>
+      <str name="spellcheck.count">10</str>
+      <str name="spellcheck.collate">true</str>
+      <str name="spellcheck.extendedResults">true</str>
+      <str name="spellcheck.collateExtendedResults">true</str> 
+    </lst>
+    <arr name="components">
+      <str>suggest2</str>
+    </arr>
+  </requestHandler>
+
+<requestHandler name="suggest3" class="solr.SearchHandler" startup="lazy" >
+  <lst name="defaults">
+    <str name="suggest">true</str>
+    <str name="suggest.count">10</str>
+    <str name="suggest.dictionary">infixSuggester</str>
+    <str name="suggest.onlyMorePopular">false</str>
+  </lst>
+  <arr name="components">
+    <str>suggest</str>
+  </arr>
+</requestHandler>
+<requestHandler name="suggest4" class="solr.SearchHandler" startup="lazy" >
+  <lst name="defaults">
+    <str name="suggest">true</str>
+    <str name="suggest.count">10</str>
+    <str name="suggest.dictionary">wfstSuggester</str>
+    <str name="suggest.onlyMorePopular">false</str>
+  </lst>
+  <arr name="components">
+    <str>suggest</str>
+  </arr>
+</requestHandler>
+<requestHandler name="suggest5" class="solr.SearchHandler" startup="lazy" >
+  <lst name="defaults">
+    <str name="suggest">true</str>
+    <str name="suggest.count">10</str>
+    <str name="suggest.dictionary">tstSuggester</str>
+    <str name="suggest.onlyMorePopular">false</str>
+  </lst>
+  <arr name="components">
+    <str>suggest</str>
+  </arr>
+</requestHandler>
+<requestHandler name="suggest6" class="solr.SearchHandler" startup="lazy" >
+  <lst name="defaults">
+    <str name="suggest">true</str>
+    <str name="suggest.count">10</str>
+    <str name="suggest.dictionary">jaspellSuggester</str>
+    <str name="suggest.onlyMorePopular">false</str>
+  </lst>
+  <arr name="components">
+    <str>suggest</str>
+  </arr>
+</requestHandler>
+
+
+  <requestHandler name="suggest" class="solr.SearchHandler" startup="lazy">
+    <lst name="defaults">
+      <str name="suggest">true</str>
+      <str name="suggest.count">10</str>
+	  <str name="suggest.dictionary">fuzzySuggester</str>
+	  <str name="suggest.dictionary">infixSuggester</str>
+	  <str name="suggest.dictionary">wfstSuggester</str>
+	  <str name="suggest.dictionary">tstSuggester</str>
+      <str name="suggest.dictionary">jaspellSuggester</str>
+      <str name="suggest.onlyMorePopular">false</str>
+	  
+      <str name="spellcheck">true</str>
+      <str name="spellcheck.dictionary">spellSuggester</str>
+      <str name="spellcheck.onlyMorePopular">false</str>
+      <str name="spellcheck.count">10</str>
+      <str name="spellcheck.collate">true</str>
+      <str name="spellcheck.extendedResults">true</str>
+      <str name="spellcheck.collateExtendedResults">true</str> 
+    </lst>
+    <arr name="components">
+      <str>suggest</str>
+      <str>suggest2</str>
+    </arr>
+  </requestHandler>
 
   <!-- Term Vector Component
 

@@ -594,13 +594,41 @@ div.ingInfo .value {
 	display: table;
 }
 
-#recipeSearchArea div.search input.search_query, #recipeSearchArea  div.search  .search_query .select2-choices {
+#recipeSearchArea div.search .search_query .select2-choices {
 	width: auto;
 }
 
 #recipeSearchArea div.search .search_query {
 	width: 100%;
 	display: table-cell;
+	vertical-align: middle;
+}
+#recipeSearchArea div.search .twitter-typeahead {
+	width: 100%;
+}
+.tt-hint {
+    color: #999;
+}
+.tt-dropdown-menu {
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    margin-top: 12px;
+    padding: 8px 0;
+    width: 422px;
+}
+.tt-suggestion {
+    font-size: 18px;
+    line-height: 24px;
+    padding: 3px 20px;
+}
+.tt-suggestion.tt-cursor {
+    background-color: #0097cf;
+    color: #fff;
+}
+.tt-suggestion p {
+    margin: 0;
 }
 #recipeSearchArea div.search .search_button {
 	display: table-cell;
@@ -614,6 +642,18 @@ with this change (fix 100%) it will brake to 2. line also if it's not needed...
 	width: 100% !important;
 }
 
+
+#didYouMean .title {
+	font-weight: bold;
+}
+#didYouMean .text {
+	cursor: pointer;
+	margin-left: 1em;
+}
+#didYouMean .text::before,
+#didYouMean .text::after {
+	content: "\"";
+}
 
 #recipeResultArea {
 	display: table;
