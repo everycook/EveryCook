@@ -18,18 +18,27 @@ See GPLv3.htm in the main folder for details.
 <input type="hidden" id="SubGroupFormLink" value="<?php echo $this->createUrl('ingredients/getSubGroupForm'); ?>"/>
 <input type="hidden" id="uploadImageLink" value="<?php echo $this->createUrl('ingredients/uploadImage',array('id'=>$model->ING_ID)); ?>"/>
 <input type="hidden" id="imageLink" value="<?php echo $this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
+
+<!-- generateFlickr.js -->
+<div class="flickrimgbox" id="flickrimgboxOut">
+<img src="/db/pics/lagray.png" style="position:relative;top:125px;left:0;cursor: pointer;" id="leftarrow" onClick="generateFlickrImg(-1);"><img src="/db/pics/ragray.png" style="position:relative;top:125px;left:300px;cursor: pointer;" id="rightarrow" onClick="generateFlickrImg(1);">
+<div class="flickrimgboxIns" id="flickrimgboxIng">
+</div>
+</div>
 <div class="form">
+
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'ingredients_form',
-	'enableAjaxValidation'=>false,
+    'enableAjaxValidation'=>false,
 	'action'=>Yii::app()->createUrl($this->route, array_merge($this->getActionParams(), array('ajaxform'=>true))),
     'htmlOptions'=>array('enctype' => 'multipart/form-data', 'class'=>'ajaxupload'),
-)); 
+));
 
 	$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
 	$htmlOptions_type1 = array('template'=>'<li>{input} {label}</li>', 'separator'=>"\n", 'checkAll'=>$this->trans->INGREDIENTS_SEARCH_CHECK_ALL, 'checkAllLast'=>false);
 	
 ?>
+
 	<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
 
 	<?php
@@ -69,7 +78,9 @@ See GPLv3.htm in the main folder for details.
 		<?php echo $form->error($model,'ING_NAME_'.$lang); ?>
 	</div>
 	<?php } ?>
-	
+
+    <div class="button" id="jqueryflickr" onClick="generateFlickrImg(0);">Search Images</div>
+
 	<?php
 	echo Functions::createInput(null, $model, 'GRP_ID', $groupNames, Functions::DROP_DOWN_LIST, 'groupNames', $htmlOptions_type0, $form);
 	if ($model->GRP_ID){
@@ -105,7 +116,6 @@ See GPLv3.htm in the main folder for details.
 		<?php echo $form->textField($model,'ING_DENSITY'); ?>
 		<?php echo $form->error($model,'ING_DENSITY'); ?>
 	</div>
-	
 	<?php
 		if (isset(Yii::app()->session['Ingredients_Backup']) && isset(Yii::app()->session['Ingredients_Backup']->ING_IMG_ETAG)){
 			echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'.png', 'rand'=>rand())) , '', array('class'=>'ingredient' .(($model->imagechanged)?' cropable':''), 'alt'=>$model->__get('ING_NAME_' . Yii::app()->session['lang']), 'title'=>$model->__get('ING_NAME_' . Yii::app()->session['lang'])));
@@ -118,15 +128,20 @@ See GPLv3.htm in the main folder for details.
 		<?php echo $form->labelEx($model,'filename'); ?>
 		<div class="imageTip">
 		<?php
+        
 		echo $this->trans->TIP_OWN_IMAGE . '<br>';
 		echo $form->FileField($model,'filename'). '<br>' . "\r\n";
 		echo $form->error($model,'filename') . "\r\n";
+            /*
 		echo $this->trans->TIP_FLICKR_IMAGE . '<br>';
 		printf($this->trans->TIP_LOOK_ON_FLICKR, $model->__get('ING_NAME_EN_GB'));//'ING_NAME_'.Yii::app()->session['lang']
-		echo '<br>' . $this->trans->TIP_FLICKR_LINK . '<input type="text" name="flickr_link" class="flickr_link"/> <div class="buttonSmall loadFromFlickr">' . $this->trans->TIP_FLICKR_LINK_LOAD . '</div>'
+		echo '<br>' . $this->trans->TIP_FLICKR_LINK . '<input type="text" name="flickr_link" class="flickr_link"/> <div class="buttonSmall loadFromFlickr">' . $this->trans->TIP_FLICKR_LINK_LOAD . '</div>'*/
 		?>
 		</div>
 	</div>
+<input type="hidden" name="flickr_link" id="flickr_link" value=""/>
+<input type="hidden" name="flickrauthor" id="flickrauthor" value=""/>
+<input type="hidden" name="photoid" id="photoid" value=""/>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'ING_IMG_AUTH'); ?>

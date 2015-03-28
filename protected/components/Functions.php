@@ -22,7 +22,7 @@ class Functions extends CHtml{
 	const MULTI_LIST = 2;
 	
 	const IMG_HEIGHT = 400;
-	const IMG_WIDTH = 400;
+	const IMG_WIDTH = 300;
 	
 	
 	protected static $memcached = null;
@@ -696,45 +696,15 @@ class Functions extends CHtml{
 		}
 	}
 	
-	private static function uploadFlickrPicture($model, $picFieldName, $link){
+	private static function uploadFlickrPicture($model, $picFieldName,$link,$autor){
 		//http://www.flickr.com/photos/bea_spoli/6931369423) "/sizes/o/" anfügen
-		if (strpos($link, '/sizes/o') === false){
-			$parts = explode('/', $link);
-			if ($parts[0] != 'http:' && $parts[0] != 'https:'){
-				$parts = array_merge(array('http',''), $parts);
-			}
-			if ($parts[2] != 'www.flickr.com'){
-				return -4;
-			}
-			if (count($params) < 6){
-				return -5;
-			}
-			if ($params[3] != 'photos'){
-				return -5;
-			}
-			$params[6]='sizes';
-			$params[7]='o';
-			$params = array_slice($params,0, 8);
-			$link = implode('/', $params);
-		}
-		
-		require_once('remotefileinfo');
-		$content = remote_file($link);
-		if (is_string($content) && strpos($content,"ERROR: ") === 0){
-			return -6;
-		}
-		
-		$autor = array();
-		ereg('<div id="all-sizes-header">.*<a[^>]*>([^<]*)</a>">', $content, $autor);
-		$image = array();
-		ereg('<div id="allsizes-photo">[^<]*<img src="([^"]*)">', $content, $image);
-		
-		$imgData = remote_file($image);
+        
+        $imgData = file_get_contents($link);
 		if (!is_string($imgData) || strpos($imgData,"ERROR: ") === 0 || strlen($imgData) == 0){
 			return -6;
 		}
 		
-		$model->__set($pictureFieldName . '_AUTH', $autor[0]);
+		$model->__set($picFieldName . '_AUTH', $autor);
 		
 		$temp_filename = self::generatePictureName($model, true);
 		file_put_contents($temp_filename, $imgData);
@@ -761,10 +731,11 @@ class Functions extends CHtml{
 		if (isset($_POST[$modelName]) || isset($_POST['flickr_link'])){
 			$model->attributes=$_POST[$modelName];
 			if (isset($_POST['flickr_link']) && $_POST['flickr_link'] != ''){
-				$sucessfull = Functions::uploadFlickrPicture($model, $pictureFieldName, $_POST['flickr_link']);
+				$sucessfull = Functions::uploadFlickrPicture($model, $pictureFieldName, $_POST['flickr_link'],$_POST['flickrauthor']);
 			} else {
 				$sucessfull = Functions::uploadPicture($model, $pictureFieldName);
 			}
+            
 			Yii::app()->session[$sessionBackupName] = $model;
 			Yii::app()->session[$sessionBackupName.'_Time'] = time();
 			

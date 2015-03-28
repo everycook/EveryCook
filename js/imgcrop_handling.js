@@ -163,8 +163,13 @@ jQuery(function($){
 		}
 	};
 	
+
+
+
 	
 	jQuery('body').undelegate('[name*="[filename]"]','change').delegate('[name*="[filename]"]','change', function(){
+		jQuery('#flickr_link').val('');
+		jQuery('#flickrauthor').val('');
 		var elem = jQuery(this);
 		var form = elem.parents('form:first');
 		var oldAction = form.attr('action');
@@ -174,6 +179,7 @@ jQuery(function($){
 		form.unbind('submit');
 		//form.append('<input type="hidden" class="cropMaxInitSize" name="MaxHeight" value="' + window.screen.height + '"/>');
 		//form.append('<input type="hidden" class="cropMaxInitSize" name="MaxWidth" value="' + window.screen.width + '"/>');
+
 		form.iframePostForm({
 			'json' : false, /*JSON.parse sems do not work correct...*/
 			'iframeID' : 'imageUploadFrame',
@@ -197,3 +203,4 @@ jQuery(function($){
 		glob.initAjaxUpload('form', form.parent());
 	});
 });
+
