@@ -18,12 +18,15 @@ See GPLv3.htm in the main folder for details.
 <div class="resultArea">
 	<div class="shoppingList_left">
 		<div class="list_img">
-			<?php echo CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), $data['ING_NAME'], array('class'=>'ingredient', 'title'=>$data['ING_NAME'])); ?>
+			<?php
+			$imgContent = CHtml::image($this->createUrl('ingredients/displaySavedImage', array('id'=>$data['ING_ID'], 'ext'=>'.png')), $data['ING_NAME'], array('class'=>'ingredient', 'title'=>$data['ING_NAME']));
+			echo CHtml::link($imgContent, array('ingredients/view', 'id'=>$data['ING_ID']), array('class'=>'fancyLink','title'=>$data['ING_NAME']));
+			?>
 			<div class="img_auth"><?php if ($data['ING_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo $this->trans->GENERAL_COPYRITGHT_BY . ' ' . $data['ING_IMG_AUTH']; } ?></div>
 		</div>
 		<div class="data">
 			<div class="name">
-				<?php echo CHtml::encode($data['ING_NAME']); ?>
+			<?php echo CHtml::link($data['ING_NAME'], array('ingredients/view', 'id'=>$data['ING_ID']), array('class'=>'fancyLink', 'title'=>$data['ING_NAME'])); ?>
 			</div>
 			<span><?php printf($this->trans->SHOPPINGLISTS_YOU_NEED, $data['ing_weight']); ?></span>
 		</div>
@@ -33,5 +36,7 @@ See GPLv3.htm in the main folder for details.
 		<?php echo CHtml::checkBox('haveit['.$index.']', $data['haveIt'] == 1, array('class'=>'haveIt', 'title'=>$this->trans->SHOPPINGLISTS_HAVE_IT)); ?>
 	</div>
 	<div class="clearfix"></div>
-	
+	<?php
+	echo CHtml::link('X', array('removeFromList', 'id'=>$data['SHO_ID'], 'ing_id'=>$data['ING_ID']), array('class'=>'shoppingList_remove noAjax removeFromList','title'=>$this->trans->GENERAL_REMOVE));
+	?>
 </div>

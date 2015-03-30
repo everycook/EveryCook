@@ -102,6 +102,7 @@ class Recipes extends ActiveRecordEC
 			'recipeTypes' => array(self::BELONGS_TO, 'RecipeTypes', 'RET_ID'),
 			'cusineTypes' => array(self::BELONGS_TO, 'CusineTypes', 'CUT_ID'),
 			'cusineSubTypes' => array(self::BELONGS_TO, 'CusineSubTypes', 'CST_ID'),
+			'cusineSubSubTypes' => array(self::BELONGS_TO, 'CusineSubSubTypes', 'CSS_ID'),
 			'recToCois' => array(self::HAS_MANY, 'RecToCoi', 'REC_ID'),
 			'steps' => array(self::HAS_MANY, 'Steps', 'REC_ID'),
 		);

@@ -27,7 +27,7 @@ $this->breadcrumbs=array(
 	'enableAjaxValidation'=>false,
 	'method'=>'get',
 	'action'=>Yii::app()->createUrl('recipes/historyCompare', array_merge($this->getActionParams(), array('ajaxform'=>true))),
-    //'htmlOptions'=>array(/*'enctype' => 'multipart/form-data', */'class'=>'ajaxupload'),
+    'htmlOptions'=>array(/*'enctype' => 'multipart/form-data', */'class'=>'submitToUrl'),
 )); ?>
 
 <div class="historyOverview">

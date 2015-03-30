@@ -23,11 +23,11 @@ class ShoppinglistsController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('preview','print','setHaveIt'),
+				'actions'=>array('preview','print','setHaveIt','removeFromList'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('view','index','create','update','removeFromList','setProduct','showAllAsOne', 'mail','save'),
+				'actions'=>array('view','index','create','update','setProduct','showAllAsOne', 'mail','save'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -129,13 +129,15 @@ class ShoppinglistsController extends Controller
 	}
 	
 	public function actionRemoveFromList($id, $ing_id){
-		$shoppinglists = Yii::app()->user->shoppinglists;
-		if (!isset($shoppinglists) || $shoppinglists == null || count($shoppinglists) == 0){
-			throw new CHttpException(403,'It\'s not allowed to open shoppinglists of other users, expect they share it with you.');
-		} else {
-			$values = array_flip($shoppinglists);
-			if (!isset($values[$id])){
+		if ($id != 'backup'){
+			$shoppinglists = Yii::app()->user->shoppinglists;
+			if (!isset($shoppinglists) || $shoppinglists == null || count($shoppinglists) == 0){
 				throw new CHttpException(403,'It\'s not allowed to open shoppinglists of other users, expect they share it with you.');
+			} else {
+				$values = array_flip($shoppinglists);
+				if (!isset($values[$id])){
+					throw new CHttpException(403,'It\'s not allowed to open shoppinglists of other users, expect they share it with you.');
+				}
 			}
 		}
 		
@@ -144,6 +146,7 @@ class ShoppinglistsController extends Controller
 		$ing_weights = explode(';',$model->SHO_WEIGHTS);
 		$pro_ids = explode(';',$model->SHO_PRODUCTS);
 		$gramm_values = explode(';',$model->SHO_QUANTITIES);
+		$haveIt_values = explode(';',$model->SHO_HAVE_IT);
 		
 		for($i=0;$i<count($ing_ids);++$i){
 			if ($ing_ids[$i] == $ing_id){
@@ -151,6 +154,7 @@ class ShoppinglistsController extends Controller
 				unset($ing_weights[$i]);
 				unset($pro_ids[$i]);
 				unset($gramm_values[$i]);
+				unset($haveIt_values[$i]);
 				break;
 			}
 		}
@@ -159,7 +163,9 @@ class ShoppinglistsController extends Controller
 		$model->SHO_WEIGHTS = implode(';',$ing_weights);
 		$model->SHO_PRODUCTS = implode(';',$pro_ids);
 		$model->SHO_QUANTITIES = implode(';',$gramm_values);
+		$model->SHO_HAVE_IT = implode(';',$haveIt_values);
 		
+		/*
 		if(Yii::app()->user->demo){
 			echo '{"sucessfull":false, "error":"' . sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
 		} else {
@@ -171,6 +177,7 @@ class ShoppinglistsController extends Controller
 				echo '"}';
 			}
 		}
+		*/
 	}
 
 	/**
@@ -704,11 +711,11 @@ class ShoppinglistsController extends Controller
 		if($model->save()){
 			Yii::app()->user->addShoppingListId($model->SHO_ID);
 			//Yii::app()->user->setFlash('shoppinglistsView', array('sucessfull'=>'???'));
-			$this->redirect(array('view','id'=>$model->SHO_ID));
+			$this->forwardAfterSave(array('view','id'=>$model->SHO_ID));
 		} else {
 			Yii::app()->user->setFlash('shoppinglistsView', array('error'=>print_r($model->getErrors(), true)));
 			//switching to preview not needed because user logged in to perform save action.
-			$this->redirect(array('view','id'=>$id));
+			$this->forwardAfterSave(array('view','id'=>$id));
 		}
 	}
 	

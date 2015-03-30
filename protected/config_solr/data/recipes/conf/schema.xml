@@ -221,12 +221,12 @@
    <dynamicField name="*_EN_GB"  type="text_en"    indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="*_DE_CH"  type="text_de"    indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="*_FR_FR"  type="text_fr"    indexed="true"  stored="true" multiValued="true"/>
-   <dynamicField name="PRF_*"  type="string"    indexed="true"  stored="true" multiValued="false"/>
-   <dynamicField name="CUT_*"  type="string"    indexed="true"  stored="true" multiValued="false"/>
-   <dynamicField name="CST_*"  type="string"    indexed="true"  stored="true" multiValued="false"/>
-   <dynamicField name="CSS_*"  type="string"    indexed="true"  stored="true" multiValued="false"/>
-   <dynamicField name="RET_*"  type="string"    indexed="true"  stored="true" multiValued="false"/>
-   <dynamicField name="ING_*"  type="string"    indexed="true"  stored="true" multiValued="true"/>
+   <dynamicField name="PRF_*" 	type="string" 	indexed="true"  stored="true" multiValued="false"/>
+   <dynamicField name="CUT_*" 	type="string" 	indexed="true"  stored="true" multiValued="false"/>
+   <dynamicField name="CST_*" 	type="string" 	indexed="true"  stored="true" multiValued="false"/>
+   <dynamicField name="CSS_*" 	type="string" 	indexed="true"  stored="true" multiValued="false"/>
+   <dynamicField name="RET_*" 	type="string" 	indexed="true"  stored="true" multiValued="false"/>
+   <dynamicField name="ING_*" 	type="string" 	indexed="true"  stored="true" multiValued="true"/>
    
    
    <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>

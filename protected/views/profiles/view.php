@@ -28,8 +28,8 @@ $this->menu=array(
 	array('label'=>'Manage Profiles', 'url'=>array('admin')),
 );
 ?>
-<div class="profileView">
 <?php
+echo '<div class="profileView'.($this->isFancyAjaxRequest?' fancy':'').'">';
 $editLink = '';
 if ($edit){
 	$editLink = ' <a href="#" class="editFieldLink actionlink">' . $this->trans->GENERAL_EDIT . '</a>';
@@ -73,50 +73,56 @@ if ($edit){
 	<div class="title"><?php echo $this->trans->FIELD_PRF_AWARDS; ?></div>
 	<div class="text<?php if($edit){echo ' editField" data-field="PRF_AWARDS" data-field-type="area" data-placeholder="' . $this->trans->PROFILES_VIEW_AWARDS_PLACEHOLDER;} ?>"><?php echo $model->PRF_AWARDS; echo $editLink;?></div>
 </div>
-<div class="recipes otherItems">
 	<?php
-	echo '<div class="otherItemsTitle">'.sprintf($this->trans->PROFILES_MATCHING_RECIPES, $model->PRF_FIRSTNAME . " " . $model->PRF_LASTNAME).'</div>';
-	if ($recipesAmount == 0){
-		echo '<span class="noItems">'.$this->trans->PROFILES_NO_MATCHING_RECIPES .'</span>';
-	} else {
-		/*
-		if ($recipesAmount> ProfilesController::RECIPES_AMOUNT){?>
-			<input name="recipe" class="imgIndex" type="hidden" value="0" />
-			<input name="amount" class="imgIndexAmount" type="hidden" value="<?php echo ProfilesController::RECIPES_AMOUNT; ?>" />
-			<div class="up-arrow"><div class="up1"></div><div class="up2"></div></div>
-			<?php
-			$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe = {};';
-		}
-		*/
-		$index = 0;
-		foreach($recipes as $recipe){
-			if ($index < ProfilesController::RECIPES_AMOUNT){
-				echo '<div class="item">';
-					echo CHtml::link($recipe['REC_NAME_' . Yii::app()->session['lang']], array('recipes/view', 'id'=>$recipe['REC_ID']), array('class'=>'title'));
-					echo '<div class="small_img">';
-						echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), $recipe['REC_NAME_' . Yii::app()->session['lang']], array('class'=>'recipe', 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']])), array('recipes/view', 'id'=>$recipe['REC_ID']));
-						echo '<div class="img_auth">';
-						if ($recipe['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $recipe['REC_IMG_AUTH']; }
+	if (!$this->isFancyAjaxRequest){
+		echo '<div class="recipes otherItems">';
+		echo '<div class="otherItemsTitle">'.sprintf($this->trans->PROFILES_MATCHING_RECIPES, $model->PRF_FIRSTNAME . " " . $model->PRF_LASTNAME).'</div>';
+		if ($recipesAmount == 0){
+			echo '<span class="noItems">'.$this->trans->PROFILES_NO_MATCHING_RECIPES .'</span>';
+		} else {
+			/*
+			if ($recipesAmount> ProfilesController::RECIPES_AMOUNT){?>
+				<input name="recipe" class="imgIndex" type="hidden" value="0" />
+				<input name="amount" class="imgIndexAmount" type="hidden" value="<?php echo ProfilesController::RECIPES_AMOUNT; ?>" />
+				<div class="up-arrow"><div class="up1"></div><div class="up2"></div></div>
+				<?php
+				$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe = {};';
+			}
+			*/
+			$index = 0;
+			foreach($recipes as $recipe){
+				if ($index < ProfilesController::RECIPES_AMOUNT){
+					echo '<div class="item">';
+						echo CHtml::link($recipe['REC_NAME_' . Yii::app()->session['lang']], array('recipes/view', 'id'=>$recipe['REC_ID']), array('class'=>'title'));
+						echo '<div class="small_img">';
+							echo CHtml::link(CHtml::image($this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')), $recipe['REC_NAME_' . Yii::app()->session['lang']], array('class'=>'recipe', 'title'=>$recipe['REC_NAME_' . Yii::app()->session['lang']])), array('recipes/view', 'id'=>$recipe['REC_ID']));
+							echo '<div class="img_auth">';
+							if ($recipe['REC_IMG_ETAG'] == '') { echo '&nbsp;'; } else {echo '© by ' . $recipe['REC_IMG_AUTH']; }
+							echo '</div>';
 						echo '</div>';
 					echo '</div>';
-				echo '</div>';
-// 				if ($recipesAmount > ProfilesController::RECIPES_AMOUNT){
-// 					$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.idx' . $index . ' = {img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$recipe['REC_ID'])).'", auth:"'.$recipe['REC_IMG_AUTH'].'", name:"'.$recipe['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
-// 				}
-// 			} else {
-// 				$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.idx' . $index . ' = {img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$recipe['REC_ID'])).'", auth:"'.$recipe['REC_IMG_AUTH'].'", name:"'.$recipe['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
+					/*
+					if ($recipesAmount > ProfilesController::RECIPES_AMOUNT){
+						$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.idx' . $index . ' = {img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$recipe['REC_ID'])).'", auth:"'.$recipe['REC_IMG_AUTH'].'", name:"'.$recipe['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
+					}
+				} else {
+					$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.idx' . $index . ' = {img:"'.$this->createUrl('recipes/displaySavedImage', array('id'=>$recipe['REC_ID'], 'ext'=>'.png')).'", url:"'.Yii::app()->createUrl('recipes/view', array('id'=>$recipe['REC_ID'])).'", auth:"'.$recipe['REC_IMG_AUTH'].'", name:"'.$recipe['REC_NAME_' . Yii::app()->session['lang']].'", index: '.$index.'};';
+					*/
+				}
+				++$index;
 			}
-			++$index;
+			/*
+			if ($recipesAmount > ProfilesController::RECIPES_AMOUNT){
+				$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.nextPreloadIndex = '.$index.';';
+				$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.prevPreloadIndex = -1;';
+				echo '<div class="down-arrow"><div class="down1"></div><div class="down2"></div></div>';
+			}
+			*/
 		}
-// 		if ($recipesAmount > ProfilesController::RECIPES_AMOUNT){
-// 			$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.nextPreloadIndex = '.$index.';';
-// 			$preloadedInfoResetScript .= "\r\n".'glob.preloadedInfo.recipe.prevPreloadIndex = -1;';
-// 			echo '<div class="down-arrow"><div class="down1"></div><div class="down2"></div></div>';
-// 		}
+		echo '</div>'; 
 	}
 	?>
-</div>
-
+	<div class="clearfix"></div>
 <?php 
 if ($edit){
 	echo '<div>';
@@ -126,3 +132,4 @@ if ($edit){
 <?php
 //echo '<script>' . $preloadedInfoResetScript . "\r\n".'</script>';
  ?>
+ 

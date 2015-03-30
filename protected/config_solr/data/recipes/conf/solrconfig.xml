@@ -906,7 +906,7 @@
 			<str name="mm">100%</str>
 			<str name="q.alt">*:*</str>
 			<str name="rows">10</str>
-			<str name="fl">REC_*,PRF_*,*_DE_CH,score</str>
+			<str name="fl">REC_*,PRF_*,*_ID,*_ETAG,*_DE_CH,score</str>
 			
 			<!-- mlt = MoreLikeThis
 			https://wiki.apache.org/solr/MoreLikeThis
@@ -1107,7 +1107,7 @@
 			<str name="mm">100%</str>
 			<str name="q.alt">*:*</str>
 			<str name="rows">10</str>
-			<str name="fl">REC_*,PRF_*,*_EN_GB,score</str>
+			<str name="fl">REC_*,PRF_*,*_ID,*_ETAG,*_EN_GB,score</str>
 
 			<str name="mlt.qf">
 			REC_ID^15.0 REC_NAME_EN_GB^10.0 REC_SYNONYM_EN_GB^9.0 EN_GB_ingredients^6.0 autor^3.0

@@ -1148,8 +1148,8 @@ class RecipesController extends Controller
 						$transaction=$model->dbConnection->beginTransaction();
 						try {
 							$model->CHANGED_ON = $timestamp;
-							//TODO: only do on create
-							if (in_array('professional', Yii::app()->user->roles)){
+							//TODO: add flag for professional users, so they can remove assign to there user
+							if (in_array('professional', Yii::app()->user->roles) && !isset($model->REC_ID)){
 								$model->PRF_UID = Yii::app()->user->id;
 							}
 							$model->updateChangeTime = false;
@@ -2507,7 +2507,7 @@ class RecipesController extends Controller
 				$url = $this->createUrl("savedImage/cusineTypes");
 				foreach ($typeOfCusine as $row){
 					if(isset($row['CUT_IMG_ETAG']) && $row['CUT_IMG_ETAG'] != ''){
-						$value = CHtml::image($url . $row['CUT_ID'] . '.png',  $cusine['name'], array('class'=>'cusineImg')) . $row['CUT_DESC_'.Yii::app()->session['lang']];
+						$value = CHtml::image($url . $row['CUT_ID'] . '.png',  $row['CUT_DESC_' . Yii::app()->session['lang']], array('class'=>'cusineImg')) . $row['CUT_DESC_'.Yii::app()->session['lang']];
 					} else  {
 						$value = $row['CUT_DESC_'.Yii::app()->session['lang']];
 					}

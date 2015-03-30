@@ -129,45 +129,59 @@ if ($isPro){
 		<br />
 		
 		<?php
-		if (!empty($data['CUT_DESC'])) {
+		$showCusins = false;
+		if(!empty($data['CUT_DESC_'. Yii::app()->session['lang']])){
+			$data['CUT_DESC'] = $data['CUT_DESC_'. Yii::app()->session['lang']];
+		}
+		if(!empty($data['CST_DESC_'. Yii::app()->session['lang']])){
+			$data['CST_DESC'] = $data['CST_DESC_'. Yii::app()->session['lang']];
+		}
+		if(!empty($data['CSS_DESC_'. Yii::app()->session['lang']])){
+			$data['CSS_DESC'] = $data['CSS_DESC_'. Yii::app()->session['lang']];
+		}
+		if (!empty($data['CUT_DESC']) || !empty($data['CST_DESC']) || !empty($data['CSS_DESC'])) {
 			echo '<b>' . CHtml::encode($this->trans->FIELD_CUT_ID) . '</b>';
+			$showCusins = true;
+		}
+		if (!empty($data['CUT_DESC'])) {
 			//if (!empty($data['CUT_DESC'])) {
 				if (!empty($data['CUT_IMG_ETAG'])) {
 					echo CHtml::image($this->createUrl('savedImage/cusineTypes', array('id'=>$data['CUT_ID'], 'ext'=>'.png')), $data['CUT_DESC'], array('class'=>'cusineImg'));
 				}
-				echo CHtml::encode($data['CUT_DESC']);
+				echo '<div class="cusine">' . CHtml::encode($data['CUT_DESC']) . '</div>';
 			/*} else {
 				echo $this->trans->GENERAL_UNDEFINED;
 			}*/
-			echo '<br />';
-		} ?>
-		
-		<?php
+// 			echo '<br />';
+		}
 		if (!empty($data['CST_DESC'])) {
-			echo '<b>' . CHtml::encode($this->trans->FIELD_CST_ID) . '</b>';
+			//echo '<b>' . CHtml::encode($this->trans->FIELD_CST_ID) . '</b>';
 			//if (!empty($data['CST_DESC'])) {
 				if (!empty($data['CST_IMG_ETAG'])) {
 					echo CHtml::image($this->createUrl('savedImage/cusineSubTypes', array('id'=>$data['CST_ID'], 'ext'=>'.png')), $data['CST_DESC'], array('class'=>'cusineImg'));
 				}
-				echo CHtml::encode($data['CST_DESC']);
+				echo '<div class="cusine">' . CHtml::encode($data['CST_DESC']) . '</div>';
 			/*} else {
 				echo $this->trans->GENERAL_UNDEFINED;
 			}*/
-			echo '<br />';
-		} ?>
-		<?php
+// 			echo '<br />';
+		}
 		if (!empty($data['CSS_DESC'])) {
-			echo '<b>' . CHtml::encode($this->trans->FIELD_CSS_ID) . '</b>';
+			//echo '<b>' . CHtml::encode($this->trans->FIELD_CSS_ID) . '</b>';
 			//if (!empty($data['CSS_DESC'])) {
 				if (!empty($data['CSS_IMG_ETAG'])) {
 					echo CHtml::image($this->createUrl('savedImage/cusineSubSubTypes', array('id'=>$data['CSS_ID'], 'ext'=>'.png')), $data['CSS_DESC'], array('class'=>'cusineImg'));
 				}
-				echo CHtml::encode($data['CSS_DESC']);
+				echo '<div class="cusine">' . CHtml::encode($data['CSS_DESC']) . '</div>';
 			/*} else {
 				echo $this->trans->GENERAL_UNDEFINED;
 			}*/
+// 			echo '<br />';
+		}
+		if ($showCusins) {
 			echo '<br />';
-		} ?>
+		}
+		?>
 		
 		<?php
 			if (!empty($data['REC_COMPLEXITY'])) {

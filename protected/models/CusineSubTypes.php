@@ -108,6 +108,9 @@ class CusineSubTypes extends ActiveRecordEC
 		return array('CST_ID', 'CST_DESC_' . Yii::app()->session['lang']);
 	}
 	
+	public function getExportSelectFieldsIgnore(){
+		return array_merge(parent::getExportSelectFieldsIgnore(), array('CUT_ID'));
+	}
 	
 	public function getCriteriaString(){
 		$criteria=new CDbCriteria;

@@ -47,6 +47,8 @@ glob.removeUrlParam = function(url, key){
 		url = url.replace('&&','&').replace('?&','?');
 		if (url.slice(-1) == '&'){
 			url = url.substr(0,url.length-1);
+		}if (url.slice(-1) == '?'){
+			url = url.substr(0,url.length-1);
 		}
 	}
 	return url;
@@ -668,7 +670,7 @@ jQuery(function($){
 		}
 		*/
 		var destUrl = form.attr('action');
-		destUrl = glob.urlAddParamStart(destUrl) + form.serialize();// + submitValue;
+		destUrl = glob.urlAddParamStart(glob.removeUrlParam(destUrl, 'ajaxform')) + form.serialize();// + submitValue;
 		if (destUrl.substr(0,1) != '.#'){
 			destUrl = glob.urlToHash(destUrl);
 		}
@@ -1403,7 +1405,7 @@ jQuery(function($){
 		});
 	});
 	
-	jQuery('body').undelegate('.shoppingList_right .removeFromList','click').delegate('.shoppingList_right .removeFromList','click',function(){
+	jQuery('body').undelegate('.shoppingList_remove.removeFromList','click').delegate('.shoppingList_remove.removeFromList','click',function(){
 		var elem = jQuery(this);
 		var url = elem.attr('href');
 		if (url.substr(0,1) == '#'){
