@@ -21,7 +21,7 @@ See GPLv3.htm in the main folder for details.
 
 <!-- generateFlickr.js -->
 <div class="flickrimgbox" id="flickrimgboxOut">
-<img src="/db/pics/lagray.png" style="position:relative;top:125px;left:0;cursor: pointer;" id="leftarrow" onClick="generateFlickrImg(-1);"><img src="/db/pics/ragray.png" style="position:relative;top:125px;left:300px;cursor: pointer;" id="rightarrow" onClick="generateFlickrImg(1);">
+<img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/lagray.png" style="position:relative;top:125px;left:0;cursor: pointer;" id="leftarrow" onClick="generateFlickrImg(-1);"><img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/ragray.png" style="position:relative;top:125px;left:300px;cursor: pointer;" id="rightarrow" onClick="generateFlickrImg(1);">
 <div class="flickrimgboxIns" id="flickrimgboxIng">
 </div>
 </div>

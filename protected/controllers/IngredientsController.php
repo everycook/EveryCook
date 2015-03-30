@@ -473,8 +473,7 @@ class IngredientsController extends Controller
 	 */
 	public function actionIndex()
 	{
-        //$this->prepareSearch('search');
-        $this->prepareSearch('search', null, null);
+		$this->prepareSearch('search', null, null);
 	}
 	
 	/**
@@ -1127,37 +1126,37 @@ class IngredientsController extends Controller
 		Functions::addLikeInfo($id, 'I', false);
 		$this->showLastAction();
 	}
-
-
-public function actionGenerateFlickrImage($keyword,$page){
-       include_once("protected/components/phpFlickr.php");
-       define('API_KEY', '0234d7c05a28b88127d199ad854c6250');
-       define('API_SECRET', '1097e1e06045b42d');
+	
+	
+	public function actionGenerateFlickrImage($keyword,$page){
+		include_once("protected/components/phpFlickr.php");
+		define('API_KEY', '0234d7c05a28b88127d199ad854c6250');
+		define('API_SECRET', '1097e1e06045b42d');
                               
-        $result = null;
-        $flickr = new phpFlickr(API_KEY, API_SECRET);
-        $result = $flickr->photos_search(array(
-                                    "text" => $keyword,
-                                    "page"=> $page,
-                                    "per_page" => 9,
-                                    "license" => "1,2,3,4,5,6",
-                                    "sort" => 'relevance',
-                                    ));
+		$result = null;
+		$flickr = new phpFlickr(API_KEY, API_SECRET);
+		$result = $flickr->photos_search(array(
+						"text" => $keyword,
+						"page"=> $page,
+						"per_page" => 9,
+						"license" => "1,2,3,4,5,6",
+						"sort" => 'relevance',
+						));
                               
-                              if ($result) {
-                              $counter=1;
-                              foreach ($result['photo'] as $photo) {
-                              $counter++;
-                              //$gInfo=$flickr->people_getInfo($photo['owner']);
-                              //$usrname=$gInfo['people']['username'];
-                              //if(!is_string($usrname)){$usrname='anonymous';}
-                              ?>
-<div style="float: left; margin: 10px 10px 10px 10px;">
-<img src="http://farm<?php echo $photo['farm']; ?>.static.flickr.com/<?php echo $photo['server']; ?>/<?php echo $photo['id']; ?>_<?php echo $photo['secret']; ?>_s.jpg"
-id="flickrupload<?php echo $counter;?>" onClick="flickrupload('http://farm<?php echo $photo['farm']; ?>.static.flickr.com/<?php echo $photo['server']; ?>/<?php echo $photo['id']; ?>_<?php echo $photo['secret']; ?>.jpg','<?php echo $photo['owner'];?>','<?php echo $photo['id'];?>')" style="cursor:pointer;">
-</div>
-<?php
-    }
-    }
-}
+		if ($result) {
+			$counter=1;
+			foreach ($result['photo'] as $photo) {
+				$counter++;
+				//$gInfo=$flickr->people_getInfo($photo['owner']);
+				//$usrname=$gInfo['people']['username'];
+				//if(!is_string($usrname)){$usrname='anonymous';}
+				?>
+				<div style="float: left; margin: 10px 10px 10px 10px;">
+				<img src="http://farm<?php echo $photo['farm']; ?>.static.flickr.com/<?php echo $photo['server']; ?>/<?php echo $photo['id']; ?>_<?php echo $photo['secret']; ?>_s.jpg"
+				id="flickrupload<?php echo $counter;?>" onClick="flickrupload('http://farm<?php echo $photo['farm']; ?>.static.flickr.com/<?php echo $photo['server']; ?>/<?php echo $photo['id']; ?>_<?php echo $photo['secret']; ?>.jpg','<?php echo $photo['owner'];?>','<?php echo $photo['id'];?>')" style="cursor:pointer;">
+				</div>
+				<?php
+			}
+		}
+	}
 }

@@ -22,7 +22,7 @@ class Functions extends CHtml{
 	const MULTI_LIST = 2;
 	
 	const IMG_HEIGHT = 400;
-	const IMG_WIDTH = 300;
+	const IMG_WIDTH = 400;
 	
 	
 	protected static $memcached = null;

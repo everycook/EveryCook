@@ -1,3 +1,5 @@
+var glob = glob || {};
+
 var cpage=0;
 function generateFlickrImg(reqtype){
 //reqtype
@@ -5,10 +7,10 @@ function generateFlickrImg(reqtype){
 //-1:left flip
 //1:right flip
 
-rab="/db/pics/rablack.png";
-lab="/db/pics/lablack.png";
-rag="/db/pics/ragray.png";
-lag="/db/pics/lagray.png";
+rab=glob.prefix + "pics/rablack.png";
+lab=glob.prefix + "pics/lablack.png";
+rag=glob.prefix + "pics/ragray.png";
+lag=glob.prefix + "pics/lagray.png";
 
 
 if(!(cpage==0&&reqtype!=0)&&!(cpage==1&&reqtype==-1)){
@@ -24,7 +26,7 @@ if(!(cpage==0&&reqtype!=0)&&!(cpage==1&&reqtype==-1)){
 }
 
 	$.ajax({
-			url: '/db/ingredients/generateFlickrImage',
+			url: glob.prefix + 'ingredients/generateFlickrImage',
 			type: 'get', 
 			data: { 
 				keyword: jQuery("#Ingredients_ING_NAME_EN_GB").val(),
