@@ -99,7 +99,25 @@ th, td, caption {padding:4px 10px 4px 5px;}
 
 
 
+div.flickrimgbox{
+width:400px;
+height:300px;
+background:#ced;
+border:1px solid #a7e;
+float:right;
+box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset,
+0 0 3px rgba(255, 255, 255, 0.3) inset,
+0 0 15px rgba(0, 0, 0, 0.1) inset,
+0 1px 20px rgba(0, 0, 0, 0.1);
+}
 
+div.flickrimgboxIns{
+width:300px;
+height:300px;
+margin-left:auto;
+margin-right:auto;
+margin-top:-45px;
+}
 
 
 
@@ -2276,3 +2294,4 @@ div#recipes.detailView .otherNames {
 }
 */
 /* @group end view Size change */
+

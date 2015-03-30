@@ -372,6 +372,8 @@ class Controller extends CController
 				Yii::app()->clientscript->registerCoreScript('yiiactiveform');
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/cookasisstant_handling.js', CClientScript::POS_HEAD);
 				Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/sprintf.js', CClientScript::POS_HEAD);
+                Yii::app()->clientscript->registerScriptFile($request_baseurl . '/js/generateFlickr.js', CClientScript::POS_HEAD);
+
 				
 				$ziiBaseScriptUrl=Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('zii.widgets.assets'));
 				Yii::app()->clientscript->registerScriptFile($ziiBaseScriptUrl.'/listview'.'/jquery.yiilistview.js',CClientScript::POS_END);
