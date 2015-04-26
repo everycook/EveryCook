@@ -307,7 +307,10 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 			}
 			$rows = $command->queryAll();
 		} else {
-			$rows = array();
+			//$rows = array();
+			$command = Yii::app()->db->createCommand()
+				->from($model->tableName());
+			$rows = $command->queryAll();
 			unset(Yii::app()->session[$this->searchBackup]);
 		}
 		
@@ -415,7 +418,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 	 * @param CModel the model to be validated
 	 */
 	protected function performAjaxValidation($model){
-		if(isset($_POST['ajax']) && $_POST['ajax']==='<?php echo $this->class2id($this->modelClass); ?>-form')
+		if(isset($_POST['ajax']) && $_POST['ajax']==='<?php echo $this->class2id($this->modelClass); ?>_form')
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();

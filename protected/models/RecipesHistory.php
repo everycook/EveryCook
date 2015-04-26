@@ -32,9 +32,14 @@ See GPLv3.htm in the main folder for details.
  * @property integer $REC_SERVING_COUNT
  * @property string $REC_WIKI_LINK
  * @property string $REC_IS_PRIVATE
- * @property integer $REC_COMPLEXITY
+ * @property integer $DIF_ID
+ * @property string $REC_RATING
+ * @property integer $REC_TIME_PREP
+ * @property integer $REC_TIME_COOK
+ * @property integer $REC_TIME_TOTAL
  * @property integer $CUT_ID
  * @property integer $CST_ID
+ * @property integer $CSS_ID
  * @property double $REC_CUSINE_GPS_LAT
  * @property double $REC_CUSINE_GPS_LNG
  * @property string $REC_TOOLS

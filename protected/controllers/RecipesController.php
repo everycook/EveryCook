@@ -35,7 +35,7 @@ class RecipesController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','searchFridge','displaySavedImage','chooseRecipe','chooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory', 'autocomplete','autocompleteId','actionSuggestion','getCusineSubTypes','getCusineSubSubTypes','cusinesAutocomplete','cusinesAutocompleteId','viewShoppingList', 'autocompleteSolr'),
+				'actions'=>array('index','view','search','searchFridge','displaySavedImage','chooseRecipe','chooseTemplateRecipe','updateSessionValues','updateSessionValue','history','historyCompare', 'viewHistory', 'autocomplete','autocompleteId','actionSuggestion','getCusineSubTypes','getCusineSubSubTypes','cusinesAutocomplete','cusinesAutocompleteId','viewShoppingList', 'autocompleteSolr','tagAutocomplete','tagAutocompleteId'),
 				//'advanceSearch','advanceChooseRecipe','advanceChooseTemplateRecipe',
 				'users'=>array('*'),
 			),
@@ -966,6 +966,7 @@ class RecipesController extends Controller
 			$model->setScenario('withPic');
 		}
 		
+		//Rec to cois
 		$recToCois = array();
 		$recToCoiList_old = '';
 		if(isset($_POST['COI_ID'])){
@@ -999,6 +1000,73 @@ class RecipesController extends Controller
 				$changeModel->RCH_NEW_VALUE = $recToCoiList_new;
 				$changeModel->save();
 			}
+		}
+		
+
+		//Rec to tags
+		$recToTags = array();
+		$recToTagList_old = '';
+		if(isset($_POST['tags'])){
+			$tagArray = split(',',$_POST['tags']); 
+			foreach($tagArray as $tag_id){
+				if (isset($tag_id)){
+					if(is_numeric($tag_id)){
+						if ($tag_id>0){
+							$recToTag = new RecToTag;
+							$recToTag->REC_ID = $model->REC_ID;
+							$recToTag->TAG_ID = $tag_id;
+							$recToTags[] = $recToTag;
+						}
+					} else {
+						if(Yii::app()->user->demo){
+							$this->errorText .= sprintf($this->trans->DEMO_USER_CANNOT_CHANGE_DATA, $this->createUrl("profiles/register"));
+						} else {
+							//insert new Tag(if needed), and get id
+							$tag_id = trim($tag_id);
+							if (strlen($tag_id)>1){ //more than 1 char needed
+								$tag_id = Yii::app()->db->createCommand("SELECT getTagId(:tag,:lang,:prf_id);")->queryScalar(array(':tag'=>$tag_id,':lang'=>Yii::app()->session['lang'],':prf_id'=>Yii::app()->user->id));
+								if ($tag_id != null){
+									$recToTag = new RecToTag;
+									$recToTag->REC_ID = $model->REC_ID;
+									$recToTag->TAG_ID = $tag_id;
+									$recToTags[] = $recToTag;
+								}
+							}
+						}
+					}
+				}
+			}
+			foreach($model->recToTags as $recToTag){
+				$recToTagList_old .= $recToTag->TAG_ID . ',';
+			}
+		} else {
+			$recToTags = $model->recToTags;
+		}
+		$tag_ids = array();
+		$recToTagList_new = '';
+// 		$tags = array();
+		foreach($recToTags as $recToTag){
+			$tag_ids[] = $recToTag->TAG_ID;
+			$recToTagList_new .= $recToTag->TAG_ID . ',';
+// 			if (isset($recToTag->tag)){
+// 				$tags[$recToTag->tag->TAG_ID] = $recToTag->tags->__get('TAG_DESC_'.Yii::app()->session['lang']);
+// 			}
+		}
+// 		$recToTagList_new = implode(',', array_keys($tags));
+		
+		if(isset($_POST['tags'])){
+			if ($recToTagList_old != $recToTagList_new){
+				$changeModel = new RecipeChanges;
+				$changeModel->REC_ID = $id;
+				$changeModel->RCH_FIELD = 'rec_to_tag.TAG_ID';
+				$changeModel->REC_CHANGED_ON = $model->CHANGED_ON;
+				$changeModel->RCH_OLD_VALUE = $recToTagList_old;
+				$changeModel->RCH_NEW_VALUE = $recToTagList_new;
+				$changeModel->save();
+			}
+		}
+		if(strlen($recToTagList_new)>0){
+			$recToTagList_new = substr($recToTagList_new, 0, -1);
 		}
 		
 		//read StepType config and create indexed details List
@@ -1074,6 +1142,7 @@ class RecipesController extends Controller
 			if (isset($_POST['Steps'])){
 				$model = Functions::arrayToRelatedObjects($model, array('steps'=> $_POST['Steps']));
 				$model->recToCois = $recToCois;
+				$model->recToTags = $recToTags;
 				
 				$index = 1;
 				foreach($model->steps as $step){
@@ -1170,6 +1239,21 @@ class RecipesController extends Controller
 									}
 								}
 								
+								//Rec To Tag
+								Yii::app()->db->createCommand()->delete(RecToTag::model()->tableName(), 'REC_ID = :id', array(':id'=>$model->REC_ID));
+								foreach($model->recToTags as $recToTag){
+									$recToTag->REC_ID = $model->REC_ID;
+									$recToTag->CHANGED_ON = $timestamp;
+									$recToTag->updateChangeTime = false;
+									$recToTag->setIsNewRecord(true);
+									if(!$recToTag->save()){
+										$saveOK = false;
+										if ($this->debug) {echo 'error on save recToTag: errors:'; var_dump($recToTag->getErrors());}
+									} else {
+										$recToTag->updateChangeTime = true;
+									}
+								}
+								
 								//Steps
 								if ($saveOK){
 									Yii::app()->db->createCommand()->delete(Steps::model()->tableName(), 'REC_ID = :id', array(':id'=>$model->REC_ID));
@@ -1244,6 +1328,7 @@ class RecipesController extends Controller
 										Yii::app()->db->createCommand()->setText('INSERT INTO recipes_history (SELECT * FROM `' . Recipes::model()->tableName() . '` WHERE REC_ID = :id)')->execute($condition);
 										Yii::app()->db->createCommand()->setText('INSERT INTO steps_history (SELECT * FROM `' . Steps::model()->tableName() . '` WHERE REC_ID = :id)')->execute($condition);
 										Yii::app()->db->createCommand()->setText('INSERT INTO rec_to_coi_history (SELECT * FROM `' . RecToCoi::model()->tableName() . '` WHERE REC_ID = :id)')->execute($condition);
+										Yii::app()->db->createCommand()->setText('INSERT INTO rec_to_tag_history (SELECT * FROM `' . RecToTag::model()->tableName() . '` WHERE REC_ID = :id)')->execute($condition);
 									}
 									
 									if ($saveOK){
@@ -1357,6 +1442,9 @@ class RecipesController extends Controller
 		foreach($coi_ids as $coiId){
 			$cookInsSelected[$coiId]=$cookIns[$coiId];
 		}
+
+		$difficulty = Yii::app()->db->createCommand()->select('DIF_ID,DIF_DESC_'.Yii::app()->session['lang'])->from('difficulty')->order('DIF_ORDER')->queryAll();
+		$difficulty = CHtml::listData($difficulty,'DIF_ID','DIF_DESC_'.Yii::app()->session['lang']);
 		
 		$stepsJSON = CJSON::encode($model->steps);
 		$stepTypeConfig = CJSON::encode($stepTypeConfig);
@@ -1381,6 +1469,8 @@ class RecipesController extends Controller
 			'stepTypeConfig'=>$stepTypeConfig,
 			'stepsJSON'=>$stepsJSON,
 			'actionsInDetails'=>$actionsInDetails,
+			'tags'=>$recToTagList_new,
+			'difficulty'=>$difficulty,
 		));
 	}
 	
@@ -1873,9 +1963,9 @@ class RecipesController extends Controller
 				'asc' =>'autor asc, REC_KCAL asc',
 				'desc'=>'autor asc, REC_KCAL desc',
 			),
-			'complexity' => array(
-				'asc' =>'autor asc, REC_COMPLEXITY asc',
-				'desc'=>'autor asc, REC_COMPLEXITY desc',
+			'difficulty' => array(
+				'asc' =>'autor asc, DIF_ORDER asc',
+				'desc'=>'autor asc, DIF_ORDER desc',
 			),
 			'preparationTime' => array(
 				'asc' =>'autor asc, preparationTime asc',
@@ -2507,7 +2597,7 @@ class RecipesController extends Controller
 				$url = $this->createUrl("savedImage/cusineTypes");
 				foreach ($typeOfCusine as $row){
 					if(isset($row['CUT_IMG_ETAG']) && $row['CUT_IMG_ETAG'] != ''){
-						$value = CHtml::image($url . $row['CUT_ID'] . '.png',  $row['CUT_DESC_' . Yii::app()->session['lang']], array('class'=>'cusineImg')) . $row['CUT_DESC_'.Yii::app()->session['lang']];
+						$value = CHtml::image($url . '/' . $row['CUT_ID'] . '.png',  $row['CUT_DESC_' . Yii::app()->session['lang']], array('class'=>'cusineImg')) . $row['CUT_DESC_'.Yii::app()->session['lang']];
 					} else  {
 						$value = $row['CUT_DESC_'.Yii::app()->session['lang']];
 					}
@@ -3076,7 +3166,7 @@ class RecipesController extends Controller
 		$changes[] = array('', $model->getAttributeLabel('REC_SERVING_COUNT'), $left->REC_SERVING_COUNT,$right->REC_SERVING_COUNT);
 		$changes[] = array('', $model->getAttributeLabel('REC_WIKI_LINK'), $left->REC_WIKI_LINK,$right->REC_WIKI_LINK);
 		$changes[] = array('', $model->getAttributeLabel('REC_IS_PRIVATE'), $left->REC_IS_PRIVATE,$right->REC_IS_PRIVATE);
-		$changes[] = array('', $model->getAttributeLabel('REC_COMPLEXITY'), $left->REC_COMPLEXITY,$right->REC_COMPLEXITY);
+		$changes[] = array('', $model->getAttributeLabel('DIF_ID'), $left->DIF_ID,$right->DIF_ID);
 		$changes[] = array('', $model->getAttributeLabel('CUT_ID'), $left->CUT_ID,$right->CUT_ID);
 		$changes[] = array('', $model->getAttributeLabel('CST_ID'), $left->CST_ID,$right->CST_ID);
 		$changes[] = array('', $model->getAttributeLabel('REC_CUSINE_GPS_LAT'), $left->REC_CUSINE_GPS_LAT,$right->REC_CUSINE_GPS_LAT);
@@ -3378,6 +3468,53 @@ class RecipesController extends Controller
 		$this->isFancyAjaxRequest = true;
 		$result = self::getCusinesValues($ids, $this->createUrl("savedImage/cusineTypes"), $this->createUrl("savedImage/cusineSubTypes"), $this->createUrl("savedImage/cusineSubSubTypes"));
 		echo $this->processOutput(CJSON::encode($result));
+		Yii::app()->end();
+	}
+	
+
+	public function actionTagAutocomplete($query, $page){
+		$this->isFancyAjaxRequest = true;
+		$command = Yii::app()->db->createCommand()
+			->select('TAG_ID as id, TAG_DESC_' . Yii::app()->session['lang'] . ' as name')
+			->from('tags')
+			->where('TAG_IGNORE = :ignore AND TAG_DESC_' . Yii::app()->session['lang'] . ' LIKE :query',array(':ignore'=>'N',':query'=>$query.'%'))
+			->order('TAG_DESC_' . Yii::app()->session['lang'])
+			->limit(30, ($page-1)*30);
+		$data = $command->queryAll();
+	
+		if (count($data) < 30){
+			$total_count = ($page-1)*30 + count($data);
+		} else {
+			$command = Yii::app()->db->createCommand()
+				->select('count(*)')
+				->from('tags')
+				->where('TAG_IGNORE = :ignore AND TAG_DESC_' . Yii::app()->session['lang'] . ' LIKE :query',array(':ignore'=>'N',':query'=>$query.'%'));
+			$total_count = $command->queryScalar();
+		}
+		$result = array(
+				'total_count'=>$total_count,
+				'items'=>$data
+		);
+		header('Content-type: application/json');
+		echo $this->processOutput(CJSON::encode($result));
+		Yii::app()->end();
+	}
+	
+	public function actionTagAutocompleteId($ids){
+		$this->isFancyAjaxRequest = true;
+	
+		$criteria=new CDbCriteria;
+		$ids = explode(',', $ids);
+		$criteria->compare('TAG_IGNORE','N');
+		$criteria->addInCondition('TAG_ID',$ids);
+	
+		$command = Yii::app()->db->createCommand()
+		->select('TAG_ID as id, CASE WHEN (TAG_DESC_' . Yii::app()->session['lang'] . ' IS NOT NULL) THEN TAG_DESC_' . Yii::app()->session['lang'] . ' ELSE TAG_DESC_EN_GB END as name')
+			->from('tags')
+			->where($criteria->condition, $criteria->params);
+		$data = $command->queryAll();
+		header('Content-type: application/json');
+		echo $this->processOutput(CJSON::encode($data));
 		Yii::app()->end();
 	}
 	

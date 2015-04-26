@@ -16,33 +16,38 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Recipes'=>array('index'),
-	'Create',
+	'Difficulties'=>array('index'),
+	$model->DIF_ID,
 );
 
 $this->menu=array(
-	array('label'=>'List Recipes', 'url'=>array('index')),
-	array('label'=>'Manage Recipes', 'url'=>array('admin')),
+	array('label'=>'List Difficulty', 'url'=>array('index')),
+	array('label'=>'Create Difficulty', 'url'=>array('create')),
+	array('label'=>'Update Difficulty', 'url'=>array('update', 'id'=>$model->DIF_ID)),
+	array('label'=>'Delete Difficulty', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->DIF_ID),'confirm'=>'Are you sure you want to delete this item?')),
+	array('label'=>'Manage Difficulty', 'url'=>array('admin')),
+);
+
+$this->mainButtons = array(
+	array('label'=>$this->trans->GENERAL_EDIT, 'link_id'=>'middle_single', 'url'=>array('update',$this->getActionParams())),
 );
 ?>
 
-<?php /*<h1><?php echo $this->trans->TITLE_RECIPES_CREATE; ?></h1> */?>
+<h1><?php printf($this->trans->TITLE_DIFFICULTY_VIEW, $model->DIF_ID); ?></h1>
+<div class="f-center">
+	<?php echo CHtml::link($this->trans->GENERAL_BACK_TO_SEARCH, array('search'), array('class'=>'button')); ?><br>
+</div>
 
-<?php echo $this->renderPartial('_form', array(
-	'model'=>$model,
-	'recipeTypes'=>$recipeTypes,
-	'cusineTypes'=>$cusineTypes,
-	'cusineSubTypes'=>$cusineSubTypes,
-	'cusineSubSubTypes'=>$cusineSubSubTypes,
-	'actionsIn'=>$actionsIn,
-	'cookIns'=>$cookIns,
-	'cookInsSelected'=>$cookInsSelected,
-	'tools'=>$tools,
-	'ingredients'=>$ingredients,
-	'ingredientDetails'=>$ingredientDetails,
-	'ingredientAmount'=>$ingredientAmount,
-	'stepsJSON'=>$stepsJSON,
-	'actionsInDetails'=>$actionsInDetails,
-	'tags'=>$tags,
-	'difficulty'=>$difficulty,
-	)); ?>
+<?php $this->widget('zii.widgets.CDetailView', array(
+	'data'=>$model,
+	'attributes'=>array(
+		'DIF_ID',
+		'DIF_ORDER',
+		'DIF_DESC_EN_GB',
+		'DIF_DESC_DE_CH',
+		'CREATED_BY',
+		'CREATED_ON',
+		'CHANGED_BY',
+		'CHANGED_ON',
+	),
+)); ?>

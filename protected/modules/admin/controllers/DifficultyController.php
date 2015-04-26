@@ -15,7 +15,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 See GPLv3.htm in the main folder for details.
 */
 
-class TempGroupsController extends Controller
+class DifficultyController extends Controller
 {
 	/**
 	 * @return array action filters
@@ -26,8 +26,8 @@ class TempGroupsController extends Controller
 		);
 	}
 	
-	protected $createBackup = 'TempGroups_Backup';
-	protected $searchBackup = 'TempGroups';
+	protected $createBackup = 'Difficulty_Backup';
+	protected $searchBackup = 'Difficulty';
 	
 	/**
 	 * Specifies the access control rules.
@@ -37,7 +37,7 @@ class TempGroupsController extends Controller
 	public function accessRules(){
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','chooseTempGroups','advanceChooseTempGroups'),
+				'actions'=>array('index','view','search','advanceSearch','chooseDifficulty','advanceChooseDifficulty'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -78,7 +78,7 @@ class TempGroupsController extends Controller
 			$oldmodel = $Session_Backup;
 		}
 		if (isset($id) && $id != null){
-			if (!isset($oldmodel) || $oldmodel->TGR_ID != $id){
+			if (!isset($oldmodel) || $oldmodel->DIF_ID != $id){
 				$oldmodel = $this->loadModel($id, true);
 			}
 		}
@@ -86,7 +86,7 @@ class TempGroupsController extends Controller
 		if (isset($oldmodel)){
 			$model = $oldmodel;
 		} else {
-			$model=new TempGroups;
+			$model=new Difficulty;
 		}
 		return $model;
 	}
@@ -100,14 +100,14 @@ class TempGroupsController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['TempGroups']))
+		if(isset($_POST['Difficulty']))
 		{
-			$model->attributes=$_POST['TempGroups'];
+			$model->attributes=$_POST['Difficulty'];
 			if($model->save()){
 				unset(Yii::app()->session[$this->createBackup]);
 				unset(Yii::app()->session[$this->createBackup.'_Time']);
-				$this->forwardAfterSave(array('view', 'id'=>$model->TGR_ID));
-				//$this->forwardAfterSave(array('search', 'query'=>$model->__get('TGR_DESC_' . Yii::app()->session['lang'])));
+				$this->forwardAfterSave(array('view', 'id'=>$model->DIF_ID));
+				//$this->forwardAfterSave(array('search', 'query'=>$model->__get('DIF_DESC_' . Yii::app()->session['lang'])));
 				return;
 			}
 		}
@@ -163,7 +163,7 @@ class TempGroupsController extends Controller
 	 * Lists all models.
 	 */
 	public function actionIndex(){
-		$dataProvider=new CActiveDataProvider('TempGroups');
+		$dataProvider=new CActiveDataProvider('Difficulty');
 		$this->checkRenderAjax('index',array(
 			'dataProvider'=>$dataProvider,
 		));
@@ -171,7 +171,7 @@ class TempGroupsController extends Controller
 	
 	
 	private function prepareSearch($view, $ajaxLayout, $criteria){
-		$model=new TempGroups('search');
+		$model=new Difficulty('search');
 		$model->unsetAttributes();  // clear any default values
 		
 		$model2 = new SimpleSearchForm();
@@ -185,14 +185,14 @@ class TempGroupsController extends Controller
 		}
 		
 		$modelAvailable = false;
-		if(isset($_POST['TempGroups'])) {
-			$model->attributes=$_POST['TempGroups'];
+		if(isset($_POST['Difficulty'])) {
+			$model->attributes=$_POST['Difficulty'];
 			$modelAvailable = true;
 		}
 		
 		$Session_Data = Yii::app()->session[$this->searchBackup];
 		if (isset($Session_Data)){
-			if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['TempGroups']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_Data['time'])){
+			if(!isset($_POST['SimpleSearchForm']) && !isset($_GET['query']) && !isset($_POST['Difficulty']) && (!isset($_GET['newSearch']) || $_GET['newSearch'] < $Session_Data['time'])){
 				if (isset($Session_Data['query'])){
 					$query = $Session_Data['query'];
 					$model2->query = $query;
@@ -260,8 +260,8 @@ class TempGroupsController extends Controller
 		}
 		
 		$dataProvider=new CArrayDataProvider($rows, array(
-			'id'=>'TGR_ID',
-			'keyField'=>'TGR_ID',
+			'id'=>'DIF_ID',
+			'keyField'=>'DIF_ID',
 			'pagination'=>array(
 				'pageSize'=>10,
 			),
@@ -292,12 +292,12 @@ class TempGroupsController extends Controller
 		$this->prepareSearch('search', null, null);
 	}
 	
-	public function actionChooseTempGroups(){
+	public function actionChooseDifficulty(){
 		$this->isFancyAjaxRequest = true;
 		$this->prepareSearch('search', 'none', null);
 	}
 	
-	public function actionAdvanceChooseTempGroups(){
+	public function actionAdvanceChooseDifficulty(){
 		$this->isFancyAjaxRequest = true;
 		$this->prepareSearch('advanceSearch', 'none', null);
 	}
@@ -311,7 +311,7 @@ class TempGroupsController extends Controller
 		
 		$ids = explode(',', $ids);
 		$criteria=new CDbCriteria;
-		$criteria->compare(TempGroups::model()->tableName().'.TGR_ID',$ids);
+		$criteria->compare(Difficulty::model()->tableName().'.DIF_ID',$ids);
 		
 		$this->prepareSearch('like', null, $criteria);
 	}
@@ -325,7 +325,7 @@ class TempGroupsController extends Controller
 		
 		$ids = explode(',', $ids);
 		$criteria=new CDbCriteria;
-		$criteria->compare(TempGroups::model()->tableName().'.TGR_ID',$ids);
+		$criteria->compare(Difficulty::model()->tableName().'.DIF_ID',$ids);
 		
 		$this->prepareSearch('like', null, $criteria);
 	}
@@ -351,7 +351,7 @@ class TempGroupsController extends Controller
 		if ($id == 'backup'){
 			$model=Yii::app()->session[$this->createBackup];
 		} else {
-			$model=TempGroups::model()->findByPk($id);
+			$model=Difficulty::model()->findByPk($id);
 		}
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
@@ -363,7 +363,7 @@ class TempGroupsController extends Controller
 	 * @param CModel the model to be validated
 	 */
 	protected function performAjaxValidation($model){
-		if(isset($_POST['ajax']) && $_POST['ajax']==='temp-groups-form')
+		if(isset($_POST['ajax']) && $_POST['ajax']==='difficulty_form')
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();

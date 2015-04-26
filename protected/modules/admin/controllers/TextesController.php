@@ -244,7 +244,10 @@ class TextesController extends Controller
 			}
 			$rows = $command->queryAll();
 		} else {
-			$rows = array();
+			//$rows = array();
+			$command = Yii::app()->db->createCommand()
+				->from($model->tableName());
+			$rows = $command->queryAll();
 			unset(Yii::app()->session[$this->searchBackup]);
 		}
 		

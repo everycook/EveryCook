@@ -16,33 +16,17 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Recipes'=>array('index'),
+	'Difficulties'=>array('index'),
 	'Create',
 );
 
 $this->menu=array(
-	array('label'=>'List Recipes', 'url'=>array('index')),
-	array('label'=>'Manage Recipes', 'url'=>array('admin')),
+	array('label'=>'List Difficulty', 'url'=>array('index')),
+	array('label'=>'Manage Difficulty', 'url'=>array('admin')),
 );
 ?>
 
-<?php /*<h1><?php echo $this->trans->TITLE_RECIPES_CREATE; ?></h1> */?>
-
+<h1><?php echo $this->trans->TITLE_DIFFICULTY_CREATE; ?></h1>
 <?php echo $this->renderPartial('_form', array(
 	'model'=>$model,
-	'recipeTypes'=>$recipeTypes,
-	'cusineTypes'=>$cusineTypes,
-	'cusineSubTypes'=>$cusineSubTypes,
-	'cusineSubSubTypes'=>$cusineSubSubTypes,
-	'actionsIn'=>$actionsIn,
-	'cookIns'=>$cookIns,
-	'cookInsSelected'=>$cookInsSelected,
-	'tools'=>$tools,
-	'ingredients'=>$ingredients,
-	'ingredientDetails'=>$ingredientDetails,
-	'ingredientAmount'=>$ingredientAmount,
-	'stepsJSON'=>$stepsJSON,
-	'actionsInDetails'=>$actionsInDetails,
-	'tags'=>$tags,
-	'difficulty'=>$difficulty,
 	)); ?>

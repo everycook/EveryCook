@@ -38,23 +38,17 @@ See GPLv3.htm in the main folder for details.
 		echo $form->error($model,'TAG_DESC_'.$lang) ."\r\n";
 	echo '</div>'."\r\n";
 	}
-	
-	/*
-	//Example for select / checkboxlist
-	$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
-	$htmlOptions_type1 = array('template'=>'<li>{input} {label}</li>', 'separator'=>"\n", 'checkAll'=>$this->trans->INGREDIENTS_SEARCH_CHECK_ALL, 'checkAllLast'=>false);
-	
-	echo Functions::createInput(null, $model, 'GRP_ID', $groupNames, Functions::DROP_DOWN_LIST, 'groupNames', $htmlOptions_type0, $form);
-	echo Functions::searchCriteriaInput($this->trans->INGREDIENTS_STORABILITY, $model, 'STB_ID', $storability, Functions::CHECK_BOX_LIST, 'storability', $htmlOptions_type1);
-	*/
+
 	?>
-	
 	<div class="row">
 		<?php echo $form->labelEx($model,'TAG_IGNORE'); ?>
-		<?php echo $form->textField($model,'TAG_IGNORE',array('size'=>1,'maxlength'=>1)); ?>
+		<?php
+			echo $this->trans->GENERAL_NO . ' ' . $form->radioButton($model,'TAG_IGNORE',array('uncheckValue'=>null,'value'=>'N'));
+			echo  '&nbsp;&nbsp;&nbsp;';
+			echo $this->trans->GENERAL_YES . ' ' . $form->radioButton($model,'TAG_IGNORE',array('uncheckValue'=>null,'value'=>'Y')); ?>
 		<?php echo $form->error($model,'TAG_IGNORE'); ?>
 	</div>
-
+	
 	<div class="buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? $this->trans->GENERAL_CREATE : $this->trans->GENERAL_SAVE); ?>
 		<?php echo CHtml::link($this->trans->GENERAL_CANCEL, array('cancel'), array('class'=>'button', 'id'=>'cancel')); ?>

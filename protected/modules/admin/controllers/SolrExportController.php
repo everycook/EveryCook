@@ -159,7 +159,7 @@ class SolrExportController extends Controller
 			//->order('steps.CHANGED_ON desc')
 			//->group('ingredients.ING_ID')
 			
-
+			
 			$command->distinct = true;
 			$ingredients = $command->queryAll();
 			
@@ -174,8 +174,24 @@ class SolrExportController extends Controller
 			}
 			unset($ingFields['PRF_UID']);
 			
+			$command = Yii::app()->db->createCommand()
+			->select(Tags::model()->getExportSelectFields())
+			->from('rec_to_tag')
+			->join('tags', 'rec_to_tag.TAG_ID = tags.TAG_ID')
+			->where('rec_to_tag.REC_ID = :id', array(':id'=>$recipe['REC_ID']));
 			
+			$command->distinct = true;
+			$tags = $command->queryAll();
 			
+			$tagFields = array();
+			foreach($tags as $tag){
+				foreach($tag as $key=>$value){
+					if (!isset($tagFields[$key])){
+						$tagFields[$key] = array();
+					}
+					$tagFields[$key][] = $value;
+				}
+			}
 			
 			$recipe['id']='REC_ID:'.$recipe['REC_ID'];
 			$recipe['CREATED_ON_dt'] = date("Y-m-d\TH:i:s.000\Z", $recipe['CREATED_ON']); //format:'c' =  	ISO 8601 date, but not te suggestet one by solr...
@@ -213,6 +229,9 @@ class SolrExportController extends Controller
 // 				echo "$attribute<br>\n";
 // 			}
 			foreach ($ingFields as $key=>$value){
+				$recipeSolr->$key=$value;
+			}
+			foreach ($tagFields as $key=>$value){
 				$recipeSolr->$key=$value;
 			}
 			

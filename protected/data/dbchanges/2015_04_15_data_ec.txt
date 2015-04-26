@@ -1,0 +1,7 @@
+﻿INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('FIELD_DIF_ID', 'difficulty', 'Schwierigkeitsgrad', '');
+
+INSERT INTO `difficulty` (`DIF_ID`, `DIF_ORDER`, `DIF_DESC_EN_GB`, `DIF_DESC_DE_CH`, `CREATED_BY`, `CREATED_ON`, `CHANGED_BY`, `CHANGED_ON`) VALUES 
+(1, '0', 'easy', 'einfach', '3', 1430238874, '3', 1430238874),
+(2, '10', 'medium', 'mittel', '3', 1430238874, '3', 1430238874),
+(3, '20', 'hard', 'schwer', '3', 1430238874, '3', 1430238874);

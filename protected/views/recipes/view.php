@@ -121,6 +121,20 @@ if (!$history){
 			</div>
 			<div class="clearfix"></div>
 			
+			<div class="tags">
+			<?php 
+			foreach($model->recToTags as $recToTag){
+				if(isset($recToTag->tags) && $recToTag->tags->TAG_IGNORE != 'Y'){
+					$text = $recToTag->tags->__get('TAG_DESC_'.Yii::app()->session['lang']);
+	 				if (!isset($text) || strlen($text)==0){
+	 					$text = $recToTag->tags->__get('TAG_DESC_EN_GB');
+	 				}
+	 				echo '<div class="tag" data-tag-id="'.$recToTag->TAG_ID.'">' . $text . '</div>';
+				}
+ 			}
+			?>
+			</div>
+			
 			<b><?php echo CHtml::encode($this->trans->RECIPES_TYPE); ?>:</b>
 			<?php echo CHtml::encode($model->recipeTypes->__get('RET_DESC_' . Yii::app()->session['lang'])); ?>
 			<br />
@@ -175,13 +189,9 @@ if (!$history){
 			?>
 			
 			<?php
-			if (!empty($model->REC_COMPLEXITY)) {
-				echo '<b>' . CHtml::encode($this->trans->FIELD_REC_COMPLEXITY) . '</b>';
-				//if (!empty($model->REC_COMPLEXITY)) {
-					echo CHtml::encode($model->REC_COMPLEXITY); 
-				/*} else {
-					echo $this->trans->GENERAL_UNDEFINED;
-				}*/
+			if (isset($model->difficulty)) {
+				echo '<b>' . CHtml::encode($this->trans->FIELD_DIF_ID) . '</b>';
+				echo CHtml::encode($model->difficulty->__get('DIF_DESC_' . Yii::app()->session['lang'])); 
 				echo '<br />';
 			} ?>
 			
@@ -201,6 +211,8 @@ if (!$history){
 			echo CHtml::encode($model->REC_KCAL); /*. ' ' . $this->trans->RECIPES_KCAL_PER_SERVING*/
 			echo '<br />';
 			?>
+			
+			<div class="clearfix"></div>
 		</div>
 		
 		
@@ -356,6 +368,9 @@ if (!$history){
 			foreach($model->steps as $step){
 				echo '<div class="step">';
 				echo '<span class="stepNo">' . $i . '</span> ';
+				if ($this->debug){
+					echo '<span class="debug">STE_PREP:' . $step["STE_PREP"] . ', AIN_PREP:' . $step->actionIn["AIN_PREP"] . '</span> ';
+				}
 				echo '<span class="action">' . $step->getAsHTMLString($cookin) . '</span>';
 				echo '</div>';
 				$i++;

@@ -1931,7 +1931,8 @@ div#recipes.detailView .step .stepNo,
 #recipes .recipeDetail .cusineImg,
 #recipesResult .resultArea .cusineImg,
 .recipeResultArea .typeOfCusine .cusineImg,
-.cusines .cusineImg {
+.cusines .cusineImg,
+#typeOfCusine .cusineImg {
 	display: inline-block;
 	padding-right: 0.25em;
 	height: 1em;
@@ -2196,6 +2197,26 @@ div#recipes.detailView .otherNames {
 } 
 /* @end */
 
+
+/* @group tags */
+#recipes.detailView .tags {
+    float: right;
+    max-width: 50%;
+}
+
+#recipes.detailView .tags .tag {
+    border: 1px solid black;
+    float: left;
+    margin-left: 0.5em;
+    padding: 0.25em 0.5em;
+}
+
+.recipeDetails .select2-container-multi .select2-choices li {
+	display: inline-block;
+	float: none;
+}
+/* @end */
+
 /* @group view Size change */
 @media all and (orientation:portrait) {
 	body {
@@ -2294,4 +2315,3 @@ div#recipes.detailView .otherNames {
 }
 */
 /* @group end view Size change */
-
