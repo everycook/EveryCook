@@ -20,9 +20,15 @@ See GPLv3.htm in the main folder for details.
 <input type="hidden" id="imageLink" value="<?php echo $this->createUrl('ingredients/displaySavedImage', array('id'=>'backup', 'ext'=>'.png')); ?>"/>
 
 <!-- generateFlickr.js -->
+<div class="lefthandside" style="float">
+<br><br><br><br><br><br><br><br><br><br><br>
+<div class="button" id="jqueryflickr" onClick="generateFlickrImg(0);">Search Images</div>
+<br>
+<br>
 <div class="flickrimgbox" id="flickrimgboxOut">
-<img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/lagray.png" style="position:relative;top:125px;left:0;cursor: pointer;" id="leftarrow" onClick="generateFlickrImg(-1);"><img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/ragray.png" style="position:relative;top:125px;left:300px;cursor: pointer;" id="rightarrow" onClick="generateFlickrImg(1);">
+<img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/lagray.png" style="position:relative;top:125px;left:0;cursor:pointer;" id="leftarrow" onClick="generateFlickrImg(-1);"><img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/ragray.png" style="position:relative;top:125px;left:300px;cursor: pointer;" id="rightarrow" onClick="generateFlickrImg(1);">
 <div class="flickrimgboxIns" id="flickrimgboxIng">
+</div>
 </div>
 </div>
 <div class="form">
@@ -86,9 +92,6 @@ See GPLv3.htm in the main folder for details.
 		<?php echo $form->error($model,'ING_SYNONYM_'.$lang); ?>
 	</div>
 	<?php } ?>
-	
-
-	<div class="button" id="jqueryflickr" onClick="generateFlickrImg(0);">Search Images</div>
 
 	<?php
 	echo Functions::createInput(null, $model, 'GRP_ID', $groupNames, Functions::DROP_DOWN_LIST, 'groupNames', $htmlOptions_type0, $form);
@@ -160,11 +163,6 @@ See GPLv3.htm in the main folder for details.
 		echo $this->trans->TIP_OWN_IMAGE . '<br>';
 		echo $form->FileField($model,'filename'). '<br>' . "\r\n";
 		echo $form->error($model,'filename') . "\r\n";
-		/* issue #158: no flickr in the moment
-		echo $this->trans->TIP_FLICKR_IMAGE . '<br>';
-		printf($this->trans->TIP_LOOK_ON_FLICKR, $model->__get('ING_NAME_EN_GB'));//'ING_NAME_'.Yii::app()->session['lang']
-		echo '<br>' . $this->trans->TIP_FLICKR_LINK . '<input type="text" name="flickr_link" class="flickr_link"/> <div class="buttonSmall loadFromFlickr">' . $this->trans->TIP_FLICKR_LINK_LOAD . '</div>'
-		*/
 		?>
 		</div>
 	</div>

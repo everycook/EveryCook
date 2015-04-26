@@ -104,7 +104,6 @@ div.flickrimgbox{
 	height:300px;
 	background:#ced;
 	border:1px solid #a7e;
-	float:right;
 	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset,
 	0 0 3px rgba(255, 255, 255, 0.3) inset,
 	0 0 15px rgba(0, 0, 0, 0.1) inset,
@@ -119,7 +118,11 @@ div.flickrimgboxIns{
 	margin-top:-45px;
 }
 
-
+div.lefthandside{
+	width:400px;
+	height:800px;
+	float:right;
+}
 
 /* @group form */
 

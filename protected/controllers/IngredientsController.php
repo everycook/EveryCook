@@ -1141,19 +1141,27 @@ class IngredientsController extends Controller
 						"per_page" => 9,
 						"license" => "1,2,3,4,5,6",
 						"sort" => 'relevance',
+                        "extras"=> 'url_o,url_l,url_c'
 						));
                               
 		if ($result) {
 			$counter=1;
 			foreach ($result['photo'] as $photo) {
 				$counter++;
-				//$gInfo=$flickr->people_getInfo($photo['owner']);
-				//$usrname=$gInfo['people']['username'];
-				//if(!is_string($usrname)){$usrname='anonymous';}
+                if (isset($photo['url_l'])) {
+                    $fileurl=$photo['url_l'];
+                }elseif(isset($photo['url_c'])){
+                    $fileurl=$photo['url_c'];
+                }else{
+                    $fileurl=$photo['url_o'];
+                }
+				$gInfo=$flickr->people_getInfo($photo['owner']);
+                $usrname=$gInfo['username']['_content'];
+                if(!is_string($usrname)){$usrname='anonymous';}
 				?>
 				<div style="float: left; margin: 10px 10px 10px 10px;">
 				<img src="http://farm<?php echo $photo['farm']; ?>.static.flickr.com/<?php echo $photo['server']; ?>/<?php echo $photo['id']; ?>_<?php echo $photo['secret']; ?>_s.jpg"
-				id="flickrupload<?php echo $counter;?>" onClick="flickrupload('http://farm<?php echo $photo['farm']; ?>.static.flickr.com/<?php echo $photo['server']; ?>/<?php echo $photo['id']; ?>_<?php echo $photo['secret']; ?>.jpg','<?php echo $photo['owner'];?>','<?php echo $photo['id'];?>')" style="cursor:pointer;">
+				id="flickrupload<?php echo $counter;?>" onClick="flickrupload('<?php echo $fileurl;?>','<?php echo $usrname;?>','<?php echo $photo['id'];?>')" style="cursor:pointer;">
 				</div>
 				<?php
 			}
