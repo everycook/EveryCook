@@ -16,21 +16,23 @@ See GPLv3.htm in the main folder for details.
 */
 
 /**
- * This is the model class for table "rec_to_tag".
+ * This is the model class for table "difficulty".
  *
- * The followings are the available columns in table 'rec_to_tag':
- * @property integer $REC_ID
- * @property integer $TAG_ID
+ * The followings are the available columns in table 'difficulty':
+ * @property integer $DIF_ID
+ * @property integer $DIF_ORDER
+ * @property string $DIF_DESC_EN_GB
+ * @property string $DIF_DESC_DE_CH
  * @property integer $CREATED_BY
  * @property integer $CREATED_ON
  * @property integer $CHANGED_BY
  * @property integer $CHANGED_ON
  */
-class RecToTag extends ActiveRecordEC
+class Difficulty extends ActiveRecordEC
 {
 	/**
 	 * Returns the static model of the specified AR class.
-	 * @return RecToTag the static model class
+	 * @return Difficulty the static model class
 	 */
 	public static function model($className=__CLASS__){
 		return parent::model($className);
@@ -40,7 +42,7 @@ class RecToTag extends ActiveRecordEC
 	 * @return string the associated database table name
 	 */
 	public function tableName(){
-		return 'rec_to_tag';
+		return 'difficulty';
 	}
 
 	/**
@@ -50,11 +52,12 @@ class RecToTag extends ActiveRecordEC
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('REC_ID, TAG_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
-			array('REC_ID, TAG_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('DIF_ID, DIF_ORDER, DIF_DESC_EN_GB, DIF_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
+			array('DIF_ID, DIF_ORDER, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('DIF_DESC_EN_GB, DIF_DESC_DE_CH', 'length', 'max'=>100),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('REC_ID, TAG_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('DIF_ID, DIF_ORDER, DIF_DESC_EN_GB, DIF_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -65,7 +68,6 @@ class RecToTag extends ActiveRecordEC
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'tags' => array(self::BELONGS_TO, 'Tags', 'TAG_ID'),
 		);
 	}
 
@@ -74,8 +76,10 @@ class RecToTag extends ActiveRecordEC
 	 */
 	public function attributeLabels(){
 		return array(
-			'REC_ID' => 'Rec',
-			'TAG_ID' => 'Tag',
+			'DIF_ID' => 'Dif',
+			'DIF_ORDER' => 'Dif Order',
+			'DIF_DESC_EN_GB' => 'Dif Desc En Gb',
+			'DIF_DESC_DE_CH' => 'Dif Desc De Ch',
 			'CREATED_BY' => 'Created By',
 			'CREATED_ON' => 'Created On',
 			'CHANGED_BY' => 'Changed By',
@@ -84,15 +88,17 @@ class RecToTag extends ActiveRecordEC
 	}
 	
 	public function getSearchFields(){
-		return array('?<prefix>?_ID', '?<prefix>?_DESC_' . Yii::app()->session['lang']);
+		return array('DIF_ID', 'DIF_DESC_' . Yii::app()->session['lang']);
 	}
 	
 	
 	public function getCriteriaString(){
 		$criteria=new CDbCriteria;
 		
-		$criteria->compare($this->tableName().'.REC_ID',$this->REC_ID);
-		$criteria->compare($this->tableName().'.TAG_ID',$this->TAG_ID);
+		$criteria->compare($this->tableName().'.DIF_ID',$this->DIF_ID);
+		$criteria->compare($this->tableName().'.DIF_ORDER',$this->DIF_ORDER);
+		$criteria->compare($this->tableName().'.DIF_DESC_EN_GB',$this->DIF_DESC_EN_GB,true);
+		$criteria->compare($this->tableName().'.DIF_DESC_DE_CH',$this->DIF_DESC_DE_CH,true);
 		$criteria->compare($this->tableName().'.CREATED_BY',$this->CREATED_BY);
 		$criteria->compare($this->tableName().'.CREATED_ON',$this->CREATED_ON);
 		$criteria->compare($this->tableName().'.CHANGED_BY',$this->CHANGED_BY);
@@ -106,8 +112,10 @@ class RecToTag extends ActiveRecordEC
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('REC_ID',$this->REC_ID);
-		$criteria->compare('TAG_ID',$this->TAG_ID);
+		$criteria->compare('DIF_ID',$this->DIF_ID);
+		$criteria->compare('DIF_ORDER',$this->DIF_ORDER);
+		$criteria->compare('DIF_DESC_EN_GB',$this->DIF_DESC_EN_GB,true);
+		$criteria->compare('DIF_DESC_DE_CH',$this->DIF_DESC_DE_CH,true);
 		$criteria->compare('CREATED_BY',$this->CREATED_BY);
 		$criteria->compare('CREATED_ON',$this->CREATED_ON);
 		$criteria->compare('CHANGED_BY',$this->CHANGED_BY);
@@ -123,8 +131,8 @@ class RecToTag extends ActiveRecordEC
 		$sort->attributes = array(
 		/*
 			'sortId' => array(
-				'asc' => '?<prefix>?_ID',
-				'desc' => '?<prefix>?_ID DESC',
+				'asc' => 'DIF_ID',
+				'desc' => 'DIF_ID DESC',
 			),
 		*/
 			'*',

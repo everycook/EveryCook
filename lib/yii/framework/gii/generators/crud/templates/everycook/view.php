@@ -46,8 +46,9 @@ $this->mainButtons = array(
 ?>
 
 <?php echo '<h1><?php printf($this->trans->TITLE_' . $transKey . '_VIEW, $model->' . $this->tableSchema->primaryKey . '); ?></h1>'; ?>
+
 <div class="f-center">
-	<?php echo "<?php\n";?> echo CHtml::link($this->trans->GENERAL_BACK_TO_SEARCH, array('search'), array('class'=>'button')); ?><br>
+	<?php echo "<?php";?> echo CHtml::link($this->trans->GENERAL_BACK_TO_SEARCH, array('search'), array('class'=>'button')); ?><br>
 </div>
 
 <?php echo "<?php"; ?> $this->widget('zii.widgets.CDetailView', array(

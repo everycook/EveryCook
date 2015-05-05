@@ -76,7 +76,7 @@ if ($this->isFancyAjaxRequest){ ?>
 	</div>
 	
 	<div class="f-center">
-		<?php echo "<?php\n";?>  echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('create','newModel'=>time()), array('class'=>'button', 'id'=>'create')); ?><br>
+		<?php echo "<?php";?>  echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('create','newModel'=>time()), array('class'=>'button', 'id'=>'create')); ?><br>
 	</div>
 	
 	<div class="clearfix"></div>

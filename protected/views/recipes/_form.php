@@ -146,6 +146,11 @@ $cookin = '#cookin#';
 		
 		<?php
 		$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
+		echo Functions::createInput(null, $model, 'DIF_ID', $difficulty, Functions::DROP_DOWN_LIST, 'difficulty', $htmlOptions_type0, $form);
+		?>
+		
+		<?php
+		$htmlOptions_type0 = array('empty'=>$this->trans->GENERAL_CHOOSE);
 		echo '<div class="row" id="cusineTypes">';
 		$fieldName = 'CUT_ID';
 		echo Functions::activeLabelEx($model, $fieldName, array('label'=>null)) . ' ';
@@ -169,6 +174,33 @@ $cookin = '#cookin#';
 		echo $form->error($model, $fieldName);
 		echo '</div>';
 		?>
+		
+		<div class="row">
+			<?php echo $form->labelEx($model,'TAG_ID', array('for'=>'s2id_autogen1')); ?>
+			<?php
+			//echo Functions::activeSpecialField($model2, 'query', 'search', array('class'=>'search_query'));
+			echo CHtml::hiddenField('tags', $tags, array('id'=>'recipeTags'));
+			
+			$this->widget('ext.select2.ESelect2', array(
+				'target' => '#recipeTags',
+				'config' => array (
+					'multiple' => true,
+					'minimumInputLength' => 1,
+					'formatInputTooShort' => null,
+					'openOnEnter' => false,
+					'ajax' => 'js:glob.select2.searchTagAjax',
+					'initSelection' =>'js:glob.select2.searchTagInitSelection',
+					'formatResult' => 'js:glob.select2.searchTagFormatResult',
+					'formatSelection' => 'js:glob.select2.searchTagFormatSelection',
+					//'dropdownCssClass' => 'search_query',
+					'containerCssClass' => 'search_query',
+					'escapeMarkup' => 'js:function (m) { return m; }', // we do not want to escape markup since we are displaying html in results
+					'createSearchChoice' => 'js:glob.select2.createTagChoice',
+				)
+			));
+			?>
+			<?php echo $form->error($model,'REC_COMPLEXITY'); ?>
+		</div>
 		
 		<?php /*
 		<div class="row">

@@ -16,33 +16,31 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Recipes'=>array('index'),
-	'Create',
+	'Difficulties',
 );
 
 $this->menu=array(
-	array('label'=>'List Recipes', 'url'=>array('index')),
-	array('label'=>'Manage Recipes', 'url'=>array('admin')),
+	array('label'=>'Create Difficulty', 'url'=>array('create')),
+	array('label'=>'Manage Difficulty', 'url'=>array('admin')),
 );
 ?>
 
-<?php /*<h1><?php echo $this->trans->TITLE_RECIPES_CREATE; ?></h1> */?>
 
-<?php echo $this->renderPartial('_form', array(
-	'model'=>$model,
-	'recipeTypes'=>$recipeTypes,
-	'cusineTypes'=>$cusineTypes,
-	'cusineSubTypes'=>$cusineSubTypes,
-	'cusineSubSubTypes'=>$cusineSubSubTypes,
-	'actionsIn'=>$actionsIn,
-	'cookIns'=>$cookIns,
-	'cookInsSelected'=>$cookInsSelected,
-	'tools'=>$tools,
-	'ingredients'=>$ingredients,
-	'ingredientDetails'=>$ingredientDetails,
-	'ingredientAmount'=>$ingredientAmount,
-	'stepsJSON'=>$stepsJSON,
-	'actionsInDetails'=>$actionsInDetails,
-	'tags'=>$tags,
-	'difficulty'=>$difficulty,
+<div>
+<?php $form=$this->beginWidget('CActiveForm', array(
+		'action'=>Yii::app()->createUrl($this->route),
+		'id'=>'difficulty_form',
+		'method'=>'post',
+		'htmlOptions'=>array('class'=>($this->isFancyAjaxRequest)?'fancyForm':''),
 	)); ?>
+	
+<?php $this->widget('AjaxPagingListView', array(
+	'dataProvider'=>$dataProvider,
+	'itemView'=>'_view_array',
+	'ajaxUpdate'=>false,
+	'id'=>'difficultyResult',
+)); ?>
+
+<?php $this->endWidget(); ?>
+
+</div>
