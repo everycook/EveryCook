@@ -571,16 +571,16 @@ class ApiController extends CController
 		$actionTextFields = array_flip(Steps::getFieldToCssClass());
 		
 		$command = Yii::app()->db->createCommand()
-			->select('cook_in.COI_ID, cook_in.COI_DESC_' . Yii::app()->session['lang'])
+			->select('cook_in.COI_ID, cook_in.COI_DESC_' . $this->lang)
 			->from('recipes')
 			->leftJoin('rec_to_coi', 'recipes.REC_ID=rec_to_coi.REC_ID')
 			->leftJoin('cook_in', 'rec_to_coi.COI_ID=cook_in.COI_ID')
 			->where('recipes.REC_ID = :id', array(':id'=>$rec_id));
 		$cookIns = $command->queryAll();
-		$cookIn = $cookIns[0]['COI_DESC_' . Yii::app()->session['lang']];
+		$cookIn = $cookIns[0]['COI_DESC_' . $this->lang];
 		foreach($cookIns as $line){
 			if ($line['COI_ID'] != 1){
-				$cookIn = $line['COI_DESC_' . Yii::app()->session['lang']];
+				$cookIn = $line['COI_DESC_' . $this->lang];
 				break;
 			}
 		}
