@@ -29,7 +29,6 @@ $this->menu=array(
 		array('label'=>$this->trans->GENERAL_CREATE_NEW, 'link_id'=>'middle_single', 'url'=>array('recipes/create',array('newModel'=>time()))),
 	);
 //}
-
 if (isset(Yii::app()->session['Recipes']) && isset(Yii::app()->session['Recipes']['time'])){
 	$newRecSearch=array('newSearch'=>Yii::app()->session['Recipes']['time']);
 } else {
@@ -69,10 +68,10 @@ if ($this->isFancyAjaxRequest){ ?>
 				'placeholder'=>$this->trans->RECIPES_TYPE_A_DISH,
 				'ajax' => 'js:glob.select2.searchRecipeAjax',
 				'initSelection' =>'js:glob.select2.searchRecipeInitSelection',
-				'formatResult' => 'js:glob.select2.searchRecipeFormatResult', // omitted for brevity, see the source of this page
-				'formatSelection' => 'js:glob.select2.searchRecipeFormatSelection', // omitted for brevity, see the source of this page
-				//'dropdownCssClass' => 'search_query', // apply css that makes the dropdown taller
-				'containerCssClass' => 'search_query', // apply css that makes the dropdown taller
+				'formatResult' => 'js:glob.select2.searchRecipeFormatResult',
+				'formatSelection' => 'js:glob.select2.searchRecipeFormatSelection',
+				//'dropdownCssClass' => 'search_query',
+				'containerCssClass' => 'search_query',
 				'escapeMarkup' => 'js:function (m) { return m; }', // we do not want to escape markup since we are displaying html in results
 				'createSearchChoice' => 'js:glob.select2.createSearchChoice',
 			)

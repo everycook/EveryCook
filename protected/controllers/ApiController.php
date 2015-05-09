@@ -21,7 +21,7 @@ class ApiController extends CController
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('searchRecipes','searchIngredients','recipeDetail','ingredientDetail'),
+				'actions'=>array('searchRecipes','searchIngredients','recipeDetail','ingredientDetail','searchCategories'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -39,6 +39,7 @@ class ApiController extends CController
 	}
 	
 	public $lang = 'EN_GB';
+	public $version = 1;
 	protected static $trans=null;
 	public function getTrans()
 	{
@@ -49,11 +50,15 @@ class ApiController extends CController
 		foreach (Controller::$allLanguages as $key=>$desc){
 			if (strcasecmp($lang, $key) == 0) {
 				$this->lang = $key;
+				//Yii::app()->session['lang'] = $key; 
 				return;
 			}
 		}
 	}
 	
+	protected $searchCategories = array(); 
+	
+	protected $searchCriterias = array(); 
 	
 	protected $criteriaMappingRecipes = array();
 	protected $fieldMappingRecipes = array();
@@ -67,21 +72,107 @@ class ApiController extends CController
 	protected $fieldMappingIngredients = array();
 	
 	protected function prepareMappings($lang){
+		$cusineImgUrl = Yii::app()->createAbsoluteUrl("savedImage/cusineTypes");
+		$cusineSubImgUrl = Yii::app()->createAbsoluteUrl("savedImage/cusineSubTypes");
+		$cusineSubSubImgUrl = Yii::app()->createAbsoluteUrl("savedImage/cusineSubSubTypes");
+		
+		$this->searchCategories = array(
+			'rec_type'=>array(
+					'table'=>'recipe_types', 
+					'id'=>'RET_ID', 
+					'desc'=>'RET_DESC_' .$lang, 
+					'otherFields'=>null,
+					'subTypes'=>null,
+					'parent'=>null,
+			),
+			'rec_cuisine'=>array(
+					'table'=>'cusine_types', 
+					'id'=>'CUT_ID', 
+					'desc'=>'CUT_DESC_' .$lang, 
+					'otherFields'=>array(
+						'img_url' => 'CASE WHEN CUT_IMG_ETAG IS NOT NULL AND CUT_IMG_ETAG <> "" THEN concat("' . $cusineImgUrl . '/", CUT_ID ,".png") ELSE null END',
+					), 
+					'subTypes'=>array('rec_sub_cuisine'), 
+					'parent'=>null,
+					'conditions'=>null,
+			),
+			'rec_sub_cuisine'=>array(
+					'table'=>'cusine_sub_types', 
+					'id'=>'CST_ID', 
+					'desc'=>'CST_DESC_' .$lang, 
+					'otherFields'=>array(
+						'img_url' => 'CASE WHEN CST_IMG_ETAG IS NOT NULL AND CST_IMG_ETAG <> "" THEN concat("' . $cusineSubImgUrl . '/", CST_ID ,".png") ELSE null END',
+					), 
+					'subTypes'=>array('rec_sub_sub_cuisine'), 
+					'parent'=>'rec_cuisine',
+					'conditions'=>null,
+			),
+			'rec_sub_sub_cuisine'=>array(
+					'table'=>'cusine_sub_sub_types', 
+					'id'=>'CSS_ID', 
+					'desc'=>'CSS_DESC_' .$lang, 
+					'otherFields'=>array(
+						'img_url' => 'CASE WHEN CSS_IMG_ETAG IS NOT NULL AND CSS_IMG_ETAG <> "" THEN concat("' . $cusineSubSubImgUrl . '/", CSS_ID ,".png") ELSE null END',
+					), 
+					'subTypes'=>null, 
+					'parent'=>'rec_sub_cuisine',
+					'conditions'=>null,
+			),
+			'tag'=>array(
+					'table'=>'tags', 
+					'assignTable'=>'rec_to_tag',
+					'id'=>'TAG_ID', 
+					//'desc'=>'TAG_DESC_' .$lang, 
+					'desc'=>($lang=='EN_GB')?'TAG_DESC_EN_GB':'CASE WHEN (TAG_DESC_' .$lang . ' IS NOT NULL) THEN TAG_DESC_' .$lang . ' ELSE TAG_DESC_EN_GB END',
+					'otherFields'=>null,
+					'subTypes'=>null,
+					'parent'=>null,
+					'conditions'=>array('where'=>'TAG_IGNORE <> :val','params'=>array(':val'=>'Y')),
+			),
+		);
+		
+		//merge on array type has currently no effect, different logic tru fixed logic for ing fields, all others are or 
+		$this->searchCriterias = array(
+				'query' => array('type'=>'single'),
+				'title' => array('type'=>'single'),
+				'w_ing' => array('type'=>'array', 'merge'=>'and'),
+				'wo_ing' => array('type'=>'array', 'merge'=>'and'),
+		);
+		$this->criteriaMappingRecipes = array();
+		foreach ($this->searchCategories as $name=>$options){
+			if (isset($options['assignTable'])){
+				$select = $options['assignTable'] . '.' . $options['id'];
+			} else {
+				$select = 'recipes.' . $options['id'];
+			}
+			$this->searchCriterias[$name] = array('type'=>'array', 'merge'=>'or', 'select' => $select);
+			$this->criteriaMappingRecipes[$name] = $select;
+		}
+// 		$this->criteriaMappingRecipes = array(
+// 				'rec_type'=>'recipes.RET_ID',
+// 				'rec_cuisine'=>'recipes.CUT_ID',
+// 				'rec_sub_cuisine'=>'recipes.CST_ID',
+// 				'rec_sub_sub_cuisine'=>'recipes.CSS_ID',
+// 		);
+		
 		$recipesImgUrl = Yii::app()->createAbsoluteUrl("savedImage/recipes");
 		$ingredientsImgUrl = Yii::app()->createAbsoluteUrl("savedImage/ingredients");
 		
-		$this->criteriaMappingRecipes = array(
-				'rec_type'=>'recipes.RET_ID',
-				//'rec_cuisine'=>array('recipes.CUT_ID','recipes.CST_ID','recipes.CSS_ID')
-				'rec_cuisine'=>'recipes.CUT_ID'
-		);
 		$this->fieldMappingRecipes = array(
 				'title' => 'REC_NAME_' . $lang,
-				'img_url' => 'CASE WHEN REC_IMG_ETAG IS NOT NULL AND REC_IMG_ETAG <> \'\' THEN concat("' . $recipesImgUrl . '/", REC_ID ,".png") ELSE "" END',
-				'rec_id' => array('select'=>'REC_ID', 'type'=>'int'),
+				'img_url' => 'CASE WHEN REC_IMG_ETAG IS NOT NULL AND REC_IMG_ETAG <> "" THEN concat("' . $recipesImgUrl . '/", recipes.REC_ID ,".png") ELSE null END',
+				'rec_id' => array('select'=>'recipes.REC_ID', 'type'=>'int'),
 				'rec_type' => array('select'=>'recipes.RET_ID', 'type'=>'int'),
 				'rec_cuisine' => array('select'=>'recipes.CUT_ID', 'type'=>'int'),
+				'rec_sub_cuisine' => array('select'=>'recipes.CST_ID', 'type'=>'int'),
+				'rec_sub_sub_cuisine' => array('select'=>'recipes.CSS_ID', 'type'=>'int'),
+				'prep_time' => array('select'=>'recipes.REC_TIME_PREP', 'type'=>'int'),
+				'cook_time' => array('select'=>'recipes.REC_TIME_COOK', 'type'=>'int'),
+				'total_time' => array('select'=>'recipes.REC_TIME_TOTAL', 'type'=>'int'),
+				'difficulty' => 'difficulty.DIF_DESC_' .$lang,
+				'rating' => array('select'=>'recipes.REC_RATING', 'type'=>'int'),
  				'autor' =>  'CASE WHEN recipes.PRF_UID IS NOT NULL THEN concat(professional_profiles.PRF_FIRSTNAME, " " ,professional_profiles.PRF_LASTNAME) ELSE NULL END',
+				'tags' => array('select'=>'tags.tags', 'type'=>'commalist', 'listType'=>'int'),
 				'lastchange' => array('select'=>'recipes.CHANGED_ON', 'type'=>'int'),
 		);
 //		$this->resultFieldsRecipes =  array('title','img_url','rec_id');
@@ -89,18 +180,29 @@ class ApiController extends CController
 		
 		$this->fieldMappingRecipeDetail = array(
 				'title' => 'REC_NAME_' . $lang,
-				'img_url' => 'CASE WHEN REC_IMG_ETAG IS NOT NULL AND REC_IMG_ETAG <> \'\' THEN concat("' . $recipesImgUrl . '/", REC_ID ,".png") ELSE "" END',
-				'rec_id' => array('select'=>'REC_ID', 'type'=>'int'),
+				'img_url' => 'CASE WHEN REC_IMG_ETAG IS NOT NULL AND REC_IMG_ETAG <> "" THEN concat("' . $recipesImgUrl . '/", recipes.REC_ID ,".png") ELSE null END',
+				'rec_id' => array('select'=>'recipes.REC_ID', 'type'=>'int'),'rec_type' => array('select'=>'recipes.RET_ID', 'type'=>'int'),
+				'rec_type' => array('select'=>'recipes.RET_ID', 'type'=>'int'),
+				'rec_cuisine' => array('select'=>'recipes.CUT_ID', 'type'=>'int'),
+				'rec_sub_cuisine' => array('select'=>'recipes.CST_ID', 'type'=>'int'),
+				'rec_sub_sub_cuisine' => array('select'=>'recipes.CSS_ID', 'type'=>'int'),
+				'prep_time' => array('select'=>'recipes.REC_TIME_PREP', 'type'=>'int'),
+				'cook_time' => array('select'=>'recipes.REC_TIME_COOK', 'type'=>'int'),
+				'total_time' => array('select'=>'recipes.REC_TIME_TOTAL', 'type'=>'int'),
+				'difficulty' => 'difficulty.DIF_DESC_' .$lang,
+				'rating' => array('select'=>'recipes.REC_RATING', 'type'=>'int'),
+				'tags' => array('select'=>'tags.tags', 'type'=>'commalist', 'listType'=>'int'),
 				'lastchange' => array('select'=>'recipes.CHANGED_ON', 'type'=>'int'),
 		);
 		$this->fieldMappingRecipeDetailIngredients = array(
 				'ing_name' => 'ING_NAME_' . $lang,
-				'img_url' => 'CASE WHEN ING_IMG_ETAG IS NOT NULL AND ING_IMG_ETAG <> \'\' THEN concat("' . $ingredientsImgUrl . '/", ingredients.ING_ID ,".png") ELSE "" END',
+				'img_url' => 'CASE WHEN ING_IMG_ETAG IS NOT NULL AND ING_IMG_ETAG <> "" THEN concat("' . $ingredientsImgUrl . '/", ingredients.ING_ID ,".png") ELSE null END',
 				'ing_id' => array('select'=>'ingredients.ING_ID', 'type'=>'int'),
 				'ing_qty' => array('select'=>'sum(steps.STE_GRAMS)', 'type'=>'int'),
 				'qty_unit' => '"g"',
 		);
 		$this->fieldMappingRecipeDetailSteps = array(
+				'isPrepare' => array('select'=>'CASE WHEN (steps.STE_PREP = "Y" OR actions_in.AIN_PREP = "Y") THEN 1 ELSE 0 END', 'type'=>'bool'),
 				'step_no' => array('select'=>'STE_STEP_NO', 'type'=>'int'),
 				'ing_id' => array('select'=>'ING_ID', 'type'=>'int'),
 				'action' => 'AIN_DESC_' . $lang,
@@ -111,7 +213,7 @@ class ApiController extends CController
 		$this->criteriaMappingIngredients = array();
 		$this->fieldMappingIngredients = array(
 				'title' => 'ING_NAME_' . $lang,
-				'img_url' => 'CASE WHEN ING_IMG_ETAG IS NOT NULL AND ING_IMG_ETAG <> \'\' THEN concat("' . $ingredientsImgUrl . '/", ING_ID ,".png") ELSE "" END',
+				'img_url' => 'CASE WHEN ING_IMG_ETAG IS NOT NULL AND ING_IMG_ETAG <> "" THEN concat("' . $ingredientsImgUrl . '/", ING_ID ,".png") ELSE null END',
 				'ing_id' => array('select'=>'ING_ID', 'type'=>'int'),
 		);
 	}
@@ -119,19 +221,16 @@ class ApiController extends CController
 	
 	protected function beforeAction($action)
 	{
-		if (isset($_GET['lang'])){
-			$this->setLangIfValid($_GET['lang']);
-		} else if (isset($_POST['lang'])){
-			$this->setLangIfValid($_POST['lang']);
-		}
-		
-		if (isset($_GET['token'])){
-			$token = $_GET['token'];
-		} else if (isset($_POST['token'])){
-			$token = $_POST['token'];
-		} else {
+		$this->setLangIfValid($this->getParam('lang'));
+		$token = $this->getParam('token');
+		if(!isset($token)){
 			//no token found, error
 			$this->error($this->lang, 'API_GENERAL_NO_TOKEN');
+			return false;
+		}
+		$this->version = floatval($this->getParam('ver', $this->version));
+		if ($this->version != 1){
+			$this->error($this->lang, 'API_GENERAL_INVALID_VERSION');
 			return false;
 		}
 		//TODO: do check of API token here!
@@ -162,6 +261,7 @@ class ApiController extends CController
 	}
 	
 	private function sendResponse($dataArray){
+		$dataArray = array_merge(array('success'=>true,'ver'=>$this->version, 'lang'=>$this->lang), $dataArray);
 		//JSONify $dataArray
 		/*
 			$data = array();
@@ -176,45 +276,227 @@ class ApiController extends CController
 		echo CJSON::encode($dataArray);
 	}
 	
+	private function getParam($param, $default = null){
+		if (isset($_GET[$param])){
+			return $_GET[$param];
+		} else if (isset($_POST[$param])){
+			$param = $_POST[$param];
+		} else {
+			return $default;
+		}
+	}
+	
+	private function loadTreeData($paramOptions, $parentIdField){
+		if (strpos($paramOptions['desc'],' ') !== false){
+			$selectFields = array($paramOptions['id'] . ' as id', $paramOptions['desc'] . ' as `desc`');
+		} else {
+			$selectFields = array($paramOptions['id'] . ' as id', $paramOptions['desc'] . ' as desc');
+		}
+		if (isset($parentIdField)){
+			$selectFields[] = $parentIdField . ' as parentId';
+		}
+		if (isset($paramOptions['otherFields'])){
+			foreach ($paramOptions['otherFields'] as $alias=>$field){
+				$selectFields[] = $field . ' as ' . $alias;
+			}
+		}
+		$command = Yii::app()->db->createCommand()->select($selectFields)
+			->from($paramOptions['table'])
+			->order($paramOptions['desc']);
+		if (isset($paramOptions['conditions'])){
+			$command->where($paramOptions['conditions']['where'],$paramOptions['conditions']['params']);
+		}
+		
+		$values = $command->queryAll();
+		
+		$valuesPrepared = array();
+		foreach($values as $value){
+			$valuePrepared = $value;
+			$valuePrepared['id'] = intval($valuePrepared['id']);
+			if(isset($valuePrepared['parentId'])){
+				$parentId = $valuePrepared['parentId'];
+				unset($valuePrepared['parentId']);
+				if (!isset($valuesPrepared[$parentId])){
+					$valuesPrepared[$parentId] = array();
+				}
+				$valuesPrepared[$parentId][] = $valuePrepared;
+			} else {
+				$valuesPrepared[] = $valuePrepared;
+			}
+		}
+		return $valuesPrepared;
+	}
+	
+	private function loadTreeSubData(&$treeValues, $typeName, $parentIdField){
+		if (!array_key_exists($typeName, $treeValues)){
+			if (array_key_exists($typeName, $this->searchCategories)){
+				$typeOptions = $this->searchCategories[$typeName];
+				$treeValues[$typeName] = $this->loadTreeData($typeOptions, $parentIdField);
+				
+				if (isset($typeOptions['subTypes'])){
+					$subTypes = $typeOptions['subTypes'];
+					foreach ($subTypes as $subType){
+						$this->loadTreeSubData($treeValues, $subType, $typeOptions['id']);
+					}
+				}
+			}
+		}
+	}
+	
+	private function prepareTreeData($treeValues, $typeOptions, $values){
+		if (isset($typeOptions['subTypes'])){
+			$subTypes = $typeOptions['subTypes'];
+			$subTypesOptions = array();
+			foreach ($subTypes as $subType){
+				if (array_key_exists($subType, $this->searchCategories)){
+					$subTypesOptions[$subType] = $this->searchCategories[$subType];
+				}
+			}
+			if (count($subTypesOptions) == 0){
+				return $values;
+			}
+			$valuesPrepared = array();
+			foreach ($values as $value){
+				$valuePrepared = $value;
+				$subTypeValues = array();
+				foreach ($subTypesOptions as $subType=>$subTypeOptions){
+					$subValues = $treeValues[$subType];
+					$parentId = $value['id'];
+					if(isset($subValues[$parentId])){
+						$subTypeValues[$subType] = $this->prepareTreeData($treeValues, $subTypeOptions, $subValues[$parentId]);
+					}
+				}
+				$valuePrepared['subTypes'] = $subTypeValues;
+				$valuesPrepared[] = $valuePrepared;
+			}
+			return $valuesPrepared;
+		} else {
+			return $values;
+		}
+		
+	}
+	
+	/* ################# searchCategories ################# */
+	// http://localhost/EveryCook/api/recipeDetail?token=everycook&rec_id=1&servings=1
+	public function actionSearchCategories(){
+		$params = array();
+		foreach ($this->searchCategories as $name=>$options){
+			$paramValue = $this->getParam($name);
+			if (isset($paramValue)){
+				$params[$name] = $paramValue;
+			} 
+		}
+		$data = array();
+		$paramType = $this->getParam('type');
+		$fullTree = $this->getParam('tree');
+		if(isset($paramType)){
+			if (!array_key_exists($paramType, $this->searchCategories)){
+				$this->error($this->lang, 'API_SEARCH_CATEGORIES_INVALID_TYPE');
+				return;
+			}
+			$paramOptions = $this->searchCategories[$paramType];
+			if ($fullTree){
+				$treeValues = array();
+				$this->loadTreeSubData($treeValues, $paramType, null);
+				$parent = $treeValues[$paramType];
+				$valuesPrepared = $this->prepareTreeData($treeValues, $paramOptions, $parent);
+			} else {
+				if (strpos($paramOptions['desc'],' ') !== false){
+					$selectFields = array($paramOptions['id'] . ' as id', $paramOptions['desc'] . ' as `desc`');
+				} else {
+					$selectFields = array($paramOptions['id'] . ' as id', $paramOptions['desc'] . ' as desc');
+				}
+				if (isset($paramOptions['otherFields'])){
+					foreach ($paramOptions['otherFields'] as $alias=>$field){
+						$selectFields[] = $field . ' as ' . $alias; 
+					}
+				}
+				$command = Yii::app()->db->createCommand()->select($selectFields)
+					->from($paramOptions['table'])
+					//->order($paramOptions['desc']);
+					->order('desc');
+				if (isset($paramOptions['conditions'])){
+					$command->where($paramOptions['conditions']['where'],$paramOptions['conditions']['params']);
+				}
+				if (count($params) > 0) {
+					$parent = $paramOptions['parent'];
+	// 				foreach($paramValues as $key => $value){ 
+	// 					if($parent == $key){
+					if (isset($params[$parent])){
+						$parentParamOptions = $this->searchCategories[$parent];
+						//$command->join($parentParamOptions['table'], $paramOptions['table'] . '.' . $parentParamOptions['id'] .'=' . $parentParamOptions['table'] . '.' . $parentParamOptions['id']);
+						//$command->where($parentParamOptions['table'] . '.' . $parentParamOptions['id'] . ' = :parentId', array(':parentId' => $params[$parent]));
+						if (isset($paramOptions['conditions'])){
+							$command->where($paramOptions['conditions']['where'] . ' AND ' . $parentParamOptions['id'] . ' = :parentId',array_merge($paramOptions['conditions']['params'], array(':parentId' => $params[$parent])));
+						} else {
+							$command->where($parentParamOptions['id'] . ' = :parentId', array(':parentId' => $params[$parent]));
+						}
+					}
+				}
+				$values = $command->queryAll();
+				
+				$valuesPrepared = array();
+				foreach($values as $value){
+					$valuePrepared = $value;
+					$valuePrepared['id'] = intval($valuePrepared['id']);
+					$valuesPrepared[] = $valuePrepared;
+				}
+			}
+			$data['values'] = $valuesPrepared;
 
+			self::$trans = Controller::loadTranslations($this->lang);
+			$data['desc'] = self::$trans->__get('FIELD_' . $paramOptions['id']);
+			$data['subTypes'] = $paramOptions['subTypes'];
+			$data['parent'] = $paramOptions['parent'];
+			
+			
+			$params['type'] = $paramType;
+		} else {
+			//show possible types
+			self::$trans = Controller::loadTranslations($this->lang);
+			$typeValues = array();
+			foreach ($this->searchCategories as $paramType=>$paramOptions){
+				$otherFields = null;
+				if(is_array($paramOptions['otherFields'])){
+					$otherFields = array_keys($paramOptions['otherFields']);
+				}
+				$typeValues[] = array('type'=>$paramType, 'desc' => self::$trans->__get('FIELD_' . $paramOptions['id']), 'otherFields'=>$otherFields, 'subTypes' => $paramOptions['subTypes'], 'parent' => $paramOptions['parent']);
+			}
+			$data['types'] = $typeValues;
+		}
+		$result = array(
+				'success' => true,
+				'data' => $data,
+				'params' => $params,
+		);
+		
+		//output result
+		$this->sendResponse($result);
+	}
 
 	/* ################# Recipe Detail ################# */
 	// http://localhost/EveryCook/api/recipeDetail?token=everycook&rec_id=1&servings=1
 	public function actionRecipeDetail(){
-		if (isset($_GET['rec_id'])){
-			$rec_id = $_GET['rec_id'];
-		} else if (isset($_POST['rec_id'])){
-			$rec_id = $_POST['rec_id'];
-		} else {
+		$rec_id = $this->getParam('rec_id');
+		if (!isset($rec_id)){
 			$this->error($this->lang, 'API_DETAIL_NO_ID');
 			return;
 		}
 	
 		$prepareParam = array();
-		if (isset($_GET['servings'])){
-			$prepareParam['servings'] = $_GET['servings'];
-		} else if (isset($_POST['servings'])){
-			$prepareParam['servings'] = $_POST['servings'];
-		}
-		if (isset($_GET['calories'])){
-			$prepareParam['calories'] = $_GET['calories'];
-		} else if (isset($_POST['calories '])){
-			$prepareParam['calories'] = $_POST['calories'];
-		}
-		if (isset($_GET['co_in'])){
-			$prepareParam['co_in'] = $_GET['co_in'];
-		} else if (isset($_POST['co_in'])){
-			$prepareParam['co_in'] = $_POST['co_in'];
-		} else {
-			$prepareParam['co_in'] = 3; //COI_ID for Cooking pot
-		}
+		$prepareParam['rec_id'] = $rec_id;
+		$prepareParam['servings'] = $this->getParam('servings', null);
+		$prepareParam['calories'] = $this->getParam('calories', null);
+		$prepareParam['co_in'] = $this->getParam('co_in', null);
+		
 		if (isset($prepareParam['co_in'])){
 			if (!is_numeric($prepareParam['co_in'])){
 				if ($prepareParam['co_in'] == 'everycook' || $prepareParam['co_in'] == 'ec'){
 					$prepareParam['co_in'] = 1; //COI_ID for everycook
 				} else {
 					//unset($prepareParam['co_in']);
-					$prepareParam['co_in'] = 3; //COI_ID for Cooking pot
+// 					$prepareParam['co_in'] = 3; //COI_ID for Cooking pot
+					$prepareParam['co_in'] = null;
 				}
 			}
 		}
@@ -231,9 +513,15 @@ class ApiController extends CController
 		//set selected fields
 		$command->select = $this->fieldMappingToSelect($fieldsToSelect);
 		$command->from = 'recipes';
+		if (strpos($command->select, 'tags.tags') !== false){
+			$command->leftJoin('(SELECT REC_ID, GROUP_CONCAT(`TAG_ID` SEPARATOR \',\') as tags FROM `rec_to_tag` GROUP BY REC_ID) tags', 'recipes.REC_ID = tags.REC_ID');
+		}
+		if (strpos($command->select, 'difficulty.') !== false){
+			$command->leftJoin('difficulty', 'recipes.DIF_ID=difficulty.DIF_ID');
+		}
 		$command->where('recipes.REC_ID = :id', array(':id'=>$rec_id));
 		$recipe = $command->queryRow();
-	
+		
 		if ($recipe === false){
 			//recipe with given id not found
 			$this->error($this->lang, 'API_DETAIL_NO_ID', array(
@@ -281,7 +569,23 @@ class ApiController extends CController
 		//query step Informations
 		$fieldMappingSteps = $this->fieldMappingRecipeDetailSteps;
 		$actionTextFields = array_flip(Steps::getFieldToCssClass());
-		$actionTextFields['cookin'] = '("#cookin#")';
+		
+		$command = Yii::app()->db->createCommand()
+			->select('cook_in.COI_ID, cook_in.COI_DESC_' . $this->lang)
+			->from('recipes')
+			->leftJoin('rec_to_coi', 'recipes.REC_ID=rec_to_coi.REC_ID')
+			->leftJoin('cook_in', 'rec_to_coi.COI_ID=cook_in.COI_ID')
+			->where('recipes.REC_ID = :id', array(':id'=>$rec_id));
+		$cookIns = $command->queryAll();
+		$cookIn = $cookIns[0]['COI_DESC_' . $this->lang];
+		foreach($cookIns as $line){
+			if ($line['COI_ID'] != 1){
+				$cookIn = $line['COI_DESC_' . $this->lang];
+				break;
+			}
+		}
+		
+		$actionTextFields['cookin'] = '("'.$cookIn.'")';
 		//$actionTextFields['tools'] = 'action_out.TOO_ID';
 		$fieldMappingStepsSelect = array_merge($fieldMappingSteps, $actionTextFields);
 		
@@ -358,10 +662,16 @@ class ApiController extends CController
 		$globalTextParams['press_unit'] = 'kpa';
 		$recipeResult['globalTextParams'] = $globalTextParams;
 		
+		foreach ($prepareParam as $key=>$value){
+			if ($value == null){
+				unset($prepareParam[$key]);
+			}
+		}
+		
 		$result = array(
 				'success' => true,
 				'data' => $recipeResult,
-				'prepareParam' => $prepareParam,
+				'params' => $prepareParam,
 		);
 		
 		//output result
@@ -376,70 +686,26 @@ class ApiController extends CController
 	public $pageLimit = 10;
 	public $searchSort = 'score';
 	protected function loadPaginationInformations(){
-		if (isset($_GET['offset'])){
-			$this->pageOffset = intval($_GET['offset']);
-		} else if (isset($_POST['offset'])){
-			$this->pageOffset = intval($_POST['offset']);
-		}
-		
-		if (isset($_GET['limit'])){
-			$this->pageLimit = intval($_GET['limit']);
-		} else if (isset($_POST['limit'])){
-			$this->pageLimit = intval($_POST['limit']);
-		}
-		
-		if (isset($_GET['sort'])){
-			$this->searchSort = $_GET['sort'];
-		} else if (isset($_POST['sort'])){
-			$this->searchSort = $_POST['sort'];
-		}
+		$this->pageOffset = $this->getParam('offset', $this->pageOffset);
+		$this->pageLimit = $this->getParam('limit', $this->pageLimit);
+		$this->searchSort = $this->getParam('sort', $this->searchSort);
 	}
 	
 	public function actionSearchRecipes(){
 		$this->loadPaginationInformations();
 		
 		$searchParam = array();
-		//overall search
-		if (isset($_GET['query'])){
-			$searchParam['query'] = $_GET['query'];
-		} else if (isset($_POST['query'])){
-			$searchParam['query'] = $_POST['query'];
+		foreach($this->searchCriterias as $param => $options){
+			$value = $this->getParam($param);
+			if(isset($value)){
+				if($options['type'] == 'array'){
+					if (!is_array($value)){
+						$value = split(',', $value);
+					}
+				}
+				$searchParam[$param] = $value;
+			}
 		}
-		//search only in title
-		if (isset($_GET['title'])){
-			$searchParam['title'] = $_GET['title'];
-		} else if (isset($_POST['title'])){
-			$searchParam['title'] = $_POST['title'];
-		}
-		if (isset($_GET['w_ing'])){
-			$searchParam['w_ing'] = $_GET['w_ing'];
-		} else if (isset($_POST['w_ing'])){
-			$searchParam['w_ing'] = $_POST['w_ing'];
-		}
-		if (isset($searchParam['w_ing']) && is_string($searchParam['w_ing'])){
-			$searchParam['w_ing'] = split(',', $searchParam['w_ing']);
-		}
-		if (isset($_GET['wo_ing'])){
-			$searchParam['wo_ing'] = $_GET['wo_ing'];
-		} else if (isset($_POST['wo_ing'])){
-			$searchParam['wo_ing'] = $_POST['wo_ing'];
-		}
-		if (isset($searchParam['wo_ing']) && is_string($searchParam['wo_ing'])){
-			$searchParam['wo_ing'] = split(',', $searchParam['wo_ing']);
-		}
-		
-		if (isset($_GET['rec_type'])){
-			$searchParam['rec_type'] = $_GET['rec_type'];
-		} else if (isset($_POST['rec_type'])){
-			$searchParam['rec_type'] = $_POST['rec_type'];
-		}
-		
-		if (isset($_GET['rec_cuisine'])){
-			$searchParam['rec_cuisine'] = $_GET['rec_cuisine'];
-		} else if (isset($_POST['wo_ing'])){
-			$searchParam['rec_cuisine'] = $_POST['rec_cuisine'];
-		}
-		
 		$resultField = $this->resultFieldsRecipes;
 		$this->performSearch('recipes', $searchParam, $resultField);
 	}
@@ -584,8 +850,8 @@ class ApiController extends CController
 					'old'=>'CANGED_ON', 
 					'K'=>'REC_KCAL',
 					'k'=>'REC_KCAL DESC',
-					'C'=>'REC_COMPLEXITY',
-					'c'=>'REC_COMPLEXITY DESC',
+// 					'C'=>'REC_COMPLEXITY', DIF_ORDER
+// 					'c'=>'REC_COMPLEXITY DESC',
 					/*
 					'P'=>'PreparationTime',
 					'R'=>'Rating',''=>'',
@@ -612,7 +878,7 @@ class ApiController extends CController
 			}
 		}
 		
-		
+		$criteria->distinct = true;
 		//get total count
 		$command = $this->criteriaToCommand($criteria);
 		$searchSql = $command->getText();
@@ -647,9 +913,8 @@ class ApiController extends CController
 				'limit' => $this->pageLimit,
 				'length' => count($rows),
 				'total' => $totalCount,
-				'lang' => $this->lang,
 				'data' => $data,
-				'searchParam' => $searchParam,
+				'params' => $searchParam,
 		);
 		
 		//output result
@@ -724,6 +989,23 @@ class ApiController extends CController
 					if (isset($field['type'])){
 						if ($field['type'] == 'int'){
 							$result[$alias] = intval($result[$alias]);
+						} else if ($field['type'] == 'bool'){
+							if (is_numeric($result[$alias])){
+								$result[$alias] = $result[$alias] == 1;
+							} else if (is_string($result[$alias])){
+								$result[$alias] = $result[$alias] == 'Y' || strtolower($result[$alias]) == 'true';
+// 								} else {
+// 									$result[$alias] = !!$result[$alias];
+							}
+						} else if ($field['type'] == 'commalist'){
+							$result[$alias] = explode (',', $result[$alias]);
+							if (isset($field['listType']) && $field['listType'] == 'int'){
+								$listResult = $result[$alias];
+								foreach($listResult as $index=>$value){
+									$listResult[$index] = intval($value);
+								}
+								$result[$alias] = $listResult;
+							}
 						}
 					}
 				}
@@ -781,7 +1063,18 @@ class ApiController extends CController
 		} else if (strpos($criteria->condition, 'steps.') !== false){
 			$command->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID');
 		}
-	
+		if (strpos($criteria->condition, 'rec_to_tag.') !== false){
+			$command->leftJoin('rec_to_tag', 'recipes.REC_ID=rec_to_tag.REC_ID');
+		}
+		if (strpos($criteria->select, 'tags.tags') !== false){
+			$command->leftJoin('(SELECT REC_ID, GROUP_CONCAT(`TAG_ID` SEPARATOR \',\') as tags FROM `rec_to_tag` GROUP BY REC_ID) tags', 'recipes.REC_ID = tags.REC_ID');
+		}
+		//LEFT OUTER JOIN (SELECT REC_ID, GROUP_CONCAT(`TAG_ID`SEPARATOR ',') as tags FROM `rec_to_tag` GROUP BY REC_ID) tags ON recipes.REC_ID = tags.REC_ID
+
+		if (strpos($criteria->select, 'difficulty.') !== false){
+			$command->leftJoin('difficulty', 'recipes.DIF_ID=difficulty.DIF_ID');
+		}
+		
 		if (isset($criteria->condition)){
 			$command->where($criteria->condition);
 		}

@@ -46,4 +46,6 @@ $this->menu=array(
 	'ingredientAmount'=>$ingredientAmount,
 	'stepsJSON'=>$stepsJSON,
 	'actionsInDetails'=>$actionsInDetails,
+	'tags'=>$tags,
+	'difficulty'=>$difficulty,
 	)); ?>

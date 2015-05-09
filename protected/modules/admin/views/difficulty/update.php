@@ -16,33 +16,20 @@ See GPLv3.htm in the main folder for details.
 */
 
 $this->breadcrumbs=array(
-	'Recipes'=>array('index'),
-	'Create',
+	'Difficulties'=>array('index'),
+	$model->DIF_ID=>array('view','id'=>$model->DIF_ID),
+	'Update',
 );
 
 $this->menu=array(
-	array('label'=>'List Recipes', 'url'=>array('index')),
-	array('label'=>'Manage Recipes', 'url'=>array('admin')),
+	array('label'=>'List Difficulty', 'url'=>array('index')),
+	array('label'=>'Create Difficulty', 'url'=>array('create')),
+	array('label'=>'View Difficulty', 'url'=>array('view', 'id'=>$model->DIF_ID)),
+	array('label'=>'Manage Difficulty', 'url'=>array('admin')),
 );
 ?>
 
-<?php /*<h1><?php echo $this->trans->TITLE_RECIPES_CREATE; ?></h1> */?>
-
+<h1><?php printf($this->trans->TITLE_DIFFICULTY_UPDATE, $model->DIF_ID); ?></h1>
 <?php echo $this->renderPartial('_form', array(
 	'model'=>$model,
-	'recipeTypes'=>$recipeTypes,
-	'cusineTypes'=>$cusineTypes,
-	'cusineSubTypes'=>$cusineSubTypes,
-	'cusineSubSubTypes'=>$cusineSubSubTypes,
-	'actionsIn'=>$actionsIn,
-	'cookIns'=>$cookIns,
-	'cookInsSelected'=>$cookInsSelected,
-	'tools'=>$tools,
-	'ingredients'=>$ingredients,
-	'ingredientDetails'=>$ingredientDetails,
-	'ingredientAmount'=>$ingredientAmount,
-	'stepsJSON'=>$stepsJSON,
-	'actionsInDetails'=>$actionsInDetails,
-	'tags'=>$tags,
-	'difficulty'=>$difficulty,
 	)); ?>

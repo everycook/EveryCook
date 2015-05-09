@@ -52,7 +52,7 @@ class Tags extends ActiveRecordEC
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('TAG_IGNORE, TAG_DESC_EN_GB, TAG_DESC_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
+			array('TAG_IGNORE, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
 			array('CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('TAG_IGNORE', 'length', 'max'=>1),
 			array('TAG_DESC_EN_GB, TAG_DESC_DE_CH', 'length', 'max'=>100),

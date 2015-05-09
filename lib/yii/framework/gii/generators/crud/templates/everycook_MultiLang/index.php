@@ -47,7 +47,7 @@ if (!$this->isFancyAjaxRequest){
 <?php echo '<h1><?php echo $this->trans->TITLE_' . $transKey . '_LIST; ?></h1>'; ?>
 
 <div class="f-center">
-	<?php echo "<?php\n";?>  echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('create','newModel'=>time()), array('class'=>'button', 'id'=>'create')); ?><br>
+	<?php echo "<?php";?>  echo CHtml::link($this->trans->GENERAL_CREATE_NEW, array('create','newModel'=>time()), array('class'=>'button', 'id'=>'create')); ?><br>
 </div>
 
 <?php echo "<?php"; ?> $this->widget('AjaxPagingListView', array(

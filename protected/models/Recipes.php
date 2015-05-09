@@ -32,7 +32,11 @@ See GPLv3.htm in the main folder for details.
  * @property integer $REC_SERVING_COUNT
  * @property string $REC_WIKI_LINK
  * @property string $REC_IS_PRIVATE
- * @property integer $REC_COMPLEXITY
+ * @property integer $DIF_ID
+ * @property string $REC_RATING
+ * @property integer $REC_TIME_PREP
+ * @property integer $REC_TIME_COOK
+ * @property integer $REC_TIME_TOTAL
  * @property integer $CUT_ID
  * @property integer $CST_ID
  * @property integer $CSS_ID
@@ -77,18 +81,19 @@ class Recipes extends ActiveRecordEC
 		return array(
 			array('RET_ID, REC_SERVING_COUNT, REC_NAME_EN_GB, CREATED_BY, CREATED_ON', 'required'),
 			array('REC_IMG_AUTH', 'required', 'on'=>'withPic'),
-			array('REC_ID, PRF_UID, RET_ID, REC_KCAL, REC_SERVING_COUNT, REC_COMPLEXITY, CUT_ID, CST_ID, CSS_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('REC_ID, PRF_UID, RET_ID, REC_KCAL, REC_SERVING_COUNT, DIF_ID, REC_TIME_PREP, REC_TIME_COOK, REC_TIME_TOTAL, CUT_ID, CST_ID, CSS_ID, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
 			array('REC_CUSINE_GPS_LAT, REC_CUSINE_GPS_LNG', 'numerical'),
 			array('REC_IMG_FILENAME', 'length', 'max'=>250),
 			array('REC_IMG_AUTH', 'length', 'max'=>30),
 			array('REC_IMG_ETAG', 'length', 'max'=>40),
 			array('REC_HAS_ALLERGY_INFO, REC_APPROVED, REC_IS_PRIVATE', 'length', 'max'=>1),
 			array('REC_SUMMARY, REC_WIKI_LINK, REC_SYNONYM_EN_GB, REC_SYNONYM_DE_CH', 'length', 'max'=>200),
+			array('REC_RATING', 'length', 'max'=>10),
 			array('REC_TOOLS, REC_NAME_EN_GB, REC_NAME_DE_CH', 'length', 'max'=>100),
 			array('RET_ID, steps', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('REC_ID, PRF_UID, REC_IMG_FILENAME, REC_IMG_AUTH, REC_IMG_ETAG, RET_ID, REC_KCAL, REC_HAS_ALLERGY_INFO, REC_SUMMARY, REC_APPROVED, REC_SERVING_COUNT, REC_WIKI_LINK, REC_IS_PRIVATE, REC_COMPLEXITY, CUT_ID, CST_ID, CSS_ID, REC_CUSINE_GPS_LAT, REC_CUSINE_GPS_LNG, REC_TOOLS, REC_SYNONYM_EN_GB, REC_SYNONYM_DE_CH, REC_NAME_EN_GB, REC_NAME_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('REC_ID, PRF_UID, REC_IMG_FILENAME, REC_IMG_AUTH, REC_IMG_ETAG, RET_ID, REC_KCAL, REC_HAS_ALLERGY_INFO, REC_SUMMARY, REC_APPROVED, REC_SERVING_COUNT, REC_WIKI_LINK, REC_IS_PRIVATE, DIF_ID, REC_RATING, REC_TIME_PREP, REC_TIME_COOK, REC_TIME_TOTAL, CUT_ID, CST_ID, CSS_ID, REC_CUSINE_GPS_LAT, REC_CUSINE_GPS_LNG, REC_TOOLS, REC_SYNONYM_EN_GB, REC_SYNONYM_DE_CH, REC_NAME_EN_GB, REC_NAME_DE_CH, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -100,10 +105,12 @@ class Recipes extends ActiveRecordEC
 		// class name for the relations automatically generated below.
 		return array(
 			'recipeTypes' => array(self::BELONGS_TO, 'RecipeTypes', 'RET_ID'),
+			'difficulty' => array(self::BELONGS_TO, 'Difficulty', 'DIF_ID'),
 			'cusineTypes' => array(self::BELONGS_TO, 'CusineTypes', 'CUT_ID'),
 			'cusineSubTypes' => array(self::BELONGS_TO, 'CusineSubTypes', 'CST_ID'),
 			'cusineSubSubTypes' => array(self::BELONGS_TO, 'CusineSubSubTypes', 'CSS_ID'),
 			'recToCois' => array(self::HAS_MANY, 'RecToCoi', 'REC_ID'),
+			'recToTags' => array(self::HAS_MANY, 'RecToTag', 'REC_ID'),
 			'steps' => array(self::HAS_MANY, 'Steps', 'REC_ID'),
 		);
 	}
@@ -126,7 +133,11 @@ class Recipes extends ActiveRecordEC
 			'REC_SERVING_COUNT' => 'Rec Serving Count',
 			'REC_WIKI_LINK' => 'Rec Wiki Link',
 			'REC_IS_PRIVATE' => 'Rec Is Private',
-			'REC_COMPLEXITY' => 'Rec Complexity',
+			'DIF_ID' => 'Dif',
+			'REC_RATING' => 'Rec Rating',
+			'REC_TIME_PREP' => 'Rec Time Prep',
+			'REC_TIME_COOK' => 'Rec Time Cook',
+			'REC_TIME_TOTAL' => 'Rec Time Total',
 			'CUT_ID' => 'Cut',
 			'CST_ID' => 'Cst',
 			'CSS_ID' => 'Css',
@@ -165,7 +176,11 @@ class Recipes extends ActiveRecordEC
 		$criteria->compare($this->tableName().'.REC_SERVING_COUNT',$this->REC_SERVING_COUNT);
 		$criteria->compare($this->tableName().'.REC_WIKI_LINK',$this->REC_WIKI_LINK,true);
 		$criteria->compare($this->tableName().'.REC_IS_PRIVATE',$this->REC_IS_PRIVATE,true);
-		$criteria->compare($this->tableName().'.REC_COMPLEXITY',$this->REC_COMPLEXITY);
+		$criteria->compare($this->tableName().'.DIF_ID',$this->DIF_ID);
+		$criteria->compare($this->tableName().'.REC_RATING',$this->REC_RATING,true);
+		$criteria->compare($this->tableName().'.REC_TIME_PREP',$this->REC_TIME_PREP);
+		$criteria->compare($this->tableName().'.REC_TIME_COOK',$this->REC_TIME_COOK);
+		$criteria->compare($this->tableName().'.REC_TIME_TOTAL',$this->REC_TIME_TOTAL);
 		$criteria->compare($this->tableName().'.CUT_ID',$this->CUT_ID);
 		$criteria->compare($this->tableName().'.CST_ID',$this->CST_ID);
 		$criteria->compare($this->tableName().'.CSS_ID',$this->CSS_ID);
@@ -203,7 +218,11 @@ class Recipes extends ActiveRecordEC
 		$criteria->compare('REC_SERVING_COUNT',$this->REC_SERVING_COUNT);
 		$criteria->compare('REC_WIKI_LINK',$this->REC_WIKI_LINK,true);
 		$criteria->compare('REC_IS_PRIVATE',$this->REC_IS_PRIVATE,true);
-		$criteria->compare('REC_COMPLEXITY',$this->REC_COMPLEXITY);
+		$criteria->compare('DIF_ID',$this->DIF_ID);
+		$criteria->compare('REC_RATING',$this->REC_RATING,true);
+		$criteria->compare('REC_TIME_PREP',$this->REC_TIME_PREP);
+		$criteria->compare('REC_TIME_COOK',$this->REC_TIME_COOK);
+		$criteria->compare('REC_TIME_TOTAL',$this->REC_TIME_TOTAL);
 		$criteria->compare('CUT_ID',$this->CUT_ID);
 		$criteria->compare('CST_ID',$this->CST_ID);
 		$criteria->compare('CSS_ID',$this->CSS_ID);

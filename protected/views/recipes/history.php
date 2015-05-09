@@ -112,7 +112,7 @@ $this->breadcrumbs=array(
 		'REC_SERVING_COUNT',
 		'REC_WIKI_LINK',
 		'REC_IS_PRIVATE',
-		'REC_COMPLEXITY',
+		'DIF_ID',
 		'CUT_ID',
 		'CST_ID',
 		'REC_CUSINE_GPS_LAT',

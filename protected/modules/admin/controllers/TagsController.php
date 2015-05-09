@@ -106,8 +106,9 @@ class TagsController extends Controller
 			if($model->save()){
 				unset(Yii::app()->session[$this->createBackup]);
 				unset(Yii::app()->session[$this->createBackup.'_Time']);
-				$this->forwardAfterSave(array('view', 'id'=>$model->TAG_ID));
+				$this->forwardAfterSave(array('search'));
 				//$this->forwardAfterSave(array('search', 'query'=>$model->__get('TAG_DESC_' . Yii::app()->session['lang'])));
+				//$this->showLastNotCreateAction();
 				return;
 			}
 		}
@@ -250,9 +251,30 @@ class TagsController extends Controller
 				//$command->where('1=0');
 				unset(Yii::app()->session[$this->searchBackup]);
 			}
+			$orderText = 'emptyField, ';
+			$selectText = '(CASE';
+			foreach($this->allLanguages as $lang=>$name){
+				//$orderText .= 'TAG_DESC_' . $lang . ', ';
+				$selectText .= ' WHEN TAG_DESC_' . $lang . ' IS NULL OR TAG_DESC_' . $lang . ' = "" THEN 0';
+			}
+			$selectText .= " ELSE 1 END) as emptyField";
+			$command->select('*, '.$selectText);
+			$command->order($orderText . "CREATED_ON DESC");
 			$rows = $command->queryAll();
 		} else {
-			$rows = array();
+			//$rows = array();
+			$orderText = 'emptyField, ';
+			$selectText = '(CASE';
+			foreach($this->allLanguages as $lang=>$name){
+				//$orderText .= 'TAG_DESC_' . $lang . ', ';
+				$selectText .= ' WHEN TAG_DESC_' . $lang . ' IS NULL OR TAG_DESC_' . $lang . ' = "" THEN 0';
+			}
+			$selectText .= " ELSE 1 END) as emptyField";
+			$command = Yii::app()->db->createCommand()
+				->select('*, '.$selectText)
+				->from($model->tableName())
+				->order($orderText . "CREATED_ON DESC");
+			$rows = $command->queryAll();
 			unset(Yii::app()->session[$this->searchBackup]);
 		}
 		

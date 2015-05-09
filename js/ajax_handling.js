@@ -256,6 +256,56 @@ glob.select2.selectCusinesFormatSelection = function (cusine) {
 	return glob.select2.formatResultImg(cusine.name, cusine.name, cusine, 'cusineImg');
 }
 
+
+glob.select2.searchTagAjax = {
+	url: glob.prefix + "recipes/tagAutocomplete",
+	dataType: 'json',
+	quietMillis: 250,
+	data: function (term, page) { // page is the one-based page number tracked by Select2
+		glob.ShowActivity = false;
+		return {
+			'query': term, //search term
+			'page': page, // page number
+			'light_weight':1 //say do not do so much things
+		};
+	},
+	results: function (data, page) {
+		glob.ShowActivity = true;
+		var more = (page * 30) < data.total_count; // whether or not there are more results available
+		
+		// notice we return the value of more so Select2 knows if more results can be loaded
+		return { results: data.items, more: more };
+	}
+};
+
+glob.select2.searchTagInitSelection = function(element, callback) {
+	var id = $(element).val();
+	if (id !== "") {
+		$.ajax(glob.prefix + "recipes/tagAutocompleteId/?ids=" + id, {
+			dataType: "json"
+		}).done(function(data) { callback(data); });
+	}
+};
+
+glob.select2.createTagChoice = function(term, data) {
+	if ($(data).filter(function() {return this.name.localeCompare(term)===0; }).length===0) {
+		if (!$.isNumeric(term) && term.indexOf(',') == -1 && term.length > 1 && term.length <= 100){
+			return {'id':term, 'name':term};
+		}
+	}
+}
+
+glob.select2.searchTagFormatResult = function (tag, elem, query) {
+	var text = tag.name;
+	var result = glob.select2.formatResult(text, query);
+	return '<span class="text">' + text + '</span>';
+};
+
+glob.select2.searchTagFormatSelection = function (tag) {
+	var text = tag.name;
+	return '<span class="text">' + text + '</span>';
+}
+
 glob.typeahead = {};
 
 glob.typeahead.recipes = new Bloodhound({
@@ -1732,6 +1782,19 @@ jQuery(function($){
 		}
 	});
 	*/
+	jQuery('body').undelegate('#commands select','change').delegate('#commands select','change',function(){
+		var url = jQuery('commandParamsUrl').val();
+		url = glob.urlAddParamStart(url) + "cmd_id=" + jQuery(this).val();
+		jQuery.ajax({'type':'get', 'url':url,
+			'success':function(data){
+				successFunc(data, 'form');
+			},
+			'error':function(xhr){
+				ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
+			},
+		});
+		ajax();
+	});
 	
 	//Recipe Search
 	jQuery('body').undelegate('#filters input, #filters select, #recipeOrderBy select','change').delegate('#filters input, #filters select, #recipeOrderBy select','change', function(){

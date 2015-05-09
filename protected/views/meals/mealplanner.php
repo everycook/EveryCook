@@ -30,8 +30,6 @@ See GPLv3.htm in the main folder for details.
 	//'htmlOptions'=>array('class'=>'noAjax'),
 )); ?>
 
-	<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
-
 	<?php 
 		echo $form->errorSummary($model);
 		if ($this->errorText){
