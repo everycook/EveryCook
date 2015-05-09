@@ -49,7 +49,7 @@ class IngredientsController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','getSubGroupSearch','getSubGroupForm','chooseIngredient','advanceChooseIngredient','getNext','chooseIngredientInRecipe','autocomplete','autocompleteId','generateFlickrImage'),
+				'actions'=>array('index','view','search','advanceSearch','displaySavedImage','getSubGroupSearch','getSubGroupForm','chooseIngredient','advanceChooseIngredient','getNext','chooseIngredientInRecipe','autocomplete','autocompleteId','generateFlickrImage','translateTextMicrosoft'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -1167,4 +1167,75 @@ class IngredientsController extends Controller
 			}
 		}
 	}
+    
+    public function actionTranslateTextMicrosoft($text){
+        define( 'CLIENT_ID', 'Everycook' );
+        define( 'CLIENT_SECRET', 'TlCYwFbDr2DDA+1B7rPJzKjk9zT39Gmfte1fCbXtEA8=' );
+        define( 'GRANT_TYPE', 'client_credentials' );
+        define( 'SCOPE_URL', 'http://api.microsofttranslator.com' );
+        define( 'AUTH_URL', 'https://datamarket.accesscontrol.windows.net/v2/OAuth2-13/' );
+        
+        $from = 'en';
+        $to = 'de';
+        
+        try
+        {
+            $accessToken = $this->GetAccessTokens( GRANT_TYPE, SCOPE_URL, CLIENT_ID, CLIENT_SECRET, AUTH_URL );
+            $authHeader = 'Authorization: Bearer '.$accessToken;
+            
+            $url = 'http://api.microsofttranslator.com/V2/Http.svc/Translate?'
+            .http_build_query( compact( 'text', 'from', 'to' ) );
+            
+            $response = $this->Request( $url, $authHeader );
+            $response=explode(">",$response);
+            $response=explode("<",$response[1]);
+
+            echo $response[0];
+        }
+        catch( Exception $e )
+        {
+            echo $e->getMessage();
+        }
+        
+    
+    }
+                    
+    function GetAccessTokens( $grant_type, $scope, $client_id, $client_secret, $auth_url ){
+            $params = http_build_query(compact( 'grant_type', 'scope', 'client_id', 'client_secret' ) );
+            $ch = curl_init();
+            curl_setopt( $ch, CURLOPT_URL, $auth_url );
+            curl_setopt( $ch, CURLOPT_POST, TRUE );
+            curl_setopt( $ch, CURLOPT_POSTFIELDS, $params );
+            curl_setopt( $ch, CURLOPT_RETURNTRANSFER, TRUE );
+            curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, FALSE );
+            $response = curl_exec( $ch );
+            if( curl_errno( $ch ) )
+            {
+            throw new Exception( curl_error( $ch ) );
+            }
+            curl_close( $ch );
+            $json = json_decode( $response );
+          if( isset( $json->error ) )
+          {
+          throw new Exception( $json->error_description );
+          }
+           return $json->access_token;
+    }
+                    
+    function Request( $url, $authHeader ){
+                    $ch = curl_init();
+                    curl_setopt( $ch, CURLOPT_URL, $url );
+                    curl_setopt( $ch, CURLOPT_HTTPHEADER, array( $authHeader, 'Content-Type: text/xml' ) );
+                    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, TRUE );
+                    curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, FALSE );
+                    
+                    $response = curl_exec( $ch );
+                    if( curl_errno( $ch ) )
+                    {
+                    throw new Exception( curl_error( $ch ) );
+                    }
+                    curl_close( $ch );
+                    
+                    return $response;
+        }
 }

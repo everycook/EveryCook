@@ -76,3 +76,23 @@ function flickrupload(linkname,author,photoid){
 		}
 		glob.initAjaxUpload('form', form.parent());
 }
+
+$(function(){
+jQuery("#Ingredients_ING_NAME_EN_GB").bind('blur',translateMStext);
+});
+
+function translateMStext(eventob){
+	keyword=jQuery("#Ingredients_ING_NAME_EN_GB").val();
+	if(keyword!=''){
+	$.ajax({
+			url: glob.prefix + 'ingredients/translateTextMicrosoft',
+			type: 'get', 
+			data: { 
+				text: keyword,
+			},
+			success: function(msg){
+				jQuery('#Ingredients_ING_NAME_DE_CH').val(msg);
+			}
+			});
+		}
+}
