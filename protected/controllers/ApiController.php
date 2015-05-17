@@ -137,8 +137,16 @@ class ApiController extends CController
 				'title' => array('type'=>'single'),
 				'w_ing' => array('type'=>'array', 'merge'=>'and'),
 				'wo_ing' => array('type'=>'array', 'merge'=>'and'),
+				'rec_id' => array('type'=>'array', 'merge'=>'or', 'select'=>'recipes.REC_ID'),
 		);
 		$this->criteriaMappingRecipes = array();
+		foreach ($this->searchCriterias as $name=>$options){
+			if(isset($options['select'])){
+				$this->criteriaMappingRecipes[$name] = $options['select'];
+			} else {
+				$this->criteriaMappingRecipes[$name] = $name;
+			}
+		}
 		foreach ($this->searchCategories as $name=>$options){
 			if (isset($options['assignTable'])){
 				$select = $options['assignTable'] . '.' . $options['id'];
