@@ -58,7 +58,8 @@ class ApiController extends CController
 	
 	protected $searchCategories = array(); 
 	
-	protected $searchCriterias = array(); 
+	protected $searchCriteriasRecipes = array();
+	protected $searchCriteriasIngredients = array();
 	
 	protected $criteriaMappingRecipes = array();
 	protected $fieldMappingRecipes = array();
@@ -70,6 +71,7 @@ class ApiController extends CController
 	
 	protected $criteriaMappingIngredients = array();
 	protected $fieldMappingIngredients = array();
+	protected $resultFieldsIngredients = array();
 	
 	protected function prepareMappings($lang){
 		$cusineImgUrl = Yii::app()->createAbsoluteUrl("savedImage/cusineTypes");
@@ -140,7 +142,7 @@ class ApiController extends CController
 		);
 		
 		//merge on array type has currently no effect, different logic tru fixed logic for ing fields, all others are or 
-		$this->searchCriterias = array(
+		$this->searchCriteriasRecipes = array(
 				'query' => array('type'=>'single', 'addMapping'=>false),
 				'title' => array('type'=>'single', 'addMapping'=>false),
 				'w_ing' => array('type'=>'array', 'merge'=>'and', 'addMapping'=>false),
@@ -151,7 +153,7 @@ class ApiController extends CController
 				'rec_id' => array('type'=>'array', 'merge'=>'or', 'select'=>'recipes.REC_ID'),
 		);
 		$this->criteriaMappingRecipes = array();
-		foreach ($this->searchCriterias as $name=>$options){
+		foreach ($this->searchCriteriasRecipes as $name=>$options){
 			if(!isset($options['addMapping']) || $options['addMapping']){
 				if(isset($options['select'])){
 					$this->criteriaMappingRecipes[$name] = $options['select'];
@@ -166,7 +168,7 @@ class ApiController extends CController
 			} else {
 				$select = 'recipes.' . $options['id'];
 			}
-			$this->searchCriterias[$name] = array('type'=>'array', 'merge'=>'or', 'select' => $select);
+			$this->searchCriteriasRecipes[$name] = array('type'=>'array', 'merge'=>'or', 'select' => $select);
 			$this->criteriaMappingRecipes[$name] = $select;
 		}
 // 		$this->criteriaMappingRecipes = array(
@@ -230,13 +232,30 @@ class ApiController extends CController
 // 				'action' => 'AOU_DESC_' . $lang,
 		);
 		
-		
+
+		$this->searchCriteriasIngredients = array(
+				'query' => array('type'=>'single', 'addMapping'=>false),
+				'title' => array('type'=>'single', 'addMapping'=>false),
+				'start_with' => array('type'=>'single', 'addMapping'=>false),
+				'ing_id' => array('type'=>'array', 'merge'=>'or', 'select'=>'ingredients.ING_ID'),
+		);
 		$this->criteriaMappingIngredients = array();
+		foreach ($this->searchCriteriasIngredients as $name=>$options){
+			if(!isset($options['addMapping']) || $options['addMapping']){
+				if(isset($options['select'])){
+					$this->criteriaMappingIngredients[$name] = $options['select'];
+				} else {
+					$this->criteriaMappingIngredients[$name] = $name;
+				}
+			}
+		}
 		$this->fieldMappingIngredients = array(
 				'title' => 'ING_NAME_' . $lang,
 				'img_url' => 'CASE WHEN ING_IMG_ETAG IS NOT NULL AND ING_IMG_ETAG <> "" THEN concat("' . $ingredientsImgUrl . '/", ING_ID ,".png") ELSE null END',
 				'ing_id' => array('select'=>'ING_ID', 'type'=>'int'),
 		);
+
+		$this->resultFieldsIngredients = array_keys($this->fieldMappingIngredients);
 	}
 		
 	
@@ -716,7 +735,7 @@ class ApiController extends CController
 		$this->loadPaginationInformations();
 		
 		$searchParam = array();
-		foreach($this->searchCriterias as $param => $options){
+		foreach($this->searchCriteriasRecipes as $param => $options){
 			$value = $this->getParam($param);
 			if(isset($value)){
 				if($options['type'] == 'array'){
@@ -729,6 +748,25 @@ class ApiController extends CController
 		}
 		$resultField = $this->resultFieldsRecipes;
 		$this->performSearch('recipes', $searchParam, $resultField);
+	}
+	
+	public function actionSearchIngredients(){
+		$this->loadPaginationInformations();
+		
+		$searchParam = array();
+		foreach($this->searchCriteriasIngredients as $param => $options){
+			$value = $this->getParam($param);
+			if(isset($value)){
+				if($options['type'] == 'array'){
+					if (!is_array($value)){
+						$value = split(',', $value);
+					}
+				}
+				$searchParam[$param] = $value;
+			}
+		}
+		$resultField = $this->resultFieldsIngredients;
+		$this->performSearch('ingredients', $searchParam, $resultField);
 	}
 	
 	private function performSearch($type, $searchParam, $resultField){
@@ -784,11 +822,13 @@ class ApiController extends CController
 			$titleFields = array('REC_NAME_' . $this->lang,'REC_SYNONYM_' . $this->lang); //$model->getSearchFields()	
 			$criteriaMapping = $this->criteriaMappingRecipes;
 			$fieldMapping = $this->fieldMappingRecipes;
+			$searchCriteria = $this->searchCriteriasRecipes;
 		} else if ($type == 'ingredients'){
 			$model = Ingredients::model();
 			$titleFields = array('ING_NAME_' . $this->lang,'ING_SYNONYM_' . $this->lang); //$model->getSearchFields()
 			$criteriaMapping = $this->criteriaMappingIngredients;
 			$fieldMapping = $this->fieldMappingIngredients;
+			$searchCriteria = $this->searchCriteriasIngredients;
 		} else {
 			$this->error($this->lang, 'API_SEARCH_INVALID_TYPE');
 			return;
@@ -821,6 +861,18 @@ class ApiController extends CController
 				$criteria->condition = $this->mergeConditionList($searches, 'AND');
 			}
 		}
+		if(isset($searchParam['start_with'])){
+			$keyword = $searchParam['start_with'].'%';
+			$searches = array();
+			foreach($titleFields as $column){
+				$searches[]='lower('.$column.') LIKE lower('.CDbCriteria::PARAM_PREFIX.CDbCriteria::$paramCount.')';
+				$criteria->params[CDbCriteria::PARAM_PREFIX.CDbCriteria::$paramCount++]=$keyword;
+			}
+			if (count($searches)>0){
+				$criteria->addCondition($this->mergeConditionList($searches, 'OR'));
+			}
+		}
+		
 		
 		if ($type == 'recipes'){
 			//check containing ingredient conditions 
@@ -856,8 +908,8 @@ class ApiController extends CController
 					}
 					*/
 				} else {
-					if(isset($this->searchCriterias[$param]['op'])){
-						$value = $this->searchCriterias[$param]['op'] . $value;
+					if(isset($searchCriterias[$param]['op'])){
+						$value = $searchCriterias[$param]['op'] . $value;
 					}
 					$criteria->compare($queryField, $value);
 				}
@@ -908,7 +960,7 @@ class ApiController extends CController
 		
 		$criteria->distinct = true;
 		//get total count
-		$command = $this->criteriaToCommand($criteria);
+		$command = $this->criteriaToCommand($criteria, $type);
 		$searchSql = $command->getText();
 		$totalCommand = Yii::app()->db->createCommand('SELECT count(*) FROM (' . $searchSql . ') AS innerQuery');
 		$totalCount = intval($totalCommand->queryScalar($command->params));
@@ -922,7 +974,7 @@ class ApiController extends CController
 			$rows = array(); 
 		} else {
 			//TODO optimice / speedup
-			$command = $this->criteriaToCommand($criteria); //command must recrate, because getText for totalCommand, make limit(next line) has no effect...
+			$command = $this->criteriaToCommand($criteria, $type); //command must recrate, because getText for totalCommand, make limit(next line) has no effect...
 			$command->limit($this->pageLimit, $this->pageOffset);
 			$rows = $command->queryAll();
 		}
@@ -1064,43 +1116,45 @@ class ApiController extends CController
 		return '(' . $result. ')';
 	}
 
-	private function criteriaToCommand($criteria){
+	private function criteriaToCommand($criteria,$from){
 		$command = Yii::app()->db->createCommand();
 		$command->distinct = $criteria->distinct;
 		if (isset($criteria->select)){
 			//$command->select('recipes.*, recipe_types.*' . $criteria->select);
 			$command->select($criteria->select);
 		}
-		$command->from('recipes');
+		$command->from($from);
 		if (isset($criteria->join)){
 			$command->join = $criteria->join;
 		}
-		if (strpos($criteria->select, 'professional_profiles.') !== false){
-			$command->leftJoin('professional_profiles', 'recipes.PRF_UID=professional_profiles.PRF_UID');
-		}
-		
-		if (strpos($criteria->condition, 'ingredients.') !== false){
-			$command->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID');
-			$command->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID');
-			if (strpos($criteria->condition, 'step_types.') !== false){
-				$command->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID');
+		if ($from == 'recipes'){
+			if (strpos($criteria->select, 'professional_profiles.') !== false){
+				$command->leftJoin('professional_profiles', 'recipes.PRF_UID=professional_profiles.PRF_UID');
 			}
-		} else if (strpos($criteria->condition, 'step_types.') !== false){
-			$command->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID');
-			$command->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID');
-		} else if (strpos($criteria->condition, 'steps.') !== false){
-			$command->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID');
-		}
-		if (strpos($criteria->condition, 'rec_to_tag.') !== false){
-			$command->leftJoin('rec_to_tag', 'recipes.REC_ID=rec_to_tag.REC_ID');
-		}
-		if (strpos($criteria->select, 'tags.tags') !== false){
-			$command->leftJoin('(SELECT REC_ID, GROUP_CONCAT(`TAG_ID` SEPARATOR \',\') as tags FROM `rec_to_tag` GROUP BY REC_ID) tags', 'recipes.REC_ID = tags.REC_ID');
-		}
-		//LEFT OUTER JOIN (SELECT REC_ID, GROUP_CONCAT(`TAG_ID`SEPARATOR ',') as tags FROM `rec_to_tag` GROUP BY REC_ID) tags ON recipes.REC_ID = tags.REC_ID
-
-		if (strpos($criteria->select, 'difficulty.') !== false || strpos($criteria->order, 'difficulty.') !== false){
-			$command->leftJoin('difficulty', 'recipes.DIF_ID=difficulty.DIF_ID');
+			
+			if (strpos($criteria->condition, 'ingredients.') !== false){
+				$command->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID');
+				$command->leftJoin('ingredients', 'steps.ING_ID=ingredients.ING_ID');
+				if (strpos($criteria->condition, 'step_types.') !== false){
+					$command->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID');
+				}
+			} else if (strpos($criteria->condition, 'step_types.') !== false){
+				$command->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID');
+				$command->leftJoin('step_types', 'steps.STT_ID=step_types.STT_ID');
+			} else if (strpos($criteria->condition, 'steps.') !== false){
+				$command->leftJoin('steps', 'recipes.REC_ID=steps.REC_ID');
+			}
+			if (strpos($criteria->condition, 'rec_to_tag.') !== false){
+				$command->leftJoin('rec_to_tag', 'recipes.REC_ID=rec_to_tag.REC_ID');
+			}
+			if (strpos($criteria->select, 'tags.tags') !== false){
+				$command->leftJoin('(SELECT REC_ID, GROUP_CONCAT(`TAG_ID` SEPARATOR \',\') as tags FROM `rec_to_tag` GROUP BY REC_ID) tags', 'recipes.REC_ID = tags.REC_ID');
+			}
+			//LEFT OUTER JOIN (SELECT REC_ID, GROUP_CONCAT(`TAG_ID`SEPARATOR ',') as tags FROM `rec_to_tag` GROUP BY REC_ID) tags ON recipes.REC_ID = tags.REC_ID
+	
+			if (strpos($criteria->select, 'difficulty.') !== false || strpos($criteria->order, 'difficulty.') !== false){
+				$command->leftJoin('difficulty', 'recipes.DIF_ID=difficulty.DIF_ID');
+			}
 		}
 		
 		if (isset($criteria->condition)){
