@@ -129,22 +129,35 @@ class ApiController extends CController
 					'parent'=>null,
 					'conditions'=>array('where'=>'TAG_IGNORE <> :val','params'=>array(':val'=>'Y')),
 			),
+			'difficulty'=>array(
+					'table'=>'difficulty', 
+					'id'=>'DIF_ID', 
+					'desc'=>'DIF_DESC_' .$lang, 
+					'otherFields'=>null,
+					'subTypes'=>null,
+					'parent'=>null,
+			),
 		);
 		
 		//merge on array type has currently no effect, different logic tru fixed logic for ing fields, all others are or 
 		$this->searchCriterias = array(
-				'query' => array('type'=>'single'),
-				'title' => array('type'=>'single'),
-				'w_ing' => array('type'=>'array', 'merge'=>'and'),
-				'wo_ing' => array('type'=>'array', 'merge'=>'and'),
+				'query' => array('type'=>'single', 'addMapping'=>false),
+				'title' => array('type'=>'single', 'addMapping'=>false),
+				'w_ing' => array('type'=>'array', 'merge'=>'and', 'addMapping'=>false),
+				'wo_ing' => array('type'=>'array', 'merge'=>'and', 'addMapping'=>false),
+				'rating' => array('type'=>'single', 'select'=>'recipes.REC_RATING', 'op'=>'='),
+				'rating_above' => array('type'=>'single', 'select'=>'recipes.REC_RATING', 'op'=>'>='),
+				'rating_below' => array('type'=>'single', 'select'=>'recipes.REC_RATING', 'op'=>'<'),
 				'rec_id' => array('type'=>'array', 'merge'=>'or', 'select'=>'recipes.REC_ID'),
 		);
 		$this->criteriaMappingRecipes = array();
 		foreach ($this->searchCriterias as $name=>$options){
-			if(isset($options['select'])){
-				$this->criteriaMappingRecipes[$name] = $options['select'];
-			} else {
-				$this->criteriaMappingRecipes[$name] = $name;
+			if(!isset($options['addMapping']) || $options['addMapping']){
+				if(isset($options['select'])){
+					$this->criteriaMappingRecipes[$name] = $options['select'];
+				} else {
+					$this->criteriaMappingRecipes[$name] = $name;
+				}
 			}
 		}
 		foreach ($this->searchCategories as $name=>$options){
@@ -288,7 +301,7 @@ class ApiController extends CController
 		if (isset($_GET[$param])){
 			return $_GET[$param];
 		} else if (isset($_POST[$param])){
-			$param = $_POST[$param];
+			return $_POST[$param];
 		} else {
 			return $default;
 		}
@@ -490,7 +503,7 @@ class ApiController extends CController
 			$this->error($this->lang, 'API_DETAIL_NO_ID');
 			return;
 		}
-	
+		
 		$prepareParam = array();
 		$prepareParam['rec_id'] = $rec_id;
 		$prepareParam['servings'] = $this->getParam('servings', null);
@@ -508,7 +521,7 @@ class ApiController extends CController
 				}
 			}
 		}
-	
+		
 		//query Recipe informations
 		$fieldMapping = $this->fieldMappingRecipeDetail;
 
@@ -629,7 +642,7 @@ class ApiController extends CController
 			$ingredientResult = $this->copyMappedfields($fieldMappingIngredients, $ingredient);
 			//calculate changed amount of ingredient
 			if(isset($ingredientResult['ing_qty'])){
-				$ingredientResult['ing_qty'] = $ingredientResult['ing_qty'] * $rec_proz;
+				$ingredientResult['ing_qty'] = round($ingredientResult['ing_qty'] * $rec_proz);
 			}
 			$ingredientsResult[$ingredientResult['ing_id']] = $ingredientResult;
 		}
@@ -650,7 +663,7 @@ class ApiController extends CController
 			
 			//calculate changed amount of ingredient
 			if(isset($textParams['weight']) && is_numeric($textParams['weight'])){
-				$textParams['weight'] = $textParams['weight'] * $rec_proz;
+				$textParams['weight'] = round($textParams['weight'] * $rec_proz);
 			}
 			$textParams['time_sec'] = intval($textParams['time']);
 			$textParams['time'] = date('H:i:s', $textParams['time']-3600);
@@ -694,8 +707,8 @@ class ApiController extends CController
 	public $pageLimit = 10;
 	public $searchSort = 'score';
 	protected function loadPaginationInformations(){
-		$this->pageOffset = $this->getParam('offset', $this->pageOffset);
-		$this->pageLimit = $this->getParam('limit', $this->pageLimit);
+		$this->pageOffset = intval($this->getParam('offset', $this->pageOffset));
+		$this->pageLimit = intval($this->getParam('limit', $this->pageLimit));
 		$this->searchSort = $this->getParam('sort', $this->searchSort);
 	}
 	
@@ -809,8 +822,8 @@ class ApiController extends CController
 			}
 		}
 		
-		//check containing ingredient conditions 
 		if ($type == 'recipes'){
+			//check containing ingredient conditions 
 			if(isset($searchParam['w_ing']) && count($searchParam['w_ing'])>0){
 				$ids = $searchParam['w_ing'];
 				//$criteria->addInCondition(Steps::model()->tableName().'.ING_ID',$ids);
@@ -843,6 +856,9 @@ class ApiController extends CController
 					}
 					*/
 				} else {
+					if(isset($this->searchCriterias[$param]['op'])){
+						$value = $this->searchCriterias[$param]['op'] . $value;
+					}
 					$criteria->compare($queryField, $value);
 				}
 			}
@@ -858,12 +874,16 @@ class ApiController extends CController
 					'old'=>'CANGED_ON', 
 					'K'=>'REC_KCAL',
 					'k'=>'REC_KCAL DESC',
-// 					'C'=>'REC_COMPLEXITY', DIF_ORDER
-// 					'c'=>'REC_COMPLEXITY DESC',
-					/*
-					'P'=>'PreparationTime',
-					'R'=>'Rating',''=>'',
-					*/
+					'D'=>'difficulty.DIF_ORDER',
+					'd'=>'difficulty.DIF_ORDER DESC',
+					'P'=>'REC_TIME_PREP',
+					'p'=>'REC_TIME_PREP DESC',
+					'C'=>'REC_TIME_COOK',
+					'c'=>'REC_TIME_COOK DESC',
+					'T'=>'REC_TIME_TOTAL',
+					't'=>'REC_TIME_TOTAL DESC',
+					'R'=>'REC_RATING',
+					'r'=>'REC_RATING DESC',
 			);
 			if (isset($orderByKeyToField[$this->searchSort])){
 				$criteria->order = $orderByKeyToField[$this->searchSort];
@@ -1079,7 +1099,7 @@ class ApiController extends CController
 		}
 		//LEFT OUTER JOIN (SELECT REC_ID, GROUP_CONCAT(`TAG_ID`SEPARATOR ',') as tags FROM `rec_to_tag` GROUP BY REC_ID) tags ON recipes.REC_ID = tags.REC_ID
 
-		if (strpos($criteria->select, 'difficulty.') !== false){
+		if (strpos($criteria->select, 'difficulty.') !== false || strpos($criteria->order, 'difficulty.') !== false){
 			$command->leftJoin('difficulty', 'recipes.DIF_ID=difficulty.DIF_ID');
 		}
 		
