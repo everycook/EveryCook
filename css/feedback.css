@@ -1,0 +1,18 @@
+#draggable, #tester {
+    width: 300px;
+    height: 250px;
+    padding: 0.5em;
+    background: white;
+    border-radius: 20px;
+    border-color: black;
+    border: 2px solid;
+    cursor:move;
+    
+}
+
+.ui-resizable-handle { 
+      position: absolute;
+      font-size: 0.1px;
+      z-index: 99999; 
+      display: block;
+}

@@ -32,6 +32,7 @@ See GPLv3.htm in the main folder for details.
 		<title><?php echo CHtml::encode($this->pageTitle); ?></title>
 	</head>
 	<body class="backpic">
+
 		<?php /*<img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/bg.png" alt="Background" id="index_pic_bg">*/ ?>
 		<div id="page">
 			<div id="metaNav">

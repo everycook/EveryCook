@@ -451,4 +451,8 @@ class SiteController extends Controller
 			'data'=>$data,
 		));
 	}
+        
+        public function actionFeedback(){
+            
+        }
 }

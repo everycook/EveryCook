@@ -10,3 +10,5 @@ img/*
 .project
 lib/yii/_*
 protected/config_solr/data/*/data
+/EveryCook/nbproject/private/
+/nbproject/private/

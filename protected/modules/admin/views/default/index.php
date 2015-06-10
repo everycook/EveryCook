@@ -28,7 +28,8 @@ $this->breadcrumbs=array(
 		echo "<br /><br />";
 	}
 	?>
-	<?php echo CHtml::link('updateSolrIndex', array('solrExport/recipes'), array('class'=>'button')); ?><br />
+	<?php echo CHtml::link('Feedbacks', array('feedbacks/search'), array('class'=>'button')); ?><br />
+        <?php echo CHtml::link('updateSolrIndex', array('solrExport/recipes'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('Textes', array('textes/search'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('ActionsGenerator', array('actionsGenerator/index'), array('class'=>'button')); ?><br />
 	<?php echo CHtml::link('Actions In', array('actionsIn/search'), array('class'=>'button')); ?><br />
