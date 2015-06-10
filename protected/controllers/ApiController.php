@@ -922,8 +922,8 @@ class ApiController extends CController
 					'score'=>'REC_NAME_' . $this->lang,
 					'az'=>'REC_NAME_' . $this->lang,
 					'za'=>'REC_NAME_' . $this->lang . ' DESC',
-					'new'=>'CANGED_ON DESC', 
-					'old'=>'CANGED_ON', 
+					'new'=>'lastchange DESC', 
+					'old'=>'lastchange', 
 					'K'=>'REC_KCAL',
 					'k'=>'REC_KCAL DESC',
 					'D'=>'difficulty.DIF_ORDER',
@@ -950,8 +950,8 @@ class ApiController extends CController
 					'score'=>'ING_NAME_' . $this->lang,
 					'az'=>'ING_NAME_' . $this->lang,
 					'za'=>'ING_NAME_' . $this->lang . ' DESC',
-					'new'=>'CANGED_ON DESC', 
-					'old'=>'CANGED_ON', 
+					'new'=>'lastchange DESC', 
+					'old'=>'lastchange', 
 			);
 			if (isset($orderByKeyToField[$this->searchSort])){
 				$criteria->order = $orderByKeyToField[$this->searchSort];
