@@ -42,7 +42,10 @@ $this->mainButtons = array(
 	'data'=>$model,
 	'attributes'=>array(
 		'FEE_ID',
+		'FEE_LANG',
+		'FEE_TITLE',
 		'FEE_TEXT',
+		'FEE_EMAIL',
 		'FEE_STATUS',
 		'CREATED_BY',
 		'CREATED_ON',

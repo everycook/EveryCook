@@ -32,10 +32,9 @@ See GPLv3.htm in the main folder for details.
 </div>
 </div>
 <div class="form">
-
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'ingredients_form',
-    'enableAjaxValidation'=>false,
+	'enableAjaxValidation'=>false,
 	'action'=>Yii::app()->createUrl($this->route, array_merge($this->getActionParams(), array('ajaxform'=>true))),
     'htmlOptions'=>array('enctype' => 'multipart/form-data', 'class'=>'ajaxupload'),
 ));
@@ -44,7 +43,6 @@ See GPLv3.htm in the main folder for details.
 	$htmlOptions_type1 = array('template'=>'<li>{input} {label}</li>', 'separator'=>"\n", 'checkAll'=>$this->trans->INGREDIENTS_SEARCH_CHECK_ALL, 'checkAllLast'=>false);
 	
 ?>
-
 	<p class="note"><?php echo $this->trans->CREATE_REQUIRED; ?></p>
 
 	<?php
@@ -92,7 +90,7 @@ See GPLv3.htm in the main folder for details.
 		<?php echo $form->error($model,'ING_SYNONYM_'.$lang); ?>
 	</div>
 	<?php } ?>
-
+	
 	<?php
 	echo Functions::createInput(null, $model, 'GRP_ID', $groupNames, Functions::DROP_DOWN_LIST, 'groupNames', $htmlOptions_type0, $form);
 	if ($model->GRP_ID){
@@ -159,7 +157,6 @@ See GPLv3.htm in the main folder for details.
 		<?php echo $form->labelEx($model,'filename'); ?>
 		<div class="imageTip">
 		<?php
-        
 		echo $this->trans->TIP_OWN_IMAGE . '<br>';
 		echo $form->FileField($model,'filename'). '<br>' . "\r\n";
 		echo $form->error($model,'filename') . "\r\n";

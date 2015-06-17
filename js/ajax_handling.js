@@ -336,8 +336,10 @@ glob.changePage = function(hash){
 }
 
 function ajaxResponceHandler(data, type, asFancy, fancyCloseCallback){
-	if (data.indexOf('{')===0){
-		eval('var data = ' + data + ';');
+	if (typeof(data) !== 'object'){
+		if (data.indexOf('{')===0){
+			eval('var data = ' + data + ';');
+		}
 	}
 	if (data.hash){
 		if (asFancy){
@@ -354,6 +356,10 @@ function ajaxResponceHandler(data, type, asFancy, fancyCloseCallback){
 	} else if (data.redirect){
 		window.location = "/" + data.redirect;
 	}else {
+		if (typeof(data) === 'object'){
+			jQuery.event.trigger( "newJSONResponse", [type, data] );
+			return;
+		}
 		var JSONBegin = data.indexOf('{');
 		if (JSONBegin<5){
 			var JSONLength = parseInt(data.substr(0,JSONBegin));
@@ -1782,19 +1788,6 @@ jQuery(function($){
 		}
 	});
 	*/
-	jQuery('body').undelegate('#commands select','change').delegate('#commands select','change',function(){
-		var url = jQuery('commandParamsUrl').val();
-		url = glob.urlAddParamStart(url) + "cmd_id=" + jQuery(this).val();
-		jQuery.ajax({'type':'get', 'url':url,
-			'success':function(data){
-				successFunc(data, 'form');
-			},
-			'error':function(xhr){
-				ajaxResponceHandler(xhr.responseText, 'ajax'); //xhr.status //xhr.statusText
-			},
-		});
-		ajax();
-	});
 	
 	//Recipe Search
 	jQuery('body').undelegate('#filters input, #filters select, #recipeOrderBy select','change').delegate('#filters input, #filters select, #recipeOrderBy select','change', function(){
@@ -1983,5 +1976,63 @@ jQuery(function($){
 		return false;
 	});
 	
+
+	
+	
+	//Feedback functions
+	jQuery('body').undelegate('#feedback form','submit').delegate('#feedback form','submit', function(event){
+		var form = jQuery(this);
+		
+		//jQuery.ajax({'type':'post', 'url':jQuery('#FancyChooseSubmitLink').attr('value'),'data':form.serialize() + submitValue,'cache':false,'success':function(html){
+		jQuery.ajax({'type':'post', 'url':form.attr('action'),'data':form.serialize(),'cache':false,'success':function(json){
+			//ajaxResponceHandler(html, 'fancy', true);
+			if (json.success){
+				form.find('input[type=text], textarea').removeClass('error').val('');
+				form.find('.errorMessage').hide();
+				form.find('.error').removeClass('error');
+				//alert(json.message);
+				var feedback = form.closest('#feedback');
+				feedback.addClass("collapsed");
+//				feedback.animate({
+//						height: '2.8em',
+//						top: $(window).height() - 40,
+//					}, 200, function() {
+//						feedback.css('bottom',0).css('right',0).css('position','fixed');
+//					}
+//				);
+			} else {
+				//var message = json.message; 
+				for(var field in json.errors){
+					var $field = form.find('[id$=_' + field+']').addClass('error');
+					$field.parent().addClass('error');
+					var $message = $field.next();
+					if (!$message.is('.errorMessage')){
+						$message = jQuery('<div class="errorMessage"></div>');
+						$message.insertAfter($field);
+					}
+					$message.text(json.errors[field]);
+					$message.show();
+					
+					//message = message + "\r\n" + json.errors[field]; 
+				}
+				//alert(message);
+			}
+		},
+		'error':function(xhr){
+			ajaxResponceHandler(xhr.responseText, 'fancy', true); //xhr.status //xhr.statusText
+		},
+		});
+		return false;
+	});
+	
+	jQuery('body').undelegate('#feedback .title','click').delegate('#feedback .title','click', function(){
+		var feedback = $("#feedback");
+		feedback.toggleClass("collapsed");
+	});
+	
+	jQuery('body').undelegate('#feedback .button.type','click').delegate('#feedback .button.type','click', function(){
+		var feedback = $("#feedback");
+		feedback.toggleClass("feedback_extended");
+	});
 });
 

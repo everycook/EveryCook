@@ -98,8 +98,23 @@ if ($this->isFancyAjaxRequest){ ?>
 	</div>
 
 	<div class="row">
+		<?php echo $form->label($model,'FEE_LANG'); ?>
+		<?php echo $form->textField($model,'FEE_LANG',array('size'=>8,'maxlength'=>8)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'FEE_TITLE'); ?>
+		<?php echo $form->textField($model,'FEE_TITLE',array('size'=>60,'maxlength'=>200)); ?>
+	</div>
+
+	<div class="row">
 		<?php echo $form->label($model,'FEE_TEXT'); ?>
 		<?php echo $form->textArea($model,'FEE_TEXT',array('rows'=>6, 'cols'=>50)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'FEE_EMAIL'); ?>
+		<?php echo $form->textField($model,'FEE_EMAIL',array('size'=>60,'maxlength'=>200)); ?>
 	</div>
 
 	<div class="row">

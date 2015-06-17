@@ -31,6 +31,16 @@ See GPLv3.htm in the main folder for details.
 	?>
 	
 	<div class="data">
+		<?php
+        //echo '<b>' . CHtml::encode($this->trans->FIELD_FEE_LANG) .':</b>';
+        echo CHtml::encode($data['FEE_LANG']);
+        echo '<br />';
+		if(isset($data['FEE_TITLE'])){
+			//echo '<b>' . CHtml::encode($this->trans->FIELD_FEE_TITLE) .'</b>';
+			echo CHtml::encode($data['FEE_TITLE']);
+			echo '<br />';
+		}
+		?>
 		<div class="name">
 			<?php
 			if ($this->isFancyAjaxRequest){
@@ -41,36 +51,38 @@ See GPLv3.htm in the main folder for details.
 			?>
 		</div>
 		
-		<?php /*
-		<b><?php echo CHtml::encode($data->getAttributeLabel('FEE_ID')); ?>:</b>
-		<?php echo CHtml::link(CHtml::encode($data->FEE_ID), array('view', 'id'=>$data->FEE_ID)); ?>
-		<br />
+		<?php
+		if(isset($data['FEE_EMAIL'])){
+			//echo '<b>' . CHtml::encode($this->trans->FIELD_FEE_EMAIL) .':</b>';
+			echo CHtml::encode($data['FEE_EMAIL']);
+			echo '<br />';
+		}
+		/*
+		echo '<b>' . CHtml::encode($this->trans->FIELD_FEE_ID) .':</b>';
+        echo CHtml::link(CHtml::encode($data['FEE_ID']), array('view', 'id'=>$data['FEE_ID']));
+        echo '<br />';
 
-		<b><?php echo CHtml::encode($data->getAttributeLabel('FEE_TEXT')); ?>:</b>
-		<?php echo CHtml::encode($data->FEE_TEXT); ?>
-		<br />
+        echo '<b>' . CHtml::encode($this->trans->FIELD_FEE_LANG) .':</b>';
+        echo CHtml::encode($data['FEE_LANG']);
+        echo '<br />';
 
-		<b><?php echo CHtml::encode($data->getAttributeLabel('FEE_STATUS')); ?>:</b>
-		<?php echo CHtml::encode($data->FEE_STATUS); ?>
-		<br />
+        echo '<b>' . CHtml::encode($this->trans->FIELD_FEE_TITLE) .':</b>';
+        echo CHtml::encode($data['FEE_TITLE']);
+        echo '<br />';
 
-		<b><?php echo CHtml::encode($data->getAttributeLabel('CREATED_BY')); ?>:</b>
-		<?php echo CHtml::encode($data->CREATED_BY); ?>
-		<br />
+        echo '<b>' . CHtml::encode($this->trans->FIELD_FEE_TEXT) .':</b>';
+        echo CHtml::encode($data['FEE_TEXT']);
+        echo '<br />';
 
-		<b><?php echo CHtml::encode($data->getAttributeLabel('CREATED_ON')); ?>:</b>
-		<?php echo CHtml::encode($data->CREATED_ON); ?>
-		<br />
+        echo '<b>' . CHtml::encode($this->trans->FIELD_FEE_EMAIL) .':</b>';
+        echo CHtml::encode($data['FEE_EMAIL']);
+        echo '<br />';
 
-		<b><?php echo CHtml::encode($data->getAttributeLabel('CHANGED_BY')); ?>:</b>
-		<?php echo CHtml::encode($data->CHANGED_BY); ?>
-		<br />
-
-		<b><?php echo CHtml::encode($data->getAttributeLabel('CHANGED_ON')); ?>:</b>
-		<?php echo CHtml::encode($data->CHANGED_ON); ?>
-		<br />
-
-		*/ ?>
+        echo '<b>' . CHtml::encode($this->trans->FIELD_FEE_STATUS) .':</b>';
+        echo CHtml::encode($data['FEE_STATUS']);
+        echo '<br />';
+        */
+        ?>
 	</div>
 	<div class="clearfix"></div>
 </div>

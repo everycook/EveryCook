@@ -46,10 +46,10 @@ class UserIdentity extends CUserIdentity
 		} else {
 			//$record=Profiles::model()->findByAttributes(array('PRF_NICK'=>$this->username));
 			$record=Profiles::model()->find(array(
-                                'condition'=>'PRF_NICK=:nick OR PRF_EMAIL=:email',
-                                'params'=>array(':nick'=>$this->username, ':email'=>$this->username),
-                                ));
-                        if($record===null) {
+				'condition'=>'PRF_NICK=:nick OR PRF_EMAIL=:email',
+				'params'=>array(':nick'=>$this->username, ':email'=>$this->username),
+				));
+			if($record===null) {
 				$this->errorCode=self::ERROR_USERNAME_INVALID;
 			}
 			else {

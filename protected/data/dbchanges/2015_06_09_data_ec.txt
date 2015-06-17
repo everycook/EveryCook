@@ -1,0 +1,13 @@
+﻿INSERT INTO `textes` (`TXT_NAME` ,`EN_GB` ,`DE_CH` ,`FR_FR`) VALUES
+('FEEDBACKS_TITLE', 'I wish this page...', 'Ich wünschte diese Seite...', ''),
+('FEEDBACKS_PLACEHOLDER', 'Please add your wish.', 'Bitte geben Sie ihren Wunsch ein.', ''),
+('FEEDBACKS_SUBMIT', 'submit', 'abschicken', ''),
+('FEEDBACKS_SUCCESS', 'successfull submitted', 'erfolgreich übermittelt', ''),
+('FEEDBACKS_ERROR', 'Error on submit: please check the fields.', 'Fehler beim Übermitteln: bitte prüfen Sie die Felder', ''),
+('FEEDBACKS_PLACEHOLDER_TITLE', 'title', 'Titel', ''),
+('FEEDBACKS_PLACEHOLDER_EMAIL', 'E-Mail for response', 'E-Mail für Antwort', ''),
+('FEEDBACKS_TYPE_EXPANDED', 'expanded', 'erweitert', ''),
+('FEEDBACKS_TYPE_NORMAL', 'normal', 'normal', ''),
+('FIELD_FEE_TITLE', 'title', 'Titel', ''),
+('FIELD_FEE_TEXT', 'wish', 'Anliegen', ''),
+('FIELD_FEE_EMAIL', 'E-Mail', 'E-Mail', '');

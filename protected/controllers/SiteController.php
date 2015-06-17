@@ -451,8 +451,22 @@ class SiteController extends Controller
 			'data'=>$data,
 		));
 	}
-        
-        public function actionFeedback(){
-            
-        }
+	
+	public function actionFeedback(){
+		//$this->isFancyAjaxRequest = true;
+		$this->saveLastAction = false;
+		$model = new Feedbacks();
+		$model->attributes=$_POST['Feedbacks'];
+		$model->FEE_LANG = Yii::app()->session['lang'];
+		if(isset($model->FEE_EMAIL)){
+			//TODO: check email is valid
+		}
+		if($model->save()){
+			$dataArray = array('success'=>true,'message'=>$this->trans->FEEDBACKS_SUCCESS);
+		} else {
+			$dataArray = array('success'=>false,'message'=>$this->trans->FEEDBACKS_ERROR, 'errors'=>$model->errors);
+		}
+		header('Content-type: application/json');
+		echo CJSON::encode($dataArray);
+	}
 }

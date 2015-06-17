@@ -20,7 +20,10 @@ See GPLv3.htm in the main folder for details.
  *
  * The followings are the available columns in table 'feedbacks':
  * @property integer $FEE_ID
+ * @property string $FEE_LANG
+ * @property string $FEE_TITLE
  * @property string $FEE_TEXT
+ * @property string $FEE_EMAIL
  * @property integer $FEE_STATUS
  * @property integer $CREATED_BY
  * @property integer $CREATED_ON
@@ -43,7 +46,31 @@ class Feedbacks extends ActiveRecordEC
 	public function tableName(){
 		return 'feedbacks';
 	}
+	
 
+	protected function beforeValidate() {
+		if(Yii::app()->user->isGuest) {
+			$dateTime = new DateTime();
+			$userId = 0; // Yii::app()->user->id
+			if($this->getIsNewRecord()) {
+				// get UnixTimeStamp
+				if ($this->updateChangePointer || !isset($this->CREATED_ON) || $this->CREATED_ON == null){
+					$this->CREATED_ON = $dateTime->getTimestamp();
+					$this->CREATED_BY = $userId;
+				}
+			}
+				
+			if ($this->updateChangePointer){
+				if ($this->updateChangeTime){
+					$this->CHANGED_ON = $dateTime->getTimestamp();
+				}
+				$this->CHANGED_BY = $userId;
+			}
+			return true;
+		}
+		return parent::beforeValidate();
+	}
+	
 	/**
 	 * @return array validation rules for model attributes.
 	 */
@@ -51,11 +78,13 @@ class Feedbacks extends ActiveRecordEC
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('FEE_TEXT, FEE_STATUS, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'required'),
+			array('FEE_LANG, FEE_TEXT, CREATED_ON, CHANGED_ON', 'required'),
 			array('FEE_STATUS, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'numerical', 'integerOnly'=>true),
+			array('FEE_LANG', 'length', 'max'=>8),
+			array('FEE_TITLE, FEE_TEXT, FEE_EMAIL', 'length', 'max'=>200),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('FEE_ID, FEE_TEXT, FEE_STATUS, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
+			array('FEE_ID, FEE_LANG, FEE_TITLE, FEE_TEXT, FEE_EMAIL, FEE_STATUS, CREATED_BY, CREATED_ON, CHANGED_BY, CHANGED_ON', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -75,7 +104,10 @@ class Feedbacks extends ActiveRecordEC
 	public function attributeLabels(){
 		return array(
 			'FEE_ID' => 'Fee',
+			'FEE_LANG' => 'Fee Lang',
+			'FEE_TITLE' => 'Fee Title',
 			'FEE_TEXT' => 'Fee Text',
+			'FEE_EMAIL' => 'Fee Email',
 			'FEE_STATUS' => 'Fee Status',
 			'CREATED_BY' => 'Created By',
 			'CREATED_ON' => 'Created On',
@@ -85,8 +117,7 @@ class Feedbacks extends ActiveRecordEC
 	}
 	
 	public function getSearchFields(){
-            //return array('FEE_ID', 'FEE_DESC_' . Yii::app()->session['lang']);
-            return array('FEE_ID', 'FEE_TEXT', 'FEE_STATUS');
+		return array('FEE_ID', 'FEE_TITLE', 'FEE_TEXT');
 	}
 	
 	
@@ -94,7 +125,10 @@ class Feedbacks extends ActiveRecordEC
 		$criteria=new CDbCriteria;
 		
 		$criteria->compare($this->tableName().'.FEE_ID',$this->FEE_ID);
+		$criteria->compare($this->tableName().'.FEE_LANG',$this->FEE_LANG,true);
+		$criteria->compare($this->tableName().'.FEE_TITLE',$this->FEE_TITLE,true);
 		$criteria->compare($this->tableName().'.FEE_TEXT',$this->FEE_TEXT,true);
+		$criteria->compare($this->tableName().'.FEE_EMAIL',$this->FEE_EMAIL,true);
 		$criteria->compare($this->tableName().'.FEE_STATUS',$this->FEE_STATUS);
 		$criteria->compare($this->tableName().'.CREATED_BY',$this->CREATED_BY);
 		$criteria->compare($this->tableName().'.CREATED_ON',$this->CREATED_ON);
@@ -110,7 +144,10 @@ class Feedbacks extends ActiveRecordEC
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('FEE_ID',$this->FEE_ID);
+		$criteria->compare('FEE_LANG',$this->FEE_LANG,true);
+		$criteria->compare('FEE_TITLE',$this->FEE_TITLE,true);
 		$criteria->compare('FEE_TEXT',$this->FEE_TEXT,true);
+		$criteria->compare('FEE_EMAIL',$this->FEE_EMAIL,true);
 		$criteria->compare('FEE_STATUS',$this->FEE_STATUS);
 		$criteria->compare('CREATED_BY',$this->CREATED_BY);
 		$criteria->compare('CREATED_ON',$this->CREATED_ON);
@@ -146,12 +183,12 @@ class Feedbacks extends ActiveRecordEC
 			'sort'=>$this->getSort(),
 		));
 	}
-        
-        public function findFeedbacks($limit=null)
-        {
-            return $this->findAll(array(
-                'order'=>'t.FEE_ID DESC',
-                'limit'=>$limit,
-            ));
-        }
+
+	public function findFeedbacks($limit=null)
+	{
+		return $this->findAll(array(
+				'order'=>'t.FEE_ID DESC',
+				'limit'=>$limit,
+		));
+	}
 }

@@ -1,0 +1,14 @@
+﻿CREATE TABLE IF NOT EXISTS `feedbacks` (
+  `FEE_ID` int(11) NOT NULL,
+  `FEE_LANG` varchar(8) COLLATE utf8_unicode_ci NOT NULL,
+  `FEE_TITLE` varchar(200) COLLATE utf8_unicode_ci NULL,
+  `FEE_TEXT` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `FEE_EMAIL` varchar(200) COLLATE utf8_unicode_ci NULL,
+  `FEE_STATUS` int(11) DEFAULT 0 NOT NULL,
+  `CREATED_BY` int(11) DEFAULT 0 NOT NULL,
+  `CREATED_ON` int(11) NOT NULL,
+  `CHANGED_BY` int(11) DEFAULT 0 NOT NULL,
+  `CHANGED_ON` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+ALTER TABLE `feedbacks` ADD PRIMARY KEY (`FEE_ID`);
+ALTER TABLE `feedbacks` MODIFY `FEE_ID` int(11) NOT NULL AUTO_INCREMENT;

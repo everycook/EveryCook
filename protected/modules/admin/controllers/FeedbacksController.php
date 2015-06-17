@@ -37,11 +37,11 @@ class FeedbacksController extends Controller
 	public function accessRules(){
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search','advanceSearch','chooseFeedbacks','advanceChooseFeedbacks','Test'),
+				'actions'=>array('index','view','search','advanceSearch'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','cancel','delicious','disgusting','showLike', 'showNotLike'),
+				'actions'=>array('create','update','cancel'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -292,56 +292,6 @@ class FeedbacksController extends Controller
 		$this->prepareSearch('search', null, null);
 	}
 	
-	public function actionChooseFeedbacks(){
-		$this->isFancyAjaxRequest = true;
-		$this->prepareSearch('search', 'none', null);
-	}
-	
-	public function actionAdvanceChooseFeedbacks(){
-		$this->isFancyAjaxRequest = true;
-		$this->prepareSearch('advanceSearch', 'none', null);
-	}
-	
-	public function actionShowLike(){
-		$command = Yii::app()->dbp->createCommand()
-			->select('PRF_LIKES_???')
-			->from('profiles')
-			->where('PRF_UID = :id',array(':id'=>Yii::app()->user->id));
-		$ids = $command->queryScalar();
-		
-		$ids = explode(',', $ids);
-		$criteria=new CDbCriteria;
-		$criteria->compare(Feedbacks::model()->tableName().'.FEE_ID',$ids);
-		
-		$this->prepareSearch('like', null, $criteria);
-	}
-	
-	public function actionShowNotLike(){
-		$command = Yii::app()->dbp->createCommand()
-			->select('PRF_NOTLIKES_???')
-			->from('profiles')
-			->where('PRF_UID = :id',array(':id'=>Yii::app()->user->id));
-		$ids = $command->queryScalar();
-		
-		$ids = explode(',', $ids);
-		$criteria=new CDbCriteria;
-		$criteria->compare(Feedbacks::model()->tableName().'.FEE_ID',$ids);
-		
-		$this->prepareSearch('like', null, $criteria);
-	}
-	
-	public function actionDelicious($id){
-		$this->saveLastAction = false;
-		Functions::addLikeInfo($id, '???', true);
-		$this->showLastAction();
-	}
-	
-	public function actionDisgusting($id){
-		$this->saveLastAction = false;
-		Functions::addLikeInfo($id, '???', false);
-		$this->showLastAction();
-	}
-
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
@@ -369,16 +319,4 @@ class FeedbacksController extends Controller
 			Yii::app()->end();
 		}
 	}
-        
-        public function actionTest(){
-            //Yii::app()->clientScript->registerCoreScript('jquery.ui');
-            //$model=$this->getModel(null);
-        //    $this->renderPartial('_form_simple',array(
-	//			'model'=>$model,
-	//		));
-         //   $this->checkRenderAjax('_form_simple',array(
-	//			'model'=>$model,
-	//		));
-            $this->prepareCreateOrUpdate(null, '_form_simple');
-        }
 }

@@ -246,6 +246,9 @@ See GPLv3.htm in the main folder for details.
 		<div id="footer">
 				Copyright &copy; <?php echo date('Y'); ?> by EveryCook. <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="<?php echo Yii::app()->request->baseUrl; ?>/pics/by-sa.png" width="57" height="20"></a> <?php echo Yii::powered(); ?>
 		</div><!-- footer -->
+		<?php $form=$this->beginWidget('FeedbackWidget', array(
+		)); ?>
+		<?php $this->endWidget(); ?>
 		<!--
 		<a href="https://github.com/everycook/EveryCook" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
 		-->

@@ -48,9 +48,27 @@ See GPLv3.htm in the main folder for details.
 	?>
 	
 	<div class="row">
+		<?php echo $form->labelEx($model,'FEE_LANG'); ?>
+		<?php echo $form->textField($model,'FEE_LANG',array('size'=>8,'maxlength'=>8)); ?>
+		<?php echo $form->error($model,'FEE_LANG'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'FEE_TITLE'); ?>
+		<?php echo $form->textField($model,'FEE_TITLE',array('size'=>60,'maxlength'=>200)); ?>
+		<?php echo $form->error($model,'FEE_TITLE'); ?>
+	</div>
+
+	<div class="row">
 		<?php echo $form->labelEx($model,'FEE_TEXT'); ?>
 		<?php echo $form->textArea($model,'FEE_TEXT',array('rows'=>6, 'cols'=>50)); ?>
 		<?php echo $form->error($model,'FEE_TEXT'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'FEE_EMAIL'); ?>
+		<?php echo $form->textField($model,'FEE_EMAIL',array('size'=>60,'maxlength'=>200)); ?>
+		<?php echo $form->error($model,'FEE_EMAIL'); ?>
 	</div>
 
 	<div class="row">
